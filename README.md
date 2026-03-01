@@ -48,7 +48,7 @@ Citlivé dáta (účty, roly, oznamy, ankety, tréningy a účasť) sú spravova
 Pre lepšiu orientáciu je repozitár rozdelený do 3 častí: **frontend (root)**, **API adaptér (root `api/`)** a **backend (`backend/`)**.
 
 ```text
-O-K-Kamenn-Poruba/
+OŠK-Kamenná-Poruba/
 ├─ index.html
 ├─ pages/
 │  ├─ important_info.html
@@ -225,38 +225,3 @@ Táto verzia repozitára je pripravená na jeden Vercel projekt:
 
 - **Frontend**: statické HTML súbory z rootu
 - **Backend**: Vercel serverless funkcia cez `api/[...all].js` (Express app z `backend/src/app.js`)
-
-### Kroky
-
-1. **Import do Vercel**
-
-- importni tento repozitár ako nový Vercel projekt
-- framework nechaj `Other`
-- root directory nechaj `/` (koreň)
-
-2. **Environment Variables vo Vercel projekte**
-
-- rýchla šablóna je v `backend/.env.vercel.example`
-
-- `NODE_ENV=production`
-- `DATABASE_URL=<Neon connection string>`
-- `JWT_ACCESS_SECRET=<dlhý náhodný secret>`
-- `FRONTEND_ORIGIN=https://<tvoja-vercel-domena>,https://*.vercel.app`
-- `COOKIE_SECURE=true`
-- `CSRF_PROTECTION=true`
-- `TRUST_PROXY=1`
-
-Voliteľné:
-
-- `JWT_ACCESS_EXPIRES`, `COOKIE_NAME`
-- `EMAIL_NOTIFICATIONS_ENABLED`, `SMTP_*`
-- `SPORTSNET_*`
-
-3. **Deploy + kontrola**
-
-- spusti deploy vo Verceli
-- health endpoint over cez: `https://<tvoja-vercel-domena>/api/health`
-
-### Poznámka
-
-Frontend používa v produkcii relatívne `/api` endpointy, takže netreba žiadny externý proxy host ani hardcoded backend URL.
