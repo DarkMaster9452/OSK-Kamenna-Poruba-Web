@@ -1,4 +1,4 @@
-const backendOriginRaw = process.env.BACKEND_ORIGIN || process.env.BACKEND_URL || 'https://osk-kamenna-poruba-back.vercel.app';
+﻿const backendOriginRaw = process.env.BACKEND_ORIGIN || process.env.BACKEND_URL || 'https://osk-kamenna-poruba-back.vercel.app';
 
 function normalizeBackendOrigin(value) {
   const raw = String(value || '').trim().replace(/\/+$/, '');

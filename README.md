@@ -1,4 +1,4 @@
-# OŠK Kamenná Poruba — Klubový web (Frontend + Backend + Neon)
+﻿# OŠK Kamenná Poruba — Klubový web (Frontend + Backend + Neon)
 
 Tento projekt je web futbalového klubu OŠK Kamenná Poruba s oddeleným frontendom a backend API.
 Citlivé dáta (účty, roly, oznamy, ankety, tréningy a účasť) sú spravované cez backend a uložené v Neon PostgreSQL.
@@ -45,22 +45,78 @@ Citlivé dáta (účty, roly, oznamy, ankety, tréningy a účasť) sú spravova
 
 ## 5) Štruktúra projektu
 
+Pre lepšiu orientáciu je repozitár rozdelený do 3 častí: **frontend (root)**, **API adaptér (root `api/`)** a **backend (`backend/`)**.
+
+```text
+O-K-Kamenn-Poruba/
+├─ index.html
+├─ pages/
+│  ├─ important_info.html
+│  ├─ matches.html
+│  ├─ trainings.html
+│  ├─ account_management.html
+│  ├─ players_list_coach.html
+│  ├─ player_detail_coach.html
+│  ├─ akademia.html
+│  ├─ atim.html
+│  ├─ blog.html
+│  └─ timeline_ihriska.html
+├─ assets/
+│  ├─ images/
+│  └─ js/trainings.js
+├─ api/
+│  ├─ [...all].js
+│  └─ proxy.js
+└─ backend/
+  ├─ api/[...all].js
+  ├─ prisma/
+  ├─ scripts/
+  └─ src/
+```
+
 ### Frontend (root)
 
+**Verejné stránky**
+
 - `index.html` — hlavná stránka + login + sekcie klubu
-- `important_info.html` — udalosti a ankety
-- `trainings.html` + `trainings.js` — tréningový modul
-- `matches.html` — zápasy
-- `players_list_coach.html` — zoznam hráčov pre trénera
-- `player_detail_coach.html` — detail hráča pre trénera
-- `images/` — obrázky a galéria
+- `pages/akademia.html`, `pages/atim.html`, `pages/blog.html`, `pages/timeline_ihriska.html`
+- `pages/matches.html` — zápasy
+
+**Interné moduly**
+
+- `pages/important_info.html` — udalosti a ankety
+- `pages/trainings.html` + `assets/js/trainings.js` — tréningový modul
+- `pages/account_management.html` — správa účtov
+- `pages/players_list_coach.html`, `pages/player_detail_coach.html` — tréner pohľady
+
+**Médiá**
+
+- `assets/images/` — obrázky, galéria a logo
+
+### API na Vercel (root `api/`)
+
+- `api/[...all].js` — serverless vstup pre API
+- `api/proxy.js` — proxy handler
 
 ### Backend (`backend/`)
 
+**Aplikácia**
+
 - `src/app.js` — inicializácia Express app
+- `src/server.js` — lokálny štart servera
 - `src/routes/` — API routy (`auth`, `trainings`, `announcements`, `polls`, ...)
 - `src/middleware/` — auth, role guard, CSRF, error handling
+- `src/services/` — token, email, Sportsnet logika
+- `src/config/`, `src/data/` — konfigurácia a prístup k dátam
+
+**Databáza a seed**
+
 - `prisma/schema.prisma` — dátový model
+- `prisma/seed.js`, `scripts/seed_demo_content.js`
+
+**Deploy a env**
+
+- `backend/vercel.json` — backend Vercel nastavenie
 - `.env.example` — vzor konfigurácie
 - `.env.vercel.example` — šablóna pre Vercel environment variables
 

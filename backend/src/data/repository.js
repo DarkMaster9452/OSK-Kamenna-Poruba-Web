@@ -1,4 +1,4 @@
-const prisma = require('./db');
+﻿const prisma = require('./db');
 
 const PARENT_CHILDREN_SNAPSHOT_ACTION = 'parent_children_snapshot';
 const PARENT_CHILDREN_UPDATED_ACTION = 'parent_children_updated';

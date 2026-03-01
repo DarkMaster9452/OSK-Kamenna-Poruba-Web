@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="sk">
 
 <head>
@@ -191,14 +191,14 @@
                 });
 
                 if (!response.ok) {
-                    window.location.href = 'index.html';
+                    window.location.href = '/index.html';
                     return;
                 }
 
                 const payload = await response.json();
                 const user = payload.user;
                 if (!user || (user.role !== 'coach' && user.role !== 'admin')) {
-                    window.location.href = 'index.html';
+                    window.location.href = '/index.html';
                     return;
                 }
 
@@ -208,7 +208,7 @@
                     isLoggedIn: true
                 }));
             } catch (error) {
-                window.location.href = 'index.html';
+                window.location.href = '/index.html';
             }
         }
 
@@ -323,7 +323,7 @@
                     const card = document.createElement('div');
                     card.className = 'player-card';
                     card.onclick = () => {
-                        window.location.href = `player_detail_coach.html?username=${encodeURIComponent(username)}`;
+                        window.location.href = `/pages/player_detail_coach.html?username=${encodeURIComponent(username)}`;
                     };
                     card.innerHTML = `
                     <div class="player-avatar"><i class='fas fa-user'></i></div>

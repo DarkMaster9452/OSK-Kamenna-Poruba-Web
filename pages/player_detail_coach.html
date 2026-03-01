@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="sk">
 
 <head>
@@ -195,14 +195,14 @@
                 });
 
                 if (!response.ok) {
-                    window.location.href = 'index.html';
+                    window.location.href = '/index.html';
                     return;
                 }
 
                 const payload = await response.json();
                 const user = payload.user;
                 if (!user || (user.role !== 'coach' && user.role !== 'admin')) {
-                    window.location.href = 'index.html';
+                    window.location.href = '/index.html';
                     return;
                 }
 
@@ -212,7 +212,7 @@
                     isLoggedIn: true
                 }));
             } catch (error) {
-                window.location.href = 'index.html';
+                window.location.href = '/index.html';
             }
         }
 

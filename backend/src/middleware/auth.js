@@ -1,4 +1,4 @@
-const env = require('../config/env');
+﻿const env = require('../config/env');
 const { verifyAccessToken, signAccessToken } = require('../services/token.service');
 
 function cookieOptions() {

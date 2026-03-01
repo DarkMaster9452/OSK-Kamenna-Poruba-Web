@@ -1,0 +1,1812 @@
+﻿<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tréningy - OŠK Kamenná Poruba</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border-bottom: 3px solid #ffd700;
+        }
+
+        .header h1 {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 28px;
+            color: #ffd700;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-logout:hover {
+            background: #c0392b;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 215, 0, 0.2);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #ffd700;
+            padding: 60px 20px;
+            font-size: 18px;
+        }
+
+        .coach-section,
+        .player-section {
+            display: none;
+        }
+
+        .coach-section.active,
+        .player-section.active {
+            display: block;
+        }
+
+        .coach-form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            margin-bottom: 40px;
+        }
+
+        .coach-form h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .form-group input {
+            padding: 10px;
+            border: 1px solid #ffd700;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            padding: 10px;
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            background: #fff;
+            color: #003399;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.10);
+            min-height: 84px;
+            resize: vertical;
+        }
+
+        .form-group select {
+            padding: 10px;
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            background: #fff;
+            color: #003399;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.10);
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-group select:focus {
+            background: #f7f7f7;
+            color: #003399;
+            outline: none;
+        }
+
+        /* Coach create form input fields */
+        .coach-form .form-group input[type="date"],
+        .coach-form .form-group input[type="time"],
+        .coach-form .form-group input[type="number"] {
+            background: #fff;
+            color: #003399;
+            border: 2px solid #ffd700;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.10);
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .coach-form .form-group input[type="date"]:focus,
+        .coach-form .form-group input[type="time"]:focus,
+        .coach-form .form-group input[type="number"]:focus {
+            background: #f7f7f7;
+            color: #003399;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #ffed4e;
+        }
+
+        .btn-create {
+            grid-column: 1 / -1;
+            background: #ffd700;
+            color: #003399;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-create:hover {
+            background: #ffed4e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-toggle-trainings {
+            margin-top: 14px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            padding: 10px 16px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-toggle-trainings:hover {
+            background: rgba(255, 215, 0, 0.18);
+        }
+
+        h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            margin-top: 40px;
+        }
+
+        .trainings-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .training-card {
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            overflow: hidden;
+        }
+
+        .training-header {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(0, 51, 153, 0.2) 100%);
+            padding: 20px;
+            border-bottom: 2px solid #ffd700;
+        }
+
+        .training-header h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .training-header p {
+            margin: 5px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .attendance-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .attendance-group h4 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .attendance-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .attendance-item {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .attendance-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-yes,
+        .btn-no,
+        .btn-unknown {
+            flex: 1;
+            min-width: 70px;
+            padding: 10px 8px;
+            border: 2px solid;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-yes {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border-color: #2ecc71;
+        }
+
+        .btn-yes:hover,
+        .btn-yes.active {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-no {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        .btn-no:hover,
+        .btn-no.active {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-unknown {
+            background: rgba(149, 165, 166, 0.2);
+            color: #95a5a6;
+            border-color: #95a5a6;
+        }
+
+        .btn-unknown:hover,
+        .btn-unknown.active {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .status-display {
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .training-footer {
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .btn-action {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        .parent-children {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            margin-bottom: 40px;
+        }
+
+        .parent-children h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .add-child {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .add-child input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ffd700;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .add-child input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .add-child button {
+            padding: 10px 20px;
+            background: #ffd700;
+            color: #003399;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .add-child button:hover {
+            background: #ffed4e;
+        }
+
+        #childrenList {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .child-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .btn-remove {
+            padding: 5px 15px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-remove:hover {
+            background: #c0392b;
+        }
+
+        .training-info {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .training-info h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .training-info p {
+            margin: 5px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .person-options {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            margin-bottom: 40px;
+        }
+
+        .profile-header {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #ffd700;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: #003399;
+            font-weight: bold;
+        }
+
+        .profile-info h2 {
+            margin: 0 0 15px 0;
+            font-size: 28px;
+            color: #ffd700;
+            border: none;
+            padding: 0;
+        }
+
+        .profile-info p {
+            margin: 8px 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            text-align: center;
+        }
+
+        .stat-item-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .stat-item-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .attendance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .training-footer {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+            }
+
+            .profile-header {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/png" href="/O%C5%A0K%20Kamenn%C3%A1%20Poruba%20Logo.png">
+</head>
+
+<body>
+    <div class="header">
+        <h1>
+            <i class="fas fa-dumbbell"></i> Tréningy OŠK Kamenná Poruba
+        </h1>
+        <div class="header-buttons">
+            <button id="backBtn" class="btn btn-back" onclick="goBack()" style="display: none;">
+                <i class="fas fa-arrow-left"></i> Späť
+            </button>
+            <button id="userDisplay" class="user-info"
+                style="display: none; background: none; border: none; cursor: pointer;">
+                <i class="fas fa-user-circle"></i> <span id="userDisplay2"></span>
+                <style>
+                    #userDisplay.user-info {
+                        position: relative;
+                        background: #fff;
+                        border: 2px solid #ffd700;
+                        box-shadow: 0 2px 8px rgba(255, 215, 0, 0.12);
+                        font-weight: bold;
+                        overflow: hidden;
+                        transition: background 0.2s, color 0.2s;
+                    }
+
+                    #userDisplay.user-info::before {
+                        content: '';
+                        position: absolute;
+                        inset: 0;
+                        background: rgba(255, 215, 0, 0.18);
+                        pointer-events: none;
+                        z-index: 0;
+                    }
+
+                    #userDisplay.user-info span {
+                        color: #ffd700;
+                        position: relative;
+                        z-index: 1;
+                    }
+
+                    #userDisplay.user-info i {
+                        color: #003399;
+                        position: relative;
+                        z-index: 1;
+                    }
+
+                    #userDisplay.user-info:hover {
+                        background: #fffbe6;
+                        box-shadow: 0 4px 16px rgba(255, 215, 0, 0.18);
+                    }
+                </style>
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Logout Modal -->
+        <div id="logoutModal" class="modal"
+            style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
+            <div class="modal-content"
+                style="background:#fff;color:#222;max-width:350px;width:90vw;margin:auto;border-radius:10px;padding:30px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;animation:modalSlideIn 0.3s;">
+                <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between;">
+                    <h2 style="font-size:22px;margin:0;z-index:1;">Odhlásenie</h2>
+                    <button class="close-btn" onclick="closeLogoutModal()"
+                        style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;"><i
+                            class="fas fa-times"></i></button>
+                </div>
+                <div style="margin: 20px 0; text-align: center;">
+                    <p>Ste prihlásený ako <b id="logoutUserName"></b>.</p>
+                    <p>Čo chcete urobiť?</p>
+                </div>
+                <button class="btn btn-primary" style="width:100%;margin-bottom:10px;background:#e74c3c;color:white;"
+                    onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Odhlásiť sa</button>
+                <button class="btn btn-secondary"
+                    style="width:100%;margin-bottom:10px;background:#ffd700;color:#003399;"
+                    onclick="handleSwitchAccount()"><i class="fas fa-user-switch"></i> Prepnúť účet</button>
+                <button class="btn btn-secondary"
+                    style="width:fit-content;display:flex;margin:0 auto 0;padding:7px 12px;font-size:12px;background:#1a5ccc;color:#fff;"
+                    onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Zmeniť heslo</button>
+            </div>
+        </div>
+
+        <!-- Change Password Modal -->
+        <div id="changePasswordModal" class="modal"
+            style="display:none;position:fixed;z-index:10000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
+            <div class="modal-content"
+                style="background:#fff;color:#222;max-width:420px;width:90vw;margin:auto;border-radius:10px;padding:30px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;animation:modalSlideIn 0.3s;">
+                <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between;">
+                    <h2 style="font-size:26px;margin:0;z-index:1;">Zmena hesla</h2>
+                    <button class="close-btn" onclick="closeChangePasswordModal()"
+                        style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;"><i
+                            class="fas fa-times"></i></button>
+                </div>
+                <div style="margin: 20px 0; text-align: left; font-size:16px;">
+                    <div style="margin-bottom:12px;">
+                        <label for="newPasswordInput"
+                            style="display:block;font-weight:bold;margin-bottom:6px;font-size:15px;">Nové
+                            heslo</label>
+                        <input id="newPasswordInput" type="password" minlength="8"
+                            style="width:100%;padding:12px;border:1px solid #ccc;border-radius:5px;font-size:16px;"
+                            placeholder="Min. 8 znakov">
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label for="confirmPasswordInput"
+                            style="display:block;font-weight:bold;margin-bottom:6px;font-size:15px;">Potvrdiť
+                            heslo</label>
+                        <input id="confirmPasswordInput" type="password" minlength="8"
+                            style="width:100%;padding:12px;border:1px solid #ccc;border-radius:5px;font-size:16px;"
+                            placeholder="Zopakujte heslo">
+                    </div>
+                    <div id="changePasswordError" style="display:none;color:#e74c3c;font-weight:bold;font-size:15px;">
+                    </div>
+                </div>
+                <button class="btn btn-secondary"
+                    style="width:100%;margin-bottom:10px;background:#1a5ccc;color:#fff;font-size:15px;padding:12px 14px;"
+                    onclick="submitPasswordChange()"><i class="fas fa-save"></i> Uložiť nové heslo</button>
+                <button class="btn btn-secondary"
+                    style="width:100%;background:#999;color:#fff;font-size:15px;padding:12px 14px;"
+                    onclick="closeChangePasswordModal()">Zrušiť</button>
+            </div>
+        </div>
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-message">
+            Musíte sa prihlásiť aby ste mohli vidieť tréningy.<br><br>
+            <button class="btn btn-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Vrátiť sa na hlavnú stránku
+            </button>
+        </div>
+
+        <!-- Coach Section -->
+        <div class="coach-section" id="coachSection">
+            <div class="coach-form">
+                <h3><i class="fas fa-plus-circle"></i> Vytvoriť nový tréning</h3>
+                <div id="trainingError"
+                    style="display:none;color:#e74c3c;font-weight:bold;margin-bottom:10px;text-align:center;"></div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="trainingDate">Dátum:</label>
+                        <input type="date" id="trainingDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="trainingHour">Čas (24h):</label>
+                        <div style="display:flex;gap:8px;">
+                            <select id="trainingHour" style="flex:1;"></select>
+                            <select id="trainingMinute" style="flex:1;">
+                                <option value="00">00</option>
+                                <option value="15">15</option>
+                                <option value="30">30</option>
+                                <option value="45">45</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="trainingType">Typ:</label>
+                        <select id="trainingType">
+                            <option value="">-- Vybrať --</option>
+                            <option value="technical">Technický tréning</option>
+                            <option value="tactical">Taktický tréning</option>
+                            <option value="physical">Fyzický tréning</option>
+                            <option value="friendly">Prieťahový zápas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="trainingDuration">Trvanie (min):</label>
+                        <input type="number" id="trainingDuration" value="60" min="1" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="trainingCategory">Kategória:</label>
+                        <select id="trainingCategory">
+                            <option value="">-- Vybrať --</option>
+                            <option value="pripravky">Prípravky (U8-U9)</option>
+                            <option value="ziaci">Žiaci (U12-U15)</option>
+                            <option value="dorastenci">Dorastenci (U16-U19)</option>
+                            <option value="adults_young">Dospelí - Mladí (18-25)</option>
+                            <option value="adults_pro">Dospelí - Skúsení (25+)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="trainingNote">Poznámka k tréningu:</label>
+                        <textarea id="trainingNote" maxlength="1000"
+                            placeholder="Voliteľná poznámka pre hráčov a rodičov"></textarea>
+                    </div>
+                    <button type="button" class="btn-create" onclick="createTraining()">
+                        <i class="fas fa-plus"></i> Vytvoriť
+                    </button>
+                </div>
+
+                <button type="button" id="toggleTrainingsBtn" class="btn-toggle-trainings"
+                    onclick="toggleCoachTrainings()">
+                    <i class="fas fa-list"></i> Zobraziť záznam tréningov
+                </button>
+            </div>
+
+            <h2><i class="fas fa-calendar"></i> Aktívne tréningy</h2>
+            <div id="coachUpcomingTrainingsContainer" class="trainings-list"></div>
+
+            <div id="coachTrainingsPanel" style="display:none;">
+                <h2><i class="fas fa-history"></i> Záznam tréningov (ukončené)</h2>
+                <div id="coachTrainingsContainer" class="trainings-list"></div>
+            </div>
+        </div>
+
+        <!-- Player/Parent Section -->
+        <div class="player-section" id="playerSection">
+            <div id="playerProfileArea" style="display: none;">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profileAvatar">👤</div>
+                        <div class="profile-info">
+                            <h2 id="profileName">Meno Hráča</h2>
+                            <p><i class="fas fa-shirt"></i> Pozícia: <strong id="profilePosition">--</strong></p>
+                            <p><i class="fas fa-numbers"></i> Číslo: <strong id="profileNumber">--</strong></p>
+                            <p><i class="fas fa-users"></i> Kategória: <strong id="profileCategory">--</strong></p>
+                            <p><i class="fas fa-birthday-cake"></i> Narodený: <strong id="profileBirth">--</strong></p>
+                        </div>
+                    </div>
+                    <h3 style="color: #ffd700; margin-bottom: 15px;">Štatistika</h3>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-item-value" id="profileAge">--</div>
+                            <div class="stat-item-label">Vek</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-item-value" id="profileHeight">--</div>
+                            <div class="stat-item-label">Výška (cm)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-item-value" id="profileWeight">--</div>
+                            <div class="stat-item-label">Váha (kg)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-item-value" id="profileJoined">--</div>
+                            <div class="stat-item-label">V klube od</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="parentChildrenArea" style="display: none;">
+                <div class="parent-children">
+                    <h3><i class="fas fa-child"></i> Moje deti</h3>
+                    <div id="childrenList"></div>
+                </div>
+            </div>
+
+            <h2><i class="fas fa-calendar-check"></i> Dostupné tréningy</h2>
+            <div id="playerTrainingsContainer" class="trainings-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // Account/person data are loaded from backend only
+        const PLAYERS = {};
+        const USERS = {};
+
+        let currentUser = { username: '', role: '', isLoggedIn: false };
+        let trainings = [];
+        let parentChildren = {};
+        let coachTrainingsVisible = false;
+        function resolveApiBase() {
+            const host = window.location.hostname;
+            if (host.endsWith('.vercel.app')) {
+                return '/api';
+            }
+            if (host === 'localhost' || host === '127.0.0.1') {
+                return 'http://localhost:4000/api';
+            }
+            const configuredRaw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
+            const configured = String(configuredRaw || '').trim();
+            if (configured) {
+                const normalized = configured.replace(/\/+$/, '');
+                return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
+            }
+
+            return '/api';
+        }
+
+        const API_BASE = resolveApiBase();
+        const LOCAL_PARENT_CHILDREN_KEY = 'OSK_PARENT_CHILDREN_MAP';
+        let csrfTokenCache = null;
+
+        function getLocalParentChildrenMap() {
+            try {
+                const raw = window.localStorage ? window.localStorage.getItem(LOCAL_PARENT_CHILDREN_KEY) : null;
+                const parsed = raw ? JSON.parse(raw) : {};
+                return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function getLocalChildrenForParentUsername(parentUsername) {
+            const username = String(parentUsername || '').trim();
+            if (!username) return [];
+            const map = getLocalParentChildrenMap();
+            const children = map[username];
+            return Array.isArray(children) ? children : [];
+        }
+
+        async function ensureCsrfToken() {
+            if (csrfTokenCache) {
+                return csrfTokenCache;
+            }
+
+            const response = await fetch(`${API_BASE}/csrf-token`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Nepodarilo sa načítať CSRF token.');
+            }
+
+            const payload = await response.json();
+            csrfTokenCache = payload.csrfToken;
+            return csrfTokenCache;
+        }
+
+        async function loadTrainingsData() {
+            try {
+                const response = await fetch(`${API_BASE}/trainings`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Nepodarilo sa načítať tréningy z backendu.');
+                }
+
+                const payload = await response.json();
+                const items = Array.isArray(payload.items) ? payload.items : [];
+                trainings = items.map(item => ({
+                    id: item.id,
+                    date: item.date,
+                    time: item.time,
+                    type: item.type,
+                    duration: item.duration,
+                    category: item.category,
+                    note: item.note || '',
+                    createdBy: item.createdBy,
+                    isActive: item.isActive,
+                    attendance: Array.isArray(item.attendance)
+                        ? item.attendance.reduce((acc, row) => {
+                            acc[`${item.id}_${row.playerUsername}`] = row.status;
+                            return acc;
+                        }, {})
+                        : {}
+                }));
+                return;
+            } catch (error) {
+                console.error(error);
+            }
+
+            trainings = [];
+        }
+
+        window.addEventListener('load', async function () {
+            let sessionUser = null;
+            try {
+                const response = await fetch(`${API_BASE}/me`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const payload = await response.json();
+                    sessionUser = payload.user || null;
+                }
+            } catch (error) {
+                console.error(error);
+            }
+
+            if (!sessionUser) {
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+
+            currentUser = {
+                username: sessionUser.username,
+                role: sessionUser.role,
+                parentChildren: Array.isArray(sessionUser.parentChildren) ? sessionUser.parentChildren : [],
+                isLoggedIn: true
+            };
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('lastLogin', currentUser.username);
+            localStorage.setItem('lastRole', currentUser.role);
+
+            await loadTrainingsData();
+
+            // Load parent's children from backend session payload
+            if (currentUser.role === 'parent') {
+                parentChildren = {}; // Reset to ensure clean state
+                const assignedChildren = Array.isArray(currentUser.parentChildren) ? currentUser.parentChildren : [];
+                assignedChildren.forEach((child) => {
+                    const username = child && child.username ? child.username : null;
+                    if (username) {
+                        parentChildren[username] = true;
+                    }
+                });
+
+                if (Object.keys(parentChildren).length === 0) {
+                    const localChildren = getLocalChildrenForParentUsername(currentUser.username);
+                    localChildren.forEach((username) => {
+                        if (username) {
+                            parentChildren[username] = true;
+                        }
+                    });
+                }
+            }
+            updateUI();
+        });
+
+        function updateUI() {
+            if (!currentUser.isLoggedIn) {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('backBtn').style.display = 'none';
+                document.getElementById('userDisplay').style.display = 'none'; // This line remains unchanged
+                return;
+            }
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('backBtn').style.display = 'inline-flex';
+            document.getElementById('userDisplay').style.display = 'flex'; // This line remains unchanged
+
+            const roleLabel = { 'admin': 'Admin', 'coach': 'Tréner', 'player': 'Hráč', 'parent': 'Rodič' }[currentUser.role];
+            document.getElementById('userDisplay2').textContent = `${currentUser.username} (${roleLabel})`;
+
+            if (currentUser.role === 'coach' || currentUser.role === 'admin') {
+                document.getElementById('coachSection').classList.add('active');
+                document.getElementById('playerSection').classList.remove('active');
+                refreshCoachRoster();
+                const panel = document.getElementById('coachTrainingsPanel');
+                const btn = document.getElementById('toggleTrainingsBtn');
+                if (panel) panel.style.display = coachTrainingsVisible ? 'block' : 'none';
+                if (btn) {
+                    btn.innerHTML = coachTrainingsVisible
+                        ? '<i class="fas fa-eye-slash"></i> Skryť záznam tréningov'
+                        : '<i class="fas fa-list"></i> Zobraziť záznam tréningov';
+                }
+            } else {
+                document.getElementById('coachSection').classList.remove('active');
+                document.getElementById('playerSection').classList.add('active');
+
+                if (currentUser.role === 'parent') {
+                    document.getElementById('parentChildrenArea').style.display = 'block';
+                    document.getElementById('playerProfileArea').style.display = 'none';
+                    updateChildrenList();
+                } else if (currentUser.role === 'player') {
+                    document.getElementById('parentChildrenArea').style.display = 'none';
+                    document.getElementById('playerProfileArea').style.display = 'block';
+                    displayPlayerProfile();
+                }
+
+                refreshPlayerTrainings();
+            }
+        }
+
+        function displayPlayerProfile() {
+            const player = PLAYERS[currentUser.username];
+            if (!player) {
+                console.log('Player not found:', currentUser.username);
+                return;
+            }
+
+            // Avatár inicijály
+            const initials = player.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('profileAvatar').textContent = initials;
+
+            // Profil údaje
+            document.getElementById('profileName').textContent = player.fullName;
+            document.getElementById('profilePosition').textContent = player.position || '--';
+            document.getElementById('profileNumber').textContent = player.shirtNumber || '--';
+            document.getElementById('profileCategory').textContent = getCategoryLabel(player.category);
+            document.getElementById('profileBirth').textContent = player.dateOfBirth || '--';
+            document.getElementById('profileAge').textContent = player.age || '--';
+            document.getElementById('profileHeight').textContent = player.height || '--';
+            document.getElementById('profileWeight').textContent = player.weight || '--';
+
+            // Dátum pripojenia sa do klubu
+            if (player.joinedClub) {
+                const date = new Date(player.joinedClub);
+                document.getElementById('profileJoined').textContent = date.getFullYear();
+            }
+        }
+
+        function isQuarterHourTime(value) {
+            const match = String(value || '').match(/^(\d{2}):(\d{2})$/);
+            if (!match) {
+                return false;
+            }
+
+            const minutes = Number(match[2]);
+            return Number.isInteger(minutes) && minutes % 15 === 0;
+        }
+
+        function initializeTrainingTimeSelectors() {
+            const hourSelect = document.getElementById('trainingHour');
+            const minuteSelect = document.getElementById('trainingMinute');
+            if (!hourSelect || !minuteSelect) {
+                return;
+            }
+
+            hourSelect.innerHTML = '';
+            for (let hour = 8; hour <= 20; hour += 1) {
+                const value = String(hour).padStart(2, '0');
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                hourSelect.appendChild(option);
+            }
+
+            hourSelect.value = '17';
+            minuteSelect.value = '00';
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        async function createTraining() {
+            console.log('createTraining called');
+
+            const date = document.getElementById('trainingDate').value;
+            const selectedHour = document.getElementById('trainingHour').value;
+            const selectedMinute = document.getElementById('trainingMinute').value;
+            const time = (selectedHour && selectedMinute) ? `${selectedHour}:${selectedMinute}` : '';
+            const type = document.getElementById('trainingType').value;
+            const duration = document.getElementById('trainingDuration').value;
+            const category = document.getElementById('trainingCategory').value;
+            const note = document.getElementById('trainingNote').value.trim();
+
+            console.log('Form values:', { date, time, type, duration, category, note });
+
+            const errorDiv = document.getElementById('trainingError');
+            if (!date || !time || !type || !duration || !category) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Vyplňte všetky polia!';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            } else if (!isQuarterHourTime(time)) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Čas tréningu musí byť po 15 minútach (00, 15, 30, 45).';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            } else if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+
+            // Attendance data are now backend-driven; no local player dataset is required.
+
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const response = await fetch(`${API_BASE}/trainings`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({
+                        date,
+                        time,
+                        type,
+                        duration: Number(duration),
+                        category,
+                        note: note || null
+                    })
+                });
+
+                if (!response.ok) {
+                    const payload = await response.json().catch(() => ({}));
+                    throw new Error(payload.message || 'Nepodarilo sa uložiť tréning na server.');
+                }
+            } catch (error) {
+                console.error(error);
+                if (errorDiv) {
+                    errorDiv.textContent = error.message || 'Nepodarilo sa vytvoriť tréning.';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            // Attendance is managed in backend table TrainingAttendance.
+            await loadTrainingsData();
+
+            // Clear form
+            document.getElementById('trainingDate').value = '';
+            document.getElementById('trainingHour').value = '17';
+            document.getElementById('trainingMinute').value = '00';
+            document.getElementById('trainingType').value = '';
+            document.getElementById('trainingDuration').value = '60';
+            document.getElementById('trainingCategory').value = '';
+            document.getElementById('trainingNote').value = '';
+
+            refreshCoachRoster();
+            refreshPlayerTrainings();
+        }
+
+        function toggleCoachTrainings() {
+            coachTrainingsVisible = !coachTrainingsVisible;
+            const panel = document.getElementById('coachTrainingsPanel');
+            const btn = document.getElementById('toggleTrainingsBtn');
+
+            if (coachTrainingsVisible) {
+                refreshCoachRoster();
+            }
+
+            if (panel) {
+                panel.style.display = coachTrainingsVisible ? 'block' : 'none';
+            }
+
+            if (btn) {
+                btn.innerHTML = coachTrainingsVisible
+                    ? '<i class="fas fa-eye-slash"></i> Skryť záznam tréningov'
+                    : '<i class="fas fa-list"></i> Zobraziť záznam tréningov';
+            }
+        }
+
+        function refreshCoachRoster() {
+            const upcomingContainer = document.getElementById('coachUpcomingTrainingsContainer');
+            const finishedContainer = document.getElementById('coachTrainingsContainer');
+            if (!upcomingContainer || !finishedContainer) return;
+
+            const upcomingTrainings = [];
+            const finishedTrainings = [];
+
+            trainings.forEach(t => {
+                if (t.isActive) {
+                    upcomingTrainings.push(t);
+                }
+
+                if (!t.isActive) {
+                    finishedTrainings.push(t);
+                }
+            });
+
+            const renderTrainings = (list, emptyText) => {
+                if (list.length === 0) {
+                    return '<div style="text-align:center;color:#ffd700;padding:30px;">' + emptyText + '</div>';
+                }
+
+                let html = '';
+                list.forEach(t => {
+                    const date = new Date(t.date).toLocaleDateString('sk-SK');
+                    const typeLabel = getTypeLabel(t.type);
+                    const categoryLabel = getCategoryLabel(t.category);
+                    const noteHtml = t.note
+                        ? `<p><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(t.note)}</p>`
+                        : '';
+
+                    let attending = 0, notAttending = 0, unknown = 0;
+                    Object.values(t.attendance || {}).forEach(s => {
+                        if (s === 'yes') attending++;
+                        else if (s === 'no') notAttending++;
+                        else unknown++;
+                    });
+
+                    const total = attending + notAttending + unknown;
+                    const percent = total > 0 ? Math.round((attending / total) * 100) : 0;
+                    const statusInfo = getTrainingStatus(t);
+
+                    html += `
+                        <div class="training-card">
+                            <div class="training-header">
+                                <h3><i class="fas fa-futbol"></i> ${typeLabel}</h3>
+                                <p><i class="fas fa-calendar"></i> ${date} o ${t.time}</p>
+                                <p><i class="fas fa-users"></i> ${categoryLabel} | ${t.duration} min</p>
+                                ${noteHtml}
+                                <p style="color: ${statusInfo.color};">
+                                    ${statusInfo.text}
+                                </p>
+                            </div>
+                            <div class="attendance-grid">
+                                <div class="attendance-group">
+                                    <h4 style="color:#2ecc71;"><i class="fas fa-check-circle"></i> Prídu (${attending})</h4>
+                                    ${getAttendanceList(t.attendance, 'yes', '#2ecc71')}
+                                </div>
+                                <div class="attendance-group">
+                                    <h4 style="color:#e74c3c;"><i class="fas fa-times-circle"></i> Neprídú (${notAttending})</h4>
+                                    ${getAttendanceList(t.attendance, 'no', '#e74c3c')}
+                                </div>
+                                <div class="attendance-group">
+                                    <h4 style="color:#95a5a6;"><i class="fas fa-question-circle"></i> Nevedia (${unknown})</h4>
+                                    ${getAttendanceList(t.attendance, 'unknown', '#95a5a6')}
+                                </div>
+                            </div>
+                            <div class="training-footer">
+                                <div style="color:#2ecc71;">Účasť: ${percent}%</div>
+                                <button class="btn-action btn-delete" onclick="deleteTraining('${t.id}')"><i class="fas fa-trash"></i> Odstrániť</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                return html;
+            };
+
+            upcomingContainer.innerHTML = renderTrainings(upcomingTrainings, 'Žiadne aktívne tréningy');
+            finishedContainer.innerHTML = renderTrainings(finishedTrainings, 'Žiadne ukončené tréningy');
+
+            if (upcomingTrainings.length === 0 && finishedTrainings.length > 0 && !coachTrainingsVisible) {
+                coachTrainingsVisible = true;
+                const panel = document.getElementById('coachTrainingsPanel');
+                const btn = document.getElementById('toggleTrainingsBtn');
+                if (panel) panel.style.display = 'block';
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-eye-slash"></i> Skryť záznam tréningov';
+                }
+            }
+        }
+
+        function getAttendanceList(attendance, status, color) {
+            const items = [];
+            let index = 1;
+            Object.entries(attendance || {}).forEach(([key, value]) => {
+                if (value === status) {
+                    const name = key.substring(key.indexOf('_') + 1);
+                    items.push(`
+                        <div class="attendance-item">
+                            <span class="attendance-number" style="background:${color}">${index}</span>
+                            ${name}
+                        </div>
+                    `);
+                    index++;
+                }
+            });
+
+            if (items.length === 0) {
+                return '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:10px;">--</div>';
+            }
+
+            return '<div class="attendance-list">' + items.join('') + '</div>';
+        }
+
+        function refreshPlayerTrainings() {
+            const container = document.getElementById('playerTrainingsContainer');
+            if (trainings.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#ffd700;padding:30px;">Žiadne tréningy</div>';
+                return;
+            }
+
+            let peopleToDisplay = [currentUser.username];
+            if (currentUser.role === 'parent') {
+                peopleToDisplay = Object.keys(parentChildren);
+            }
+
+            if (peopleToDisplay.length === 0 && currentUser.role === 'parent') {
+                container.innerHTML = '<div style="text-align:center;color:#ffd700;padding:30px;">Pridajte svoje deti</div>';
+                return;
+            }
+
+            let html = '';
+            trainings.forEach(t => {
+                const date = new Date(t.date).toLocaleDateString('sk-SK');
+                const typeLabel = getTypeLabel(t.type);
+                const statusInfo = getTrainingStatus(t);
+                const noteHtml = t.note
+                    ? `<p><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(t.note)}</p>`
+                    : '';
+
+                peopleToDisplay.forEach(person => {
+                    const key = t.id + '_' + person;
+                    const status = t.attendance ? t.attendance[key] : 'unknown';
+
+                    html += `
+                        <div class="training-card">
+                            <div class="training-info">
+                                <h4>${typeLabel}</h4>
+                                <p><i class="fas fa-calendar"></i> ${date} o ${t.time}</p>
+                                <p><i class="fas fa-clock"></i> ${t.duration} min</p>
+                                ${noteHtml}
+                                <p style="color:${statusInfo.color};">
+                                    ${statusInfo.text}
+                                </p>
+                            </div>
+                            <div class="person-options">
+                                <p style="color:#ffd700;margin-bottom:10px;font-weight:bold;">${person}</p>
+                    `;
+
+                    if (t.isActive) {
+                        html += `
+                            <div class="button-group">
+                                <button class="btn-yes ${status === 'yes' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','yes')">
+                                    ✓ Prídem
+                                </button>
+                                <button class="btn-no ${status === 'no' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','no')">
+                                    ✗ Neprídnem
+                                </button>
+                                <button class="btn-unknown ${status === 'unknown' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','unknown')">
+                                    ? Neviem
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        const colors = { yes: '#2ecc71', no: '#e74c3c', unknown: '#95a5a6' };
+                        const labels = { yes: '✓ Prídem', no: '✗ Neprídnem', unknown: '? Neviem' };
+                        html += `
+                            <div class="status-display" style="background:${colors[status]};">
+                                ${labels[status]}
+                            </div>
+                        `;
+                    }
+
+                    html += `</div></div>`;
+                });
+            });
+
+            container.innerHTML = html;
+        }
+
+        async function markAttendance(trainingId, person, status) {
+            const t = trainings.find(x => String(x.id) === String(trainingId));
+            if (!t || !t.isActive) return;
+
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const response = await fetch(`${API_BASE}/trainings/${trainingId}/attendance`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({
+                        playerUsername: person,
+                        status
+                    })
+                });
+
+                if (!response.ok) {
+                    const payload = await response.json().catch(() => ({}));
+                    throw new Error(payload.message || 'Nepodarilo sa uložiť dochádzku.');
+                }
+            } catch (error) {
+                alert(error.message || 'Nepodarilo sa uložiť dochádzku.');
+                return;
+            }
+
+            await loadTrainingsData();
+            refreshPlayerTrainings();
+            refreshCoachRoster();
+        }
+
+        async function startTraining(trainingId) {
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const response = await fetch(`${API_BASE}/trainings/${trainingId}/close`, {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    }
+                });
+
+                if (!response.ok) {
+                    const payload = await response.json().catch(() => ({}));
+                    throw new Error(payload.message || 'Nepodarilo sa uzavrieť tréning.');
+                }
+            } catch (error) {
+                alert(error.message || 'Nepodarilo sa uzavrieť tréning.');
+                return;
+            }
+
+            await loadTrainingsData();
+            refreshCoachRoster();
+            refreshPlayerTrainings();
+        }
+
+        // Keep UI in sync with backend data
+        async function syncTrainingsFromServer() {
+            await loadTrainingsData();
+            refreshCoachRoster();
+            refreshPlayerTrainings();
+        }
+
+        // Synchronizácia každú minútu
+        setInterval(syncTrainingsFromServer, 60000);
+        // Skontroluj aj hneď po načítaní
+        window.addEventListener('load', function () {
+            initializeTrainingTimeSelectors();
+            syncTrainingsFromServer().catch((error) => {
+                console.error(error);
+            });
+        });
+
+        async function deleteTraining(trainingId) {
+            if (confirm('Odstrániť?')) {
+                try {
+                    const csrfToken = await ensureCsrfToken();
+                    const deleteResponse = await fetch(`${API_BASE}/trainings/${trainingId}`, {
+                        method: 'DELETE',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-csrf-token': csrfToken
+                        }
+                    });
+
+                    if (!deleteResponse.ok) {
+                        const postDeleteResponse = await fetch(`${API_BASE}/trainings/${trainingId}/delete`, {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-csrf-token': csrfToken
+                            }
+                        });
+
+                        if (!postDeleteResponse.ok) {
+                            const fallbackResponse = await fetch(`${API_BASE}/trainings/delete-by-id`, {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'x-csrf-token': csrfToken
+                                },
+                                body: JSON.stringify({ trainingId })
+                            });
+
+                            if (!fallbackResponse.ok) {
+                                const payload = await fallbackResponse.json().catch(() => ({}));
+                                throw new Error(payload.message || 'Nepodarilo sa odstrániť tréning.');
+                            }
+                        }
+                    }
+                } catch (error) {
+                    alert(error.message || 'Nepodarilo sa odstrániť tréning.');
+                    return;
+                }
+
+                await loadTrainingsData();
+                refreshCoachRoster();
+                refreshPlayerTrainings();
+            }
+        }
+
+        function updateChildrenList() {
+            const list = document.getElementById('childrenList');
+            const children = Object.keys(parentChildren);
+
+            if (children.length === 0) {
+                list.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;">Nemáte pridelené žiadne deti.</p>';
+                return;
+            }
+
+            let html = '';
+            children.forEach(childUsername => {
+                // Get child's full name from PLAYERS if available
+                const childName = PLAYERS[childUsername] ? PLAYERS[childUsername].fullName : childUsername;
+
+                html += `
+                    <div class="child-item">
+                        <span><i class="fas fa-child"></i> ${childName}</span>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = html;
+        }
+
+        function getTypeLabel(type) {
+            const types = { technical: 'Technický', tactical: 'Taktický', physical: 'Fyzický', friendly: 'Prieťahový' };
+            return (types[type] || type) + ' tréning';
+        }
+
+        function getCategoryLabel(cat) {
+            const cats = {
+                pripravky: 'Prípravky (U8-U9)',
+                ziaci: 'Žiaci (U10-U12)',
+                dorastenci: 'Dorastenci (U13-U18)',
+                adults_young: 'Dospelí - Mladí (18-25)',
+                adults_pro: 'Dospelí - Skúsení (25+)'
+            };
+            return cats[cat] || cat;
+        }
+
+        function getTrainingWindow(training) {
+            if (!training.date || !training.time) {
+                return null;
+            }
+            const start = new Date(training.date + 'T' + training.time);
+            if (Number.isNaN(start.getTime())) {
+                return null;
+            }
+            const durationMinutes = Number(training.duration) || 90;
+            const end = new Date(start.getTime() + durationMinutes * 60000);
+            return { start, end };
+        }
+
+        function getTrainingStatus(training) {
+            const window = getTrainingWindow(training);
+            const now = new Date();
+            if (window && now >= window.start && now <= window.end) {
+                return { text: '🟢 Aktívny tréning', color: '#2ecc71' };
+            }
+            if (training.isActive) {
+                return { text: '🟡 Čaká na začatie', color: '#ffd700' };
+            }
+            return { text: '🔴 Uzavretý tréning', color: '#e74c3c' };
+        }
+
+        function goBack() {
+            window.location.href = '/index.html';
+        }
+
+        // Logout Modal Logic
+        document.addEventListener('DOMContentLoaded', function () {
+            const userDisplayBtn = document.getElementById('userDisplay');
+            if (userDisplayBtn) {
+                userDisplayBtn.onclick = function (e) {
+                    e.preventDefault();
+                    openLogoutModal();
+                };
+            }
+            // Modal close on outside click
+            const logoutModal = document.getElementById('logoutModal');
+            if (logoutModal) {
+                logoutModal.addEventListener('click', function (e) {
+                    if (e.target === this) closeLogoutModal();
+                });
+            }
+
+            const changePasswordModal = document.getElementById('changePasswordModal');
+            if (changePasswordModal) {
+                changePasswordModal.addEventListener('click', function (e) {
+                    if (e.target === this) closeChangePasswordModal();
+                });
+            }
+        });
+
+        function openLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                // Set username
+                const userNameSpan = document.getElementById('logoutUserName');
+                if (userNameSpan && currentUser && currentUser.username) {
+                    userNameSpan.textContent = currentUser.username;
+                }
+            }
+        }
+        function closeLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function openChangePasswordModal() {
+            closeLogoutModal();
+            const modal = document.getElementById('changePasswordModal');
+            const errorDiv = document.getElementById('changePasswordError');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+            }
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeChangePasswordModal() {
+            const modal = document.getElementById('changePasswordModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            const newPasswordInput = document.getElementById('newPasswordInput');
+            const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+            const errorDiv = document.getElementById('changePasswordError');
+
+            if (newPasswordInput) newPasswordInput.value = '';
+            if (confirmPasswordInput) confirmPasswordInput.value = '';
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+            }
+        }
+        async function handleLogout() {
+            try {
+                const csrfToken = await ensureCsrfToken();
+                await fetch(`${API_BASE}/logout`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
+
+            localStorage.removeItem('lastLogin');
+            localStorage.removeItem('lastRole');
+            localStorage.removeItem('currentUser');
+            currentUser = { username: '', role: '', isLoggedIn: false };
+            trainings = [];
+            parentChildren = {};
+            closeLogoutModal();
+            location.reload();
+        }
+
+        async function submitPasswordChange() {
+            const newPasswordInput = document.getElementById('newPasswordInput');
+            const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+            const errorDiv = document.getElementById('changePasswordError');
+
+            const newPassword = newPasswordInput ? newPasswordInput.value : '';
+            const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
+
+            if (!newPassword || newPassword.length < 8) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Heslo musí mať aspoň 8 znakov.';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Heslá sa nezhodujú.';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const response = await fetch(`${API_BASE}/change-password`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({ newPassword })
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.message || 'Zmena hesla zlyhala.');
+                }
+
+                alert('Heslo bolo úspešne zmenené.');
+                closeChangePasswordModal();
+            } catch (error) {
+                if (errorDiv) {
+                    errorDiv.textContent = error.message || 'Zmena hesla zlyhala.';
+                    errorDiv.style.display = 'block';
+                }
+            }
+        }
+
+        function handleSwitchAccount() {
+            handleLogout();
+            // After reload, login modal should show on main page
+        }
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+
+</html>
