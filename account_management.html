@@ -718,25 +718,35 @@
 
             try {
                 const token = await ensureCsrfToken();
-                const res = await fetch(`${API_BASE}/users/${childrenParentId}/children`, {
-                    method: 'PATCH',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-csrf-token': token
-                    },
-                    body: JSON.stringify({ childIds: Array.from(selectedChildIds) })
-                });
+                const requestBody = JSON.stringify({ childIds: Array.from(selectedChildIds) });
+                const methodsToTry = ['PATCH', 'POST', 'PUT'];
+                let saved = false;
+                let lastError = null;
 
-                const rawText = await res.text();
-                let payload = {};
-                try {
-                    payload = rawText ? JSON.parse(rawText) : {};
-                } catch (_) {
-                    payload = {};
-                }
+                for (const method of methodsToTry) {
+                    const res = await fetch(`${API_BASE}/users/${childrenParentId}/children`, {
+                        method,
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-csrf-token': token
+                        },
+                        body: requestBody
+                    });
 
-                if (!res.ok) {
+                    if (res.ok) {
+                        saved = true;
+                        break;
+                    }
+
+                    const rawText = await res.text();
+                    let payload = {};
+                    try {
+                        payload = rawText ? JSON.parse(rawText) : {};
+                    } catch (_) {
+                        payload = {};
+                    }
+
                     const fallbackMessage = rawText && !payload.message
                         ? `Uloženie zlyhalo (HTTP ${res.status}): ${rawText.slice(0, 180)}`
                         : `Uloženie zlyhalo (HTTP ${res.status}).`;
@@ -744,7 +754,15 @@
                     const routeHint = res.status === 404
                         ? ' Backend pravdepodobne ešte nemá endpoint /users/:id/children (treba redeploy backendu).'
                         : '';
-                    throw new Error(`${baseMessage}${routeHint}`);
+                    lastError = new Error(`${baseMessage}${routeHint}`);
+
+                    if (res.status !== 404 && res.status !== 405) {
+                        throw lastError;
+                    }
+                }
+
+                if (!saved) {
+                    throw (lastError || new Error('Uloženie priradených detí zlyhalo.'));
                 }
 
                 message('childrenMessage', 'Deti boli úspešne priradené.', 'success');
