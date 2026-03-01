@@ -753,8 +753,20 @@ async function deleteTraining(id) {
                 });
 
                 if (!postDeleteResponse.ok) {
-                    const payload = await deleteResponse.json().catch(() => ({}));
-                    throw new Error(payload.message || 'Nepodarilo sa odstrániť tréning.');
+                    const fallbackResponse = await fetch(`${getApiBase()}/trainings/delete-by-id`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
+                        },
+                        body: JSON.stringify({ trainingId: id })
+                    });
+
+                    if (!fallbackResponse.ok) {
+                        const payload = await fallbackResponse.json().catch(() => ({}));
+                        throw new Error(payload.message || 'Nepodarilo sa odstrániť tréning.');
+                    }
                 }
             }
         } catch (error) {

@@ -46,6 +46,10 @@ const attendanceSchema = z.object({
   status: z.enum(['yes', 'no', 'unknown'])
 });
 
+const deleteTrainingByIdSchema = z.object({
+  trainingId: z.string().min(1)
+});
+
 function isQuarterHourTime(value) {
   const match = String(value || '').match(/^(\d{2}):(\d{2})$/);
   if (!match) {
@@ -240,6 +244,34 @@ async function handleDeleteTraining(req, res) {
 
   return res.status(204).send();
 }
+
+router.post('/delete-by-id', requireAuth, requireRole('coach', 'admin'), validateBody(deleteTrainingByIdSchema), async (req, res) => {
+  const trainingId = String(req.body.trainingId || '').trim();
+  const training = await findTrainingById(trainingId);
+  if (!training) {
+    return res.status(404).json({ message: 'Tréning neexistuje.' });
+  }
+
+  await deleteTraining(training.id);
+
+  await writeAuditSafe({
+    actorUserId: req.user.id,
+    action: 'training_deleted',
+    entityType: 'training',
+    entityId: training.id,
+    details: {
+      date: training.date,
+      time: training.time
+    }
+  });
+
+  return res.json({
+    item: {
+      id: training.id,
+      deleted: true
+    }
+  });
+});
 
 router.delete('/:id', requireAuth, requireRole('coach', 'admin'), handleDeleteTraining);
 router.post('/:id/delete', requireAuth, requireRole('coach', 'admin'), handleDeleteTraining);
