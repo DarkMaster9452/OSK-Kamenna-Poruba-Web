@@ -12,6 +12,8 @@ const PLAYER_DIRECTORY = {};
 
 const PARENT_CHILDREN_MAP = {};
 
+const LOCAL_PARENT_CHILDREN_KEY = 'OSK_PARENT_CHILDREN_MAP';
+
 const PLAYER_NAME_MAP = {};
 
 function escapeHtml(value) {
@@ -78,8 +80,25 @@ function getPlayerUsernamesByCategory(category) {
     return PLAYER_DIRECTORY[category] || [];
 }
 
+function getLocalParentChildrenMap() {
+    try {
+        const raw = window.localStorage ? window.localStorage.getItem(LOCAL_PARENT_CHILDREN_KEY) : null;
+        const parsed = raw ? JSON.parse(raw) : {};
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch (_) {
+        return {};
+    }
+}
+
 function getParentChildrenUsernames(username) {
-    return PARENT_CHILDREN_MAP[username] || [];
+    const direct = PARENT_CHILDREN_MAP[username] || [];
+    if (Array.isArray(direct) && direct.length) {
+        return direct;
+    }
+
+    const map = getLocalParentChildrenMap();
+    const fromLocal = map[String(username || '').trim()];
+    return Array.isArray(fromLocal) ? fromLocal : [];
 }
 
 async function loadTrainingsFromApi() {
@@ -750,8 +769,14 @@ async function deleteTraining(id) {
                 }
             }
         } catch (error) {
-            alert(error.message || 'Nepodarilo sa odstrániť tréning.');
-            return;
+            const localTraining = trainings.find((item) => String(item.id) === String(id));
+            if (localTraining) {
+                localTraining.isActive = false;
+                alert('API zlyhalo, tréning bol aspoň lokálne uzavretý v tomto prehliadači.');
+            } else {
+                alert(error.message || 'Nepodarilo sa odstrániť tréning.');
+                return;
+            }
         }
 
         await loadTrainingData();

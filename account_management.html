@@ -356,6 +356,7 @@
         let activePlayers = [];
         let childrenParentId = null;
         let selectedChildIds = new Set();
+        const LOCAL_PARENT_CHILDREN_KEY = 'OSK_PARENT_CHILDREN_MAP';
 
         function parseShirtNumber(rawValue) {
             const value = String(rawValue || '').trim();
@@ -388,6 +389,41 @@
                 adults_pro: 'Dospelí - Skúsení'
             };
             return map[value] || '—';
+        }
+
+        function getLocalParentChildrenMap() {
+            try {
+                const raw = window.localStorage ? window.localStorage.getItem(LOCAL_PARENT_CHILDREN_KEY) : null;
+                const parsed = raw ? JSON.parse(raw) : {};
+                return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function saveLocalParentChildrenMap(map) {
+            if (!window.localStorage) return;
+            window.localStorage.setItem(LOCAL_PARENT_CHILDREN_KEY, JSON.stringify(map || {}));
+        }
+
+        function setLocalParentChildren(parentUsername, childUsernames) {
+            const username = String(parentUsername || '').trim();
+            if (!username) return;
+
+            const map = getLocalParentChildrenMap();
+            map[username] = Array.from(new Set((Array.isArray(childUsernames) ? childUsernames : [])
+                .map((value) => String(value || '').trim())
+                .filter(Boolean)));
+            saveLocalParentChildrenMap(map);
+        }
+
+        function getLocalChildrenForParent(parentUsername) {
+            const username = String(parentUsername || '').trim();
+            if (!username) return [];
+
+            const map = getLocalParentChildrenMap();
+            const children = map[username];
+            return Array.isArray(children) ? children : [];
         }
 
         function encodeParam(value) {
@@ -492,7 +528,12 @@
                 const statusText = user.isActive ? 'Aktívny' : 'Neaktívny';
                 const toggleLabel = user.isActive ? 'Deaktivovať' : 'Aktivovať';
                 const toggleClass = user.isActive ? 'btn-danger' : 'btn-success';
-                const parentChildren = Array.isArray(user.children) ? user.children : [];
+                const localChildren = user.role === 'parent'
+                    ? getLocalChildrenForParent(user.username).map((username) => ({ username }))
+                    : [];
+                const parentChildren = Array.isArray(user.children) && user.children.length
+                    ? user.children
+                    : localChildren;
                 const categoryText = user.role === 'parent'
                     ? (parentChildren.length ? `Deti: ${parentChildren.map((child) => child.username).join(', ')}` : '—')
                     : categoryLabel(user.playerCategory);
@@ -691,12 +732,25 @@
             }
 
             childrenParentId = parentUser.id;
-            selectedChildIds = new Set((Array.isArray(parentUser.children) ? parentUser.children : []).map((child) => child.id));
+            const assignedByApi = (Array.isArray(parentUser.children) ? parentUser.children : []).map((child) => child.id).filter(Boolean);
+            selectedChildIds = new Set(assignedByApi);
             document.getElementById('childrenParentLabel').textContent = `Rodič: ${parentUser.username}`;
             message('childrenMessage', '', 'success');
 
             try {
                 await fetchActivePlayersForAssignment();
+
+                if (!selectedChildIds.size) {
+                    const localChildren = getLocalChildrenForParent(parentUser.username);
+                    const byUsername = new Map(activePlayers.map((player) => [player.username, player.id]));
+                    localChildren.forEach((childUsername) => {
+                        const childId = byUsername.get(childUsername);
+                        if (childId) {
+                            selectedChildIds.add(childId);
+                        }
+                    });
+                }
+
                 renderChildrenOptions();
                 document.getElementById('childrenModal').classList.add('active');
             } catch (err) {
@@ -769,6 +823,19 @@
                 await fetchUsers();
                 setTimeout(() => closeChildrenModal(), 700);
             } catch (err) {
+                const parentUser = users.find((item) => String(item.id) === String(childrenParentId));
+                const parentUsername = parentUser ? parentUser.username : '';
+                const selectedUsernames = activePlayers
+                    .filter((player) => selectedChildIds.has(player.id))
+                    .map((player) => player.username);
+
+                if (parentUsername) {
+                    setLocalParentChildren(parentUsername, selectedUsernames);
+                    message('childrenMessage', 'API zlyhalo, priradenie je dočasne uložené lokálne v tomto prehliadači.', 'success');
+                    await fetchUsers().catch(() => { });
+                    return;
+                }
+
                 message('childrenMessage', err.message || 'Uloženie priradených detí zlyhalo.', 'error');
             }
         }
