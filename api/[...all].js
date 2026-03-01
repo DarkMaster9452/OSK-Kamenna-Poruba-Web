@@ -1,5 +1,24 @@
 const backendOriginRaw = process.env.BACKEND_ORIGIN || process.env.BACKEND_URL || 'https://osk-kamenna-poruba-back.vercel.app';
-const BACKEND_ORIGIN = String(backendOriginRaw).replace(/\/+$/, '');
+
+function normalizeBackendOrigin(value) {
+  const raw = String(value || '').trim().replace(/\/+$/, '');
+  if (!raw) {
+    return raw;
+  }
+
+  try {
+    const parsed = new URL(raw);
+    const normalizedPath = String(parsed.pathname || '')
+      .replace(/\/+$/, '')
+      .replace(/\/api$/, '');
+
+    return `${parsed.origin}${normalizedPath}`.replace(/\/+$/, '');
+  } catch (_) {
+    return raw.replace(/\/api$/, '');
+  }
+}
+
+const BACKEND_ORIGIN = normalizeBackendOrigin(backendOriginRaw);
 
 function buildTargetUrl(req) {
   const originalUrl = String(req.url || '/');
