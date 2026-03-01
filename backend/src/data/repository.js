@@ -1,5 +1,8 @@
 const prisma = require('./db');
 
+const PARENT_CHILDREN_SNAPSHOT_ACTION = 'parent_children_snapshot';
+const PARENT_CHILDREN_UPDATED_ACTION = 'parent_children_updated';
+
 function isMissingUserEmailColumnError(error) {
   if (!error || error.code !== 'P2022') {
     return false;
@@ -50,6 +53,115 @@ function withNullShirtNumber(items) {
   }));
 }
 
+function normalizeIdList(values) {
+  return Array.from(new Set((Array.isArray(values) ? values : [])
+    .map((id) => String(id || '').trim())
+    .filter(Boolean)));
+}
+
+function extractChildIdsFromAuditDetails(details, expectedParentId) {
+  if (!details || typeof details !== 'object' || Array.isArray(details)) {
+    return [];
+  }
+
+  const rawParentId = String(details.parentId || '').trim();
+  if (rawParentId && expectedParentId && rawParentId !== expectedParentId) {
+    return [];
+  }
+
+  return normalizeIdList(details.childIds);
+}
+
+async function getParentChildSnapshotMap(parentIds) {
+  const cleanParentIds = normalizeIdList(parentIds);
+  if (!cleanParentIds.length) {
+    return new Map();
+  }
+
+  const logs = await prisma.auditLog.findMany({
+    where: {
+      entityType: 'user',
+      entityId: {
+        in: cleanParentIds
+      },
+      action: {
+        in: [PARENT_CHILDREN_SNAPSHOT_ACTION, PARENT_CHILDREN_UPDATED_ACTION]
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    },
+    select: {
+      entityId: true,
+      details: true
+    }
+  });
+
+  const map = new Map();
+  logs.forEach((log) => {
+    const parentId = String(log.entityId || '').trim();
+    if (!parentId || map.has(parentId)) {
+      return;
+    }
+
+    map.set(parentId, extractChildIdsFromAuditDetails(log.details, parentId));
+  });
+
+  return map;
+}
+
+async function listActivePlayerChildrenByIds(childIds, client = prisma) {
+  const uniqueChildIds = normalizeIdList(childIds);
+  if (!uniqueChildIds.length) {
+    return [];
+  }
+
+  const rows = await client.user.findMany({
+    where: {
+      id: {
+        in: uniqueChildIds
+      },
+      role: 'player',
+      isActive: true
+    },
+    select: {
+      id: true,
+      username: true,
+      playerCategory: true,
+      isActive: true
+    }
+  });
+
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  return uniqueChildIds
+    .map((id) => byId.get(id))
+    .filter(Boolean)
+    .sort((a, b) => a.username.localeCompare(b.username));
+}
+
+async function attachParentChildrenFromAudit(rows, parentIds) {
+  const snapshotMap = await getParentChildSnapshotMap(parentIds);
+  const allChildIds = normalizeIdList(Array.from(snapshotMap.values()).flat());
+  const children = await listActivePlayerChildrenByIds(allChildIds);
+  const childById = new Map(children.map((child) => [child.id, child]));
+
+  return rows.map((row) => {
+    if (row.role !== 'parent') {
+      return row;
+    }
+
+    const snapshotIds = snapshotMap.get(row.id) || [];
+    const linkedChildren = snapshotIds
+      .map((childId) => childById.get(childId))
+      .filter(Boolean);
+
+    return {
+      ...row,
+      children: linkedChildren
+    };
+  });
+}
+
 async function attachParentChildren(users) {
   const rows = users.map((user) => ({
     ...user,
@@ -60,8 +172,12 @@ async function attachParentChildren(users) {
     .filter((user) => user.role === 'parent')
     .map((user) => user.id);
 
-  if (!parentIds.length || !prisma.parentChild) {
+  if (!parentIds.length) {
     return rows;
+  }
+
+  if (!prisma.parentChild) {
+    return attachParentChildrenFromAudit(rows, parentIds);
   }
 
   try {
@@ -115,7 +231,7 @@ async function attachParentChildren(users) {
     });
   } catch (error) {
     if (error && (error.code === 'P2021' || error.code === 'P2022')) {
-      return rows;
+      return attachParentChildrenFromAudit(rows, parentIds);
     }
 
     throw error;
@@ -503,8 +619,14 @@ async function listActivePlayers() {
 }
 
 async function listParentChildrenByParentId(parentId) {
-  if (!parentId || !prisma.parentChild) {
+  if (!parentId) {
     return [];
+  }
+
+  if (!prisma.parentChild) {
+    const snapshotMap = await getParentChildSnapshotMap([parentId]);
+    const childIds = snapshotMap.get(parentId) || [];
+    return listActivePlayerChildrenByIds(childIds);
   }
 
   try {
@@ -530,7 +652,9 @@ async function listParentChildrenByParentId(parentId) {
       .sort((a, b) => a.username.localeCompare(b.username));
   } catch (error) {
     if (error && (error.code === 'P2021' || error.code === 'P2022')) {
-      return [];
+      const snapshotMap = await getParentChildSnapshotMap([parentId]);
+      const childIds = snapshotMap.get(parentId) || [];
+      return listActivePlayerChildrenByIds(childIds);
     }
 
     throw error;
@@ -538,18 +662,10 @@ async function listParentChildrenByParentId(parentId) {
 }
 
 async function setParentChildren(parentId, childIds) {
-  if (!prisma.parentChild) {
-    const schemaError = new Error('Databáza nepodporuje väzbu rodič-dieťa. Spustite migráciu Prisma.');
-    schemaError.status = 500;
-    throw schemaError;
-  }
+  const uniqueChildIds = normalizeIdList(childIds);
 
-  const uniqueChildIds = Array.from(new Set((Array.isArray(childIds) ? childIds : [])
-    .map((id) => String(id || '').trim())
-    .filter(Boolean)));
-
-  return prisma.$transaction(async (tx) => {
-    const parent = await tx.user.findUnique({
+  async function validateParentAndChildren(client) {
+    const parent = await client.user.findUnique({
       where: { id: parentId },
       select: {
         id: true,
@@ -570,53 +686,68 @@ async function setParentChildren(parentId, childIds) {
       throw invalidRole;
     }
 
-    let children = [];
-    if (uniqueChildIds.length) {
-      children = await tx.user.findMany({
+    const children = await listActivePlayerChildrenByIds(uniqueChildIds, client);
+    if (children.length !== uniqueChildIds.length) {
+      const invalidChildren = new Error('Niektoré vybrané deti neexistujú alebo nie sú aktívni hráči.');
+      invalidChildren.status = 400;
+      throw invalidChildren;
+    }
+
+    return { parent, children };
+  }
+
+  async function persistSnapshot(client, parent, children) {
+    await client.auditLog.create({
+      data: {
+        action: PARENT_CHILDREN_SNAPSHOT_ACTION,
+        entityType: 'user',
+        entityId: parent.id,
+        details: {
+          parentId: parent.id,
+          childIds: children.map((child) => child.id)
+        }
+      }
+    });
+  }
+
+  if (!prisma.parentChild) {
+    const validated = await validateParentAndChildren(prisma);
+    await persistSnapshot(prisma, validated.parent, validated.children);
+    return validated;
+  }
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const validated = await validateParentAndChildren(tx);
+
+      await tx.parentChild.deleteMany({
         where: {
-          id: {
-            in: uniqueChildIds
-          },
-          role: 'player',
-          isActive: true
-        },
-        select: {
-          id: true,
-          username: true,
-          playerCategory: true,
-          isActive: true
+          parentId
         }
       });
 
-      if (children.length !== uniqueChildIds.length) {
-        const invalidChildren = new Error('Niektoré vybrané deti neexistujú alebo nie sú aktívni hráči.');
-        invalidChildren.status = 400;
-        throw invalidChildren;
+      if (validated.children.length) {
+        await tx.parentChild.createMany({
+          data: validated.children.map((child) => ({
+            parentId,
+            childId: child.id
+          })),
+          skipDuplicates: true
+        });
       }
-    }
 
-    await tx.parentChild.deleteMany({
-      where: {
-        parentId
-      }
+      await persistSnapshot(tx, validated.parent, validated.children);
+      return validated;
     });
-
-    if (children.length) {
-      await tx.parentChild.createMany({
-        data: children.map((child) => ({
-          parentId,
-          childId: child.id
-        })),
-        skipDuplicates: true
-      });
+  } catch (error) {
+    if (!error || (error.code !== 'P2021' && error.code !== 'P2022')) {
+      throw error;
     }
 
-    children.sort((a, b) => a.username.localeCompare(b.username));
-    return {
-      parent,
-      children
-    };
-  });
+    const validated = await validateParentAndChildren(prisma);
+    await persistSnapshot(prisma, validated.parent, validated.children);
+    return validated;
+  }
 }
 
 function playerCategoriesForTrainingCategory(trainingCategory) {

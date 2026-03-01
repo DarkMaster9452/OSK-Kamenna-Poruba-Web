@@ -724,8 +724,8 @@ async function deleteTraining(id) {
             });
 
             if (!deleteResponse.ok) {
-                const closeResponse = await fetch(`${getApiBase()}/trainings/${id}/close`, {
-                    method: 'PATCH',
+                const postDeleteResponse = await fetch(`${getApiBase()}/trainings/${id}/delete`, {
+                    method: 'POST',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
@@ -733,9 +733,20 @@ async function deleteTraining(id) {
                     }
                 });
 
-                if (!closeResponse.ok) {
-                    const payload = await deleteResponse.json().catch(() => ({}));
-                    throw new Error(payload.message || 'Nepodarilo sa odstrániť ani uzavrieť tréning.');
+                if (!postDeleteResponse.ok) {
+                    const closeResponse = await fetch(`${getApiBase()}/trainings/${id}/close`, {
+                        method: 'PATCH',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
+                        }
+                    });
+
+                    if (!closeResponse.ok) {
+                        const payload = await deleteResponse.json().catch(() => ({}));
+                        throw new Error(payload.message || 'Nepodarilo sa odstrániť ani uzavrieť tréning.');
+                    }
                 }
             }
         } catch (error) {

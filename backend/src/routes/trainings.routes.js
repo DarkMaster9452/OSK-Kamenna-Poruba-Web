@@ -219,7 +219,7 @@ router.patch('/:id/close', requireAuth, requireRole('coach', 'admin'), async (re
   });
 });
 
-router.delete('/:id', requireAuth, requireRole('coach', 'admin'), async (req, res) => {
+async function handleDeleteTraining(req, res) {
   const training = await findTrainingById(req.params.id);
   if (!training) {
     return res.status(404).json({ message: 'Tréning neexistuje.' });
@@ -269,6 +269,9 @@ router.delete('/:id', requireAuth, requireRole('coach', 'admin'), async (req, re
   });
 
   return res.status(204).send();
-});
+}
+
+router.delete('/:id', requireAuth, requireRole('coach', 'admin'), handleDeleteTraining);
+router.post('/:id/delete', requireAuth, requireRole('coach', 'admin'), handleDeleteTraining);
 
 module.exports = router;
