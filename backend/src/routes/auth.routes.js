@@ -2,7 +2,14 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { z } = require('zod');
 const env = require('../config/env');
-const { findUserByUsername, findUserById, updateUserPassword, createAuditLog, createAnnouncement } = require('../data/repository');
+const {
+  findUserByUsername,
+  findUserById,
+  updateUserPassword,
+  createAuditLog,
+  createAnnouncement,
+  listParentChildrenByParentId
+} = require('../data/repository');
 const { validateBody } = require('../middleware/validate');
 const { requireAuth } = require('../middleware/auth');
 const { signAccessToken } = require('../services/token.service');
@@ -273,12 +280,17 @@ router.post('/change-password', requireAuth, validateBody(changePasswordSchema),
   return res.json({ message: 'Heslo bolo úspešne zmenené.' });
 });
 
-router.get('/me', requireAuth, (req, res) => {
+router.get('/me', requireAuth, async (req, res) => {
+  const parentChildren = req.user.role === 'parent'
+    ? await listParentChildrenByParentId(req.user.id)
+    : [];
+
   return res.json({
     user: {
       username: req.user.username,
       role: req.user.role,
-      playerCategory: req.user.playerCategory || null
+      playerCategory: req.user.playerCategory || null,
+      parentChildren
     }
   });
 });

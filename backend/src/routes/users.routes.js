@@ -10,6 +10,7 @@ const {
   setUserActiveStatus,
   resetUserPasswordByAdmin,
   updateUserRoleAndCategory,
+  setParentChildren,
   createAuditLog,
   findUserById
 } = require('../data/repository');
@@ -50,6 +51,10 @@ const updateUserProfileSchema = z.object({
   role: z.enum(['admin', 'coach', 'player', 'parent', 'blogger']),
   playerCategory: playerCategorySchema.nullable().optional(),
   shirtNumber: shirtNumberSchema.nullable().optional()
+});
+
+const updateParentChildrenSchema = z.object({
+  childIds: z.array(z.string().min(1)).max(100)
 });
 
 async function writeAuditSafe(payload) {
@@ -227,6 +232,39 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
   });
 
   return res.json({ item: updated });
+});
+
+router.patch('/:id/children', validateBody(updateParentChildrenSchema), async (req, res) => {
+  const targetUser = await findUserById(req.params.id);
+  if (!targetUser) {
+    return res.status(404).json({ message: 'Používateľ neexistuje.' });
+  }
+
+  if (targetUser.role !== 'parent') {
+    return res.status(400).json({ message: 'Deti je možné priradiť iba používateľovi s rolou rodič.' });
+  }
+
+  const result = await setParentChildren(req.params.id, req.body.childIds || []);
+
+  await writeAuditSafe({
+    actorUserId: req.user.id,
+    action: 'parent_children_updated',
+    entityType: 'user',
+    entityId: targetUser.id,
+    details: {
+      parentUsername: targetUser.username,
+      childIds: (req.body.childIds || []).slice(0, 100),
+      assignedCount: result.children.length
+    }
+  });
+
+  return res.json({
+    item: {
+      parentId: targetUser.id,
+      parentUsername: targetUser.username,
+      children: result.children
+    }
+  });
 });
 
 module.exports = router;

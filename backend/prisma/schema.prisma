@@ -82,6 +82,23 @@ model User {
   pollVotes            PollVote[]     @relation("PollVotesByUser")
   attendanceUpdates    TrainingAttendance[] @relation("AttendanceUpdatedBy")
   auditLogs            AuditLog[]     @relation("AuditActor")
+  parentChildren       ParentChild[]  @relation("ParentChildren")
+  childParents         ParentChild[]  @relation("ChildParents")
+}
+
+model ParentChild {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  parentId String
+  parent   User @relation("ParentChildren", fields: [parentId], references: [id], onDelete: Cascade)
+
+  childId String
+  child   User @relation("ChildParents", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+  @@index([parentId])
+  @@index([childId])
 }
 
 model BlogPost {

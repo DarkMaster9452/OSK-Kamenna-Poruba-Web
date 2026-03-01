@@ -233,7 +233,16 @@ async function loadTrainingData() {
     // Load parent's children from local mapping helper
     if (currentUser && currentUser.role === 'parent') {
         parentChildren = {}; // Reset to ensure clean state
-        const children = getParentChildrenUsernames(currentUser.username);
+        const sessionChildren = Array.isArray(currentUser.parentChildren)
+            ? currentUser.parentChildren
+                .map((child) => (child && child.username ? child.username : null))
+                .filter(Boolean)
+            : [];
+
+        const children = sessionChildren.length
+            ? sessionChildren
+            : getParentChildrenUsernames(currentUser.username);
+
         children.forEach((childUsername) => {
             parentChildren[childUsername] = true;
         });

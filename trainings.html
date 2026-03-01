@@ -996,6 +996,7 @@
             currentUser = {
                 username: sessionUser.username,
                 role: sessionUser.role,
+                parentChildren: Array.isArray(sessionUser.parentChildren) ? sessionUser.parentChildren : [],
                 isLoggedIn: true
             };
 
@@ -1005,17 +1006,16 @@
 
             await loadTrainingsData();
 
-            // Load parent's children from USERS data instead of localStorage
+            // Load parent's children from backend session payload
             if (currentUser.role === 'parent') {
                 parentChildren = {}; // Reset to ensure clean state
-                if (USERS[currentUser.username]) {
-                    const parentUser = USERS[currentUser.username];
-                    if (parentUser.children) {
-                        parentUser.children.forEach(childUsername => {
-                            parentChildren[childUsername] = true;
-                        });
+                const assignedChildren = Array.isArray(currentUser.parentChildren) ? currentUser.parentChildren : [];
+                assignedChildren.forEach((child) => {
+                    const username = child && child.username ? child.username : null;
+                    if (username) {
+                        parentChildren[username] = true;
                     }
-                }
+                });
             }
             updateUI();
         });

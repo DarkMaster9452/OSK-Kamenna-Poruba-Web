@@ -50,6 +50,78 @@ function withNullShirtNumber(items) {
   }));
 }
 
+async function attachParentChildren(users) {
+  const rows = users.map((user) => ({
+    ...user,
+    children: []
+  }));
+
+  const parentIds = rows
+    .filter((user) => user.role === 'parent')
+    .map((user) => user.id);
+
+  if (!parentIds.length || !prisma.parentChild) {
+    return rows;
+  }
+
+  try {
+    const links = await prisma.parentChild.findMany({
+      where: {
+        parentId: {
+          in: parentIds
+        }
+      },
+      include: {
+        child: {
+          select: {
+            id: true,
+            username: true,
+            playerCategory: true,
+            isActive: true
+          }
+        }
+      }
+    });
+
+    const grouped = new Map();
+    links.forEach((link) => {
+      if (!link.child) {
+        return;
+      }
+
+      if (!grouped.has(link.parentId)) {
+        grouped.set(link.parentId, []);
+      }
+
+      grouped.get(link.parentId).push({
+        id: link.child.id,
+        username: link.child.username,
+        playerCategory: link.child.playerCategory,
+        isActive: link.child.isActive
+      });
+    });
+
+    return rows.map((row) => {
+      if (row.role !== 'parent') {
+        return row;
+      }
+
+      const children = grouped.get(row.id) || [];
+      children.sort((a, b) => a.username.localeCompare(b.username));
+      return {
+        ...row,
+        children
+      };
+    });
+  } catch (error) {
+    if (error && (error.code === 'P2021' || error.code === 'P2022')) {
+      return rows;
+    }
+
+    throw error;
+  }
+}
+
 async function findUserByUsername(username) {
   const exactUsername = String(username || '');
   if (!exactUsername) {
@@ -109,7 +181,7 @@ async function findUserById(id) {
 
 async function listUsersForManagement() {
   try {
-    return await prisma.user.findMany({
+    const rows = await prisma.user.findMany({
       orderBy: { createdAt: 'asc' },
       select: {
         id: true,
@@ -123,6 +195,8 @@ async function listUsersForManagement() {
         lastPasswordChangeAt: true
       }
     });
+
+    return attachParentChildren(rows);
   } catch (error) {
     if (!shouldFallbackWithoutEmail(error) && !shouldFallbackWithoutShirtNumber(error)) {
       throw error;
@@ -141,7 +215,7 @@ async function listUsersForManagement() {
       }
     });
 
-    return withNullShirtNumber(withNullEmail(rows));
+    return attachParentChildren(withNullShirtNumber(withNullEmail(rows)));
   }
 }
 
@@ -426,6 +500,123 @@ async function listActivePlayers() {
 
     return withNullShirtNumber(rows);
   }
+}
+
+async function listParentChildrenByParentId(parentId) {
+  if (!parentId || !prisma.parentChild) {
+    return [];
+  }
+
+  try {
+    const links = await prisma.parentChild.findMany({
+      where: {
+        parentId
+      },
+      include: {
+        child: {
+          select: {
+            id: true,
+            username: true,
+            playerCategory: true,
+            isActive: true
+          }
+        }
+      }
+    });
+
+    return links
+      .map((link) => link.child)
+      .filter(Boolean)
+      .sort((a, b) => a.username.localeCompare(b.username));
+  } catch (error) {
+    if (error && (error.code === 'P2021' || error.code === 'P2022')) {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
+async function setParentChildren(parentId, childIds) {
+  if (!prisma.parentChild) {
+    const schemaError = new Error('Databáza nepodporuje väzbu rodič-dieťa. Spustite migráciu Prisma.');
+    schemaError.status = 500;
+    throw schemaError;
+  }
+
+  const uniqueChildIds = Array.from(new Set((Array.isArray(childIds) ? childIds : [])
+    .map((id) => String(id || '').trim())
+    .filter(Boolean)));
+
+  return prisma.$transaction(async (tx) => {
+    const parent = await tx.user.findUnique({
+      where: { id: parentId },
+      select: {
+        id: true,
+        username: true,
+        role: true
+      }
+    });
+
+    if (!parent) {
+      const notFound = new Error('Používateľ neexistuje.');
+      notFound.status = 404;
+      throw notFound;
+    }
+
+    if (parent.role !== 'parent') {
+      const invalidRole = new Error('Deti je možné priradiť iba používateľovi s rolou rodič.');
+      invalidRole.status = 400;
+      throw invalidRole;
+    }
+
+    let children = [];
+    if (uniqueChildIds.length) {
+      children = await tx.user.findMany({
+        where: {
+          id: {
+            in: uniqueChildIds
+          },
+          role: 'player',
+          isActive: true
+        },
+        select: {
+          id: true,
+          username: true,
+          playerCategory: true,
+          isActive: true
+        }
+      });
+
+      if (children.length !== uniqueChildIds.length) {
+        const invalidChildren = new Error('Niektoré vybrané deti neexistujú alebo nie sú aktívni hráči.');
+        invalidChildren.status = 400;
+        throw invalidChildren;
+      }
+    }
+
+    await tx.parentChild.deleteMany({
+      where: {
+        parentId
+      }
+    });
+
+    if (children.length) {
+      await tx.parentChild.createMany({
+        data: children.map((child) => ({
+          parentId,
+          childId: child.id
+        })),
+        skipDuplicates: true
+      });
+    }
+
+    children.sort((a, b) => a.username.localeCompare(b.username));
+    return {
+      parent,
+      children
+    };
+  });
 }
 
 function playerCategoriesForTrainingCategory(trainingCategory) {
@@ -862,6 +1053,8 @@ module.exports = {
   updateUserRoleAndCategory,
   updateUserPassword,
   listActivePlayers,
+  listParentChildrenByParentId,
+  setParentChildren,
   listActivePlayerEmailsByTrainingCategory,
   closeExpiredTrainings,
   listTrainings,

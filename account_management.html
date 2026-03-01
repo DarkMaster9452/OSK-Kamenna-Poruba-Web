@@ -313,6 +313,20 @@
         </div>
     </div>
 
+    <div class="modal" id="childrenModal">
+        <div class="modal-box">
+            <h3>Priradiť deti rodičovi</h3>
+            <p id="childrenParentLabel"></p>
+            <div id="childrenOptions"
+                style="max-height:260px;overflow:auto;border:1px solid #e6e9f0;border-radius:8px;padding:10px;"></div>
+            <div id="childrenMessage"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" type="button" onclick="closeChildrenModal()">Zrušiť</button>
+                <button class="btn btn-primary" type="button" onclick="submitChildrenAssignment()">Uložiť</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function resolveApiBase() {
             const host = window.location.hostname;
@@ -339,6 +353,9 @@
         let resetUsername = null;
         let editUserId = null;
         let editUsername = null;
+        let activePlayers = [];
+        let childrenParentId = null;
+        let selectedChildIds = new Set();
 
         function parseShirtNumber(rawValue) {
             const value = String(rawValue || '').trim();
@@ -475,6 +492,10 @@
                 const statusText = user.isActive ? 'Aktívny' : 'Neaktívny';
                 const toggleLabel = user.isActive ? 'Deaktivovať' : 'Aktivovať';
                 const toggleClass = user.isActive ? 'btn-danger' : 'btn-success';
+                const parentChildren = Array.isArray(user.children) ? user.children : [];
+                const categoryText = user.role === 'parent'
+                    ? (parentChildren.length ? `Deti: ${parentChildren.map((child) => child.username).join(', ')}` : '—')
+                    : categoryLabel(user.playerCategory);
                 const encodedUsername = encodeParam(user.username);
                 const encodedEmail = encodeParam(user.email || '');
                 const encodedRole = encodeParam(user.role);
@@ -485,10 +506,11 @@
                         <td>${user.username}</td>
                         <td>${user.email || '—'}</td>
                         <td>${user.role}</td>
-                        <td>${categoryLabel(user.playerCategory)}</td>
+                        <td>${categoryText}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td class="actions">
                             <button class="btn btn-secondary" onclick="openEditProfileModalFromEncoded('${user.id}','${encodedUsername}','${encodedEmail}','${encodedRole}','${encodedCategory}','${encodedShirtNumber}')">Upraviť profil</button>
+                            ${user.role === 'parent' ? `<button class="btn btn-secondary" onclick="openChildrenModal('${user.id}')">Priradiť deti</button>` : ''}
                             <button class="btn btn-secondary" onclick="openPasswordModalFromEncoded('${user.id}','${encodedUsername}')">Reset hesla</button>
                             <button class="btn ${toggleClass}" onclick="toggleUserStatus('${user.id}', ${user.isActive})">${toggleLabel}</button>
                         </td>
@@ -617,6 +639,108 @@
             }
         }
 
+        async function fetchActivePlayersForAssignment() {
+            const res = await fetch(`${API_BASE}/players`, { credentials: 'include' });
+            if (!res.ok) {
+                const payload = await res.json().catch(() => ({}));
+                throw new Error(payload.message || 'Nepodarilo sa načítať zoznam aktívnych hráčov.');
+            }
+
+            const payload = await res.json();
+            const items = Array.isArray(payload.items) ? payload.items : [];
+            activePlayers = items.map((item) => ({
+                id: item.id,
+                username: item.username,
+                category: item.category || null
+            }));
+        }
+
+        function renderChildrenOptions() {
+            const node = document.getElementById('childrenOptions');
+            if (!node) return;
+
+            if (!activePlayers.length) {
+                node.innerHTML = '<p style="margin:0;color:#666;">Žiadni aktívni hráči.</p>';
+                return;
+            }
+
+            node.innerHTML = activePlayers.map((player) => {
+                const checked = selectedChildIds.has(player.id) ? 'checked' : '';
+                return `
+                    <label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f2f4f8;">
+                        <input type="checkbox" value="${player.id}" ${checked} onchange="toggleChildSelection('${player.id}', this.checked)">
+                        <span><strong>${player.username}</strong>${player.category ? ` • ${categoryLabel(player.category)}` : ''}</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function toggleChildSelection(childId, isChecked) {
+            if (isChecked) {
+                selectedChildIds.add(childId);
+            } else {
+                selectedChildIds.delete(childId);
+            }
+        }
+
+        async function openChildrenModal(parentId) {
+            const parentUser = users.find((item) => String(item.id) === String(parentId));
+            if (!parentUser) {
+                message('listMessage', 'Rodič nebol nájdený.', 'error');
+                return;
+            }
+
+            childrenParentId = parentUser.id;
+            selectedChildIds = new Set((Array.isArray(parentUser.children) ? parentUser.children : []).map((child) => child.id));
+            document.getElementById('childrenParentLabel').textContent = `Rodič: ${parentUser.username}`;
+            message('childrenMessage', '', 'success');
+
+            try {
+                await fetchActivePlayersForAssignment();
+                renderChildrenOptions();
+                document.getElementById('childrenModal').classList.add('active');
+            } catch (err) {
+                message('listMessage', err.message || 'Nepodarilo sa načítať hráčov.', 'error');
+            }
+        }
+
+        function closeChildrenModal() {
+            childrenParentId = null;
+            selectedChildIds = new Set();
+            document.getElementById('childrenModal').classList.remove('active');
+        }
+
+        async function submitChildrenAssignment() {
+            if (!childrenParentId) {
+                message('childrenMessage', 'Nie je vybraný rodič.', 'error');
+                return;
+            }
+
+            try {
+                const token = await ensureCsrfToken();
+                const res = await fetch(`${API_BASE}/users/${childrenParentId}/children`, {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': token
+                    },
+                    body: JSON.stringify({ childIds: Array.from(selectedChildIds) })
+                });
+
+                const payload = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(payload.message || 'Uloženie priradených detí zlyhalo.');
+                }
+
+                message('childrenMessage', 'Deti boli úspešne priradené.', 'success');
+                await fetchUsers();
+                setTimeout(() => closeChildrenModal(), 700);
+            } catch (err) {
+                message('childrenMessage', err.message || 'Uloženie priradených detí zlyhalo.', 'error');
+            }
+        }
+
         async function submitUserProfileUpdate() {
             const email = document.getElementById('editEmailInput').value.trim();
             const role = document.getElementById('editRoleSelect').value;
@@ -739,6 +863,10 @@
 
         document.getElementById('editProfileModal').addEventListener('click', function (e) {
             if (e.target === this) closeEditProfileModal();
+        });
+
+        document.getElementById('childrenModal').addEventListener('click', function (e) {
+            if (e.target === this) closeChildrenModal();
         });
 
         document.getElementById('editRoleSelect').addEventListener('change', handleEditRoleToggle);
