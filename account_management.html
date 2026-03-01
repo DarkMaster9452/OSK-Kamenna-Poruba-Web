@@ -728,9 +728,23 @@
                     body: JSON.stringify({ childIds: Array.from(selectedChildIds) })
                 });
 
-                const payload = await res.json().catch(() => ({}));
+                const rawText = await res.text();
+                let payload = {};
+                try {
+                    payload = rawText ? JSON.parse(rawText) : {};
+                } catch (_) {
+                    payload = {};
+                }
+
                 if (!res.ok) {
-                    throw new Error(payload.message || 'Uloženie priradených detí zlyhalo.');
+                    const fallbackMessage = rawText && !payload.message
+                        ? `Uloženie zlyhalo (HTTP ${res.status}): ${rawText.slice(0, 180)}`
+                        : `Uloženie zlyhalo (HTTP ${res.status}).`;
+                    const baseMessage = payload.message || fallbackMessage;
+                    const routeHint = res.status === 404
+                        ? ' Backend pravdepodobne ešte nemá endpoint /users/:id/children (treba redeploy backendu).'
+                        : '';
+                    throw new Error(`${baseMessage}${routeHint}`);
                 }
 
                 message('childrenMessage', 'Deti boli úspešne priradené.', 'success');
