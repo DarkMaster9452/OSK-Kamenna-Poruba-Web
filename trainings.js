@@ -743,40 +743,12 @@ async function deleteTraining(id) {
             });
 
             if (!deleteResponse.ok) {
-                const postDeleteResponse = await fetch(`${getApiBase()}/trainings/${id}/delete`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
-                    }
-                });
-
-                if (!postDeleteResponse.ok) {
-                    const closeResponse = await fetch(`${getApiBase()}/trainings/${id}/close`, {
-                        method: 'PATCH',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
-                        }
-                    });
-
-                    if (!closeResponse.ok) {
-                        const payload = await deleteResponse.json().catch(() => ({}));
-                        throw new Error(payload.message || 'Nepodarilo sa odstrániť ani uzavrieť tréning.');
-                    }
-                }
+                const payload = await deleteResponse.json().catch(() => ({}));
+                throw new Error(payload.message || 'Nepodarilo sa odstrániť tréning.');
             }
         } catch (error) {
-            const localTraining = trainings.find((item) => String(item.id) === String(id));
-            if (localTraining) {
-                localTraining.isActive = false;
-                alert('API zlyhalo, tréning bol aspoň lokálne uzavretý v tomto prehliadači.');
-            } else {
-                alert(error.message || 'Nepodarilo sa odstrániť tréning.');
-                return;
-            }
+            alert(error.message || 'Nepodarilo sa odstrániť tréning.');
+            return;
         }
 
         await loadTrainingData();

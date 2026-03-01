@@ -1542,40 +1542,12 @@
                     });
 
                     if (!deleteResponse.ok) {
-                        const postDeleteResponse = await fetch(`${API_BASE}/trainings/${trainingId}/delete`, {
-                            method: 'POST',
-                            credentials: 'include',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'x-csrf-token': csrfToken
-                            }
-                        });
-
-                        if (!postDeleteResponse.ok) {
-                            const closeResponse = await fetch(`${API_BASE}/trainings/${trainingId}/close`, {
-                                method: 'PATCH',
-                                credentials: 'include',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'x-csrf-token': csrfToken
-                                }
-                            });
-
-                            if (!closeResponse.ok) {
-                                const payload = await deleteResponse.json().catch(() => ({}));
-                                throw new Error(payload.message || 'Nepodarilo sa odstrániť ani uzavrieť tréning.');
-                            }
-                        }
+                        const payload = await deleteResponse.json().catch(() => ({}));
+                        throw new Error(payload.message || 'Nepodarilo sa odstrániť tréning.');
                     }
                 } catch (error) {
-                    const localTraining = trainings.find((item) => String(item.id) === String(trainingId));
-                    if (localTraining) {
-                        localTraining.isActive = false;
-                        alert('API zlyhalo, tréning bol aspoň lokálne uzavretý v tomto prehliadači.');
-                    } else {
-                        alert(error.message || 'Nepodarilo sa odstrániť tréning.');
-                        return;
-                    }
+                    alert(error.message || 'Nepodarilo sa odstrániť tréning.');
+                    return;
                 }
 
                 await loadTrainingsData();
