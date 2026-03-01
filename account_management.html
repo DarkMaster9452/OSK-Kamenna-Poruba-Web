@@ -417,6 +417,19 @@
             saveLocalParentChildrenMap(map);
         }
 
+        function removeLocalParentChildren(parentUsername) {
+            const username = String(parentUsername || '').trim();
+            if (!username) return;
+
+            const map = getLocalParentChildrenMap();
+            if (!(username in map)) {
+                return;
+            }
+
+            delete map[username];
+            saveLocalParentChildrenMap(map);
+        }
+
         function getLocalChildrenForParent(parentUsername) {
             const username = String(parentUsername || '').trim();
             if (!username) return [];
@@ -463,6 +476,106 @@
 
         function wait(ms) {
             return new Promise((resolve) => setTimeout(resolve, ms));
+        }
+
+        function shouldStoreLocalFallback(error) {
+            const text = String(error && error.message ? error.message : '').toLowerCase();
+            if (!text) return true;
+
+            if (text.includes('http 401') || text.includes('http 403')) {
+                return false;
+            }
+
+            if (text.includes('http 400') || text.includes('http 409')) {
+                return false;
+            }
+
+            return true;
+        }
+
+        async function saveChildrenAssignmentToApi(parentId, childIds, token) {
+            const requestBody = JSON.stringify({ childIds: Array.from(new Set((Array.isArray(childIds) ? childIds : []).filter(Boolean))) });
+            const methodsToTry = ['PATCH', 'POST', 'PUT'];
+            let lastError = null;
+
+            for (const method of methodsToTry) {
+                const res = await fetch(`${API_BASE}/users/${parentId}/children`, {
+                    method,
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': token
+                    },
+                    body: requestBody
+                });
+
+                if (res.ok) {
+                    return { ok: true };
+                }
+
+                const rawText = await res.text();
+                let payload = {};
+                try {
+                    payload = rawText ? JSON.parse(rawText) : {};
+                } catch (_) {
+                    payload = {};
+                }
+
+                const fallbackMessage = rawText && !payload.message
+                    ? `Uloženie zlyhalo (HTTP ${res.status}): ${rawText.slice(0, 180)}`
+                    : `Uloženie zlyhalo (HTTP ${res.status}).`;
+                const baseMessage = payload.message || fallbackMessage;
+                const routeHint = res.status === 404
+                    ? ' Backend pravdepodobne ešte nemá endpoint /users/:id/children (treba redeploy backendu).'
+                    : '';
+                lastError = new Error(`${baseMessage}${routeHint}`);
+
+                if (res.status !== 404 && res.status !== 405) {
+                    return { ok: false, error: lastError };
+                }
+            }
+
+            return { ok: false, error: lastError || new Error('Uloženie priradených detí zlyhalo.') };
+        }
+
+        async function syncLocalChildrenAssignments() {
+            const map = getLocalParentChildrenMap();
+            const entries = Object.entries(map);
+            if (!entries.length || !users.length) {
+                return 0;
+            }
+
+            const usernameToPlayerId = new Map();
+            try {
+                await fetchActivePlayersForAssignment();
+                activePlayers.forEach((player) => {
+                    usernameToPlayerId.set(player.username, player.id);
+                });
+            } catch (_) {
+                return 0;
+            }
+
+            let syncedCount = 0;
+            const token = await ensureCsrfToken();
+
+            for (const [parentUsername, childUsernames] of entries) {
+                const parentUser = users.find((item) => item.role === 'parent' && item.username === parentUsername);
+                if (!parentUser) {
+                    continue;
+                }
+
+                const childIds = Array.from(new Set((Array.isArray(childUsernames) ? childUsernames : [])
+                    .map((username) => usernameToPlayerId.get(username))
+                    .filter(Boolean)));
+
+                const result = await saveChildrenAssignmentToApi(parentUser.id, childIds, token);
+                if (result.ok) {
+                    removeLocalParentChildren(parentUsername);
+                    syncedCount += 1;
+                }
+            }
+
+            return syncedCount;
         }
 
         async function isBackendHealthy() {
@@ -772,51 +885,14 @@
 
             try {
                 const token = await ensureCsrfToken();
-                const requestBody = JSON.stringify({ childIds: Array.from(selectedChildIds) });
-                const methodsToTry = ['PATCH', 'POST', 'PUT'];
-                let saved = false;
-                let lastError = null;
-
-                for (const method of methodsToTry) {
-                    const res = await fetch(`${API_BASE}/users/${childrenParentId}/children`, {
-                        method,
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-csrf-token': token
-                        },
-                        body: requestBody
-                    });
-
-                    if (res.ok) {
-                        saved = true;
-                        break;
-                    }
-
-                    const rawText = await res.text();
-                    let payload = {};
-                    try {
-                        payload = rawText ? JSON.parse(rawText) : {};
-                    } catch (_) {
-                        payload = {};
-                    }
-
-                    const fallbackMessage = rawText && !payload.message
-                        ? `Uloženie zlyhalo (HTTP ${res.status}): ${rawText.slice(0, 180)}`
-                        : `Uloženie zlyhalo (HTTP ${res.status}).`;
-                    const baseMessage = payload.message || fallbackMessage;
-                    const routeHint = res.status === 404
-                        ? ' Backend pravdepodobne ešte nemá endpoint /users/:id/children (treba redeploy backendu).'
-                        : '';
-                    lastError = new Error(`${baseMessage}${routeHint}`);
-
-                    if (res.status !== 404 && res.status !== 405) {
-                        throw lastError;
-                    }
+                const result = await saveChildrenAssignmentToApi(childrenParentId, Array.from(selectedChildIds), token);
+                if (!result.ok) {
+                    throw (result.error || new Error('Uloženie priradených detí zlyhalo.'));
                 }
 
-                if (!saved) {
-                    throw (lastError || new Error('Uloženie priradených detí zlyhalo.'));
+                const parentUser = users.find((item) => String(item.id) === String(childrenParentId));
+                if (parentUser && parentUser.username) {
+                    removeLocalParentChildren(parentUser.username);
                 }
 
                 message('childrenMessage', 'Deti boli úspešne priradené.', 'success');
@@ -829,9 +905,9 @@
                     .filter((player) => selectedChildIds.has(player.id))
                     .map((player) => player.username);
 
-                if (parentUsername) {
+                if (parentUsername && shouldStoreLocalFallback(err)) {
                     setLocalParentChildren(parentUsername, selectedUsernames);
-                    message('childrenMessage', 'API zlyhalo, priradenie je dočasne uložené lokálne v tomto prehliadači.', 'success');
+                    message('childrenMessage', 'API je dočasne nedostupné, priradenie je uložené lokálne a po obnovení API sa automaticky zosynchronizuje.', 'success');
                     await fetchUsers().catch(() => { });
                     return;
                 }
@@ -979,6 +1055,11 @@
             category.disabled = true;
             shirtNumber.disabled = true;
             await fetchUsers();
+            const synced = await syncLocalChildrenAssignments().catch(() => 0);
+            if (synced > 0) {
+                await fetchUsers();
+                message('listMessage', `Synchronizované lokálne priradenia: ${synced}.`, 'success');
+            }
         })();
     </script>
     <script defer src="/_vercel/speed-insights/script.js"></script>
