@@ -234,7 +234,7 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
   return res.json({ item: updated });
 });
 
-router.patch('/:id/children', validateBody(updateParentChildrenSchema), async (req, res) => {
+async function handleUpdateParentChildren(req, res) {
   const targetUser = await findUserById(req.params.id);
   if (!targetUser) {
     return res.status(404).json({ message: 'Používateľ neexistuje.' });
@@ -265,6 +265,10 @@ router.patch('/:id/children', validateBody(updateParentChildrenSchema), async (r
       children: result.children
     }
   });
-});
+}
+
+router.patch('/:id/children', validateBody(updateParentChildrenSchema), handleUpdateParentChildren);
+router.post('/:id/children', validateBody(updateParentChildrenSchema), handleUpdateParentChildren);
+router.put('/:id/children', validateBody(updateParentChildrenSchema), handleUpdateParentChildren);
 
 module.exports = router;

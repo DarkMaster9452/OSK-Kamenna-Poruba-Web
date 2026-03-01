@@ -225,7 +225,37 @@ router.delete('/:id', requireAuth, requireRole('coach', 'admin'), async (req, re
     return res.status(404).json({ message: 'Tréning neexistuje.' });
   }
 
-  await deleteTraining(training.id);
+  try {
+    await deleteTraining(training.id);
+  } catch (error) {
+    console.error('Training hard delete failed, falling back to close:', error);
+
+    try {
+      const closed = await closeTraining(training.id);
+
+      await writeAuditSafe({
+        actorUserId: req.user.id,
+        action: 'training_delete_fallback_closed',
+        entityType: 'training',
+        entityId: training.id,
+        details: {
+          date: training.date,
+          time: training.time
+        }
+      });
+
+      return res.status(200).json({
+        message: 'Tréning sa nepodarilo úplne odstrániť, bol uzavretý ako náhradné riešenie.',
+        item: {
+          id: closed.id,
+          isActive: closed.isActive
+        }
+      });
+    } catch (closeError) {
+      console.error('Training close fallback failed:', closeError);
+      throw error;
+    }
+  }
 
   await writeAuditSafe({
     actorUserId: req.user.id,
