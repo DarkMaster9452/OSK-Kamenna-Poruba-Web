@@ -47,6 +47,7 @@ const userStatusSchema = z.object({
 });
 
 const updateUserProfileSchema = z.object({
+  username: z.string().min(3).max(100),
   email: z.string().email().max(254),
   role: z.enum(['admin', 'coach', 'player', 'parent', 'blogger']),
   playerCategory: playerCategorySchema.nullable().optional(),
@@ -142,10 +143,6 @@ router.patch('/:id/status', validateBody(userStatusSchema), async (req, res) => 
     return res.status(404).json({ message: 'Používateľ neexistuje.' });
   }
 
-  if (targetUser.id === req.user.id && !req.body.isActive) {
-    return res.status(400).json({ message: 'Nemôžete deaktivovať vlastný účet.' });
-  }
-
   const updated = await setUserActiveStatus(req.params.id, req.body.isActive);
 
   await writeAuditSafe({
@@ -185,7 +182,7 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
     return res.status(404).json({ message: 'Používateľ neexistuje.' });
   }
 
-  const { email, role, playerCategory, shirtNumber } = req.body;
+  const { username, email, role, playerCategory, shirtNumber } = req.body;
 
   if (role === 'blogger') {
     const bloggersCount = await countUsersByRole('blogger', req.params.id);
@@ -210,13 +207,24 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
     return res.status(400).json({ message: 'Nemôžete zmeniť vlastnú rolu z admina.' });
   }
 
-  const updated = await updateUserRoleAndCategory(
-    req.params.id,
-    email.trim().toLowerCase(),
-    role,
-    role === 'player' ? playerCategory : null,
-    role === 'player' ? (shirtNumber ?? null) : null
-  );
+  let updated;
+  try {
+    updated = await updateUserRoleAndCategory(
+      req.params.id,
+      username.trim(),
+      email.trim().toLowerCase(),
+      role,
+      role === 'player' ? playerCategory : null,
+      role === 'player' ? (shirtNumber ?? null) : null
+    );
+  } catch (error) {
+    if (error?.code === 'P2002') {
+      const target = Array.isArray(error.meta?.target) ? error.meta.target.join(', ') : 'údaj';
+      return res.status(409).json({ message: `Používateľ s rovnakým údajom už existuje (${target}).` });
+    }
+
+    throw error;
+  }
 
   await writeAuditSafe({
     actorUserId: req.user.id,

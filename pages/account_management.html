@@ -283,6 +283,8 @@
         <div class="modal-box">
             <h3>Upraviť profil účtu</h3>
             <p id="editUserLabel"></p>
+            <label for="editUsernameInput">Používateľské meno</label>
+            <input id="editUsernameInput" type="text" minlength="3" maxlength="100" required />
             <label for="editEmailInput">Email</label>
             <input id="editEmailInput" type="email" placeholder="meno@domena.sk" required />
             <label for="editRoleSelect">Rola</label>
@@ -762,6 +764,7 @@
             editUsername = username;
 
             document.getElementById('editUserLabel').textContent = `Používateľ: ${username}`;
+            document.getElementById('editUsernameInput').value = username || '';
             document.getElementById('editEmailInput').value = email || '';
             document.getElementById('editRoleSelect').value = role;
             document.getElementById('editCategorySelect').value = playerCategory || '';
@@ -917,10 +920,16 @@
         }
 
         async function submitUserProfileUpdate() {
+            const username = document.getElementById('editUsernameInput').value.trim();
             const email = document.getElementById('editEmailInput').value.trim();
             const role = document.getElementById('editRoleSelect').value;
             const playerCategory = document.getElementById('editCategorySelect').value || null;
             const shirtNumber = parseShirtNumber(document.getElementById('editShirtNumberInput').value);
+
+            if (!username || username.length < 3) {
+                message('editProfileMessage', 'Používateľské meno musí mať aspoň 3 znaky.', 'error');
+                return;
+            }
 
             if (!email) {
                 message('editProfileMessage', 'Email je povinný.', 'error');
@@ -947,6 +956,7 @@
                         'x-csrf-token': token
                     },
                     body: JSON.stringify({
+                        username,
                         email,
                         role,
                         playerCategory: role === 'player' ? playerCategory : null,

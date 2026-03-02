@@ -501,11 +501,12 @@ async function resetUserPasswordByAdmin(id, passwordHash) {
   }
 }
 
-async function updateUserRoleAndCategory(id, email, role, playerCategory, shirtNumber) {
+async function updateUserRoleAndCategory(id, username, email, role, playerCategory, shirtNumber) {
   try {
     return await prisma.user.update({
       where: { id },
       data: {
+        username,
         email,
         role,
         playerCategory,
@@ -531,6 +532,7 @@ async function updateUserRoleAndCategory(id, email, role, playerCategory, shirtN
     }
 
     const fallbackData = {
+      username,
       email,
       role,
       playerCategory,
