@@ -16,7 +16,7 @@
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1280px;
             margin: 0 auto;
             padding: 24px;
         }
@@ -30,7 +30,7 @@
         }
 
         .title {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 700;
             margin: 0;
         }
@@ -41,6 +41,7 @@
             padding: 10px 14px;
             cursor: pointer;
             font-weight: 600;
+            line-height: 1.2;
         }
 
         .btn-primary {
@@ -67,8 +68,15 @@
             background: rgba(255, 255, 255, 0.96);
             color: #222;
             border-radius: 10px;
-            padding: 18px;
+            padding: 20px;
             margin-bottom: 18px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 14px;
+            color: #0f2f73;
         }
 
         .grid {
@@ -98,24 +106,53 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            table-layout: fixed;
         }
 
         th,
         td {
             text-align: left;
-            padding: 10px;
+            padding: 12px 10px;
             border-bottom: 1px solid #e6e9f0;
             vertical-align: middle;
+            word-break: break-word;
         }
 
         th {
             color: #003399;
+            background: #f7f9ff;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        tbody tr:hover {
+            background: #f9fbff;
         }
 
         .actions {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .actions .btn {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+
+        #usersTableBody td:nth-child(1) {
+            font-weight: 700;
+            color: #0f2f73;
+        }
+
+        #usersTableBody td:nth-child(3),
+        #usersTableBody td:nth-child(4) {
+            color: #334155;
         }
 
         .status-badge {
@@ -175,6 +212,117 @@
             justify-content: flex-end;
             gap: 10px;
             margin-top: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 14px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .title {
+                font-size: 22px;
+            }
+
+            .card {
+                padding: 14px;
+                border-radius: 12px;
+            }
+
+            .btn {
+                min-height: 42px;
+                font-size: 15px;
+                padding: 10px 12px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .modal {
+                padding: 10px;
+                align-items: flex-start;
+            }
+
+            .modal-box {
+                width: 100%;
+                max-height: 92vh;
+                overflow-y: auto;
+                margin-top: 12px;
+                padding: 14px;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+                width: 100%;
+            }
+
+            thead {
+                display: none;
+            }
+
+            #usersTableBody tr {
+                border: 1px solid #e6e9f0;
+                border-radius: 10px;
+                padding: 8px;
+                margin-bottom: 10px;
+                background: #fff;
+            }
+
+            #usersTableBody td {
+                border: none;
+                border-bottom: 1px solid #f2f4f8;
+                padding: 8px 6px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                text-align: right;
+                word-break: break-word;
+            }
+
+            #usersTableBody td:last-child {
+                border-bottom: none;
+            }
+
+            #usersTableBody td::before {
+                content: attr(data-label);
+                color: #003399;
+                font-weight: 700;
+                text-align: left;
+                flex: 0 0 42%;
+            }
+
+            #usersTableBody td.actions {
+                display: block;
+                text-align: left;
+            }
+
+            #usersTableBody td.actions::before {
+                display: block;
+                margin-bottom: 8px;
+            }
+
+            .actions {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .actions .btn {
+                width: 100%;
+            }
         }
     </style>
     <link rel="icon" type="image/png" href="/O%C5%A0K%20Kamenn%C3%A1%20Poruba%20Logo.png">
@@ -659,12 +807,12 @@
                 const encodedShirtNumber = encodeParam(user.shirtNumber || '');
                 return `
                     <tr>
-                        <td>${user.username}</td>
-                        <td>${user.email || '—'}</td>
-                        <td>${user.role}</td>
-                        <td>${categoryText}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td class="actions">
+                        <td data-label="Používateľ">${user.username}</td>
+                        <td data-label="Email">${user.email || '—'}</td>
+                        <td data-label="Rola">${user.role}</td>
+                        <td data-label="Kategória">${categoryText}</td>
+                        <td data-label="Stav"><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td data-label="Akcie" class="actions">
                             <button class="btn btn-secondary" onclick="openEditProfileModalFromEncoded('${user.id}','${encodedUsername}','${encodedEmail}','${encodedRole}','${encodedCategory}','${encodedShirtNumber}')">Upraviť profil</button>
                             ${user.role === 'parent' ? `<button class="btn btn-secondary" onclick="openChildrenModal('${user.id}')">Priradiť deti</button>` : ''}
                             <button class="btn btn-secondary" onclick="openPasswordModalFromEncoded('${user.id}','${encodedUsername}')">Reset hesla</button>
