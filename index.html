@@ -3235,6 +3235,11 @@
                 return;
             }
 
+            if (message.length < 3) {
+                setContactFormMessage('error', 'Správa musí mať aspoň 3 znaky.');
+                return;
+            }
+
             if (submitButton) {
                 submitButton.disabled = true;
                 submitButton.textContent = 'Odosielam...';
@@ -3254,7 +3259,14 @@
 
                 const payload = await response.json().catch(() => ({}));
                 if (!response.ok) {
-                    throw new Error(payload.message || 'Správu sa nepodarilo odoslať.');
+                    const details = Array.isArray(payload.errors)
+                        ? payload.errors
+                            .map((errorItem) => String((errorItem && errorItem.message) || '').trim())
+                            .filter(Boolean)
+                            .join(' ')
+                        : '';
+
+                    throw new Error(details || payload.message || 'Správu sa nepodarilo odoslať.');
                 }
 
                 setContactFormMessage('success', payload.message || 'Správa bola úspešne odoslaná.');

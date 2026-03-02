@@ -6,9 +6,9 @@ const { sendContactFormEmail } = require('../services/email.service');
 const router = express.Router();
 
 const contactSchema = z.object({
-  name: z.string().trim().min(2).max(120),
-  email: z.string().trim().email().max(254),
-  message: z.string().trim().min(10).max(4000)
+  name: z.string().trim().min(2, 'Meno musí mať aspoň 2 znaky.').max(120, 'Meno je príliš dlhé.'),
+  email: z.string().trim().email('Zadajte platný email.').max(254, 'Email je príliš dlhý.'),
+  message: z.string().trim().min(3, 'Správa musí mať aspoň 3 znaky.').max(4000, 'Správa je príliš dlhá.')
 });
 
 router.post('/', validateBody(contactSchema), async (req, res, next) => {
