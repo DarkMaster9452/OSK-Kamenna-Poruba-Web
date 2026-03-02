@@ -864,8 +864,26 @@ async function listTrainings(viewerUser) {
 
   const where = {};
 
-  if (viewerUser?.role === 'player' || viewerUser?.role === 'parent') {
+  if (viewerUser?.role === 'player') {
     const allowedCategories = trainingCategoriesForPlayerCategory(viewerUser.playerCategory);
+    if (!allowedCategories.length) {
+      return [];
+    }
+
+    where.category = {
+      in: allowedCategories
+    };
+  }
+
+  if (viewerUser?.role === 'parent') {
+    const children = await listParentChildrenByParentId(viewerUser.id);
+    const allowedCategories = Array.from(new Set(
+      children
+        .map((child) => trainingCategoriesForPlayerCategory(child.playerCategory))
+        .flat()
+        .filter(Boolean)
+    ));
+
     if (!allowedCategories.length) {
       return [];
     }
