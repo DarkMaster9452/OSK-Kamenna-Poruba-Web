@@ -618,7 +618,7 @@ function refreshCoachRoster() {
                                     </button>
                                 ` : ''}
                                 <button onclick="editTraining('${training.id}')" style="padding: 8px 12px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%;">
-                                    <i class="fas fa-edit"></i> Upraviť
+                                    <i class="fa-solid fa-pen-to-square"></i> Upraviť
                                 </button>
                                 <button onclick="deleteTraining('${training.id}')" style="padding: 8px 12px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%;">
                                     <i class="fas fa-trash"></i> Odstrániť
@@ -764,7 +764,7 @@ function openTrainingEditModal(training) {
         modal.style.color = 'white';
 
         modal.innerHTML = `
-            <h3 style="margin:0 0 16px 0;color:#ffd700;"><i class="fas fa-edit"></i> Upraviť tréning</h3>
+            <h3 style="margin:0 0 16px 0;color:#ffd700;"><i class="fa-solid fa-pen-to-square"></i> Upraviť tréning</h3>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
                 <label style="display:flex;flex-direction:column;gap:6px;">
                     <span>Dátum</span>

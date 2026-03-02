@@ -7,18 +7,25 @@
     <title>Správa účtov | OŠK Kamenná Poruba</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #003399 0%, #1a4db8 100%);
             min-height: 100vh;
             color: #fff;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1280px;
+            width: min(1400px, calc(100vw - 32px));
             margin: 0 auto;
-            padding: 24px;
+            padding: 20px 0;
         }
 
         .topbar {
@@ -86,6 +93,18 @@
             align-items: end;
         }
 
+        .list-toolbar {
+            display: grid;
+            grid-template-columns: minmax(260px, 2fr) repeat(2, minmax(160px, 1fr)) auto;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 12px;
+        }
+
+        .list-toolbar .btn {
+            white-space: nowrap;
+        }
+
         label {
             display: block;
             margin-bottom: 6px;
@@ -107,6 +126,13 @@
             border-collapse: collapse;
             font-size: 14px;
             table-layout: fixed;
+        }
+
+        .table-wrap {
+            border: 1px solid #e6e9f0;
+            border-radius: 10px;
+            overflow: auto;
+            background: #fff;
         }
 
         th,
@@ -216,7 +242,8 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 14px;
+                width: calc(100vw - 20px);
+                padding: 10px 0;
             }
 
             .topbar {
@@ -243,6 +270,10 @@
             .grid {
                 grid-template-columns: 1fr;
                 gap: 10px;
+            }
+
+            .list-toolbar {
+                grid-template-columns: 1fr;
             }
 
             .modal {
@@ -393,23 +424,51 @@
         <div class="card">
             <h3>Zoznam účtov</h3>
             <div id="listMessage"></div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Používateľ</th>
-                        <th>Email</th>
-                        <th>Rola</th>
-                        <th>Kategória</th>
-                        <th>Stav</th>
-                        <th>Akcie</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <tr>
-                        <td colspan="6">Načítavam...</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="list-toolbar">
+                <div>
+                    <label for="userSearchInput">Vyhľadávanie</label>
+                    <input id="userSearchInput" type="text" placeholder="Meno, email, rola, kategória, dres, deti..." />
+                </div>
+                <div>
+                    <label for="roleFilterSelect">Filter roly</label>
+                    <select id="roleFilterSelect">
+                        <option value="">Všetky roly</option>
+                        <option value="admin">Admin</option>
+                        <option value="coach">Tréner</option>
+                        <option value="player">Hráč</option>
+                        <option value="parent">Rodič</option>
+                        <option value="blogger">Blogger</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="statusFilterSelect">Filter stavu</label>
+                    <select id="statusFilterSelect">
+                        <option value="">Všetky stavy</option>
+                        <option value="active">Aktívny</option>
+                        <option value="inactive">Neaktívny</option>
+                    </select>
+                </div>
+                <button id="clearFiltersBtn" class="btn btn-secondary" type="button">Vyčistiť filtre</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Používateľ</th>
+                            <th>Email</th>
+                            <th>Rola</th>
+                            <th>Kategória</th>
+                            <th>Stav</th>
+                            <th>Akcie</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="6">Načítavam...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -506,6 +565,9 @@
         let activePlayers = [];
         let childrenParentId = null;
         let selectedChildIds = new Set();
+        let userSearchTerm = '';
+        let userRoleFilter = '';
+        let userStatusFilter = '';
         const LOCAL_PARENT_CHILDREN_KEY = 'OSK_PARENT_CHILDREN_MAP';
 
         function parseShirtNumber(rawValue) {
@@ -539,6 +601,58 @@
                 adults_pro: 'Dospelí - Skúsení'
             };
             return map[value] || '—';
+        }
+
+        function normalizeSearchValue(value) {
+            return String(value == null ? '' : value)
+                .toLowerCase()
+                .trim();
+        }
+
+        function getFilteredUsers() {
+            const term = normalizeSearchValue(userSearchTerm);
+
+            return users.filter((user) => {
+                if (userRoleFilter && String(user.role) !== userRoleFilter) {
+                    return false;
+                }
+
+                if (userStatusFilter === 'active' && !user.isActive) {
+                    return false;
+                }
+
+                if (userStatusFilter === 'inactive' && user.isActive) {
+                    return false;
+                }
+
+                if (!term) {
+                    return true;
+                }
+
+                const localChildren = user.role === 'parent'
+                    ? getLocalChildrenForParent(user.username).map((username) => ({ username }))
+                    : [];
+                const parentChildren = Array.isArray(user.children) && user.children.length
+                    ? user.children
+                    : localChildren;
+                const childrenNames = parentChildren.map((child) => String(child.username || '').trim()).join(' ');
+                const categoryText = user.role === 'parent'
+                    ? (parentChildren.length ? `Deti: ${parentChildren.map((child) => child.username).join(', ')}` : '—')
+                    : categoryLabel(user.playerCategory);
+                const statusText = user.isActive ? 'Aktívny' : 'Neaktívny';
+
+                const haystack = normalizeSearchValue([
+                    user.username,
+                    user.email || '',
+                    user.role,
+                    categoryText,
+                    statusText,
+                    user.shirtNumber || '',
+                    childrenNames
+                ].join(' '));
+
+                return haystack.includes(term);
+            });
         }
 
         function getLocalParentChildrenMap() {
@@ -786,7 +900,13 @@
                 return;
             }
 
-            tbody.innerHTML = users.map((user) => {
+            const filteredUsers = getFilteredUsers();
+            if (!filteredUsers.length) {
+                tbody.innerHTML = '<tr><td colspan="6">Nenašli sa žiadne účty podľa filtra.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredUsers.map((user) => {
                 const statusClass = user.isActive ? 'status-active' : 'status-inactive';
                 const statusText = user.isActive ? 'Aktívny' : 'Neaktívny';
                 const toggleLabel = user.isActive ? 'Deaktivovať' : 'Aktivovať';
@@ -1203,6 +1323,36 @@
         });
 
         document.getElementById('editRoleSelect').addEventListener('change', handleEditRoleToggle);
+
+        const userSearchInput = document.getElementById('userSearchInput');
+        const roleFilterSelect = document.getElementById('roleFilterSelect');
+        const statusFilterSelect = document.getElementById('statusFilterSelect');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+
+        userSearchInput.addEventListener('input', function () {
+            userSearchTerm = this.value || '';
+            renderUsers();
+        });
+
+        roleFilterSelect.addEventListener('change', function () {
+            userRoleFilter = this.value || '';
+            renderUsers();
+        });
+
+        statusFilterSelect.addEventListener('change', function () {
+            userStatusFilter = this.value || '';
+            renderUsers();
+        });
+
+        clearFiltersBtn.addEventListener('click', function () {
+            userSearchTerm = '';
+            userRoleFilter = '';
+            userStatusFilter = '';
+            userSearchInput.value = '';
+            roleFilterSelect.value = '';
+            statusFilterSelect.value = '';
+            renderUsers();
+        });
 
         (async function init() {
             const ok = await ensureAdminAccess();
