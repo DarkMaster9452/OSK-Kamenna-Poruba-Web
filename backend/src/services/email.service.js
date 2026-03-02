@@ -161,7 +161,46 @@ async function sendTrainingUpdatedEmails({ training, recipients, updatedByUserna
   return { sent: recipientAddresses.length, skipped: null };
 }
 
+async function sendContactFormEmail({ name, email, message }) {
+  const mailer = getTransporter();
+  if (!mailer) {
+    const error = new Error('SMTP nie je nakonfigurované');
+    error.code = 'SMTP_NOT_CONFIGURED';
+    throw error;
+  }
+
+  const recipient = String(env.contactFormToEmail || env.smtpFromEmail || '').trim();
+  if (!recipient) {
+    const error = new Error('Príjemca kontaktnej správy nie je nastavený');
+    error.code = 'CONTACT_RECIPIENT_NOT_CONFIGURED';
+    throw error;
+  }
+
+  const safeName = String(name || '').trim();
+  const safeEmail = String(email || '').trim();
+  const safeMessage = String(message || '').trim();
+
+  await mailer.sendMail({
+    from: `"${env.smtpFromName}" <${env.smtpFromEmail}>`,
+    to: recipient,
+    replyTo: safeEmail,
+    subject: `OŠK web: Nová kontaktná správa od ${safeName}`,
+    text: [
+      'Prišla nová správa z formulára na webe OŠK.',
+      '',
+      `Meno: ${safeName}`,
+      `Email: ${safeEmail}`,
+      '',
+      'Správa:',
+      safeMessage,
+      '',
+      `Odoslané: ${new Date().toISOString()}`
+    ].join('\n')
+  });
+}
+
 module.exports = {
   sendTrainingCreatedEmails,
-  sendTrainingUpdatedEmails
+  sendTrainingUpdatedEmails,
+  sendContactFormEmail
 };

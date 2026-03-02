@@ -2210,21 +2210,23 @@
                         </div>
                         <div>
                             <h3 style="margin-bottom: 20px; color: #1a1a2e;">Pošlite nám správu</h3>
-                            <form action="mailto:strananekm@gmail.com" method="post" enctype="text/plain"
+                            <form id="contactForm" onsubmit="handleContactSubmit(event)"
                                 style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
                                 <div class="form-group">
-                                    <label for="name">Meno a priezvisko</label>
-                                    <input type="text" id="name" name="Meno" placeholder="Vaše meno" required>
+                                    <label for="contactName">Meno a priezvisko</label>
+                                    <input type="text" id="contactName" name="name" placeholder="Vaše meno" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" id="email" name="Email" placeholder="Váš email" required>
+                                    <label for="contactEmail">Email</label>
+                                    <input type="email" id="contactEmail" name="email" placeholder="Váš email" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="message">Správa</label>
-                                    <textarea id="message" name="Správa" rows="5" placeholder="Vaša správa"
+                                    <label for="contactMessage">Správa</label>
+                                    <textarea id="contactMessage" name="message" rows="5" placeholder="Vaša správa"
                                         required></textarea>
                                 </div>
+                                <div id="contactFormMessage" role="status" aria-live="polite"
+                                    style="display:none; margin-bottom: 14px; padding: 10px; border-radius: 8px;"></div>
                                 <button type="submit" class="btn btn-primary" style="width: 100%;">Poslať
                                     správu</button>
                             </form>
@@ -2551,16 +2553,23 @@
         const PLAYERS = {};
         function resolveApiBase() {
             const host = window.location.hostname;
+            const isHttpsPage = window.location.protocol === 'https:';
             if (host.endsWith('.vercel.app')) {
                 return '/api';
             }
             if (host === 'localhost' || host === '127.0.0.1') {
+                if (isHttpsPage) {
+                    return '/api';
+                }
                 return 'http://localhost:4000/api';
             }
             const configuredRaw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
             const configured = String(configuredRaw || '').trim();
             if (configured) {
                 const normalized = configured.replace(/\/+$/, '');
+                if (isHttpsPage && normalized.startsWith('http://')) {
+                    return '/api';
+                }
                 return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
             }
 
@@ -3185,6 +3194,79 @@
         async function handleSwitchAccount() {
             await handleLogout();
             openLoginModal();
+        }
+
+        function setContactFormMessage(type, text) {
+            const messageBox = document.getElementById('contactFormMessage');
+            if (!messageBox) {
+                return;
+            }
+
+            messageBox.textContent = text;
+            messageBox.style.display = 'block';
+
+            if (type === 'success') {
+                messageBox.style.background = '#eaf7ee';
+                messageBox.style.border = '1px solid #2e7d32';
+                messageBox.style.color = '#1b5e20';
+                return;
+            }
+
+            messageBox.style.background = '#fdecec';
+            messageBox.style.border = '1px solid #c62828';
+            messageBox.style.color = '#8b1f1f';
+        }
+
+        async function handleContactSubmit(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const submitButton = form ? form.querySelector('button[type="submit"]') : null;
+            const nameInput = document.getElementById('contactName');
+            const emailInput = document.getElementById('contactEmail');
+            const messageInput = document.getElementById('contactMessage');
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const email = emailInput ? emailInput.value.trim() : '';
+            const message = messageInput ? messageInput.value.trim() : '';
+
+            if (!name || !email || !message) {
+                setContactFormMessage('error', 'Prosím vyplňte všetky polia formulára.');
+                return;
+            }
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Odosielam...';
+            }
+
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const response = await fetch(`${API_BASE}/contact`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({ name, email, message })
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.message || 'Správu sa nepodarilo odoslať.');
+                }
+
+                setContactFormMessage('success', payload.message || 'Správa bola úspešne odoslaná.');
+                form.reset();
+            } catch (error) {
+                setContactFormMessage('error', error.message || 'Správu sa nepodarilo odoslať. Skúste to znova.');
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Poslať správu';
+                }
+            }
         }
 
         // Close logout modal when clicking outside

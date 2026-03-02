@@ -185,6 +185,7 @@ Potrebné env premenné:
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`
 - `SMTP_USER`, `SMTP_PASS`
 - `SMTP_FROM_EMAIL` (odosielateľ)
+- `CONTACT_FORM_TO_EMAIL` (voliteľné, príjemca správ z verejného kontaktného formulára; ak chýba, použije sa `SMTP_FROM_EMAIL`)
 
 6. Prisma:
    - `npx prisma generate`
@@ -201,6 +202,12 @@ Potrebné env premenné:
   - `adults_young` -> `adults_young`
   - `adults_pro` -> `adults_pro`
 - email používateľa zadáš pri vytvorení účtu v správe účtov
+
+### Kontaktný formulár (Pošlite nám správu)
+
+- formulár na hlavnej stránke odosiela správu cez backend endpoint `POST /api/contact`
+- vyžaduje funkčné SMTP nastavenie (`SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM_EMAIL`)
+- príjemcu vieš nastaviť cez `CONTACT_FORM_TO_EMAIL` (inak ide na `SMTP_FROM_EMAIL`)
 
 ### Frontend
 

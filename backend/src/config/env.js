@@ -32,6 +32,7 @@ const env = {
   smtpPass: process.env.SMTP_PASS || '',
   smtpFromEmail: process.env.SMTP_FROM_EMAIL || '',
   smtpFromName: process.env.SMTP_FROM_NAME || 'OŠK Kamenná Poruba',
+  contactFormToEmail: process.env.CONTACT_FORM_TO_EMAIL || '',
   sportsnetApiUrl: process.env.SPORTSNET_API_URL || '',
   sportsnetApiKey: process.env.SPORTSNET_API_KEY || '',
   sportsnetTeamId: process.env.SPORTSNET_TEAM_ID || '',
