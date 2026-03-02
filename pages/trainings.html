@@ -1531,6 +1531,15 @@
 
         function openTrainingEditModal(training) {
             return new Promise((resolve) => {
+                const [currentHourRaw, currentMinuteRaw] = String(training.time || '').split(':');
+                const currentHour = String(currentHourRaw || '17').padStart(2, '0');
+                const currentMinute = ['00', '15', '30', '45'].includes(String(currentMinuteRaw || '00'))
+                    ? String(currentMinuteRaw || '00')
+                    : '00';
+                const hourOptions = Array.from({ length: 13 }, (_, index) => String(index + 8).padStart(2, '0'))
+                    .map((hour) => `<option value="${hour}" ${hour === currentHour ? 'selected' : ''}>${hour}</option>`)
+                    .join('');
+
                 const overlay = document.createElement('div');
                 overlay.style.position = 'fixed';
                 overlay.style.inset = '0';
@@ -1561,7 +1570,17 @@
                         </label>
                         <label style="display:flex;flex-direction:column;gap:6px;">
                             <span>Čas</span>
-                            <input id="editTrainingTime" type="time" value="${training.time || ''}" step="900" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                            <div style="display:flex;gap:8px;">
+                                <select id="editTrainingHour" style="flex:1;padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                                    ${hourOptions}
+                                </select>
+                                <select id="editTrainingMinute" style="flex:1;padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                                    <option value="00" ${currentMinute === '00' ? 'selected' : ''}>00</option>
+                                    <option value="15" ${currentMinute === '15' ? 'selected' : ''}>15</option>
+                                    <option value="30" ${currentMinute === '30' ? 'selected' : ''}>30</option>
+                                    <option value="45" ${currentMinute === '45' ? 'selected' : ''}>45</option>
+                                </select>
+                            </div>
                         </label>
                         <label style="display:flex;flex-direction:column;gap:6px;">
                             <span>Typ</span>
@@ -1613,9 +1632,16 @@
                 const saveButton = modal.querySelector('#editTrainingSave');
                 const cancelButton = modal.querySelector('#editTrainingCancel');
 
+                Array.from(modal.querySelectorAll('select option')).forEach((option) => {
+                    option.style.color = '#111';
+                    option.style.background = '#fff';
+                });
+
                 saveButton?.addEventListener('click', () => {
                     const date = String(modal.querySelector('#editTrainingDate')?.value || '').trim();
-                    const time = String(modal.querySelector('#editTrainingTime')?.value || '').trim();
+                    const hour = String(modal.querySelector('#editTrainingHour')?.value || '').trim();
+                    const minute = String(modal.querySelector('#editTrainingMinute')?.value || '').trim();
+                    const time = (hour && minute) ? `${hour}:${minute}` : '';
                     const type = String(modal.querySelector('#editTrainingType')?.value || '').trim();
                     const duration = Number(modal.querySelector('#editTrainingDuration')?.value || 0);
                     const category = String(modal.querySelector('#editTrainingCategory')?.value || '').trim();
