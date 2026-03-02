@@ -958,6 +958,25 @@ async function closeTraining(id) {
   });
 }
 
+async function updateTraining(id, input) {
+  return prisma.training.update({
+    where: { id },
+    data: {
+      date: input.date,
+      time: input.time,
+      type: input.type,
+      duration: input.duration,
+      category: input.category,
+      note: input.note || null
+    },
+    include: {
+      createdBy: {
+        select: { username: true }
+      }
+    }
+  });
+}
+
 async function deleteTraining(id) {
   return prisma.$transaction(async (tx) => {
     await tx.trainingAttendance.deleteMany({
@@ -1191,6 +1210,7 @@ module.exports = {
   listTrainings,
   findTrainingById,
   createTraining,
+  updateTraining,
   closeTraining,
   deleteTraining,
   upsertTrainingAttendance,

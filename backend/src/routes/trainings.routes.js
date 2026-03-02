@@ -4,6 +4,7 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 const { validateBody } = require('../middleware/validate');
 const {
   createTraining,
+  updateTraining,
   listTrainings,
   findTrainingById,
   closeTraining,
@@ -12,7 +13,7 @@ const {
   createAuditLog,
   listActivePlayerEmailsByTrainingCategory
 } = require('../data/repository');
-const { sendTrainingCreatedEmails } = require('../services/email.service');
+const { sendTrainingCreatedEmails, sendTrainingUpdatedEmails } = require('../services/email.service');
 
 const router = express.Router();
 
@@ -41,6 +42,8 @@ const createTrainingSchema = z.object({
   ).optional()
 });
 
+const updateTrainingSchema = createTrainingSchema;
+
 const attendanceSchema = z.object({
   playerUsername: z.string().min(3).max(100),
   status: z.enum(['yes', 'no', 'unknown'])
@@ -67,6 +70,70 @@ function isQuarterHourTime(value) {
   }
 
   return minutes % 15 === 0;
+}
+
+function formatTrainingType(trainingType) {
+  const labels = {
+    technical: 'Technický',
+    tactical: 'Taktický',
+    physical: 'Fyzický',
+    friendly: 'Priateľský'
+  };
+
+  return labels[trainingType] || trainingType;
+}
+
+function formatTrainingCategory(trainingCategory) {
+  const labels = {
+    pripravky: 'Prípravky',
+    ziaci: 'Žiaci',
+    dorastenci: 'Dorastenci',
+    adults_young: 'Dospelí - Mladí',
+    adults_pro: 'Dospelí - Skúsení'
+  };
+
+  return labels[trainingCategory] || trainingCategory;
+}
+
+function normalizeNote(value) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const normalized = String(value).trim();
+  return normalized || null;
+}
+
+function buildTrainingChanges(before, after) {
+  const changes = [];
+
+  if (before.date !== after.date) {
+    changes.push(`Dátum: ${before.date} → ${after.date}`);
+  }
+
+  if (before.time !== after.time) {
+    changes.push(`Čas: ${before.time} → ${after.time}`);
+  }
+
+  if (before.type !== after.type) {
+    changes.push(`Typ: ${formatTrainingType(before.type)} → ${formatTrainingType(after.type)}`);
+  }
+
+  if (Number(before.duration) !== Number(after.duration)) {
+    changes.push(`Trvanie: ${before.duration} min → ${after.duration} min`);
+  }
+
+  if (before.category !== after.category) {
+    changes.push(`Kategória: ${formatTrainingCategory(before.category)} → ${formatTrainingCategory(after.category)}`);
+  }
+
+  const beforeNote = normalizeNote(before.note);
+  const afterNote = normalizeNote(after.note);
+  if (beforeNote !== afterNote) {
+    changes.push(`Poznámka: ${beforeNote || 'bez poznámky'} → ${afterNote || 'bez poznámky'}`);
+  }
+
+  return changes;
 }
 
 async function writeAuditSafe(payload) {
@@ -151,6 +218,92 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
 
   return res.status(201).json({ item });
 });
+
+async function handleUpdateTraining(req, res) {
+  const existing = await findTrainingById(req.params.id);
+  if (!existing) {
+    return res.status(404).json({ message: 'Tréning neexistuje.' });
+  }
+
+  if (!isQuarterHourTime(req.body.time)) {
+    return res.status(400).json({ message: 'Čas tréningu musí byť po 15 minútach (00, 15, 30, 45).' });
+  }
+
+  const input = {
+    ...req.body,
+    note: normalizeNote(req.body.note)
+  };
+
+  const changes = buildTrainingChanges(existing, input);
+  if (!changes.length) {
+    return res.status(400).json({ message: 'Neboli zistené žiadne zmeny na uloženie.' });
+  }
+
+  const row = await updateTraining(existing.id, input);
+
+  await writeAuditSafe({
+    actorUserId: req.user.id,
+    action: 'training_updated',
+    entityType: 'training',
+    entityId: row.id,
+    details: {
+      changes,
+      previous: {
+        date: existing.date,
+        time: existing.time,
+        type: existing.type,
+        duration: existing.duration,
+        category: existing.category,
+        note: normalizeNote(existing.note)
+      },
+      current: {
+        date: row.date,
+        time: row.time,
+        type: row.type,
+        duration: row.duration,
+        category: row.category,
+        note: normalizeNote(row.note)
+      }
+    }
+  });
+
+  try {
+    const recipients = await listActivePlayerEmailsByTrainingCategory(row.category);
+    const emailResult = await sendTrainingUpdatedEmails({
+      training: row,
+      recipients,
+      updatedByUsername: req.user.username,
+      changes
+    });
+
+    if (emailResult.skipped) {
+      console.info(`Training update email notifications skipped: ${emailResult.skipped}`);
+    } else {
+      console.info(`Training update email notifications sent: ${emailResult.sent}`);
+    }
+  } catch (error) {
+    console.error('Training update email notification failed:', error);
+  }
+
+  return res.json({
+    item: {
+      id: row.id,
+      date: row.date,
+      time: row.time,
+      type: row.type,
+      duration: row.duration,
+      category: row.category,
+      note: row.note,
+      isActive: row.isActive,
+      createdAt: row.createdAt,
+      createdBy: row.createdBy.username
+    },
+    changes
+  });
+}
+
+router.patch('/:id', requireAuth, requireRole('coach', 'admin'), validateBody(updateTrainingSchema), handleUpdateTraining);
+router.post('/:id/update', requireAuth, requireRole('coach', 'admin'), validateBody(updateTrainingSchema), handleUpdateTraining);
 
 router.post('/:id/attendance', requireAuth, validateBody(attendanceSchema), async (req, res) => {
   const training = await findTrainingById(req.params.id);

@@ -617,6 +617,9 @@ function refreshCoachRoster() {
                                         <i class="fas fa-play"></i> Začať tréning
                                     </button>
                                 ` : ''}
+                                <button onclick="editTraining('${training.id}')" style="padding: 8px 12px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%;">
+                                    <i class="fas fa-edit"></i> Upraviť
+                                </button>
                                 <button onclick="deleteTraining('${training.id}')" style="padding: 8px 12px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%;">
                                     <i class="fas fa-trash"></i> Odstrániť
                                 </button>
@@ -726,6 +729,109 @@ function getTrainingCategoryLabel(category) {
         'adults_pro': 'Dospelí - Skúsení (25+)'
     };
     return labels[category] || category;
+}
+
+async function editTraining(id) {
+    const training = trainings.find((item) => String(item.id) === String(id));
+    if (!training) {
+        alert('Tréning sa nenašiel.');
+        return;
+    }
+
+    const date = prompt('Dátum tréningu (YYYY-MM-DD):', training.date || '');
+    if (date === null) return;
+
+    const time = prompt('Čas tréningu (HH:MM, po 15 minútach):', training.time || '');
+    if (time === null) return;
+
+    const type = prompt('Typ tréningu (technical, tactical, physical, friendly):', training.type || '');
+    if (type === null) return;
+
+    const durationRaw = prompt('Trvanie v minútach:', String(training.duration || ''));
+    if (durationRaw === null) return;
+
+    const category = prompt('Kategória (pripravky, ziaci, dorastenci, adults_young, adults_pro):', training.category || '');
+    if (category === null) return;
+
+    const noteRaw = prompt('Poznámka (voliteľné):', training.note || '');
+    if (noteRaw === null) return;
+
+    const trimmedDate = String(date || '').trim();
+    const trimmedTime = String(time || '').trim();
+    const trimmedType = String(type || '').trim();
+    const trimmedCategory = String(category || '').trim();
+    const duration = Number(durationRaw);
+    const note = String(noteRaw || '').trim();
+
+    const allowedTypes = ['technical', 'tactical', 'physical', 'friendly'];
+    const allowedCategories = ['pripravky', 'ziaci', 'dorastenci', 'adults_young', 'adults_pro'];
+
+    if (!trimmedDate || !trimmedTime || !trimmedType || !trimmedCategory || !Number.isInteger(duration) || duration < 1) {
+        alert('Vyplňte platné hodnoty pre všetky povinné polia.');
+        return;
+    }
+
+    if (!isQuarterHourTime(trimmedTime)) {
+        alert('Čas tréningu musí byť po 15 minútach (00, 15, 30, 45).');
+        return;
+    }
+
+    if (!allowedTypes.includes(trimmedType)) {
+        alert('Neplatný typ tréningu. Povolené: technical, tactical, physical, friendly.');
+        return;
+    }
+
+    if (!allowedCategories.includes(trimmedCategory)) {
+        alert('Neplatná kategória. Povolené: pripravky, ziaci, dorastenci, adults_young, adults_pro.');
+        return;
+    }
+
+    try {
+        const csrfToken = typeof ensureCsrfToken === 'function' ? await ensureCsrfToken() : null;
+        const payload = {
+            date: trimmedDate,
+            time: trimmedTime,
+            type: trimmedType,
+            duration,
+            category: trimmedCategory,
+            note: note || null
+        };
+
+        const patchResponse = await fetch(`${getApiBase()}/trainings/${id}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!patchResponse.ok) {
+            const fallbackResponse = await fetch(`${getApiBase()}/trainings/${id}/update`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!fallbackResponse.ok) {
+                const payloadError = await fallbackResponse.json().catch(() => ({}));
+                throw new Error(payloadError.message || 'Nepodarilo sa upraviť tréning.');
+            }
+        }
+    } catch (error) {
+        alert(error.message || 'Nepodarilo sa upraviť tréning.');
+        return;
+    }
+
+    await loadTrainingData();
+    alert('Tréning bol upravený a notifikácia odoslaná.');
+    refreshCoachRoster();
+    refreshPlayerTrainings();
 }
 
 // Delete training
