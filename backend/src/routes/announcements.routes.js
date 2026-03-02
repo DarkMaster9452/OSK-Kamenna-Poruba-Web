@@ -85,7 +85,7 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
   return res.status(201).json({ item });
 });
 
-router.delete('/:id', requireAuth, requireRole('coach', 'admin'), async (req, res) => {
+async function handleDeleteAnnouncement(req, res) {
   await writeAuditSafe({
     actorUserId: req.user.id,
     action: 'announcement_deleted',
@@ -95,6 +95,9 @@ router.delete('/:id', requireAuth, requireRole('coach', 'admin'), async (req, re
   });
   await deleteAnnouncement(req.params.id);
   return res.status(204).send();
-});
+}
+
+router.delete('/:id', requireAuth, requireRole('coach', 'admin'), handleDeleteAnnouncement);
+router.post('/:id/delete', requireAuth, requireRole('coach', 'admin'), handleDeleteAnnouncement);
 
 module.exports = router;

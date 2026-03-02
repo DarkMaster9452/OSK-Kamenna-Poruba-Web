@@ -252,7 +252,7 @@ router.patch('/:id/close', requireAuth, requireRole('coach', 'admin'), async (re
   });
 });
 
-router.delete('/:id', requireAuth, requireRole('coach', 'admin'), async (req, res) => {
+async function handleDeletePoll(req, res) {
   await writeAuditSafe({
     actorUserId: req.user.id,
     action: 'poll_deleted',
@@ -262,6 +262,9 @@ router.delete('/:id', requireAuth, requireRole('coach', 'admin'), async (req, re
   });
   await deletePoll(req.params.id);
   return res.status(204).send();
-});
+}
+
+router.delete('/:id', requireAuth, requireRole('coach', 'admin'), handleDeletePoll);
+router.post('/:id/delete', requireAuth, requireRole('coach', 'admin'), handleDeletePoll);
 
 module.exports = router;
