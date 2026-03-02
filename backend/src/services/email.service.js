@@ -48,6 +48,35 @@ function formatTrainingCategory(trainingCategory) {
   return labels[trainingCategory] || trainingCategory;
 }
 
+function getTrainingNoteLine(training) {
+  const note = String(training?.note || '').trim();
+  return note || 'Bez poznámky';
+}
+
+function normalizeRecipientAddresses(recipients) {
+  const unique = new Set();
+
+  (Array.isArray(recipients) ? recipients : [])
+    .map((recipient) => String(recipient?.email || '').trim().toLowerCase())
+    .filter(Boolean)
+    .forEach((email) => unique.add(email));
+
+  return Array.from(unique);
+}
+
+async function sendToRecipients(mailer, recipientAddresses, messageFactory) {
+  const jobs = recipientAddresses.map((recipientEmail) =>
+    mailer.sendMail({
+      ...messageFactory(recipientEmail),
+      to: recipientEmail
+    })
+  );
+
+  const results = await Promise.allSettled(jobs);
+  const sent = results.filter((result) => result.status === 'fulfilled').length;
+  return { sent, skipped: sent > 0 ? null : 'send_failed' };
+}
+
 async function sendTrainingCreatedEmails({ training, recipients, createdByUsername }) {
   if (!env.emailNotificationsEnabled) {
     return { sent: 0, skipped: 'disabled' };
@@ -62,25 +91,26 @@ async function sendTrainingCreatedEmails({ training, recipients, createdByUserna
     return { sent: 0, skipped: 'smtp_not_configured' };
   }
 
-  const recipientAddresses = recipients
-    .map((recipient) => (recipient.email || '').trim())
-    .filter(Boolean);
+  const recipientAddresses = normalizeRecipientAddresses(recipients);
 
   if (!recipientAddresses.length) {
     return { sent: 0, skipped: 'no_valid_emails' };
   }
 
-  const subject = `OŠK: Nový tréning pre kategóriu ${formatTrainingCategory(training.category)}`;
+  const categoryLabel = formatTrainingCategory(training.category);
+  const subject = `OŠK: Nový tréning (${categoryLabel}) ${training.date} ${training.time}`;
+  const trainingNote = getTrainingNoteLine(training);
   const text = [
     'Ahoj,',
     '',
-    'bol vytvorený nový tréning.',
+    'bol vytvorený nový tréning pre tvoju skupinu.',
     '',
+    `Kategória: ${categoryLabel}`,
     `Dátum: ${training.date}`,
     `Čas: ${training.time}`,
     `Typ: ${formatTrainingType(training.type)}`,
     `Trvanie: ${training.duration} min`,
-    `Kategória: ${formatTrainingCategory(training.category)}`,
+    `Poznámka: ${trainingNote}`,
     `Vytvoril: ${createdByUsername}`,
     '',
     'Prihlás sa do klubového systému pre potvrdenie účasti.',
@@ -88,15 +118,11 @@ async function sendTrainingCreatedEmails({ training, recipients, createdByUserna
     'OŠK Kamenná Poruba'
   ].join('\n');
 
-  await mailer.sendMail({
+  return sendToRecipients(mailer, recipientAddresses, () => ({
     from: `"${env.smtpFromName}" <${env.smtpFromEmail}>`,
-    to: env.smtpFromEmail,
-    bcc: recipientAddresses,
     subject,
     text
-  });
-
-  return { sent: recipientAddresses.length, skipped: null };
+  }));
 }
 
 async function sendTrainingUpdatedEmails({ training, recipients, updatedByUsername, changes }) {
@@ -113,9 +139,7 @@ async function sendTrainingUpdatedEmails({ training, recipients, updatedByUserna
     return { sent: 0, skipped: 'smtp_not_configured' };
   }
 
-  const recipientAddresses = recipients
-    .map((recipient) => (recipient.email || '').trim())
-    .filter(Boolean);
+  const recipientAddresses = normalizeRecipientAddresses(recipients);
 
   if (!recipientAddresses.length) {
     return { sent: 0, skipped: 'no_valid_emails' };
@@ -129,17 +153,20 @@ async function sendTrainingUpdatedEmails({ training, recipients, updatedByUserna
     ? normalizedChanges.map((change) => `- ${change}`).join('\n')
     : '- Bez detailov';
 
-  const subject = `OŠK: Zmena tréningu pre kategóriu ${formatTrainingCategory(training.category)}`;
+  const categoryLabel = formatTrainingCategory(training.category);
+  const subject = `OŠK: Zmena tréningu (${categoryLabel}) ${training.date} ${training.time}`;
+  const trainingNote = getTrainingNoteLine(training);
   const text = [
     'Ahoj,',
     '',
-    'tréning bol upravený. Zmeny nájdeš nižšie.',
+    'tréning pre tvoju skupinu bol upravený. Zmeny nájdeš nižšie.',
     '',
+    `Kategória: ${categoryLabel}`,
     `Dátum: ${training.date}`,
     `Čas: ${training.time}`,
     `Typ: ${formatTrainingType(training.type)}`,
     `Trvanie: ${training.duration} min`,
-    `Kategória: ${formatTrainingCategory(training.category)}`,
+    `Poznámka: ${trainingNote}`,
     `Upravil: ${updatedByUsername}`,
     '',
     'Čo sa zmenilo:',
@@ -150,15 +177,11 @@ async function sendTrainingUpdatedEmails({ training, recipients, updatedByUserna
     'OŠK Kamenná Poruba'
   ].join('\n');
 
-  await mailer.sendMail({
+  return sendToRecipients(mailer, recipientAddresses, () => ({
     from: `"${env.smtpFromName}" <${env.smtpFromEmail}>`,
-    to: env.smtpFromEmail,
-    bcc: recipientAddresses,
     subject,
     text
-  });
-
-  return { sent: recipientAddresses.length, skipped: null };
+  }));
 }
 
 async function sendContactFormEmail({ name, email, message }) {
