@@ -844,7 +844,7 @@ async function listActivePlayerEmailsByTrainingCategory(trainingCategory) {
       role: 'player',
       isActive: true,
       email: {
-        not: null
+        not: ''
       },
       playerCategory: {
         in: playerCategories
