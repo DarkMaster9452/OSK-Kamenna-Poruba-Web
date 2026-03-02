@@ -126,6 +126,7 @@ function buildTrainingEmailHtml({
         <td style="padding:0 24px 24px;">
           <div style="background:#f0f5ff;border:1px solid #d8e5ff;border-radius:10px;padding:14px 16px;color:#20304d;font-size:14px;line-height:1.45;">
             Prosím, prihlás sa do klubového systému a potvrď účasť.
+            <a href="https://osk-kamenna-poruba.vercel.app" style="display:inline-block;margin-top:12px;padding:10px 18px;background:#003399;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:700;">Přejít do systému</a>
           </div>
         </td>
       </tr>
