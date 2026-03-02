@@ -199,13 +199,26 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
     }
   });
 
+  const emailNotification = {
+    status: 'not_attempted',
+    reason: null,
+    sent: 0,
+    recipients: 0
+  };
+
   try {
     const recipients = await listActivePlayerEmailsByTrainingCategory(row.category);
+    emailNotification.recipients = recipients.length;
+
     const emailResult = await sendTrainingCreatedEmails({
       training: row,
       recipients,
       createdByUsername: row.createdBy.username
     });
+
+    emailNotification.sent = Number(emailResult.sent || 0);
+    emailNotification.reason = emailResult.skipped || null;
+    emailNotification.status = emailResult.skipped ? 'skipped' : 'sent';
 
     if (emailResult.skipped) {
       console.info(`Training email notifications skipped: ${emailResult.skipped}`);
@@ -213,10 +226,12 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
       console.info(`Training email notifications sent: ${emailResult.sent}`);
     }
   } catch (error) {
+    emailNotification.status = 'failed';
+    emailNotification.reason = 'exception';
     console.error('Training email notification failed:', error);
   }
 
-  return res.status(201).json({ item });
+  return res.status(201).json({ item, emailNotification });
 });
 
 async function handleUpdateTraining(req, res) {
@@ -267,8 +282,17 @@ async function handleUpdateTraining(req, res) {
     }
   });
 
+  const emailNotification = {
+    status: 'not_attempted',
+    reason: null,
+    sent: 0,
+    recipients: 0
+  };
+
   try {
     const recipients = await listActivePlayerEmailsByTrainingCategory(row.category);
+    emailNotification.recipients = recipients.length;
+
     const emailResult = await sendTrainingUpdatedEmails({
       training: row,
       recipients,
@@ -276,12 +300,18 @@ async function handleUpdateTraining(req, res) {
       changes
     });
 
+    emailNotification.sent = Number(emailResult.sent || 0);
+    emailNotification.reason = emailResult.skipped || null;
+    emailNotification.status = emailResult.skipped ? 'skipped' : 'sent';
+
     if (emailResult.skipped) {
       console.info(`Training update email notifications skipped: ${emailResult.skipped}`);
     } else {
       console.info(`Training update email notifications sent: ${emailResult.sent}`);
     }
   } catch (error) {
+    emailNotification.status = 'failed';
+    emailNotification.reason = 'exception';
     console.error('Training update email notification failed:', error);
   }
 
@@ -298,7 +328,8 @@ async function handleUpdateTraining(req, res) {
       createdAt: row.createdAt,
       createdBy: row.createdBy.username
     },
-    changes
+    changes,
+    emailNotification
   });
 }
 
