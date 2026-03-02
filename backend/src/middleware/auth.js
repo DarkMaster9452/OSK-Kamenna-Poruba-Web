@@ -1,5 +1,6 @@
 ﻿const env = require('../config/env');
 const { verifyAccessToken, signAccessToken } = require('../services/token.service');
+const { findUserById, findUserByUsername } = require('../data/repository');
 
 function cookieOptions() {
   return {
@@ -23,7 +24,32 @@ function getTokenFromRequest(req) {
   return null;
 }
 
-function requireAuth(req, res, next) {
+async function resolveAuthenticatedUser(payload) {
+  const sub = String(payload?.sub || '').trim();
+  const username = String(payload?.username || '').trim();
+
+  if (!sub && !username) {
+    return null;
+  }
+
+  if (sub) {
+    const userById = await findUserById(sub);
+    if (userById && userById.isActive) {
+      return userById;
+    }
+  }
+
+  if (username) {
+    const userByUsername = await findUserByUsername(username);
+    if (userByUsername && userByUsername.isActive) {
+      return userByUsername;
+    }
+  }
+
+  return null;
+}
+
+async function requireAuth(req, res, next) {
   const cookieToken = req.cookies ? req.cookies[env.cookieName] : null;
   const token = getTokenFromRequest(req);
   if (!token) {
@@ -32,19 +58,32 @@ function requireAuth(req, res, next) {
 
   try {
     const payload = verifyAccessToken(token);
+    const user = await resolveAuthenticatedUser(payload);
+    if (!user) {
+      return res.status(401).json({ message: 'Neautorizované' });
+    }
+
     req.user = {
-      id: payload.sub,
-      username: payload.username,
-      role: payload.role,
-      playerCategory: payload.playerCategory || null
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      playerCategory: user.playerCategory || null
     };
 
-    if (cookieToken) {
+    const shouldRefreshToken =
+      Boolean(cookieToken) && (
+        payload.sub !== user.id ||
+        payload.username !== user.username ||
+        payload.role !== user.role ||
+        (payload.playerCategory || null) !== (user.playerCategory || null)
+      );
+
+    if (shouldRefreshToken) {
       const refreshedToken = signAccessToken({
-        sub: payload.sub,
-        username: payload.username,
-        role: payload.role,
-        playerCategory: payload.playerCategory || null
+        sub: user.id,
+        username: user.username,
+        role: user.role,
+        playerCategory: user.playerCategory || null
       });
 
       res.cookie(env.cookieName, refreshedToken, cookieOptions());
