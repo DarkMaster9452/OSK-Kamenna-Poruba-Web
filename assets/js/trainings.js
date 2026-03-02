@@ -731,6 +731,130 @@ function getTrainingCategoryLabel(category) {
     return labels[category] || category;
 }
 
+function openTrainingEditModal(training) {
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.background = 'rgba(0, 0, 0, 0.7)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.padding = '20px';
+        overlay.style.zIndex = '9999';
+
+        const modal = document.createElement('div');
+        modal.style.width = '100%';
+        modal.style.maxWidth = '680px';
+        modal.style.maxHeight = '90vh';
+        modal.style.overflowY = 'auto';
+        modal.style.background = '#0f2f73';
+        modal.style.border = '2px solid #ffd700';
+        modal.style.borderRadius = '10px';
+        modal.style.padding = '20px';
+        modal.style.color = 'white';
+
+        modal.innerHTML = `
+            <h3 style="margin:0 0 16px 0;color:#ffd700;"><i class="fas fa-edit"></i> Upraviť tréning</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+                <label style="display:flex;flex-direction:column;gap:6px;">
+                    <span>Dátum</span>
+                    <input id="editTrainingDate" type="date" value="${training.date || ''}" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;">
+                    <span>Čas</span>
+                    <input id="editTrainingTime" type="time" value="${training.time || ''}" step="900" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;">
+                    <span>Typ</span>
+                    <select id="editTrainingType" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                        <option value="technical" ${training.type === 'technical' ? 'selected' : ''}>Technický</option>
+                        <option value="tactical" ${training.type === 'tactical' ? 'selected' : ''}>Taktický</option>
+                        <option value="physical" ${training.type === 'physical' ? 'selected' : ''}>Fyzický</option>
+                        <option value="friendly" ${training.type === 'friendly' ? 'selected' : ''}>Priateľský</option>
+                    </select>
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;">
+                    <span>Trvanie (min)</span>
+                    <input id="editTrainingDuration" type="number" min="1" step="1" value="${training.duration || 60}" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1;">
+                    <span>Kategória</span>
+                    <select id="editTrainingCategory" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                        <option value="pripravky" ${training.category === 'pripravky' ? 'selected' : ''}>Prípravky (U8-U9)</option>
+                        <option value="ziaci" ${training.category === 'ziaci' ? 'selected' : ''}>Žiaci (U10-U12)</option>
+                        <option value="dorastenci" ${training.category === 'dorastenci' ? 'selected' : ''}>Dorastenci (U13-U18)</option>
+                        <option value="adults_young" ${training.category === 'adults_young' ? 'selected' : ''}>Dospelí - Mladí (18-25)</option>
+                        <option value="adults_pro" ${training.category === 'adults_pro' ? 'selected' : ''}>Dospelí - Skúsení (25+)</option>
+                    </select>
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1;">
+                    <span>Poznámka</span>
+                    <textarea id="editTrainingNote" maxlength="1000" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;min-height:90px;resize:vertical;">${training.note || ''}</textarea>
+                </label>
+            </div>
+            <div id="editTrainingError" style="display:none;margin-top:12px;color:#ffb3b3;"></div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:18px;">
+                <button id="editTrainingCancel" type="button" style="padding:10px 14px;border:none;border-radius:6px;background:#7f8c8d;color:white;cursor:pointer;">Zrušiť</button>
+                <button id="editTrainingSave" type="button" style="padding:10px 14px;border:none;border-radius:6px;background:#2ecc71;color:white;cursor:pointer;">Uložiť zmeny</button>
+            </div>
+        `;
+
+        const closeModal = (value) => {
+            overlay.remove();
+            resolve(value);
+        };
+
+        const showError = (message) => {
+            const errorElement = modal.querySelector('#editTrainingError');
+            if (!errorElement) return;
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        };
+
+        const saveButton = modal.querySelector('#editTrainingSave');
+        const cancelButton = modal.querySelector('#editTrainingCancel');
+
+        saveButton?.addEventListener('click', () => {
+            const date = String(modal.querySelector('#editTrainingDate')?.value || '').trim();
+            const time = String(modal.querySelector('#editTrainingTime')?.value || '').trim();
+            const type = String(modal.querySelector('#editTrainingType')?.value || '').trim();
+            const duration = Number(modal.querySelector('#editTrainingDuration')?.value || 0);
+            const category = String(modal.querySelector('#editTrainingCategory')?.value || '').trim();
+            const note = String(modal.querySelector('#editTrainingNote')?.value || '').trim();
+
+            if (!date || !time || !type || !category || !Number.isInteger(duration) || duration < 1) {
+                showError('Vyplňte platné hodnoty pre všetky povinné polia.');
+                return;
+            }
+
+            if (!isQuarterHourTime(time)) {
+                showError('Čas tréningu musí byť po 15 minútach (00, 15, 30, 45).');
+                return;
+            }
+
+            closeModal({
+                date,
+                time,
+                type,
+                duration,
+                category,
+                note: note || null
+            });
+        });
+
+        cancelButton?.addEventListener('click', () => closeModal(null));
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                closeModal(null);
+            }
+        });
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+    });
+}
+
 async function editTraining(id) {
     const training = trainings.find((item) => String(item.id) === String(id));
     if (!training) {
@@ -738,65 +862,13 @@ async function editTraining(id) {
         return;
     }
 
-    const date = prompt('Dátum tréningu (YYYY-MM-DD):', training.date || '');
-    if (date === null) return;
-
-    const time = prompt('Čas tréningu (HH:MM, po 15 minútach):', training.time || '');
-    if (time === null) return;
-
-    const type = prompt('Typ tréningu (technical, tactical, physical, friendly):', training.type || '');
-    if (type === null) return;
-
-    const durationRaw = prompt('Trvanie v minútach:', String(training.duration || ''));
-    if (durationRaw === null) return;
-
-    const category = prompt('Kategória (pripravky, ziaci, dorastenci, adults_young, adults_pro):', training.category || '');
-    if (category === null) return;
-
-    const noteRaw = prompt('Poznámka (voliteľné):', training.note || '');
-    if (noteRaw === null) return;
-
-    const trimmedDate = String(date || '').trim();
-    const trimmedTime = String(time || '').trim();
-    const trimmedType = String(type || '').trim();
-    const trimmedCategory = String(category || '').trim();
-    const duration = Number(durationRaw);
-    const note = String(noteRaw || '').trim();
-
-    const allowedTypes = ['technical', 'tactical', 'physical', 'friendly'];
-    const allowedCategories = ['pripravky', 'ziaci', 'dorastenci', 'adults_young', 'adults_pro'];
-
-    if (!trimmedDate || !trimmedTime || !trimmedType || !trimmedCategory || !Number.isInteger(duration) || duration < 1) {
-        alert('Vyplňte platné hodnoty pre všetky povinné polia.');
-        return;
-    }
-
-    if (!isQuarterHourTime(trimmedTime)) {
-        alert('Čas tréningu musí byť po 15 minútach (00, 15, 30, 45).');
-        return;
-    }
-
-    if (!allowedTypes.includes(trimmedType)) {
-        alert('Neplatný typ tréningu. Povolené: technical, tactical, physical, friendly.');
-        return;
-    }
-
-    if (!allowedCategories.includes(trimmedCategory)) {
-        alert('Neplatná kategória. Povolené: pripravky, ziaci, dorastenci, adults_young, adults_pro.');
+    const payload = await openTrainingEditModal(training);
+    if (!payload) {
         return;
     }
 
     try {
         const csrfToken = typeof ensureCsrfToken === 'function' ? await ensureCsrfToken() : null;
-        const payload = {
-            date: trimmedDate,
-            time: trimmedTime,
-            type: trimmedType,
-            duration,
-            category: trimmedCategory,
-            note: note || null
-        };
-
         const patchResponse = await fetch(`${getApiBase()}/trainings/${id}`, {
             method: 'PATCH',
             credentials: 'include',
