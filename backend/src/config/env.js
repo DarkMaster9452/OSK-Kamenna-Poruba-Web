@@ -37,6 +37,7 @@ const env = {
   contactFormToEmail: process.env.CONTACT_FORM_TO_EMAIL || '',
   sportnetApiBase: process.env.SPORTNET_API_BASE || process.env.SPORTSNET_API_BASE || defaultSportnetApiBase,
   sportnetOrgId: process.env.SPORTNET_ORG_ID || process.env.SPORTSNET_ORG_ID || defaultSportnetOrgId,
+  sportnetMatchesPath: process.env.SPORTNET_MATCHES_PATH || process.env.SPORTSNET_MATCHES_PATH || '/organizations/{orgId}/matches',
   sportsnetApiUrl: process.env.SPORTNET_API_URL || process.env.SPORTSNET_API_URL || '',
   sportsnetApiKey: process.env.SPORTNET_API_KEY || process.env.SPORTSNET_API_KEY || '',
   sportsnetTeamId: process.env.SPORTSNET_TEAM_ID || '',

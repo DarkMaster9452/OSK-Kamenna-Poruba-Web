@@ -26,8 +26,17 @@ function buildSportsnetUrl() {
       throw invalidUrlError;
     }
 
+    if (url.hostname === 'futbalnet.sportnet.online') {
+      url.hostname = 'api.sportnet.online';
+    }
+
     const basePath = String(url.pathname || '').replace(/\/+$/, '');
-    url.pathname = `${basePath}/organizations/${encodeURIComponent(env.sportnetOrgId.trim())}/matches`.replace(/\/{2,}/g, '/');
+    const templatePath = String(env.sportnetMatchesPath || '/organizations/{orgId}/matches').trim();
+    const resolvedTemplate = templatePath.includes('{orgId}')
+      ? templatePath.replace(/\{orgId\}/g, encodeURIComponent(env.sportnetOrgId.trim()))
+      : `${templatePath.replace(/\/+$/, '')}/${encodeURIComponent(env.sportnetOrgId.trim())}`;
+    const normalizedTemplatePath = `/${resolvedTemplate.replace(/^\/+/, '')}`;
+    url.pathname = `${basePath}${normalizedTemplatePath}`.replace(/\/{2,}/g, '/');
   } else {
     if (!isNonEmptyString(env.sportsnetApiUrl)) {
       const error = new Error('SPORTNET_API_BASE alebo SPORTSNET_API_URL nie je nastavené.');
