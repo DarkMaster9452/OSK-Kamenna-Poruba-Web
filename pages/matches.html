@@ -396,6 +396,53 @@
             margin: 20px 0;
         }
 
+        .video-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 0;
+            margin: 20px 0;
+        }
+
+        .video-title {
+            font-weight: bold;
+            color: #003399;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .video-card {
+            background: white;
+            border-left: 3px solid #ffd700;
+            padding: 12px;
+        }
+
+        .video-half {
+            font-weight: bold;
+            color: #003399;
+            margin-bottom: 6px;
+        }
+
+        .video-link {
+            color: #1a5ccc;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .video-link:hover {
+            text-decoration: underline;
+        }
+
+        .video-empty {
+            color: #777;
+            font-size: 13px;
+        }
+
         .events-title {
             font-weight: bold;
             color: #003399;
@@ -547,6 +594,10 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
     <link rel="icon" type="image/png" href="/assets/images/O%C5%A0K%20Kamenn%C3%A1%20Poruba%20Logo.png">
@@ -612,6 +663,10 @@
                 ],
                 homeStats: null,
                 awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: []
             },
             'match_002': {
@@ -654,6 +709,10 @@
                     corners: 4,
                     yellowCards: 1,
                     redCards: 0
+                },
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
                 },
                 events: [
                     { minute: 12, type: 'goal', team: 'home', player: 'Ján Pavlovič', icon: '⚽' },
@@ -704,6 +763,10 @@
                     yellowCards: 2,
                     redCards: 0
                 },
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: [
                     { minute: 8, type: 'goal', team: 'home', player: 'Jakub Horváth', icon: '⚽' },
                     { minute: 23, type: 'goal', team: 'home', player: 'Lukáš Kuba', icon: '⚽' },
@@ -732,6 +795,10 @@
                 homeLineup: [],
                 homeStats: null,
                 awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: []
             },
             'match_005': {
@@ -753,6 +820,10 @@
                 homeLineup: [],
                 homeStats: null,
                 awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: []
             },
             'match_006': {
@@ -774,6 +845,10 @@
                 homeLineup: [],
                 homeStats: null,
                 awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: []
             },
             'match_007': {
@@ -795,6 +870,10 @@
                 homeLineup: [],
                 homeStats: null,
                 awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: []
             },
             'match_008': {
@@ -816,6 +895,10 @@
                 homeLineup: [],
                 homeStats: null,
                 awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: []
             },
             'match_009': {
@@ -837,6 +920,10 @@
                 homeLineup: [],
                 homeStats: null,
                 awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: []
             },
             'match_010': {
@@ -858,6 +945,10 @@
                 homeLineup: [],
                 homeStats: null,
                 awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: []
             }
         };
@@ -920,6 +1011,10 @@
                 homeLineup: [],
                 homeStats: null,
                 awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
                 events: []
             };
         }
@@ -1072,6 +1167,9 @@
 
             let statsHtml = '';
             if (match.homeStats && match.awayStats) {
+                const firstHalfVideo = match.videoRecordings?.firstHalf || '';
+                const secondHalfVideo = match.videoRecordings?.secondHalf || '';
+
                 statsHtml = `
                     <div class="stats-section">
                         <div class="stats-title"><i class="fas fa-chart-bar"></i> Štatistiky</div>
@@ -1123,6 +1221,24 @@
                                     <div class="stat-vs"></div>
                                     <div class="stat-value"></div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="video-section">
+                        <div class="video-title"><i class="fas fa-video"></i> Videozáznam</div>
+                        <div class="video-grid">
+                            <div class="video-card">
+                                <div class="video-half">1. polčas</div>
+                                ${firstHalfVideo
+                        ? `<a class="video-link" href="${firstHalfVideo}" target="_blank" rel="noopener noreferrer">Pozrieť video</a>`
+                        : '<div class="video-empty">Video zatiaľ nie je dostupné</div>'}
+                            </div>
+                            <div class="video-card">
+                                <div class="video-half">2. polčas</div>
+                                ${secondHalfVideo
+                        ? `<a class="video-link" href="${secondHalfVideo}" target="_blank" rel="noopener noreferrer">Pozrieť video</a>`
+                        : '<div class="video-empty">Video zatiaľ nie je dostupné</div>'}
                             </div>
                         </div>
                     </div>
