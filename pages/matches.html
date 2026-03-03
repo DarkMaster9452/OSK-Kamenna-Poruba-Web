@@ -1000,6 +1000,17 @@
             cache: 'FALLBACK'
         };
 
+        function applyFallbackInfo(status, source, fetchedAt) {
+            MATCHES = { ...FALLBACK_MATCHES };
+            SPORTSNET_INFO = {
+                status,
+                source,
+                fetchedAt: fetchedAt || new Date().toISOString(),
+                count: Object.keys(FALLBACK_MATCHES).length,
+                cache: 'FALLBACK'
+            };
+        }
+
         function resolveApiBase() {
             const host = window.location.hostname;
             if (host === 'localhost' || host === '127.0.0.1') {
@@ -1101,6 +1112,19 @@
                 const payload = await response.json();
                 const items = Array.isArray(payload?.items) ? payload.items : [];
 
+                const isUnconfigured =
+                    payload?.source === 'sportsnet.unconfigured' ||
+                    payload?.cache === 'BYPASS';
+
+                if (isUnconfigured) {
+                    applyFallbackInfo(
+                        'UNCONFIGURED',
+                        'Lokálne dáta (Sportsnet endpoint nie je nastavený)',
+                        payload?.fetchedAt
+                    );
+                    return;
+                }
+
                 SPORTSNET_INFO = {
                     status: 'OK',
                     source: payload?.source || 'sportsnet.online',
@@ -1111,6 +1135,7 @@
 
                 if (items.length === 0) {
                     SPORTSNET_INFO.status = 'EMPTY';
+                    MATCHES = {};
                     return;
                 }
 
@@ -1122,13 +1147,7 @@
 
                 MATCHES = normalizedMatches;
             } catch (error) {
-                SPORTSNET_INFO = {
-                    status: 'ERROR',
-                    source: 'Lokálne dáta',
-                    fetchedAt: new Date().toISOString(),
-                    count: Object.keys(FALLBACK_MATCHES).length,
-                    cache: 'FALLBACK'
-                };
+                applyFallbackInfo('ERROR', 'Lokálne dáta (chyba Sportsnet API)');
                 console.warn('Sportsnet dáta sa nepodarilo načítať, používam fallback.', error);
             }
         }
