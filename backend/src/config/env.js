@@ -33,6 +33,8 @@ const env = {
   smtpFromEmail: process.env.SMTP_FROM_EMAIL || '',
   smtpFromName: process.env.SMTP_FROM_NAME || 'OŠK Kamenná Poruba',
   contactFormToEmail: process.env.CONTACT_FORM_TO_EMAIL || '',
+  sportnetApiBase: process.env.SPORTNET_API_BASE || process.env.SPORTSNET_API_BASE || '',
+  sportnetOrgId: process.env.SPORTNET_ORG_ID || process.env.SPORTSNET_ORG_ID || '',
   sportsnetApiUrl: process.env.SPORTNET_API_URL || process.env.SPORTSNET_API_URL || '',
   sportsnetApiKey: process.env.SPORTNET_API_KEY || process.env.SPORTSNET_API_KEY || '',
   sportsnetTeamId: process.env.SPORTSNET_TEAM_ID || '',

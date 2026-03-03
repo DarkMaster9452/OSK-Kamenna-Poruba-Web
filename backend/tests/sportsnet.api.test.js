@@ -6,8 +6,11 @@ jest.mock('dotenv', () => ({
 
 function setSportsnetEnv() {
   process.env.NODE_ENV = 'test';
-  process.env.SPORTSNET_API_URL = 'https://api.sportsnet.test/matches?source=club';
-  process.env.SPORTSNET_API_KEY = 'test-api-key';
+  process.env.SPORTNET_API_BASE = 'https://api.sportsnet.test';
+  process.env.SPORTNET_ORG_ID = '54b532721c6198f161840003';
+  process.env.SPORTNET_API_KEY = 'test-api-key';
+  process.env.SPORTSNET_API_URL = '';
+  process.env.SPORTSNET_API_KEY = '';
   process.env.SPORTSNET_TEAM_ID = '1234';
   process.env.SPORTSNET_COMPETITION_ID = '9876';
   process.env.SPORTSNET_SEASON = '2025-2026';
@@ -15,10 +18,11 @@ function setSportsnetEnv() {
 }
 
 function createFetchResponse(body, status = 200) {
+  const bodyText = typeof body === 'string' ? body : JSON.stringify(body);
   return {
     ok: status >= 200 && status < 300,
     status,
-    json: async () => body
+    text: async () => bodyText
   };
 }
 
@@ -74,7 +78,7 @@ describe('GET /api/sportsnet/matches', () => {
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
     const [url, options] = global.fetch.mock.calls[0];
-    expect(url).toContain('source=club');
+    expect(url).toContain('/organizations/54b532721c6198f161840003/matches');
     expect(url).toContain('teamId=1234');
     expect(url).toContain('competitionId=9876');
     expect(url).toContain('season=2025-2026');
@@ -82,7 +86,8 @@ describe('GET /api/sportsnet/matches', () => {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        Authorization: 'ApiKey test-api-key'
+        'X-Api-Key': 'test-api-key',
+        'Content-Type': 'application/json'
       }
     });
   });
@@ -160,6 +165,30 @@ describe('GET /api/sportsnet/matches', () => {
     expect(response.status).toBe(502);
     expect(response.body).toEqual({
       message: 'Sportsnet API vrátilo status 503.'
+    });
+  });
+
+  test('pri sieťovej chybe na Sportsnet endpoint vráti backend status 502', async () => {
+    global.fetch.mockRejectedValue(new Error('fetch failed'));
+
+    const app = await loadApp();
+    const response = await request(app).get('/api/sportsnet/matches');
+
+    expect(response.status).toBe(502);
+    expect(response.body).toEqual({
+      message: 'Nepodarilo sa pripojiť na Sportsnet API endpoint.'
+    });
+  });
+
+  test('pri HTML odpovedi zo Sportsnet endpointu vráti backend status 502', async () => {
+    global.fetch.mockResolvedValue(createFetchResponse('<!DOCTYPE html><html><body>Error page</body></html>', 200));
+
+    const app = await loadApp();
+    const response = await request(app).get('/api/sportsnet/matches');
+
+    expect(response.status).toBe(502);
+    expect(response.body).toEqual({
+      message: 'Sportsnet endpoint nevrátil validné JSON dáta. Skontroluj SPORTNET_API_BASE/SPORTNET_API_URL.'
     });
   });
 });

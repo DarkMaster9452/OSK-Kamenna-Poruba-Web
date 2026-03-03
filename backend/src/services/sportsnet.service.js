@@ -10,19 +10,38 @@ function isNonEmptyString(value) {
 }
 
 function buildSportsnetUrl() {
-  if (!isNonEmptyString(env.sportsnetApiUrl)) {
-    const error = new Error('SPORTSNET_API_URL nie je nastavené.');
-    error.status = 400;
-    throw error;
-  }
-
   let url;
-  try {
-    url = new URL(env.sportsnetApiUrl);
-  } catch (error) {
-    const invalidUrlError = new Error('SPORTSNET_API_URL má neplatný formát URL.');
-    invalidUrlError.status = 400;
-    throw invalidUrlError;
+  if (isNonEmptyString(env.sportnetApiBase)) {
+    if (!isNonEmptyString(env.sportnetOrgId)) {
+      const error = new Error('SPORTNET_ORG_ID nie je nastavené.');
+      error.status = 400;
+      throw error;
+    }
+
+    try {
+      url = new URL(env.sportnetApiBase);
+    } catch (error) {
+      const invalidUrlError = new Error('SPORTNET_API_BASE má neplatný formát URL.');
+      invalidUrlError.status = 400;
+      throw invalidUrlError;
+    }
+
+    const basePath = String(url.pathname || '').replace(/\/+$/, '');
+    url.pathname = `${basePath}/organizations/${encodeURIComponent(env.sportnetOrgId.trim())}/matches`.replace(/\/{2,}/g, '/');
+  } else {
+    if (!isNonEmptyString(env.sportsnetApiUrl)) {
+      const error = new Error('SPORTNET_API_BASE alebo SPORTSNET_API_URL nie je nastavené.');
+      error.status = 400;
+      throw error;
+    }
+
+    try {
+      url = new URL(env.sportsnetApiUrl);
+    } catch (error) {
+      const invalidUrlError = new Error('SPORTSNET_API_URL má neplatný formát URL.');
+      invalidUrlError.status = 400;
+      throw invalidUrlError;
+    }
   }
 
   if (isNonEmptyString(env.sportsnetTeamId)) {
@@ -126,9 +145,14 @@ function getHeaders() {
 
   if (isNonEmptyString(env.sportsnetApiKey)) {
     const apiKey = env.sportsnetApiKey.trim();
-    headers.Authorization = /^(ApiKey|Bearer)\s+/i.test(apiKey)
-      ? apiKey
-      : `ApiKey ${apiKey}`;
+    if (isNonEmptyString(env.sportnetApiBase)) {
+      headers['X-Api-Key'] = apiKey;
+      headers['Content-Type'] = 'application/json';
+    } else {
+      headers.Authorization = /^(ApiKey|Bearer)\s+/i.test(apiKey)
+        ? apiKey
+        : `ApiKey ${apiKey}`;
+    }
   }
 
   return headers;
@@ -146,10 +170,18 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
 
   const endpoint = buildSportsnetUrl();
 
-  const response = await fetch(endpoint, {
-    method: 'GET',
-    headers: getHeaders()
-  });
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: 'GET',
+      headers: getHeaders()
+    });
+  } catch (cause) {
+    const error = new Error('Nepodarilo sa pripojiť na Sportsnet API endpoint.');
+    error.status = 502;
+    error.cause = cause;
+    throw error;
+  }
 
   if (!response.ok) {
     const error = new Error(`Sportsnet API vrátilo status ${response.status}.`);
@@ -157,7 +189,17 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
     throw error;
   }
 
-  const payload = await response.json();
+  const rawBody = await response.text();
+  let payload;
+  try {
+    payload = JSON.parse(rawBody);
+  } catch (cause) {
+    const error = new Error('Sportsnet endpoint nevrátil validné JSON dáta. Skontroluj SPORTNET_API_BASE/SPORTNET_API_URL.');
+    error.status = 502;
+    error.cause = cause;
+    throw error;
+  }
+
   const matches = extractMatches(payload);
   const items = matches.map(mapMatch);
 
