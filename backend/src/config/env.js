@@ -10,6 +10,8 @@ const frontendOriginRaw = process.env.FRONTEND_ORIGIN || defaultFrontendOrigin;
 const frontendOriginsNormalized = frontendOriginRaw.includes('YOUR_VERCEL_DOMAIN')
   ? 'https://*.vercel.app,http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501'
   : frontendOriginRaw;
+const defaultSportnetApiBase = 'https://futbalnet.sportnet.online/api/v1';
+const defaultSportnetOrgId = '54b532721c6198f161840003';
 
 const env = {
   nodeEnv: nodeEnvRaw,
@@ -33,8 +35,8 @@ const env = {
   smtpFromEmail: process.env.SMTP_FROM_EMAIL || '',
   smtpFromName: process.env.SMTP_FROM_NAME || 'OŠK Kamenná Poruba',
   contactFormToEmail: process.env.CONTACT_FORM_TO_EMAIL || '',
-  sportnetApiBase: process.env.SPORTNET_API_BASE || process.env.SPORTSNET_API_BASE || '',
-  sportnetOrgId: process.env.SPORTNET_ORG_ID || process.env.SPORTSNET_ORG_ID || '',
+  sportnetApiBase: process.env.SPORTNET_API_BASE || process.env.SPORTSNET_API_BASE || defaultSportnetApiBase,
+  sportnetOrgId: process.env.SPORTNET_ORG_ID || process.env.SPORTSNET_ORG_ID || defaultSportnetOrgId,
   sportsnetApiUrl: process.env.SPORTNET_API_URL || process.env.SPORTSNET_API_URL || '',
   sportsnetApiKey: process.env.SPORTNET_API_KEY || process.env.SPORTSNET_API_KEY || '',
   sportsnetTeamId: process.env.SPORTSNET_TEAM_ID || '',
