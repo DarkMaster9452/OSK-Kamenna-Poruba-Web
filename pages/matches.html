@@ -567,6 +567,40 @@
             color: #666;
         }
 
+        .sportsnet-info {
+            background: white;
+            border-left: 6px solid #003399;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            padding: 18px 20px;
+            margin-bottom: 24px;
+        }
+
+        .sportsnet-info-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            color: #003399;
+            margin-bottom: 12px;
+        }
+
+        .sportsnet-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px 14px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .sportsnet-chip {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 8px;
+            background: #eef4ff;
+            color: #003399;
+        }
+
         @media (max-width: 768px) {
             .matches-grid {
                 grid-template-columns: 1fr;
@@ -620,6 +654,8 @@
     <!-- Main Content -->
     <div class="container">
         <h1><i class="fas fa-calendar"></i> Zápasy</h1>
+
+        <div id="sportsnetInfo" class="sportsnet-info"></div>
 
         <!-- Matches List -->
         <div id="matchesContainer" class="matches-grid"></div>
@@ -956,6 +992,13 @@
         // ====== GLOBÁLNE PREMENNÉ ======
         let MATCHES = { ...FALLBACK_MATCHES };
         let currentUser = null;
+        let SPORTSNET_INFO = {
+            status: 'FALLBACK',
+            source: 'Lokálne dáta',
+            fetchedAt: null,
+            count: Object.keys(FALLBACK_MATCHES).length,
+            cache: 'FALLBACK'
+        };
 
         function resolveApiBase() {
             const host = window.location.hostname;
@@ -973,6 +1016,29 @@
         }
 
         const API_BASE = resolveApiBase();
+
+        function renderSportsnetInfo() {
+            const container = document.getElementById('sportsnetInfo');
+            if (!container) return;
+
+            const fetchedText = SPORTSNET_INFO.fetchedAt
+                ? new Date(SPORTSNET_INFO.fetchedAt).toLocaleString('sk-SK')
+                : 'neuvedené';
+
+            container.innerHTML = `
+                <div class="sportsnet-info-header">
+                    <i class="fas fa-satellite-dish"></i>
+                    Sportsnet API
+                    <span class="sportsnet-chip">${SPORTSNET_INFO.status}</span>
+                </div>
+                <div class="sportsnet-info-grid">
+                    <div><strong>Zdroj:</strong> ${SPORTSNET_INFO.source || 'neuvedené'}</div>
+                    <div><strong>Počet zápasov:</strong> ${SPORTSNET_INFO.count ?? 0}</div>
+                    <div><strong>Cache:</strong> ${SPORTSNET_INFO.cache || 'neuvedené'}</div>
+                    <div><strong>Načítané:</strong> ${fetchedText}</div>
+                </div>
+            `;
+        }
 
         function normalizeSportsnetMatch(item, index) {
             const startsAt = item.startsAt || (item.date && item.time ? `${item.date}T${item.time}` : null);
@@ -1035,7 +1101,16 @@
                 const payload = await response.json();
                 const items = Array.isArray(payload?.items) ? payload.items : [];
 
+                SPORTSNET_INFO = {
+                    status: 'OK',
+                    source: payload?.source || 'sportsnet.online',
+                    fetchedAt: payload?.fetchedAt || new Date().toISOString(),
+                    count: items.length,
+                    cache: payload?.cache || 'MISS'
+                };
+
                 if (items.length === 0) {
+                    SPORTSNET_INFO.status = 'EMPTY';
                     return;
                 }
 
@@ -1047,6 +1122,13 @@
 
                 MATCHES = normalizedMatches;
             } catch (error) {
+                SPORTSNET_INFO = {
+                    status: 'ERROR',
+                    source: 'Lokálne dáta',
+                    fetchedAt: new Date().toISOString(),
+                    count: Object.keys(FALLBACK_MATCHES).length,
+                    cache: 'FALLBACK'
+                };
                 console.warn('Sportsnet dáta sa nepodarilo načítať, používam fallback.', error);
             }
         }
@@ -1054,6 +1136,7 @@
         // ====== INICIALIZÁCIA ======
         window.addEventListener('load', async function () {
             await loadMatchesFromApi();
+            renderSportsnetInfo();
             renderMatches();
         });
 

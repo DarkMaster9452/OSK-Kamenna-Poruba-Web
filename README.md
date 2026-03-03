@@ -191,6 +191,7 @@ Potrebné env premenné:
    - `npx prisma generate`
    - `npx prisma db push`
 7. spusti server: `npm run dev`
+8. spusti testy backendu: `npm test`
 
 ### Email notifikácie tréningov
 
@@ -232,3 +233,4 @@ Táto verzia repozitára je pripravená na jeden Vercel projekt:
 
 - **Frontend**: statické HTML súbory z rootu
 - **Backend**: Vercel serverless funkcia cez `api/[...all].js` (Express app z `backend/src/app.js`)
+  API = apikey-6f513b9b7effe636604698147ddeaf0d5f9c177fb36a0207d355b85bc4d91c96
