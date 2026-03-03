@@ -7,7 +7,7 @@ jest.mock('dotenv', () => ({
 function setSportsnetEnv() {
   process.env.NODE_ENV = 'test';
   process.env.SPORTSNET_API_URL = 'https://api.sportsnet.test/matches?source=club';
-  process.env.SPORTSNET_API_KEY = '';
+  process.env.SPORTSNET_API_KEY = 'test-api-key';
   process.env.SPORTSNET_TEAM_ID = '1234';
   process.env.SPORTSNET_COMPETITION_ID = '9876';
   process.env.SPORTSNET_SEASON = '2025-2026';
@@ -82,7 +82,7 @@ describe('GET /api/sportsnet/matches', () => {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        Authorization: 'Bearer test-api-key'
+        Authorization: 'ApiKey test-api-key'
       }
     });
   });

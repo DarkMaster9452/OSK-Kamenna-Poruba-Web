@@ -125,7 +125,10 @@ function getHeaders() {
   };
 
   if (isNonEmptyString(env.sportsnetApiKey)) {
-    headers.Authorization = `Bearer ${env.sportsnetApiKey.trim()}`;
+    const apiKey = env.sportsnetApiKey.trim();
+    headers.Authorization = /^(ApiKey|Bearer)\s+/i.test(apiKey)
+      ? apiKey
+      : `ApiKey ${apiKey}`;
   }
 
   return headers;
