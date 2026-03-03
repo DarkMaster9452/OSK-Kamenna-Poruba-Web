@@ -86,8 +86,7 @@ describe('GET /api/sportsnet/matches', () => {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        'X-Api-Key': 'test-api-key',
-        'Content-Type': 'application/json'
+        Authorization: 'ApiKey test-api-key'
       }
     });
   });

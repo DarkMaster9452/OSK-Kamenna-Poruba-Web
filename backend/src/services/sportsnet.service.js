@@ -61,6 +61,19 @@ function buildSportsnetUrl() {
     url.searchParams.set('season', env.sportsnetSeason.trim());
   }
 
+  [
+    'apiKey',
+    'apikey',
+    'api_key',
+    'x-api-key',
+    'auth',
+    'authorization',
+    'token',
+    'access_token'
+  ].forEach((param) => {
+    url.searchParams.delete(param);
+  });
+
   return url.toString();
 }
 
@@ -149,14 +162,13 @@ function getHeaders() {
   };
 
   if (isNonEmptyString(env.sportsnetApiKey)) {
-    const apiKey = env.sportsnetApiKey.trim();
-    if (isNonEmptyString(env.sportnetApiBase)) {
-      headers['X-Api-Key'] = apiKey;
-      headers['Content-Type'] = 'application/json';
-    } else {
-      headers.Authorization = /^(ApiKey|Bearer)\s+/i.test(apiKey)
-        ? apiKey
-        : `ApiKey ${apiKey}`;
+    const apiKey = env.sportsnetApiKey
+      .trim()
+      .replace(/^(ApiKey|Bearer)\s+/i, '')
+      .trim();
+
+    if (apiKey) {
+      headers.Authorization = `ApiKey ${apiKey}`;
     }
   }
 

@@ -155,8 +155,8 @@ OŠK-Kamenná-Poruba/
 Backend endpoint je pripravený ako adaptér na `sportsnet.online` feed/API.
 Potrebné env premenné:
 
-- `SPORTSNET_API_URL` (URL feedu/endpointu od Sportsnetu)
-- `SPORTSNET_API_KEY` (ak API vyžaduje Bearer token)
+- `SPORTSNET_API_URL` (URL feedu/endpointu od Sportsnetu, bez API kľúča v query)
+- `SPORTSNET_API_KEY` (odošle sa v hlavičke `Authorization: ApiKey {apikey}`)
 - `SPORTSNET_TEAM_ID` (voliteľné)
 - `SPORTSNET_COMPETITION_ID` (voliteľné)
 - `SPORTSNET_SEASON` (voliteľné)
