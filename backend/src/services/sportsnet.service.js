@@ -26,10 +26,6 @@ function buildSportsnetUrl() {
       throw invalidUrlError;
     }
 
-    if (url.hostname === 'futbalnet.sportnet.online') {
-      url.hostname = 'api.sportnet.online';
-    }
-
     const basePath = String(url.pathname || '').replace(/\/+$/, '');
     const templatePath = String(env.sportnetMatchesPath || '/organizations/{orgId}/matches').trim();
     const resolvedTemplate = templatePath.includes('{orgId}')
