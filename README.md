@@ -162,6 +162,9 @@ Potrebné env premenné:
 - `SPORTSNET_SEASON` (voliteľné)
 - `SPORTSNET_CACHE_SECONDS` (voliteľné, default `300`)
 
+Poznámka: endpoint je potrebné nastaviť explicitne (`SPORTNET_API_URL` alebo `SPORTNET_API_BASE`).
+Ak endpoint nie je nastavený, backend nevolá upstream API a vráti prázdne dáta namiesto chyby 502.
+
 ## 7) Lokálne spustenie
 
 ### Požiadavky

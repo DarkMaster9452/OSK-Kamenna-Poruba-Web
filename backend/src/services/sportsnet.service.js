@@ -175,7 +175,22 @@ function getHeaders() {
   return headers;
 }
 
+function getUnconfiguredPayload() {
+  return {
+    source: 'sportsnet.unconfigured',
+    fetchedAt: new Date().toISOString(),
+    count: 0,
+    items: [],
+    cache: 'BYPASS',
+    message: 'Sportsnet endpoint nie je nakonfigurovaný. Nastav SPORTNET_API_URL alebo SPORTNET_API_BASE.'
+  };
+}
+
 async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
+  if (!isNonEmptyString(env.sportsnetApiUrl) && !isNonEmptyString(env.sportnetApiBase)) {
+    return getUnconfiguredPayload();
+  }
+
   const now = Date.now();
 
   if (!forceRefresh && cacheState.payload && cacheState.expiresAt > now) {

@@ -190,4 +190,23 @@ describe('GET /api/sportsnet/matches', () => {
       message: 'Sportsnet endpoint nevrátil validné JSON dáta. Skontroluj SPORTNET_API_BASE/SPORTNET_API_URL.'
     });
   });
+
+  test('bez nakonfigurovaného Sportsnet endpointu vráti prázdnu odpoveď bez volania API', async () => {
+    process.env.SPORTNET_API_BASE = '';
+    process.env.SPORTSNET_API_BASE = '';
+    process.env.SPORTNET_API_URL = '';
+    process.env.SPORTSNET_API_URL = '';
+
+    const app = await loadApp();
+    const response = await request(app).get('/api/sportsnet/matches');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      source: 'sportsnet.unconfigured',
+      count: 0,
+      items: [],
+      cache: 'BYPASS'
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
 });
