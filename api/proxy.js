@@ -1,4 +1,4 @@
-﻿const backendOriginRaw = process.env.BACKEND_ORIGIN || process.env.BACKEND_URL || 'https://osk-kamenna-poruba-back.vercel.app';
+﻿const backendOriginRaw = process.env.BACKEND_ORIGIN || process.env.BACKEND_URL || '';
 
 function normalizeBackendOrigin(value) {
   const raw = String(value || '').trim().replace(/\/+$/, '');
@@ -84,6 +84,12 @@ async function readRequestBody(req) {
 
 module.exports = async (req, res) => {
   try {
+    if (!BACKEND_ORIGIN) {
+      return res.status(500).json({
+        message: 'Missing BACKEND_ORIGIN/BACKEND_URL in frontend deployment environment.'
+      });
+    }
+
     if (!BACKEND_ORIGIN.startsWith('http://') && !BACKEND_ORIGIN.startsWith('https://')) {
       return res.status(500).json({
         message: 'Invalid BACKEND_ORIGIN. Use full URL including https://',
