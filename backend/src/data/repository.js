@@ -842,7 +842,6 @@ async function listActivePlayerEmailsByTrainingCategory(trainingCategory) {
   return prisma.user.findMany({
     where: {
       role: 'player',
-      isActive: true,
       email: {
         not: ''
       },

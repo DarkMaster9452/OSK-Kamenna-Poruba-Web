@@ -6,6 +6,7 @@ const {
   findUserByUsername,
   findUserById,
   updateUserPassword,
+  setUserActiveStatus,
   createAuditLog,
   createAnnouncement,
   listParentChildrenByParentId
@@ -26,7 +27,6 @@ const changePasswordSchema = z.object({
 });
 
 const LOGIN_MAX_FAILED_ATTEMPTS = 5;
-const LOGIN_LOCKOUT_MS = 5 * 60 * 1000;
 const loginAttemptTracker = new Map();
 
 const ADMIN_FAILED_WINDOW_MS = 15 * 60 * 1000;
@@ -42,31 +42,21 @@ function getLoginAttemptEntry(username) {
   return loginAttemptTracker.get(toLoginKey(username));
 }
 
-function getLockRemainingMs(username) {
-  const entry = getLoginAttemptEntry(username);
-  if (!entry || !entry.lockedUntil) return 0;
-  return entry.lockedUntil - Date.now();
-}
-
 function registerFailedLoginAttempt(username) {
   const key = toLoginKey(username);
-  const now = Date.now();
   const current = loginAttemptTracker.get(key);
 
-  if (!current || (current.lockedUntil && current.lockedUntil <= now)) {
+  if (!current) {
     loginAttemptTracker.set(key, {
-      failedCount: 1,
-      lockedUntil: null
+      failedCount: 1
     });
-    return { failedCount: 1, lockedUntil: null };
+    return { failedCount: 1 };
   }
 
   const failedCount = (current.failedCount || 0) + 1;
-  const shouldLock = failedCount >= LOGIN_MAX_FAILED_ATTEMPTS;
 
   const updated = {
-    failedCount: shouldLock ? 0 : failedCount,
-    lockedUntil: shouldLock ? (now + LOGIN_LOCKOUT_MS) : null
+    failedCount
   };
 
   loginAttemptTracker.set(key, updated);
@@ -156,27 +146,28 @@ function cookieOptions() {
 router.post('/login', validateBody(loginSchema), async (req, res) => {
   const { username, password } = req.body;
 
-  const lockRemainingMs = getLockRemainingMs(username);
-  if (lockRemainingMs > 0) {
-    const remainingSeconds = Math.ceil(lockRemainingMs / 1000);
-    return res.status(429).json({
-      message: `Účet je dočasne zablokovaný po viacerých neúspešných pokusoch. Skúste znova o ${remainingSeconds} sekúnd.`
-    });
-  }
-
   const user = await findUserByUsername(username);
 
-  if (!user || !user.isActive) {
+  if (!user) {
     registerFailedLoginAttempt(username);
     await handleAdminLoginFailure({ req, user, username });
     return res.status(401).json({ message: 'Nesprávne prihlasovacie údaje' });
   }
 
+  if (!user.isActive) {
+    return res.status(403).json({ message: 'Účet je deaktivovaný. Kontaktujte administrátora.' });
+  }
+
   const validPassword = await bcrypt.compare(password, user.passwordHash);
   if (!validPassword) {
     const attemptState = registerFailedLoginAttempt(username);
+    let accountDeactivated = false;
 
-    if (attemptState.lockedUntil) {
+    if (attemptState.failedCount >= LOGIN_MAX_FAILED_ATTEMPTS) {
+      await setUserActiveStatus(user.id, false);
+      clearFailedLoginAttempts(username);
+      accountDeactivated = true;
+
       try {
         await createAuditLog({
           actorUserId: user.id,
@@ -185,8 +176,7 @@ router.post('/login', validateBody(loginSchema), async (req, res) => {
           entityId: user.id,
           details: {
             username,
-            lockMinutes: LOGIN_LOCKOUT_MS / 60000,
-            reason: 'failed_login_attempts'
+            reason: 'failed_login_attempts_account_deactivated'
           }
         });
       } catch (error) {
@@ -195,9 +185,9 @@ router.post('/login', validateBody(loginSchema), async (req, res) => {
     }
 
     await handleAdminLoginFailure({ req, user, username });
-    if (attemptState.lockedUntil) {
-      return res.status(429).json({
-        message: 'Účet bol dočasne zablokovaný na 5 minút po 5 neúspešných pokusoch.'
+    if (accountDeactivated) {
+      return res.status(403).json({
+        message: 'Účet bol po 5 neúspešných pokusoch deaktivovaný. Kontaktujte administrátora.'
       });
     }
 
