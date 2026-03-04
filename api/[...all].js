@@ -1,4 +1,5 @@
 ﻿const backendOriginRaw = process.env.BACKEND_ORIGIN || process.env.BACKEND_URL || '';
+const backendApp = require('../backend/src/app');
 
 function normalizeBackendOrigin(value) {
   const raw = String(value || '').trim().replace(/\/+$/, '');
@@ -63,9 +64,7 @@ async function readRequestBody(req) {
 module.exports = async (req, res) => {
   try {
     if (!BACKEND_ORIGIN) {
-      return res.status(500).json({
-        message: 'Missing BACKEND_ORIGIN/BACKEND_URL in frontend deployment environment.'
-      });
+      return backendApp(req, res);
     }
 
     if (!BACKEND_ORIGIN.startsWith('http://') && !BACKEND_ORIGIN.startsWith('https://')) {
