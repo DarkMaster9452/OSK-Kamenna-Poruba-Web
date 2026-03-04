@@ -43,10 +43,20 @@ router.get('/db-details', async (req, res) => {
       FROM "Training"
     `;
 
+    const latestTrainingRows = await prisma.$queryRaw`
+      SELECT "id", "date", "time", "category", "createdAt"
+      FROM "Training"
+      ORDER BY "createdAt" DESC
+      LIMIT 1
+    `;
+
     const dbInfo = Array.isArray(dbInfoRows) && dbInfoRows[0] ? dbInfoRows[0] : {};
     const trainingCountRaw = Array.isArray(trainingCountRows) && trainingCountRows[0]
       ? trainingCountRows[0].training_count
       : 0;
+    const latestTraining = Array.isArray(latestTrainingRows) && latestTrainingRows[0]
+      ? latestTrainingRows[0]
+      : null;
 
     return res.json({
       status: 'ok',
@@ -59,6 +69,7 @@ router.get('/db-details', async (req, res) => {
       tables: {
         Training: Number(trainingCountRaw || 0)
       },
+      latestTraining,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
