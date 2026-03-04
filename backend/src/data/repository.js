@@ -1207,6 +1207,22 @@ async function upsertPollVote(pollId, userId, optionIdx) {
 }
 
 async function createAuditLog(input) {
+  const allowedActions = new Set([
+    'login_success',
+    'admin_login_failed_attempt',
+    'announcement_created',
+    'announcement_deleted',
+    'poll_created',
+    'poll_deleted',
+    'training_created',
+    'training_deleted'
+  ]);
+
+  const action = String(input && input.action ? input.action : '').trim();
+  if (!allowedActions.has(action)) {
+    return null;
+  }
+
   return prisma.auditLog.create({
     data: input
   });

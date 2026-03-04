@@ -220,6 +220,23 @@ router.post('/login', validateBody(loginSchema), async (req, res) => {
 
   res.cookie(env.cookieName, token, cookieOptions());
 
+  try {
+    await createAuditLog({
+      actorUserId: user.id,
+      action: 'login_success',
+      entityType: 'auth',
+      entityId: user.id,
+      details: {
+        username: user.username,
+        role: user.role,
+        ipAddress: getClientIp(req),
+        userAgent: req.headers['user-agent'] || null
+      }
+    });
+  } catch (error) {
+    console.error('Audit log write failed:', error);
+  }
+
   return res.json({
     message: 'Prihlásenie úspešné',
     user: {
