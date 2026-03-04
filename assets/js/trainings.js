@@ -5,14 +5,9 @@
 // Note: Global variables are declared in /pages/trainings.html before this script loads:
 // - let currentUser
 // - let trainings
-// - let playerAttendance
 // - let parentChildren
 
 const PLAYER_DIRECTORY = {};
-
-const PARENT_CHILDREN_MAP = {};
-
-const LOCAL_PARENT_CHILDREN_KEY = 'OSK_PARENT_CHILDREN_MAP';
 
 const PLAYER_NAME_MAP = {};
 
@@ -78,27 +73,6 @@ function getApiBase() {
 
 function getPlayerUsernamesByCategory(category) {
     return PLAYER_DIRECTORY[category] || [];
-}
-
-function getLocalParentChildrenMap() {
-    try {
-        const raw = window.localStorage ? window.localStorage.getItem(LOCAL_PARENT_CHILDREN_KEY) : null;
-        const parsed = raw ? JSON.parse(raw) : {};
-        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-    } catch (_) {
-        return {};
-    }
-}
-
-function getParentChildrenUsernames(username) {
-    const direct = PARENT_CHILDREN_MAP[username] || [];
-    if (Array.isArray(direct) && direct.length) {
-        return direct;
-    }
-
-    const map = getLocalParentChildrenMap();
-    const fromLocal = map[String(username || '').trim()];
-    return Array.isArray(fromLocal) ? fromLocal : [];
 }
 
 async function loadTrainingsFromApi() {
@@ -244,12 +218,7 @@ async function loadTrainingData() {
         trainings = [];
     }
     
-    const savedAttendance = localStorage.getItem('playerAttendance');
-    if (savedAttendance) {
-        playerAttendance = JSON.parse(savedAttendance);
-    }
-
-    // Load parent's children from local mapping helper
+    // Load parent's children from authenticated backend session payload
     if (currentUser && currentUser.role === 'parent') {
         parentChildren = {}; // Reset to ensure clean state
         const sessionChildren = Array.isArray(currentUser.parentChildren)
@@ -258,11 +227,7 @@ async function loadTrainingData() {
                 .filter(Boolean)
             : [];
 
-        const children = sessionChildren.length
-            ? sessionChildren
-            : getParentChildrenUsernames(currentUser.username);
-
-        children.forEach((childUsername) => {
+        sessionChildren.forEach((childUsername) => {
             parentChildren[childUsername] = true;
         });
     }

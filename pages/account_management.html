@@ -568,7 +568,6 @@
         let userSearchTerm = '';
         let userRoleFilter = '';
         let userStatusFilter = '';
-        const LOCAL_PARENT_CHILDREN_KEY = 'OSK_PARENT_CHILDREN_MAP';
 
         function parseShirtNumber(rawValue) {
             const value = String(rawValue || '').trim();
@@ -629,12 +628,7 @@
                     return true;
                 }
 
-                const localChildren = user.role === 'parent'
-                    ? getLocalChildrenForParent(user.username).map((username) => ({ username }))
-                    : [];
-                const parentChildren = Array.isArray(user.children) && user.children.length
-                    ? user.children
-                    : localChildren;
+                const parentChildren = Array.isArray(user.children) ? user.children : [];
                 const childrenNames = parentChildren.map((child) => String(child.username || '').trim()).join(' ');
                 const categoryText = user.role === 'parent'
                     ? (parentChildren.length ? `Deti: ${parentChildren.map((child) => child.username).join(', ')}` : '—')
@@ -653,54 +647,6 @@
 
                 return haystack.includes(term);
             });
-        }
-
-        function getLocalParentChildrenMap() {
-            try {
-                const raw = window.localStorage ? window.localStorage.getItem(LOCAL_PARENT_CHILDREN_KEY) : null;
-                const parsed = raw ? JSON.parse(raw) : {};
-                return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-            } catch (_) {
-                return {};
-            }
-        }
-
-        function saveLocalParentChildrenMap(map) {
-            if (!window.localStorage) return;
-            window.localStorage.setItem(LOCAL_PARENT_CHILDREN_KEY, JSON.stringify(map || {}));
-        }
-
-        function setLocalParentChildren(parentUsername, childUsernames) {
-            const username = String(parentUsername || '').trim();
-            if (!username) return;
-
-            const map = getLocalParentChildrenMap();
-            map[username] = Array.from(new Set((Array.isArray(childUsernames) ? childUsernames : [])
-                .map((value) => String(value || '').trim())
-                .filter(Boolean)));
-            saveLocalParentChildrenMap(map);
-        }
-
-        function removeLocalParentChildren(parentUsername) {
-            const username = String(parentUsername || '').trim();
-            if (!username) return;
-
-            const map = getLocalParentChildrenMap();
-            if (!(username in map)) {
-                return;
-            }
-
-            delete map[username];
-            saveLocalParentChildrenMap(map);
-        }
-
-        function getLocalChildrenForParent(parentUsername) {
-            const username = String(parentUsername || '').trim();
-            if (!username) return [];
-
-            const map = getLocalParentChildrenMap();
-            const children = map[username];
-            return Array.isArray(children) ? children : [];
         }
 
         function encodeParam(value) {
@@ -740,21 +686,6 @@
 
         function wait(ms) {
             return new Promise((resolve) => setTimeout(resolve, ms));
-        }
-
-        function shouldStoreLocalFallback(error) {
-            const text = String(error && error.message ? error.message : '').toLowerCase();
-            if (!text) return true;
-
-            if (text.includes('http 401') || text.includes('http 403')) {
-                return false;
-            }
-
-            if (text.includes('http 400') || text.includes('http 409')) {
-                return false;
-            }
-
-            return true;
         }
 
         async function saveChildrenAssignmentToApi(parentId, childIds, token) {
@@ -800,46 +731,6 @@
             }
 
             return { ok: false, error: lastError || new Error('Uloženie priradených detí zlyhalo.') };
-        }
-
-        async function syncLocalChildrenAssignments() {
-            const map = getLocalParentChildrenMap();
-            const entries = Object.entries(map);
-            if (!entries.length || !users.length) {
-                return 0;
-            }
-
-            const usernameToPlayerId = new Map();
-            try {
-                await fetchActivePlayersForAssignment();
-                activePlayers.forEach((player) => {
-                    usernameToPlayerId.set(player.username, player.id);
-                });
-            } catch (_) {
-                return 0;
-            }
-
-            let syncedCount = 0;
-            const token = await ensureCsrfToken();
-
-            for (const [parentUsername, childUsernames] of entries) {
-                const parentUser = users.find((item) => item.role === 'parent' && item.username === parentUsername);
-                if (!parentUser) {
-                    continue;
-                }
-
-                const childIds = Array.from(new Set((Array.isArray(childUsernames) ? childUsernames : [])
-                    .map((username) => usernameToPlayerId.get(username))
-                    .filter(Boolean)));
-
-                const result = await saveChildrenAssignmentToApi(parentUser.id, childIds, token);
-                if (result.ok) {
-                    removeLocalParentChildren(parentUsername);
-                    syncedCount += 1;
-                }
-            }
-
-            return syncedCount;
         }
 
         async function isBackendHealthy() {
@@ -911,12 +802,7 @@
                 const statusText = user.isActive ? 'Aktívny' : 'Neaktívny';
                 const toggleLabel = user.isActive ? 'Deaktivovať' : 'Aktivovať';
                 const toggleClass = user.isActive ? 'btn-danger' : 'btn-success';
-                const localChildren = user.role === 'parent'
-                    ? getLocalChildrenForParent(user.username).map((username) => ({ username }))
-                    : [];
-                const parentChildren = Array.isArray(user.children) && user.children.length
-                    ? user.children
-                    : localChildren;
+                const parentChildren = Array.isArray(user.children) ? user.children : [];
                 const categoryText = user.role === 'parent'
                     ? (parentChildren.length ? `Deti: ${parentChildren.map((child) => child.username).join(', ')}` : '—')
                     : categoryLabel(user.playerCategory);
@@ -1123,18 +1009,6 @@
 
             try {
                 await fetchActivePlayersForAssignment();
-
-                if (!selectedChildIds.size) {
-                    const localChildren = getLocalChildrenForParent(parentUser.username);
-                    const byUsername = new Map(activePlayers.map((player) => [player.username, player.id]));
-                    localChildren.forEach((childUsername) => {
-                        const childId = byUsername.get(childUsername);
-                        if (childId) {
-                            selectedChildIds.add(childId);
-                        }
-                    });
-                }
-
                 renderChildrenOptions();
                 document.getElementById('childrenModal').classList.add('active');
             } catch (err) {
@@ -1161,28 +1035,10 @@
                     throw (result.error || new Error('Uloženie priradených detí zlyhalo.'));
                 }
 
-                const parentUser = users.find((item) => String(item.id) === String(childrenParentId));
-                if (parentUser && parentUser.username) {
-                    removeLocalParentChildren(parentUser.username);
-                }
-
                 message('childrenMessage', 'Deti boli úspešne priradené.', 'success');
                 await fetchUsers();
                 setTimeout(() => closeChildrenModal(), 700);
             } catch (err) {
-                const parentUser = users.find((item) => String(item.id) === String(childrenParentId));
-                const parentUsername = parentUser ? parentUser.username : '';
-                const selectedUsernames = activePlayers
-                    .filter((player) => selectedChildIds.has(player.id))
-                    .map((player) => player.username);
-
-                if (parentUsername && shouldStoreLocalFallback(err)) {
-                    setLocalParentChildren(parentUsername, selectedUsernames);
-                    message('childrenMessage', 'API je dočasne nedostupné, priradenie je uložené lokálne a po obnovení API sa automaticky zosynchronizuje.', 'success');
-                    await fetchUsers().catch(() => { });
-                    return;
-                }
-
                 message('childrenMessage', err.message || 'Uloženie priradených detí zlyhalo.', 'error');
             }
         }
@@ -1363,11 +1219,6 @@
             category.disabled = true;
             shirtNumber.disabled = true;
             await fetchUsers();
-            const synced = await syncLocalChildrenAssignments().catch(() => 0);
-            if (synced > 0) {
-                await fetchUsers();
-                message('listMessage', `Synchronizované lokálne priradenia: ${synced}.`, 'success');
-            }
         })();
     </script>
     <script defer src="/_vercel/speed-insights/script.js"></script>

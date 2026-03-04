@@ -1957,7 +1957,7 @@
                                 partnerov, ktorá klub dlhodobo podporuje.</span></li>
                     </ul>
                 </div>
-                    
+
                 <div class="achievements-card">
                     <div class="achievements-subtitle">Míľniky OŠK Kamenná Poruba</div>
                     <div class="achievement-highlight">
@@ -2549,6 +2549,7 @@
         let currentUser = {
             username: null,
             role: null,
+            playerCategory: null,
             isLoggedIn: false
         };
         const PLAYERS = {};
@@ -2638,7 +2639,7 @@
         async function syncCurrentUserFromSession() {
             const user = await fetchSessionUser();
             if (!user) {
-                currentUser = { username: null, role: null, isLoggedIn: false };
+                currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
                 localStorage.removeItem('currentUser');
                 updateLoginButtonText();
                 return;
@@ -2647,6 +2648,7 @@
             currentUser = {
                 username: user.username,
                 role: user.role,
+                playerCategory: user.playerCategory || null,
                 isLoggedIn: true
             };
 
@@ -2971,13 +2973,12 @@
                 infoNavLink.style.display = 'none';
             }
             applyRoleNavbarMode();
-            updateImportantInfoNavBadge();
+            updateImportantInfoNavBadge().catch(() => { });
             updateHeaderScrollOffset();
         }
 
-        const IMPORTANT_INFO_ANNOUNCEMENTS_KEY = 'club_announcements';
-        const IMPORTANT_INFO_POLLS_KEY = 'club_polls';
         const IMPORTANT_INFO_SEEN_PREFIX = 'importantInfoSeenEvents_';
+        let importantInfoEventsCache = [];
 
         function getImportantInfoSeenKey() {
             const username = currentUser && currentUser.username ? currentUser.username : 'guest';
@@ -2987,6 +2988,9 @@
         function canUserSeeImportantEvent(target) {
             if (!currentUser || !currentUser.isLoggedIn) {
                 return false;
+            }
+            if (target === 'admins') {
+                return currentUser.role === 'admin';
             }
             if (currentUser.role === 'coach' || currentUser.role === 'admin') {
                 return true;
@@ -3006,13 +3010,84 @@
             return false;
         }
 
+        function canUserSeePlayerCategory(playerCategory) {
+            if (!playerCategory) {
+                return true;
+            }
+
+            if (!currentUser || !currentUser.isLoggedIn) {
+                return false;
+            }
+
+            if (currentUser.role === 'coach' || currentUser.role === 'admin') {
+                return true;
+            }
+
+            return currentUser.playerCategory === playerCategory;
+        }
+
+        function isImportantEventVisible(event) {
+            if (!event || typeof event !== 'object') {
+                return false;
+            }
+
+            if (!canUserSeeImportantEvent(event.target)) {
+                return false;
+            }
+
+            if (event.target === 'players') {
+                return canUserSeePlayerCategory(event.playerCategory || null);
+            }
+
+            return true;
+        }
+
+        async function refreshImportantInfoEventsCache() {
+            if (!currentUser || !currentUser.isLoggedIn) {
+                importantInfoEventsCache = [];
+                return;
+            }
+
+            try {
+                const [announcementsResponse, pollsResponse] = await Promise.all([
+                    fetch(`${API_BASE}/announcements`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    }),
+                    fetch(`${API_BASE}/polls`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    })
+                ]);
+
+                if (!announcementsResponse.ok || !pollsResponse.ok) {
+                    throw new Error('Nepodarilo sa načítať udalosti dôležitých informácií.');
+                }
+
+                const [announcementsPayload, pollsPayload] = await Promise.all([
+                    announcementsResponse.json(),
+                    pollsResponse.json()
+                ]);
+
+                const announcements = Array.isArray(announcementsPayload && announcementsPayload.items)
+                    ? announcementsPayload.items
+                    : [];
+                const polls = Array.isArray(pollsPayload && pollsPayload.items)
+                    ? pollsPayload.items
+                    : [];
+
+                importantInfoEventsCache = [...announcements, ...polls];
+            } catch (error) {
+                importantInfoEventsCache = [];
+            }
+        }
+
         function getImportantEventsForUser() {
-            const announcements = JSON.parse(localStorage.getItem(IMPORTANT_INFO_ANNOUNCEMENTS_KEY) || '[]');
-            const polls = JSON.parse(localStorage.getItem(IMPORTANT_INFO_POLLS_KEY) || '[]');
             if (!currentUser || !currentUser.isLoggedIn) {
                 return [];
             }
-            return [...announcements, ...polls].filter(event => canUserSeeImportantEvent(event.target));
+
+            return importantInfoEventsCache.filter(isImportantEventVisible);
         }
 
         function hasUnseenImportantInfo() {
@@ -3023,11 +3098,14 @@
             return getImportantEventsForUser().some(event => !seen.includes(event.id));
         }
 
-        function updateImportantInfoNavBadge() {
+        async function updateImportantInfoNavBadge() {
             const infoNavLink = document.getElementById('infoNavLink');
             if (!infoNavLink) {
                 return;
             }
+
+            await refreshImportantInfoEventsCache();
+
             const hasUnseen = hasUnseenImportantInfo();
             const existingDot = infoNavLink.querySelector('.nav-dot');
             if (hasUnseen) {
@@ -3046,8 +3124,8 @@
             if (!event.key) {
                 return;
             }
-            if (event.key === IMPORTANT_INFO_ANNOUNCEMENTS_KEY || event.key === IMPORTANT_INFO_POLLS_KEY || event.key.startsWith(IMPORTANT_INFO_SEEN_PREFIX)) {
-                updateImportantInfoNavBadge();
+            if (event.key.startsWith(IMPORTANT_INFO_SEEN_PREFIX)) {
+                updateImportantInfoNavBadge().catch(() => { });
             }
         });
         // Logout Modal Functions

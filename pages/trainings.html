@@ -914,26 +914,7 @@
         }
 
         const API_BASE = resolveApiBase();
-        const LOCAL_PARENT_CHILDREN_KEY = 'OSK_PARENT_CHILDREN_MAP';
         let csrfTokenCache = null;
-
-        function getLocalParentChildrenMap() {
-            try {
-                const raw = window.localStorage ? window.localStorage.getItem(LOCAL_PARENT_CHILDREN_KEY) : null;
-                const parsed = raw ? JSON.parse(raw) : {};
-                return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-            } catch (_) {
-                return {};
-            }
-        }
-
-        function getLocalChildrenForParentUsername(parentUsername) {
-            const username = String(parentUsername || '').trim();
-            if (!username) return [];
-            const map = getLocalParentChildrenMap();
-            const children = map[username];
-            return Array.isArray(children) ? children : [];
-        }
 
         async function ensureCsrfToken() {
             if (csrfTokenCache) {
@@ -1035,15 +1016,6 @@
                         parentChildren[username] = true;
                     }
                 });
-
-                if (Object.keys(parentChildren).length === 0) {
-                    const localChildren = getLocalChildrenForParentUsername(currentUser.username);
-                    localChildren.forEach((username) => {
-                        if (username) {
-                            parentChildren[username] = true;
-                        }
-                    });
-                }
             }
             updateUI();
         });
