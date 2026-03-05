@@ -612,6 +612,52 @@
             margin-bottom: 0;
         }
 
+        .about-lead {
+            font-size: 18px;
+            line-height: 1.9;
+            color: #1e2f54;
+            padding-left: 14px;
+            border-left: 4px solid #ffd700;
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.14), rgba(255, 215, 0, 0));
+            border-radius: 4px;
+        }
+
+        .about-emphasis {
+            font-weight: 800;
+            color: #003399;
+        }
+
+        .about-milestones {
+            margin: 16px 0 18px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .about-milestone {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #003399;
+            background: #eef4ff;
+            border: 1px solid rgba(0, 51, 153, 0.22);
+        }
+
+        .about-note {
+            margin-top: 14px;
+            background: #f7fbff;
+            border: 1px solid rgba(0, 51, 153, 0.18);
+            border-left: 6px solid #003399;
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: #223456;
+            font-weight: 600;
+        }
+
         .about-more-content {
             display: none;
         }
@@ -1917,17 +1963,39 @@
         <section id="about">
             <h2><i class="fas fa-info-circle"></i> O našom klube</h2>
             <div class="about-history">
-                <p>Podľa pamätníkov sa telovýchovné hnutie v Kamennej Porube zorganizovalo v roku 1955. Pri jeho zrode
-                    stáli Karol Vereš, Jozef Čuklovič, Ignác Vereš, Pavol Chovančík, Anton Turanec, Blažej Pleva, Ondrej
-                    Rybárik a František Sandanus.</p>
-                <p>Prvý názov bol Sokol Kamenná Poruba. V roku 1977 sa názov zmenil na TJ ŠM Kamenná Poruba a od roku
-                    2003 nesie klub názov Obecný športový klub Kamenná Poruba.</p>
-                <p>Prvé ihrisko bolo na konci dediny v Porubskej doline. Od roku 1969 sa hrával futbal na ihrisku na
-                    Skotni. Na ihrisko bol veľmi zlý prístup a aj samotné ihrisko nebolo v dobrom stave.</p>
-                <p>Nové ihrisko sa za pomoci miestnych futbalových nadšencov začalo stavať v lokalite Dub. Hrávať sa na
-                    ňom začalo v roku 1980.</p>
-                <p>V roku 2006 sa pri ihrisku začali budovať šatne, ktoré sa dokončili v roku 2010. V roku 2018 sa na
-                    ihrisku vybudovalo umelé zavlažovanie a postavila sa menšia tribúna.</p>
+                <p class="about-lead">Náš klub je príbehom ľudí, ktorí milujú futbal a držia spolu. Jeho korene siahajú
+                    do roku <span class="about-emphasis">1955</span>, keď sa v Kamennej Porube začalo organizovať
+                    telovýchovné hnutie.</p>
+
+                <div class="about-milestones">
+                    <span class="about-milestone"><i class="fas fa-flag"></i> 1955 - vznik hnutia</span>
+                    <span class="about-milestone"><i class="fas fa-signature"></i> 2003 - názov OŠK</span>
+                    <span class="about-milestone"><i class="fas fa-futbol"></i> 1980 - nové ihrisko</span>
+                    <span class="about-milestone"><i class="fas fa-home"></i> 2006-2010 - nové zázemie</span>
+                    <span class="about-milestone"><i class="fas fa-tint"></i> 2018 - zavlažovanie a tribúna</span>
+                </div>
+
+                <p>Pri zrode klubu stáli najmä miestni nadšenci: Karol Vereš, Jozef Čuklovič, Ignác Vereš, Pavol
+                    Chovančík, Anton Turanec, Blažej Pleva, Ondrej Rybárik a František Sandanus.</p>
+
+                <p>Klub niesol názvy <span class="about-emphasis">Sokol Kamenná Poruba</span>, neskôr
+                    <span class="about-emphasis">TJ ŠM Kamenná Poruba</span>, a od roku 2003 pôsobí ako
+                    <span class="about-emphasis">Obecný športový klub Kamenná Poruba</span>.
+                </p>
+
+                <p>Futbal sa najskôr hrával v Porubskej doline, potom od roku 1969 na ihrisku na Skotni. Keďže podmienky
+                    neboli ideálne, miestni fanúšikovia a dobrovoľníci vybudovali nové ihrisko v lokalite Dub, kde sa
+                    začalo hrávať od roku 1980.</p>
+
+                <p>Postupne sa pridalo aj kvalitnejšie zázemie: výstavba šatní (2006 - 2010), umelé zavlažovanie a
+                    menšia tribúna (2018). Klub tak rástol spolu s obcou a zostal miestom, kde sa stretáva šport,
+                    disciplína a komunita.</p>
+
+                <div class="about-note">
+                    <i class="fas fa-heart" style="color:#d62828;margin-right:8px;"></i>
+                    OŠK Kamenná Poruba nie je len tím - je to tradícia, ktorú ďalej tvoria hráči, tréneri, rodičia,
+                    dobrovoľníci a fanúšikovia.
+                </div>
 
 
             </div>
@@ -2265,18 +2333,21 @@
                 <h2>Prihlásenie do systému</h2>
                 <button class="close-btn" onclick="closeLoginModal()"><i class="fas fa-times"></i></button>
             </div>
-            <form id="loginForm" onsubmit="handleLogin(event)">
+            <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="on" method="post">
                 <div class="form-group">
                     <label for="username">Používateľské meno</label>
-                    <input type="text" id="username" placeholder="Zadajte vaše používateľské meno" required>
+                    <input type="text" id="username" name="username" autocomplete="username"
+                        placeholder="Zadajte vaše používateľské meno" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Heslo</label>
-                    <input type="password" id="password" placeholder="Zadajte vaše heslo" required>
+                    <input type="password" id="password" name="password" autocomplete="current-password"
+                        placeholder="Zadajte vaše heslo" required>
                 </div>
                 <div class="form-group">
                     <label style="display: flex; align-items: center; font-weight: normal;">
-                        <input type="checkbox" style="width: auto; margin-right: 8px;">
+                        <input type="checkbox" name="rememberMe" autocomplete="off"
+                            style="width: auto; margin-right: 8px;">
                         Pamätať si ma
                     </label>
                 </div>

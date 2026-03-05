@@ -151,6 +151,8 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
             overflow: hidden;
             scroll-margin-top: 90px;
+            content-visibility: auto;
+            contain-intrinsic-size: 420px;
         }
 
         .year-head {
@@ -219,6 +221,13 @@
             height: 130px;
             object-fit: cover;
             display: block;
+            background: #e8eefc;
+            transition: filter 0.25s ease, opacity 0.25s ease;
+        }
+
+        .photo-card img[data-src] {
+            filter: blur(8px);
+            opacity: 0.9;
         }
 
         .photo-caption {
@@ -549,6 +558,7 @@
         const timelineContainer = document.getElementById('timeline');
         const yearNav = document.getElementById('yearNav');
         const PREVIEW_PHOTOS_PER_BLOCK = 6;
+        const EMPTY_IMAGE_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
         const previewOffsetByBlockId = {};
 
         const photoModal = document.getElementById('photoModal');
@@ -561,6 +571,7 @@
 
         let activeModalBlockId = null;
         let activeModalPhotoIndex = 0;
+        let timelineImageObserver = null;
 
         const TIMELINE_DATA_WITH_MIN_PHOTOS = TIMELINE_DATA;
 
@@ -600,7 +611,7 @@
                             <div class="photos-grid" data-block-id="${block.id}">
                                 ${previewItems.map(({ photo, photoIndex }) => `
                                     <figure class="photo-card" data-action="open-photo" data-block-id="${block.id}" data-photo-index="${photoIndex}">
-                                        <img src="${photo.src}" alt="${photo.alt}">
+                                        <img src="${EMPTY_IMAGE_PLACEHOLDER}" data-src="${photo.src}" alt="${photo.alt}" loading="lazy" decoding="async" width="320" height="260">
                                         <figcaption class="photo-caption">${photo.caption}</figcaption>
                                     </figure>
                                 `).join('')}
@@ -614,6 +625,50 @@
                     </article>
                 `;
             }).join('');
+
+            initTimelineLazyImages();
+        }
+
+        function hydrateTimelineImage(img) {
+            if (!img || !img.dataset.src) {
+                return;
+            }
+
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+        }
+
+        function initTimelineLazyImages() {
+            const lazyImages = timelineContainer.querySelectorAll('img[data-src]');
+            if (!lazyImages.length) {
+                return;
+            }
+
+            if (!('IntersectionObserver' in window)) {
+                lazyImages.forEach(hydrateTimelineImage);
+                return;
+            }
+
+            if (timelineImageObserver) {
+                timelineImageObserver.disconnect();
+            }
+
+            timelineImageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
+
+                    hydrateTimelineImage(entry.target);
+                    observer.unobserve(entry.target);
+                });
+            }, {
+                root: null,
+                rootMargin: '240px 0px',
+                threshold: 0.01
+            });
+
+            lazyImages.forEach((img) => timelineImageObserver.observe(img));
         }
 
         function showModalPhoto() {
