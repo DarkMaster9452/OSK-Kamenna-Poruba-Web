@@ -1130,6 +1130,63 @@
             text-decoration: underline;
         }
 
+        .instagram-gallery-card {
+            margin-top: 22px;
+            background: #f7f9ff;
+            border: 1px solid #d9e2ff;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .instagram-gallery-header {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .instagram-gallery-title {
+            margin: 0;
+            color: #003399;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .instagram-gallery-subtitle {
+            margin: 4px 0 0;
+            color: #4c5d8a;
+            font-size: 14px;
+        }
+
+        .instagram-toggle-btn {
+            border: none;
+            background: #003399;
+            color: #fff;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 10px 16px;
+            cursor: pointer;
+        }
+
+        .instagram-toggle-btn:hover {
+            background: #002970;
+        }
+
+        .instagram-gallery-container {
+            margin-top: 14px;
+        }
+
+        .instagram-gallery-container[hidden] {
+            display: none;
+        }
+
+        .instagram-status {
+            margin: 0 0 12px;
+            color: #3f4f77;
+            font-size: 14px;
+        }
+
         .club-extra-card {
             background: #fff;
             padding: 24px;
@@ -2213,6 +2270,27 @@
                                 alt="Galéria 10">
                         </div>
                     </div>
+
+                    <div class="instagram-gallery-card">
+                        <div class="instagram-gallery-header">
+                            <div>
+                                <p class="instagram-gallery-title"><i class="fab fa-instagram"></i> Instagram galéria
+                                </p>
+                                <p class="instagram-gallery-subtitle">Nové príspevky sa načítajú až po rozkliknutí.</p>
+                            </div>
+                            <button type="button" class="instagram-toggle-btn" id="instagramToggleBtn"
+                                aria-expanded="false" aria-controls="instagramGalleryContainer">
+                                Zobraziť Instagram príspevky
+                            </button>
+                        </div>
+
+                        <div class="instagram-gallery-container" id="instagramGalleryContainer" hidden>
+                            <p class="instagram-status" id="instagramGalleryStatus">Klikni na tlačidlo pre načítanie
+                                príspevkov.</p>
+                            <div class="gallery-grid" id="instagramGalleryGrid"></div>
+                        </div>
+                    </div>
+
                     <!-- Modal for zoomed image -->
                     <div id="galleryModal"
                         style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); justify-content:center; align-items:center;">
@@ -2782,12 +2860,17 @@
         }
 
         async function loadInstagramGalleryFeed() {
-            const galleryGrid = document.getElementById('galleryGrid');
-            if (!galleryGrid) {
-                return;
+            const instagramGrid = document.getElementById('instagramGalleryGrid');
+            const statusNode = document.getElementById('instagramGalleryStatus');
+            if (!instagramGrid) {
+                return false;
             }
 
             try {
+                if (statusNode) {
+                    statusNode.textContent = 'Načítavam Instagram príspevky...';
+                }
+
                 const feedCandidates = [
                     `${API_BASE}/instagram/feed`,
                     '/api/instagram/feed'
@@ -2815,17 +2898,23 @@
                 }
 
                 if (!response) {
-                    return;
+                    if (statusNode) {
+                        statusNode.textContent = 'Instagram feed sa momentálne nepodarilo načítať.';
+                    }
+                    return false;
                 }
 
                 const payload = await response.json();
                 const items = Array.isArray(payload && payload.items) ? payload.items : [];
                 if (!items.length) {
-                    return;
+                    if (statusNode) {
+                        statusNode.textContent = 'Instagram zatiaľ nevrátil žiadne príspevky.';
+                    }
+                    return false;
                 }
 
                 const existingIds = new Set(
-                    Array.from(galleryGrid.querySelectorAll('.gallery-item[data-instagram-id]'))
+                    Array.from(instagramGrid.querySelectorAll('.gallery-item[data-instagram-id]'))
                         .map((node) => node.dataset.instagramId)
                         .filter(Boolean)
                 );
@@ -2840,9 +2929,17 @@
                     fragment.appendChild(createInstagramGalleryItem(item));
                 });
 
-                galleryGrid.prepend(fragment);
+                instagramGrid.appendChild(fragment);
+                if (statusNode) {
+                    statusNode.textContent = `Načítaných príspevkov: ${instagramGrid.querySelectorAll('.gallery-item').length}`;
+                }
+                return true;
             } catch (error) {
                 console.warn('Instagram feed sa nepodarilo nacitat:', error);
+                if (statusNode) {
+                    statusNode.textContent = 'Instagram feed sa momentálne nepodarilo načítať.';
+                }
+                return false;
             }
         }
 
@@ -3764,10 +3861,13 @@
             // Initialize players stats
             await initializePlayers();
             showCoachPlayerCardButton();
-            await loadInstagramGalleryFeed();
+            let instagramFeedLoaded = false;
 
             // Gallery zoom modal logic
             const galleryGrid = document.getElementById('galleryGrid');
+            const instagramGalleryGrid = document.getElementById('instagramGalleryGrid');
+            const instagramToggleBtn = document.getElementById('instagramToggleBtn');
+            const instagramGalleryContainer = document.getElementById('instagramGalleryContainer');
             const modal = document.getElementById('galleryModal');
             const modalImg = document.getElementById('galleryModalImg');
             const modalClose = document.getElementById('galleryModalClose');
@@ -3794,8 +3894,12 @@
                 modal.style.display = 'flex';
             }
 
-            if (galleryGrid) {
-                galleryGrid.addEventListener('click', function (event) {
+            function bindGalleryClick(container) {
+                if (!container) {
+                    return;
+                }
+
+                container.addEventListener('click', function (event) {
                     const clickedImage = event.target.closest('.gallery-image');
                     if (!clickedImage) {
                         return;
@@ -3805,6 +3909,30 @@
                     const index = galleryImages.indexOf(clickedImage);
                     if (index >= 0) {
                         showModalAtIndex(index);
+                    }
+                });
+            }
+
+            bindGalleryClick(galleryGrid);
+            bindGalleryClick(instagramGalleryGrid);
+
+            if (instagramToggleBtn && instagramGalleryContainer) {
+                instagramToggleBtn.addEventListener('click', async function () {
+                    const isOpen = !instagramGalleryContainer.hasAttribute('hidden');
+
+                    if (isOpen) {
+                        instagramGalleryContainer.setAttribute('hidden', 'hidden');
+                        instagramToggleBtn.setAttribute('aria-expanded', 'false');
+                        instagramToggleBtn.textContent = 'Zobraziť Instagram príspevky';
+                        return;
+                    }
+
+                    instagramGalleryContainer.removeAttribute('hidden');
+                    instagramToggleBtn.setAttribute('aria-expanded', 'true');
+                    instagramToggleBtn.textContent = 'Skryť Instagram príspevky';
+
+                    if (!instagramFeedLoaded) {
+                        instagramFeedLoaded = await loadInstagramGalleryFeed();
                     }
                 });
             }
