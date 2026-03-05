@@ -1,16 +1,7 @@
 ﻿const env = require('../config/env');
+const { getCookieBaseOptions } = require('../config/cookies');
 const { verifyAccessToken, signAccessToken } = require('../services/token.service');
 const { findUserById, findUserByUsername } = require('../data/repository');
-
-function cookieOptions() {
-  return {
-    httpOnly: true,
-    secure: env.cookieSecure,
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 1000 * 60 * 60 * 24 * 30
-  };
-}
 
 function getTokenFromRequest(req) {
   const cookieToken = req.cookies ? req.cookies[env.cookieName] : null;
@@ -86,7 +77,7 @@ async function requireAuth(req, res, next) {
         playerCategory: user.playerCategory || null
       });
 
-      res.cookie(env.cookieName, refreshedToken, cookieOptions());
+      res.cookie(env.cookieName, refreshedToken, getCookieBaseOptions());
     }
 
     return next();

@@ -14,6 +14,7 @@ const {
 const { validateBody } = require('../middleware/validate');
 const { requireAuth } = require('../middleware/auth');
 const { signAccessToken } = require('../services/token.service');
+const { getCookieBaseOptions, getCookieClearOptions } = require('../config/cookies');
 
 const router = express.Router();
 
@@ -133,16 +134,6 @@ async function handleAdminLoginFailure({ req, user, username }) {
   }
 }
 
-function cookieOptions() {
-  return {
-    httpOnly: true,
-    secure: env.cookieSecure,
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 1000 * 60 * 60 * 24 * 30
-  };
-}
-
 router.post('/login', validateBody(loginSchema), async (req, res) => {
   const { username, password } = req.body;
 
@@ -208,7 +199,7 @@ router.post('/login', validateBody(loginSchema), async (req, res) => {
     playerCategory: user.playerCategory || null
   });
 
-  res.cookie(env.cookieName, token, cookieOptions());
+  res.cookie(env.cookieName, token, getCookieBaseOptions());
 
   try {
     await createAuditLog({
@@ -238,12 +229,7 @@ router.post('/login', validateBody(loginSchema), async (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  res.clearCookie(env.cookieName, {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: env.cookieSecure
-  });
+  res.clearCookie(env.cookieName, getCookieClearOptions());
   return res.json({ message: 'Odhlásenie úspešné' });
 });
 
