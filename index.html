@@ -2788,11 +2788,33 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE}/instagram/feed`, {
-                    method: 'GET'
-                });
+                const feedCandidates = [
+                    `${API_BASE}/instagram/feed`,
+                    '/api/instagram/feed'
+                ];
 
-                if (!response.ok) {
+                const isLocalLike = !window.location.hostname
+                    || window.location.hostname === 'localhost'
+                    || window.location.hostname === '127.0.0.1';
+
+                if (isLocalLike && window.location.protocol !== 'https:') {
+                    feedCandidates.push('http://localhost:4000/api/instagram/feed');
+                }
+
+                let response = null;
+                for (const endpoint of feedCandidates) {
+                    try {
+                        const candidateResponse = await fetch(endpoint, { method: 'GET' });
+                        if (candidateResponse.ok) {
+                            response = candidateResponse;
+                            break;
+                        }
+                    } catch (_) {
+                        // Try next fallback endpoint.
+                    }
+                }
+
+                if (!response) {
                     return;
                 }
 
