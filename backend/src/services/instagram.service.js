@@ -39,7 +39,9 @@ function buildInstagramUrl() {
 
 function mapInstagramItem(item) {
   const mediaType = String(item.media_type || '').toUpperCase();
-  const imageUrl = item.media_url || item.thumbnail_url || null;
+  const imageUrl = mediaType === 'VIDEO'
+    ? (item.thumbnail_url || item.media_url || null)
+    : (item.media_url || item.thumbnail_url || null);
 
   if (!imageUrl) {
     return null;
