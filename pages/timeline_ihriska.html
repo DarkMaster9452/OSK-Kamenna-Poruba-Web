@@ -230,16 +230,6 @@
             opacity: 0.9;
         }
 
-        .photo-caption {
-            padding: 7px 8px;
-            font-size: 12px;
-            font-weight: 700;
-            color: #003399;
-            background: #fff;
-            line-height: 1.35;
-            border-top: 1px solid rgba(255, 215, 0, 0.8);
-        }
-
         .photo-card.more-card {
             display: flex;
             align-items: center;
@@ -312,18 +302,11 @@
             object-fit: contain;
         }
 
-        .photo-modal-caption {
-            padding: 10px 14px 14px;
-            color: #003399;
-            font-weight: 700;
-            line-height: 1.4;
-        }
-
         .photo-modal-nav {
             display: flex;
             justify-content: center;
             gap: 8px;
-            padding: 0 14px 14px;
+            padding: 10px 14px 14px;
         }
 
         .photo-modal-nav button {
@@ -382,7 +365,6 @@
             <div class="photo-modal-image-wrap">
                 <img id="photoModalImage" class="photo-modal-image" src="" alt="">
             </div>
-            <div id="photoModalCaption" class="photo-modal-caption"></div>
             <div class="photo-modal-nav">
                 <button type="button" id="photoPrevBtn">← Predchádzajúca</button>
                 <button type="button" id="photoNextBtn">Ďalšia →</button>
@@ -401,31 +383,31 @@
                     'Sem môžeš pridávať ľubovoľný počet historických fotografií.'
                 ],
                 photos: [
-                    { src: '/assets/images/HISTORIA/100_1314.JPG', alt: 'Historické začiatky klubu', caption: 'Historické začiatky klubu' },
-                    { src: '/assets/images/HISTORIA/100_2855.JPG', alt: 'Prvé obdobie futbalu v obci', caption: 'Prvé obdobie futbalu v obci' },
-                    { src: '/assets/images/HISTORIA/100_2857.JPG', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/dorast.JPG', alt: 'Historický pohľad na areál', caption: 'Historický pohľad na areál' },
-                    { src: '/assets/images/HISTORIA/DSC_0227.JPG', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/DSC_0488.JPG', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img004 upr 2.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img005 upr 3.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img006 upr 4.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img007 upr 5.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img008 upr 6.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img009 upr 7.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img010 upr.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img013 upr 1.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img016 upr8.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img017 upr 9.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img018 upr 10.jpg', alt: 'Archívna fotografia klubu', caption: 'Archívna fotografia klubu' },
-                    { src: '/assets/images/HISTORIA/img019 upr.jpg', alt: 'Archívna fotografie klubu', caption: 'Archívna fotografie klubu' },
-                    { src: '/assets/images/HISTORIA/img021.jpg', alt: 'Archívna fotografie klubu', caption: 'Archívna fotografie klubu' },
-                    { src: '/assets/images/HISTORIA/img192.jpg', alt: 'Archívna fotografie klubu', caption: 'Archívna fotografie klubu' },
-                    { src: '/assets/images/HISTORIA/img193.jpg', alt: 'Archívna fotografie klubu', caption: 'Archívna fotografie klubu' },
-                    { src: '/assets/images/HISTORIA/P8270140.JPG', alt: 'Archívna fotografie klubu', caption: 'Archívna fotografie klubu' },
-                    { src: '/assets/images/HISTORIA/Plagat OŠK.jpg', alt: 'Archívna fotografie klubu', caption: 'Archívna fotografie klubu' },
-                    { src: '/assets/images/HISTORIA/Spoločná fotka muži.JPG', alt: 'Archívna fotografie klubu', caption: 'Archívna fotografie klubu' },
-                    { src: '/assets/images/HISTORIA/ST.Ž..jpg', alt: 'Archívna fotografie klubu', caption: 'Archívna fotografie klubu' }
+                    { src: '/assets/images/HISTORIA/100_1314.JPG'},
+                    { src: '/assets/images/HISTORIA/100_2855.JPG'},
+                    { src: '/assets/images/HISTORIA/100_2857.JPG'},
+                    { src: '/assets/images/HISTORIA/dorast.JPG' },
+                    { src: '/assets/images/HISTORIA/DSC_0227.JPG' },
+                    { src: '/assets/images/HISTORIA/DSC_0488.JPG' },
+                    { src: '/assets/images/HISTORIA/img004 upr 2.jpg'},
+                    { src: '/assets/images/HISTORIA/img005 upr 3.jpg' },
+                    { src: '/assets/images/HISTORIA/img006 upr 4.jpg' },
+                    { src: '/assets/images/HISTORIA/img007 upr 5.jpg' },
+                    { src: '/assets/images/HISTORIA/img008 upr 6.jpg' },
+                    { src: '/assets/images/HISTORIA/img009 upr 7.jpg' },
+                    { src: '/assets/images/HISTORIA/img010 upr.jpg' },
+                    { src: '/assets/images/HISTORIA/img013 upr 1.jpg' },
+                    { src: '/assets/images/HISTORIA/img016 upr8.jpg' },
+                    { src: '/assets/images/HISTORIA/img017 upr 9.jpg' },
+                    { src: '/assets/images/HISTORIA/img018 upr 10.jpg' },
+                    { src: '/assets/images/HISTORIA/img019 upr.jpg' },
+                    { src: '/assets/images/HISTORIA/img021.jpg' },
+                    { src: '/assets/images/HISTORIA/img192.jpg' },
+                    { src: '/assets/images/HISTORIA/img193.jpg' },
+                    { src: '/assets/images/HISTORIA/P8270140.JPG' },
+                    { src: '/assets/images/HISTORIA/Plagat OŠK.jpg' },
+                    { src: '/assets/images/HISTORIA/Spoločná fotka muži.JPG' },
+                    { src: '/assets/images/HISTORIA/ST.Ž..jpg' }
                 ]
             },
             {
@@ -437,17 +419,17 @@
                     'Prvé stavebné práce a príprava etáp.'
                 ],
                 photos: [
-                    { src: '/assets/images/2006-2007/CIMG4593.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/MD 018.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/MD 028.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/MD 034.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/ME011.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/ME275.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/MF206.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/MG217.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/MG224.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/MG300.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' },
-                    { src: '/assets/images/2006-2007/MI215.JPG', alt: 'Začiatok výstavby', caption: 'Začiatok výstavby (2006–2007)' }
+                    { src: '/assets/images/2006-2007/CIMG4593.JPG'},
+                    { src: '/assets/images/2006-2007/MD 018.JPG'},
+                    { src: '/assets/images/2006-2007/MD 028.JPG'},
+                    { src: '/assets/images/2006-2007/MD 034.JPG'},
+                    { src: '/assets/images/2006-2007/ME011.JPG' },
+                    { src: '/assets/images/2006-2007/ME275.JPG' },
+                    { src: '/assets/images/2006-2007/MF206.JPG'},
+                    { src: '/assets/images/2006-2007/MG217.JPG'},
+                    { src: '/assets/images/2006-2007/MG224.JPG'},
+                    { src: '/assets/images/2006-2007/MG300.JPG'},
+                    { src: '/assets/images/2006-2007/MI215.JPG'}
                 ]
             },
             {
@@ -459,14 +441,14 @@
                     'Pokračovanie hrubej stavby a infraštruktúry.'
                 ],
                 photos: [
-                    { src: '/assets/images/2008/MR 553.JPG', alt: 'Areál v roku 2008', caption: 'Areál v roku 2008' },
-                    { src: '/assets/images/2008/MR 565.JPG', alt: 'Stav objektu 2008', caption: 'Stav objektu (2008)' },
-                    { src: '/assets/images/2008/NC 032.JPG', alt: 'Práce na zázemí', caption: 'Práce na zázemí (2008)' },
-                    { src: '/assets/images/2008/NC 039.JPG', alt: 'Podpora projektu', caption: 'Podpora projektu (2008)' },
-                    { src: '/assets/images/2008/NC 077.JPG', alt: 'Podpora projektu', caption: 'Podpora projektu (2008)' },
-                    { src: '/assets/images/2008/NC 202.JPG', alt: 'Podpora projektu', caption: 'Podpora projektu (2008)' },
-                    { src: '/assets/images/2008/NC 217.JPG', alt: 'Podpora projektu', caption: 'Podpora projektu (2008)' },
-                    { src: '/assets/images/2008/PS 157.JPG', alt: 'Podpora projektu', caption: 'Podpora projektu (2008)' }
+                    { src: '/assets/images/2008/MR 553.JPG'},
+                    { src: '/assets/images/2008/MR 565.JPG'},
+                    { src: '/assets/images/2008/NC 032.JPG'},
+                    { src: '/assets/images/2008/NC 039.JPG'},
+                    { src: '/assets/images/2008/NC 077.JPG'},
+                    { src: '/assets/images/2008/NC 202.JPG'},
+                    { src: '/assets/images/2008/NC 217.JPG'},
+                    { src: '/assets/images/2008/PS 157.JPG'}
 
                 ]
             },
@@ -479,38 +461,38 @@
                     'Príprava objektu na finálne dokončenie.'
                 ],
                 photos: [
-                    { src: '/assets/images/2009/PF 172.JPG', alt: 'Stav objektu 2009', caption: 'Stav objektu (2009)' },
-                    { src: '/assets/images/2009/PF 281.JPG', alt: 'Práce na zázemí 2009', caption: 'Práce na zázemí (2009)' },
-                    { src: '/assets/images/2009/PF 288.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PF 304.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PF 510.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PG 235.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PG 379.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PG 380.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PG 404.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PG 732.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PG 733.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PG 831.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 031.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 214.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 217.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 219.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 226.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 228.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 344.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 389.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 392.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 407.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 428.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PH 679.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PI 098.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PI 603.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PJ 137.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PK 082.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PK 712.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PM 268.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PM 269.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' },
-                    { src: '/assets/images/2009/PM 938.JPG', alt: 'Podpora projektu 2009', caption: 'Podpora projektu (2009)' }
+                    { src: '/assets/images/2009/PF 172.JPG'},
+                    { src: '/assets/images/2009/PF 281.JPG'},
+                    { src: '/assets/images/2009/PF 288.JPG'},
+                    { src: '/assets/images/2009/PF 304.JPG'},
+                    { src: '/assets/images/2009/PF 510.JPG'},
+                    { src: '/assets/images/2009/PG 235.JPG'},
+                    { src: '/assets/images/2009/PG 379.JPG'},
+                    { src: '/assets/images/2009/PG 380.JPG'},
+                    { src: '/assets/images/2009/PG 404.JPG'},
+                    { src: '/assets/images/2009/PG 732.JPG'},
+                    { src: '/assets/images/2009/PG 733.JPG'},
+                    { src: '/assets/images/2009/PG 831.JPG'},
+                    { src: '/assets/images/2009/PH 031.JPG'},
+                    { src: '/assets/images/2009/PH 214.JPG'},
+                    { src: '/assets/images/2009/PH 217.JPG'},
+                    { src: '/assets/images/2009/PH 219.JPG'},
+                    { src: '/assets/images/2009/PH 226.JPG'},
+                    { src: '/assets/images/2009/PH 228.JPG'},
+                    { src: '/assets/images/2009/PH 344.JPG'},
+                    { src: '/assets/images/2009/PH 389.JPG'},
+                    { src: '/assets/images/2009/PH 392.JPG'},
+                    { src: '/assets/images/2009/PH 407.JPG'},
+                    { src: '/assets/images/2009/PH 428.JPG'},
+                    { src: '/assets/images/2009/PH 679.JPG'},
+                    { src: '/assets/images/2009/PI 098.JPG'},
+                    { src: '/assets/images/2009/PI 603.JPG'},
+                    { src: '/assets/images/2009/PJ 137.JPG'},
+                    { src: '/assets/images/2009/PK 082.JPG'},
+                    { src: '/assets/images/2009/PK 712.JPG'},
+                    { src: '/assets/images/2009/PM 268.JPG'},
+                    { src: '/assets/images/2009/PM 269.JPG'},
+                    { src: '/assets/images/2009/PM 938.JPG'}
 
                 ]
             },
@@ -523,36 +505,108 @@
                     'Vznik stabilného klubového zázemia.'
                 ],
                 photos: [
-                    { src: '/assets/images/2010/PO 332.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PO 338.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PO 341.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PO 349.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PO 352.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PR 307.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PR 310.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PR 362.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PR 369.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PR 375.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PR 376.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PR 386.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PR 395.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PS 150.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PS 155.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PS 216.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PS 218.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PS 222.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PS 223.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PS 675.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PS 678.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PT 017.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PT 154.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/PT 886.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/RB 315.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/RB 316.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' },
-                    { src: '/assets/images/2010/RB 413.JPG', alt: 'Hotové zázemie 2010', caption: 'Hotové zázemie (2010)' }
+                    { src: '/assets/images/2010/PO 332.JPG'},
+                    { src: '/assets/images/2010/PO 338.JPG'},
+                    { src: '/assets/images/2010/PO 341.JPG'},
+                    { src: '/assets/images/2010/PO 349.JPG'},
+                    { src: '/assets/images/2010/PO 352.JPG'},
+                    { src: '/assets/images/2010/PR 307.JPG'},
+                    { src: '/assets/images/2010/PR 310.JPG'},
+                    { src: '/assets/images/2010/PR 362.JPG'},
+                    { src: '/assets/images/2010/PR 369.JPG'},
+                    { src: '/assets/images/2010/PR 375.JPG'},
+                    { src: '/assets/images/2010/PR 376.JPG'},
+                    { src: '/assets/images/2010/PR 386.JPG'},
+                    { src: '/assets/images/2010/PR 395.JPG'},
+                    { src: '/assets/images/2010/PS 150.JPG'},
+                    { src: '/assets/images/2010/PS 155.JPG'},
+                    { src: '/assets/images/2010/PS 216.JPG'},
+                    { src: '/assets/images/2010/PS 218.JPG'},
+                    { src: '/assets/images/2010/PS 222.JPG'},
+                    { src: '/assets/images/2010/PS 223.JPG'},
+                    { src: '/assets/images/2010/PS 675.JPG'},
+                    { src: '/assets/images/2010/PS 678.JPG'},
+                    { src: '/assets/images/2010/PT 017.JPG'},
+                    { src: '/assets/images/2010/PT 154.JPG'},
+                    { src: '/assets/images/2010/PT 886.JPG'},
+                    { src: '/assets/images/2010/RB 315.JPG'},
+                    { src: '/assets/images/2010/RB 413.JPG'}
 
                 ]
+            },
+            {
+                id: 'y2023-24-striedacky',
+                year: '2023/2024',
+                title: 'Striedačky',
+                points: [
+                    'Fotodokumentácia nových striedačiek.',
+                    'Samostatná etapa v časovej osi areálu.'
+                ],
+                photos: [
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/05ebff92-0d85-4dd5-8c7d-092667a1be3f.jpg', alt: 'Striedačky 2023/2024 1' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/19a56d95-3139-40c7-b344-2f4bb821dbc6.jpg', alt: 'Striedačky 2023/2024 2' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/24287d66-dfd6-4a00-8d5b-63ff35372c19.jpg', alt: 'Striedačky 2023/2024 3' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/339f762c-f65e-4c0b-ac93-5c11cf74b3e1.jpg', alt: 'Striedačky 2023/2024 4' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/3acfd96a-c2cc-4eb5-a4ff-9410daebc83a.jpg', alt: 'Striedačky 2023/2024 5' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/47ac7ee8-c959-4d0c-b1d7-7cdf91356f90.jpg', alt: 'Striedačky 2023/2024 6' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/5fa58bb4-dcda-48ef-a5eb-c8633a774f69%20(1).jpg', alt: 'Striedačky 2023/2024 7' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/5fa58bb4-dcda-48ef-a5eb-c8633a774f69.jpg', alt: 'Striedačky 2023/2024 8' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/7c8a65ad-3e57-4cbb-bd6e-5e8cf9eeba50.jpg', alt: 'Striedačky 2023/2024 9' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/8db32dc7-0d54-4e19-bbb9-291b218ff260.jpg', alt: 'Striedačky 2023/2024 10' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/97eaf88d-3f84-4665-bcc3-0418952380d7.jpg', alt: 'Striedačky 2023/2024 11' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/ad017058-2aa5-4bdb-b4e1-03a8c1e1ee57.jpg', alt: 'Striedačky 2023/2024 12' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/b1169c2a-b55a-492c-96c4-fc1c7b7471a2.jpg', alt: 'Striedačky 2023/2024 13' },
+                    { src: '/assets/images/2023/24%20%20strieda%C4%8Dky/be14e4be-ffb8-408e-91dd-f356e01eaea0.jpg', alt: 'Striedačky 2023/2024 14' }
+                ]
+            },
+            {
+                id: 'y2023-pristresok',
+                year: '2023',
+                title: 'Prístrešok',
+                points: [
+                    'Výstavba a osadenie prístrešku v areáli.',
+                    'Priebeh realizácie v samostatnom albume.'
+                ],
+                photos: [
+                    { src: '/assets/images/2023%20pristresok/32d4940d-dd3c-4eb1-acc1-b39a495fa6c7.jpg', alt: 'Prístrešok 2023 1' },
+                    { src: '/assets/images/2023%20pristresok/612b6d39-06be-41b8-b7e1-9e13ec2a9b96.jpg', alt: 'Prístrešok 2023 2' },
+                    { src: '/assets/images/2023%20pristresok/77e83844-3985-40b8-a88b-c7139c321b0f.jpg', alt: 'Prístrešok 2023 3' },
+                    { src: '/assets/images/2023%20pristresok/b83e305c-552b-471b-82d1-5ec901252d8c.jpg', alt: 'Prístrešok 2023 4' }
+                ]
+            },
+            {
+                id: 'y2023-siet',
+                year: '2023',
+                title: 'Sieť',
+                points: [
+                    'Montáž ochrannej siete v areáli.',
+                    'Zdokumentované jednotlivé fázy osadenia.'
+                ],
+                photos: [
+                    { src: '/assets/images/2023%20Sie%C5%A5/196760c1-383d-4a81-bf69-fc95bc5d77eb.jpg', alt: 'Sieť 2023 1' },
+                    { src: '/assets/images/2023%20Sie%C5%A5/1fe14bf7-485f-4d9b-98c5-d065aff57169.jpg', alt: 'Sieť 2023 2' },
+                    { src: '/assets/images/2023%20Sie%C5%A5/4b708db4-5f2d-4bed-b3d0-4c8e27a600a5.jpg', alt: 'Sieť 2023 3' },
+                    { src: '/assets/images/2023%20Sie%C5%A5/4f940d21-bf55-4096-a6b2-c3e1061342f1.jpg', alt: 'Sieť 2023 4' },
+                    { src: '/assets/images/2023%20Sie%C5%A5/655956f1-99b5-4067-9dbd-92f6c6d542e2.jpg', alt: 'Sieť 2023 5' },
+                    { src: '/assets/images/2023%20Sie%C5%A5/ecc242ed-9245-46f1-9969-52fdef8be1bc.jpg', alt: 'Sieť 2023 6' }
+                ]
+            },
+            {
+                id: 'y2024-tribuny',
+                year: '2024',
+                title: 'Tribúny',
+                points: [
+                    'Úpravy a obnova tribún v športovom areáli.',
+                    'Dokumentácia realizácie v roku 2024.'
+                ],
+                photos: [
+                    { src: '/assets/images/2024%20tribuny/459462f5-9449-4d0b-a77f-a1809ddd4700.jpg', alt: 'Tribúny 2024 1' },
+                    { src: '/assets/images/2024%20tribuny/9b614a75-dbfa-44ea-89f4-99932e1d3658.jpg', alt: 'Tribúny 2024 2' },
+                    { src: '/assets/images/2024%20tribuny/a74b9d59-9366-4c43-aeeb-3c2be2bb8e90.jpg', alt: 'Tribúny 2024 3' },
+                    { src: '/assets/images/2024%20tribuny/f7f854d6-01aa-4544-80ee-8dc4c8d82b89.jpg', alt: 'Tribúny 2024 4' }
+                ]
             }
+            
         ];
 
         const timelineContainer = document.getElementById('timeline');
@@ -563,7 +617,6 @@
 
         const photoModal = document.getElementById('photoModal');
         const photoModalImage = document.getElementById('photoModalImage');
-        const photoModalCaption = document.getElementById('photoModalCaption');
         const photoModalTitle = document.getElementById('photoModalTitle');
         const photoModalCloseBtn = document.getElementById('photoModalCloseBtn');
         const photoPrevBtn = document.getElementById('photoPrevBtn');
@@ -612,7 +665,6 @@
                                 ${previewItems.map(({ photo, photoIndex }) => `
                                     <figure class="photo-card" data-action="open-photo" data-block-id="${block.id}" data-photo-index="${photoIndex}">
                                         <img src="${EMPTY_IMAGE_PLACEHOLDER}" data-src="${photo.src}" alt="${photo.alt}" loading="lazy" decoding="async" width="320" height="260">
-                                        <figcaption class="photo-caption">${photo.caption}</figcaption>
                                     </figure>
                                 `).join('')}
                                 ${block.photos.length > PREVIEW_PHOTOS_PER_BLOCK ? `
@@ -684,7 +736,6 @@
             photoModalTitle.textContent = `${block.year} • ${safeIndex + 1}/${block.photos.length}`;
             photoModalImage.src = photo.src;
             photoModalImage.alt = photo.alt;
-            photoModalCaption.textContent = photo.caption;
         }
 
         function openPhotoModal(blockId, photoIndex) {
