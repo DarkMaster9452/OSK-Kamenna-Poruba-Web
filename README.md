@@ -152,6 +152,11 @@ OŠK-Kamenná-Poruba/
 - `GET /api/sportsnet/matches`
 - `GET /api/sportsnet/matches?refresh=true` (ignoruje cache)
 
+### Instagram galéria (automatické dáta)
+
+- `GET /api/instagram/feed`
+- `GET /api/instagram/feed?refresh=true` (ignoruje cache)
+
 Backend endpoint je pripravený ako adaptér na `sportsnet.online` feed/API.
 Potrebné env premenné:
 
@@ -164,6 +169,14 @@ Potrebné env premenné:
 
 Poznámka: endpoint je potrebné nastaviť explicitne (`SPORTNET_API_URL` alebo `SPORTNET_API_BASE`).
 Ak endpoint nie je nastavený, backend nevolá upstream API a vráti prázdne dáta namiesto chyby 502.
+
+Instagram endpoint načítava posledné príspevky cez Instagram Graph API.
+Potrebné env premenné:
+
+- `INSTAGRAM_ACCESS_TOKEN` (long-lived access token)
+- `INSTAGRAM_USER_ID` (zvyčajne `me`)
+- `INSTAGRAM_FEED_LIMIT` (voliteľné, default `8`)
+- `INSTAGRAM_CACHE_SECONDS` (voliteľné, default `300`)
 
 ## 7) Lokálne spustenie
 

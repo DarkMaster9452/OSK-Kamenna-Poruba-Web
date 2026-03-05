@@ -1117,6 +1117,19 @@
             background: #fff;
         }
 
+        .gallery-caption-link {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 8px;
+            font-weight: 700;
+            color: #003399;
+            text-decoration: none;
+        }
+
+        .gallery-caption-link:hover {
+            text-decoration: underline;
+        }
+
         .club-extra-card {
             background: #fff;
             padding: 24px;
@@ -1963,9 +1976,6 @@
         <section id="about">
             <h2><i class="fas fa-info-circle"></i> O našom klube</h2>
             <div class="about-history">
-                <p class="about-lead">Náš klub je príbehom ľudí, ktorí milujú futbal a držia spolu. Jeho korene siahajú
-                    do roku <span class="about-emphasis">1955</span>, keď sa v Kamennej Porube začalo organizovať
-                    telovýchovné hnutie.</p>
 
                 <div class="about-milestones">
                     <span class="about-milestone"><i class="fas fa-flag"></i> 1955 - vznik hnutia</span>
@@ -2156,7 +2166,7 @@
                 <!-- Gallery Section (replaces News) -->
                 <section id="gallery">
                     <h2><i class="fas fa-images"></i> Galéria</h2>
-                    <div class="gallery-grid">
+                    <div class="gallery-grid" id="galleryGrid">
                         <div class="gallery-item">
                             <img class="gallery-image" src="/assets/images/10750142878023431842.jpg" alt="Galéria 1"
                                 style="min-width:220px; min-height:220px; background:#eaeaea;">
@@ -2725,6 +2735,93 @@
 
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             updateLoginButtonText();
+        }
+
+        function normalizeCaption(caption) {
+            const text = String(caption || '').replace(/\s+/g, ' ').trim();
+            if (!text) {
+                return 'Instagram prispevok OŠK Kamenná Poruba';
+            }
+
+            if (text.length <= 170) {
+                return text;
+            }
+
+            return `${text.slice(0, 167).trim()}...`;
+        }
+
+        function createInstagramGalleryItem(item) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'gallery-item';
+            wrapper.dataset.instagramId = String(item.id || '');
+
+            const image = document.createElement('img');
+            image.className = 'gallery-image';
+            image.src = item.imageUrl;
+            image.alt = normalizeCaption(item.caption);
+            image.loading = 'lazy';
+            wrapper.appendChild(image);
+
+            const captionBlock = document.createElement('div');
+            captionBlock.className = 'gallery-caption';
+            captionBlock.textContent = normalizeCaption(item.caption);
+
+            if (item.permalink) {
+                const link = document.createElement('a');
+                link.className = 'gallery-caption-link';
+                link.href = item.permalink;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = 'Pozriet na Instagrame';
+                captionBlock.appendChild(document.createElement('br'));
+                captionBlock.appendChild(link);
+            }
+
+            wrapper.appendChild(captionBlock);
+            return wrapper;
+        }
+
+        async function loadInstagramGalleryFeed() {
+            const galleryGrid = document.getElementById('galleryGrid');
+            if (!galleryGrid) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/instagram/feed`, {
+                    method: 'GET'
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const payload = await response.json();
+                const items = Array.isArray(payload && payload.items) ? payload.items : [];
+                if (!items.length) {
+                    return;
+                }
+
+                const existingIds = new Set(
+                    Array.from(galleryGrid.querySelectorAll('.gallery-item[data-instagram-id]'))
+                        .map((node) => node.dataset.instagramId)
+                        .filter(Boolean)
+                );
+
+                const fragment = document.createDocumentFragment();
+
+                items.forEach((item) => {
+                    if (!item || !item.imageUrl || !item.id || existingIds.has(String(item.id))) {
+                        return;
+                    }
+
+                    fragment.appendChild(createInstagramGalleryItem(item));
+                });
+
+                galleryGrid.prepend(fragment);
+            } catch (error) {
+                console.warn('Instagram feed sa nepodarilo nacitat:', error);
+            }
         }
 
         async function syncCurrentUserFromSessionWithRetry() {
@@ -3645,9 +3742,10 @@
             // Initialize players stats
             await initializePlayers();
             showCoachPlayerCardButton();
+            await loadInstagramGalleryFeed();
 
             // Gallery zoom modal logic
-            const galleryImages = Array.from(document.querySelectorAll('.gallery-image'));
+            const galleryGrid = document.getElementById('galleryGrid');
             const modal = document.getElementById('galleryModal');
             const modalImg = document.getElementById('galleryModalImg');
             const modalClose = document.getElementById('galleryModalClose');
@@ -3655,7 +3753,16 @@
             const modalNext = document.getElementById('galleryModalNext');
             let currentImgIndex = 0;
 
+            function getGalleryImages() {
+                return Array.from(document.querySelectorAll('.gallery-image'));
+            }
+
             function showModalAtIndex(idx) {
+                const galleryImages = getGalleryImages();
+                if (!galleryImages.length) {
+                    return;
+                }
+
                 if (idx < 0) idx = galleryImages.length - 1;
                 if (idx >= galleryImages.length) idx = 0;
                 currentImgIndex = idx;
@@ -3665,11 +3772,20 @@
                 modal.style.display = 'flex';
             }
 
-            galleryImages.forEach((img, i) => {
-                img.addEventListener('click', function () {
-                    showModalAtIndex(i);
+            if (galleryGrid) {
+                galleryGrid.addEventListener('click', function (event) {
+                    const clickedImage = event.target.closest('.gallery-image');
+                    if (!clickedImage) {
+                        return;
+                    }
+
+                    const galleryImages = getGalleryImages();
+                    const index = galleryImages.indexOf(clickedImage);
+                    if (index >= 0) {
+                        showModalAtIndex(index);
+                    }
                 });
-            });
+            }
 
             modalClose.addEventListener('click', function () {
                 modal.style.display = 'none';

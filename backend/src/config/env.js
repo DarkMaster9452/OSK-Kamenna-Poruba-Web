@@ -42,7 +42,11 @@ const env = {
   sportsnetTeamId: process.env.SPORTSNET_TEAM_ID || '',
   sportsnetCompetitionId: process.env.SPORTSNET_COMPETITION_ID || '',
   sportsnetSeason: process.env.SPORTSNET_SEASON || '',
-  sportsnetCacheSeconds: Number(process.env.SPORTSNET_CACHE_SECONDS || 300)
+  sportsnetCacheSeconds: Number(process.env.SPORTSNET_CACHE_SECONDS || 300),
+  instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
+  instagramUserId: process.env.INSTAGRAM_USER_ID || 'me',
+  instagramFeedLimit: Number(process.env.INSTAGRAM_FEED_LIMIT || 8),
+  instagramCacheSeconds: Number(process.env.INSTAGRAM_CACHE_SECONDS || 300)
 };
 
 if (env.nodeEnv === 'production' && env.jwtAccessSecret === 'dev_only_change_me') {
