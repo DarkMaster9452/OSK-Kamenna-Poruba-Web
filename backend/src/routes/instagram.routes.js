@@ -6,7 +6,8 @@ const router = express.Router();
 router.get('/feed', async (req, res, next) => {
   try {
     const forceRefresh = String(req.query.refresh || '').toLowerCase() === 'true';
-    const payload = await fetchInstagramFeed({ forceRefresh });
+    const requestedLimit = req.query.limit;
+    const payload = await fetchInstagramFeed({ forceRefresh, requestedLimit });
     return res.json(payload);
   } catch (error) {
     return next(error);
