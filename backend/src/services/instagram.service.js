@@ -73,21 +73,28 @@ async function fetchInstagramFeed({ forceRefresh = false, requestedLimit } = {})
     return getUnconfiguredPayload();
   }
 
+  const includeAll = String(requestedLimit || '').trim().toLowerCase() === 'all';
   const normalizedLimit = normalizeRequestedLimit(requestedLimit);
 
   const now = Date.now();
-  if (!forceRefresh && cacheState.payload && cacheState.expiresAt > now && cacheState.payload.requestedLimit === normalizedLimit) {
+  if (
+    !forceRefresh
+    && cacheState.payload
+    && cacheState.expiresAt > now
+    && cacheState.payload.requestedLimit === normalizedLimit
+    && Boolean(cacheState.payload.includeAll) === includeAll
+  ) {
     return {
       ...cacheState.payload,
       cache: 'HIT'
     };
   }
 
-  let endpoint = buildInstagramUrl(normalizedLimit);
+  let endpoint = buildInstagramUrl(includeAll ? 25 : normalizedLimit);
   const rows = [];
   let pageCounter = 0;
 
-  while (endpoint && rows.length < normalizedLimit && pageCounter < 20) {
+  while (endpoint && (includeAll || rows.length < normalizedLimit) && pageCounter < 200) {
     pageCounter += 1;
 
     let response;
@@ -130,13 +137,14 @@ async function fetchInstagramFeed({ forceRefresh = false, requestedLimit } = {})
   }
 
   const items = rows
-    .slice(0, normalizedLimit)
+    .slice(0, includeAll ? rows.length : normalizedLimit)
     .map(mapInstagramItem)
     .filter(Boolean);
 
   const normalized = {
     source: 'instagram.graph',
     fetchedAt: new Date().toISOString(),
+    includeAll,
     requestedLimit: normalizedLimit,
     count: items.length,
     items
