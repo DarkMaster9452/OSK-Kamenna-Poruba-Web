@@ -249,4 +249,4 @@ Táto verzia repozitára je pripravená na jeden Vercel projekt:
 
 - **Frontend**: statické HTML súbory z rootu
 - **Backend**: Vercel serverless funkcia cez `api/[...all].js` (Express app z `backend/src/app.js`)
-  API = apikey-6f513b9b7effe636604698147ddeaf0d5f9c177fb36a0207d355b85bc4d91c96
+  API a tokeny nastav iba cez Vercel Environment Variables / `backend/.env`.
