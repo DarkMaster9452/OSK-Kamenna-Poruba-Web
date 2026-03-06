@@ -51,11 +51,71 @@ const attendanceSchema = z.object({
   status: z.enum(['yes', 'no', 'unknown'])
 });
 
+const GROUP_META_PREFIX = '__OSK_GROUP_META__';
+
+function extractGroupMeta(rawNote) {
+  const note = String(rawNote || '');
+  if (!note.startsWith(GROUP_META_PREFIX)) {
+    return {
+      startTime: null,
+      endTime: null,
+      maxPlayers: null,
+      coachNote: note || null
+    };
+  }
+
+  const firstLineEnd = note.indexOf('\n');
+  const header = firstLineEnd >= 0 ? note.slice(0, firstLineEnd) : note;
+  const tail = firstLineEnd >= 0 ? note.slice(firstLineEnd + 1).trim() : '';
+
+  try {
+    const parsed = JSON.parse(header.slice(GROUP_META_PREFIX.length));
+    const maxPlayers = Number(parsed?.maxPlayers);
+    return {
+      startTime: typeof parsed?.startTime === 'string' ? parsed.startTime : null,
+      endTime: typeof parsed?.endTime === 'string' ? parsed.endTime : null,
+      maxPlayers: Number.isInteger(maxPlayers) && maxPlayers > 0 ? maxPlayers : null,
+      coachNote: tail || null
+    };
+  } catch (_) {
+    return {
+      startTime: null,
+      endTime: null,
+      maxPlayers: null,
+      coachNote: note || null
+    };
+  }
+}
+
+function isValidQuarterHourTime(value) {
+  return isQuarterHourTime(value);
+}
+
+function buildGroupStoredNote(groupInput) {
+  const startTime = typeof groupInput?.startTime === 'string' ? groupInput.startTime.trim() : null;
+  const endTime = typeof groupInput?.endTime === 'string' ? groupInput.endTime.trim() : null;
+  const maxPlayersRaw = Number(groupInput?.maxPlayers);
+  const maxPlayers = Number.isInteger(maxPlayersRaw) && maxPlayersRaw > 0 ? maxPlayersRaw : null;
+  const coachNote = typeof groupInput?.note === 'string' ? groupInput.note.trim() : '';
+
+  const meta = {
+    startTime: startTime || null,
+    endTime: endTime || null,
+    maxPlayers
+  };
+
+  const header = `${GROUP_META_PREFIX}${JSON.stringify(meta)}`;
+  return coachNote ? `${header}\n${coachNote}` : header;
+}
+
 const upsertTrainingGroupsSchema = z.object({
   groups: z.array(z.object({
     name: z.string().trim().min(1).max(100),
     location: z.string().trim().max(100).optional(),
-    note: z.string().trim().max(500).optional()
+    note: z.string().trim().max(500).optional(),
+    startTime: z.string().trim().regex(/^\d{2}:\d{2}$/).optional(),
+    endTime: z.string().trim().regex(/^\d{2}:\d{2}$/).optional(),
+    maxPlayers: z.coerce.number().int().min(1).max(200).optional()
   })).max(20)
 });
 
@@ -171,7 +231,18 @@ router.get('/', requireAuth, async (req, res) => {
       note: row.note,
       isActive: row.isActive,
       attendance: Array.isArray(row.attendances) ? row.attendances : [],
-      groups: Array.isArray(row.groups) ? row.groups : [],
+      groups: Array.isArray(row.groups) ? row.groups.map((group) => {
+        const meta = extractGroupMeta(group.note);
+        return {
+          id: group.id,
+          name: group.name,
+          location: group.location,
+          note: meta.coachNote,
+          startTime: meta.startTime,
+          endTime: meta.endTime,
+          maxPlayers: meta.maxPlayers
+        };
+      }) : [],
       createdAt: row.createdAt,
       createdBy: row.createdById || 'unknown'
     }));
@@ -402,14 +473,62 @@ router.post('/:id/groups', requireAuth, requireRole('coach', 'admin'), validateB
     return res.status(404).json({ message: 'Tréning neexistuje.' });
   }
 
-  const groups = await replaceTrainingGroups(training.id, req.body.groups || []);
+  const incomingGroups = Array.isArray(req.body.groups) ? req.body.groups : [];
+  const invalidTimeRange = incomingGroups.some((group) => {
+    const hasStart = typeof group.startTime === 'string' && group.startTime.trim().length > 0;
+    const hasEnd = typeof group.endTime === 'string' && group.endTime.trim().length > 0;
+
+    if (!hasStart && !hasEnd) {
+      return false;
+    }
+
+    if (!hasStart || !hasEnd) {
+      return true;
+    }
+
+    if (!isValidQuarterHourTime(group.startTime) || !isValidQuarterHourTime(group.endTime)) {
+      return true;
+    }
+
+    return group.startTime >= group.endTime;
+  });
+
+  if (invalidTimeRange) {
+    return res.status(400).json({ message: 'Každý podtréning musí mať platný čas od-do (po 15 minútach).' });
+  }
+
+  const duplicateNames = new Set();
+  for (const group of incomingGroups) {
+    const normalizedName = String(group.name || '').trim().toLowerCase();
+    if (!normalizedName) {
+      continue;
+    }
+    if (duplicateNames.has(normalizedName)) {
+      return res.status(400).json({ message: 'Podtréningy musia mať unikátne názvy.' });
+    }
+    duplicateNames.add(normalizedName);
+  }
+
+  const groupsPayload = incomingGroups.map((group) => ({
+    name: group.name,
+    location: group.location || null,
+    note: buildGroupStoredNote(group)
+  }));
+
+  const groups = await replaceTrainingGroups(training.id, groupsPayload);
   return res.json({
-    items: groups.map((group) => ({
-      id: group.id,
-      name: group.name,
-      location: group.location,
-      note: group.note
-    }))
+    items: groups.map((group) => {
+      const meta = extractGroupMeta(group.note);
+      return {
+        id: group.id,
+        name: group.name,
+        location: group.location,
+        note: meta.coachNote,
+        startTime: meta.startTime,
+        endTime: meta.endTime,
+        maxPlayers: meta.maxPlayers
+      };
+    })
   });
 });
 
@@ -431,6 +550,35 @@ router.patch('/:id/attendance/:playerUsername/group', requireAuth, requireRole('
 
     if (!group) {
       return res.status(400).json({ message: 'Podtréning neexistuje pre daný tréning.' });
+    }
+
+    const meta = extractGroupMeta(group.note);
+    if (meta.maxPlayers) {
+      const currentAttendance = await prisma.trainingAttendance.findUnique({
+        where: {
+          trainingId_playerUsername: {
+            trainingId: training.id,
+            playerUsername: req.params.playerUsername
+          }
+        },
+        select: {
+          trainingGroupId: true
+        }
+      });
+
+      const isAlreadyAssigned = currentAttendance && currentAttendance.trainingGroupId === trainingGroupId;
+      if (!isAlreadyAssigned) {
+        const assignedCount = await prisma.trainingAttendance.count({
+          where: {
+            trainingId: training.id,
+            trainingGroupId
+          }
+        });
+
+        if (assignedCount >= meta.maxPlayers) {
+          return res.status(400).json({ message: `Podtréning ${group.name} je plný (max ${meta.maxPlayers} hráčov).` });
+        }
+      }
     }
   }
 
