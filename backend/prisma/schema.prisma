@@ -130,7 +130,24 @@ model Training {
   createdBy   User @relation("TrainingsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
   attendances TrainingAttendance[]
 
+  groups TrainingGroup[]
+
   @@index([createdAt])
+}
+
+model TrainingGroup {
+  id        String   @id @default(cuid())
+  name      String
+  location  String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  trainingId String
+  training   Training @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+
+  attendances TrainingAttendance[] @relation("GroupAttendances")
+
+  @@index([trainingId])
 }
 
 model TrainingAttendance {
@@ -143,11 +160,15 @@ model TrainingAttendance {
   trainingId String
   training   Training @relation(fields: [trainingId], references: [id], onDelete: Cascade)
 
+  trainingGroupId String?
+  trainingGroup   TrainingGroup? @relation("GroupAttendances", fields: [trainingGroupId], references: [id], onDelete: SetNull)
+
   updatedById String?
   updatedBy   User? @relation("AttendanceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 
   @@unique([trainingId, playerUsername])
   @@index([trainingId])
+  @@index([trainingGroupId])
   @@index([playerUsername])
 }
 

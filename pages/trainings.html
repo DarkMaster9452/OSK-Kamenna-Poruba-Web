@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sk">
 
 <head>
@@ -948,23 +948,31 @@
 
                 const payload = await response.json();
                 const items = Array.isArray(payload.items) ? payload.items : [];
-                trainings = items.map(item => ({
-                    id: item.id,
-                    date: item.date,
-                    time: item.time,
-                    type: item.type,
-                    duration: item.duration,
-                    category: item.category,
-                    note: item.note || '',
-                    createdBy: item.createdBy,
-                    isActive: item.isActive,
-                    attendance: Array.isArray(item.attendance)
+                trainings = items.map(item => {
+                    const attendanceMap = Array.isArray(item.attendance)
                         ? item.attendance.reduce((acc, row) => {
-                            acc[`${item.id}_${row.playerUsername}`] = row.status;
+                            acc[`${item.id}_${row.playerUsername}`] = {
+                                status: row.status,
+                                trainingGroupId: row.trainingGroupId || null
+                            };
                             return acc;
                         }, {})
-                        : {}
-                }));
+                        : {};
+
+                    return {
+                        id: item.id,
+                        date: item.date,
+                        time: item.time,
+                        type: item.type,
+                        duration: item.duration,
+                        category: item.category,
+                        note: item.note || '',
+                        createdBy: item.createdBy,
+                        isActive: item.isActive,
+                        attendance: attendanceMap,
+                        groups: Array.isArray(item.groups) ? item.groups : []
+                    };
+                });
                 return;
             } catch (error) {
                 console.error(error);
@@ -1266,7 +1274,8 @@
                         : '';
 
                     let attending = 0, notAttending = 0, unknown = 0;
-                    Object.values(t.attendance || {}).forEach(s => {
+                    Object.values(t.attendance || {}).forEach((entry) => {
+                        const s = entry && entry.status ? entry.status : 'unknown';
                         if (s === 'yes') attending++;
                         else if (s === 'no') notAttending++;
                         else unknown++;
@@ -1275,6 +1284,7 @@
                     const total = attending + notAttending + unknown;
                     const percent = total > 0 ? Math.round((attending / total) * 100) : 0;
                     const statusInfo = getTrainingStatus(t);
+                    const hasGroups = Array.isArray(t.groups) && t.groups.length > 0;
 
                     html += `
                         <div class="training-card">
@@ -1283,6 +1293,11 @@
                                 <p><i class="fas fa-calendar"></i> ${date} o ${t.time}</p>
                                 <p><i class="fas fa-users"></i> ${categoryLabel} | ${t.duration} min</p>
                                 ${noteHtml}
+                                ${hasGroups ? `
+                                    <p style="margin-top:8px;color:#ffd700;">
+                                        <i class="fas fa-layer-group"></i> Podtréningy: ${t.groups.map(g => escapeHtml(g.name)).join(', ')}
+                                    </p>
+                                ` : ''}
                                 <p style="color: ${statusInfo.color};">
                                     ${statusInfo.text}
                                 </p>
@@ -1306,6 +1321,13 @@
                                 <button class="btn-action" style="background:#3498db;color:white;" onclick="editTraining('${t.id}')"><i class="fa-solid fa-pen-to-square"></i> Upraviť</button>
                                 <button class="btn-action btn-delete" onclick="deleteTraining('${t.id}')"><i class="fas fa-trash"></i> Odstrániť</button>
                             </div>
+                            ${Array.isArray(t.groups) && t.groups.length > 0 ? `
+                                <div style="padding: 10px 20px 20px 20px;border-top:1px solid rgba(255,215,0,0.2);">
+                                    <div style="font-size:13px;color:#ffd700;margin-bottom:6px;">
+                                        <i class="fas fa-layer-group"></i> Podtréningy: ${t.groups.map(g => escapeHtml(g.name)).join(', ')}
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
                     `;
                 });
@@ -1330,7 +1352,8 @@
             const items = [];
             let index = 1;
             Object.entries(attendance || {}).forEach(([key, value]) => {
-                if (value === status) {
+                const s = value && value.status ? value.status : 'unknown';
+                if (s === status) {
                     const name = key.substring(key.indexOf('_') + 1);
                     items.push(`
                         <div class="attendance-item">
@@ -1375,9 +1398,13 @@
                     ? `<p><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(t.note)}</p>`
                     : '';
 
+                const groupById = new Map((t.groups || []).map((g) => [g.id, g]));
+
                 peopleToDisplay.forEach(person => {
                     const key = t.id + '_' + person;
-                    const status = t.attendance ? t.attendance[key] : 'unknown';
+                    const att = t.attendance ? t.attendance[key] : null;
+                    const status = att && att.status ? att.status : 'unknown';
+                    const group = att && att.trainingGroupId ? groupById.get(att.trainingGroupId) : null;
 
                     html += `
                         <div class="training-card">
@@ -1386,6 +1413,7 @@
                                 <p><i class="fas fa-calendar"></i> ${date} o ${t.time}</p>
                                 <p><i class="fas fa-clock"></i> ${t.duration} min</p>
                                 ${noteHtml}
+                                ${group ? `<p><i class="fas fa-layer-group"></i> Podtréning: ${escapeHtml(group.name)}</p>` : ''}
                                 <p style="color:${statusInfo.color};">
                                     ${statusInfo.text}
                                 </p>

@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const { z } = require('zod');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { validateBody } = require('../middleware/validate');
@@ -11,7 +11,9 @@ const {
   deleteTraining,
   upsertTrainingAttendance,
   createAuditLog,
-  listActivePlayerEmailsByTrainingCategory
+  listActivePlayerEmailsByTrainingCategory,
+  replaceTrainingGroups,
+  updateTrainingAttendanceGroup
 } = require('../data/repository');
 const { sendTrainingCreatedEmails, sendTrainingUpdatedEmails } = require('../services/email.service');
 
@@ -47,6 +49,18 @@ const updateTrainingSchema = createTrainingSchema;
 const attendanceSchema = z.object({
   playerUsername: z.string().min(3).max(100),
   status: z.enum(['yes', 'no', 'unknown'])
+});
+
+const upsertTrainingGroupsSchema = z.object({
+  groups: z.array(z.object({
+    name: z.string().trim().min(1).max(100),
+    location: z.string().trim().max(100).optional(),
+    note: z.string().trim().max(500).optional()
+  })).max(20)
+});
+
+const updateAttendanceGroupSchema = z.object({
+  trainingGroupId: z.string().trim().min(1).max(200).nullable().optional()
 });
 
 const deleteTrainingByIdSchema = z.object({
@@ -156,6 +170,7 @@ router.get('/', requireAuth, async (req, res) => {
     note: row.note,
     isActive: row.isActive,
     attendance: row.attendances,
+    groups: Array.isArray(row.groups) ? row.groups : [],
     createdAt: row.createdAt,
     createdBy: row.createdBy.username
   }));
@@ -371,6 +386,63 @@ router.post('/:id/attendance', requireAuth, validateBody(attendanceSchema), asyn
       trainingId: row.trainingId,
       playerUsername: row.playerUsername,
       status: row.status,
+      updatedAt: row.updatedAt
+    }
+  });
+});
+
+router.post('/:id/groups', requireAuth, requireRole('coach', 'admin'), validateBody(upsertTrainingGroupsSchema), async (req, res) => {
+  const training = await findTrainingById(req.params.id);
+  if (!training) {
+    return res.status(404).json({ message: 'Tréning neexistuje.' });
+  }
+
+  const groups = await replaceTrainingGroups(training.id, req.body.groups || []);
+  return res.json({
+    items: groups.map((group) => ({
+      id: group.id,
+      name: group.name,
+      location: group.location,
+      note: group.note
+    }))
+  });
+});
+
+router.patch('/:id/attendance/:playerUsername/group', requireAuth, requireRole('coach', 'admin'), validateBody(updateAttendanceGroupSchema), async (req, res) => {
+  const training = await findTrainingById(req.params.id);
+  if (!training) {
+    return res.status(404).json({ message: 'Tréning neexistuje.' });
+  }
+
+  const trainingGroupId = req.body.trainingGroupId || null;
+
+  if (trainingGroupId) {
+    const group = await prisma.trainingGroup.findFirst({
+      where: {
+        id: trainingGroupId,
+        trainingId: training.id
+      }
+    });
+
+    if (!group) {
+      return res.status(400).json({ message: 'Podtréning neexistuje pre daný tréning.' });
+    }
+  }
+
+  const row = await updateTrainingAttendanceGroup(
+    training.id,
+    req.params.playerUsername,
+    trainingGroupId,
+    req.user.id
+  );
+
+  return res.json({
+    item: {
+      id: row.id,
+      trainingId: row.trainingId,
+      playerUsername: row.playerUsername,
+      status: row.status,
+      trainingGroupId: row.trainingGroupId,
       updatedAt: row.updatedAt
     }
   });

@@ -1,4 +1,4 @@
-﻿const prisma = require('./db');
+const prisma = require('./db');
 
 const PARENT_CHILDREN_SNAPSHOT_ACTION = 'parent_children_snapshot';
 const PARENT_CHILDREN_UPDATED_ACTION = 'parent_children_updated';
@@ -905,7 +905,16 @@ async function listTrainings(viewerUser) {
         select: {
           playerUsername: true,
           status: true,
-          updatedAt: true
+          updatedAt: true,
+          trainingGroupId: true
+        }
+      },
+      groups: {
+        select: {
+          id: true,
+          name: true,
+          location: true,
+          note: true
         }
       }
     }
@@ -1026,6 +1035,65 @@ async function upsertTrainingAttendance(trainingId, playerUsername, status, upda
       trainingId,
       playerUsername,
       status,
+      updatedById
+    }
+  });
+}
+
+async function replaceTrainingGroups(trainingId, groupsInput) {
+  return prisma.$transaction(async (tx) => {
+    await tx.trainingGroup.deleteMany({
+      where: {
+        trainingId
+      }
+    });
+
+    if (!Array.isArray(groupsInput) || !groupsInput.length) {
+      return [];
+    }
+
+    const created = await Promise.all(
+      groupsInput.map((group) =>
+        tx.trainingGroup.create({
+          data: {
+            trainingId,
+            name: group.name,
+            location: group.location || null,
+            note: group.note || null
+          }
+        })
+      )
+    );
+
+    return created;
+  });
+}
+
+async function updateTrainingAttendanceGroup(trainingId, playerUsername, trainingGroupId, updatedById) {
+  if (!trainingGroupId) {
+    return prisma.trainingAttendance.update({
+      where: {
+        trainingId_playerUsername: {
+          trainingId,
+          playerUsername
+        }
+      },
+      data: {
+        trainingGroupId: null,
+        updatedById
+      }
+    });
+  }
+
+  return prisma.trainingAttendance.update({
+    where: {
+      trainingId_playerUsername: {
+        trainingId,
+        playerUsername
+      }
+    },
+    data: {
+      trainingGroupId,
       updatedById
     }
   });
@@ -1249,6 +1317,8 @@ module.exports = {
   closeTraining,
   deleteTraining,
   upsertTrainingAttendance,
+  replaceTrainingGroups,
+  updateTrainingAttendanceGroup,
   listAnnouncements,
   createAnnouncement,
   deleteAnnouncement,
