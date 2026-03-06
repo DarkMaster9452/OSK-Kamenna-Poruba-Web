@@ -958,31 +958,7 @@
 
                 const payload = await response.json();
                 const items = Array.isArray(payload.items) ? payload.items : [];
-                trainings = items.map(item => {
-                    const attendanceMap = Array.isArray(item.attendance)
-                        ? item.attendance.reduce((acc, row) => {
-                            acc[`${item.id}_${row.playerUsername}`] = {
-                                status: row.status,
-                                trainingGroupId: row.trainingGroupId || null
-                            };
-                            return acc;
-                        }, {})
-                        : {};
-
-                    return {
-                        id: item.id,
-                        date: item.date,
-                        time: item.time,
-                        type: item.type,
-                        duration: item.duration,
-                        category: item.category,
-                        note: item.note || '',
-                        createdBy: item.createdBy,
-                        isActive: item.isActive,
-                        attendance: attendanceMap,
-                        groups: Array.isArray(item.groups) ? item.groups : []
-                    };
-                });
+                trainings = items.map(normalizeTrainingItem);
                 return;
             } catch (error) {
                 console.error(error);
@@ -990,8 +966,36 @@
             } finally {
                 trainingsLoading = false;
             }
+        }
 
-            trainings = [];
+        function normalizeTrainingItem(item) {
+            const attendanceMap = Array.isArray(item && item.attendance)
+                ? item.attendance.reduce((acc, row) => {
+                    if (!row || !row.playerUsername) {
+                        return acc;
+                    }
+
+                    acc[`${item.id}_${row.playerUsername}`] = {
+                        status: row.status,
+                        trainingGroupId: row.trainingGroupId || null
+                    };
+                    return acc;
+                }, {})
+                : {};
+
+            return {
+                id: item && item.id ? item.id : '',
+                date: item && item.date ? item.date : '',
+                time: item && item.time ? item.time : '',
+                type: item && item.type ? item.type : '',
+                duration: item && item.duration ? item.duration : 0,
+                category: item && item.category ? item.category : '',
+                note: item && item.note ? item.note : '',
+                createdBy: item && item.createdBy ? item.createdBy : '',
+                isActive: Boolean(item && item.isActive),
+                attendance: attendanceMap,
+                groups: Array.isArray(item && item.groups) ? item.groups : []
+            };
         }
 
         function setCreateTrainingLoading(isLoading) {
@@ -1263,6 +1267,15 @@
                     throw new Error(payload.message || 'Nepodarilo sa uložiť tréning na server.');
                 }
 
+                const createdPayload = await response.json().catch(() => ({}));
+                if (createdPayload && createdPayload.item) {
+                    const createdTraining = normalizeTrainingItem(createdPayload.item);
+                    trainings = [createdTraining, ...trainings.filter((training) => String(training.id) !== String(createdTraining.id))];
+                    trainingsLoadError = '';
+                    refreshCoachRoster();
+                    refreshPlayerTrainings();
+                }
+
                 // Attendance is managed in backend table TrainingAttendance.
                 await loadTrainingsData();
 
@@ -1321,10 +1334,15 @@
             }
 
             if (trainingsLoadError) {
-                const errorHtml = `<div style="text-align:center;color:#ffb3b3;padding:30px;">${escapeHtml(trainingsLoadError)}</div>`;
-                upcomingContainer.innerHTML = errorHtml;
-                finishedContainer.innerHTML = '';
-                return;
+                if (trainings.length > 0) {
+                    // Keep showing last known data when refresh fails.
+                    trainingsLoadError = '';
+                } else {
+                    const errorHtml = `<div style="text-align:center;color:#ffb3b3;padding:30px;">${escapeHtml(trainingsLoadError)}</div>`;
+                    upcomingContainer.innerHTML = errorHtml;
+                    finishedContainer.innerHTML = '';
+                    return;
+                }
             }
 
             const upcomingTrainings = [];
@@ -1462,8 +1480,12 @@
             }
 
             if (trainingsLoadError) {
-                container.innerHTML = `<div style="text-align:center;color:#ffb3b3;padding:30px;">${escapeHtml(trainingsLoadError)}</div>`;
-                return;
+                if (trainings.length === 0) {
+                    container.innerHTML = `<div style="text-align:center;color:#ffb3b3;padding:30px;">${escapeHtml(trainingsLoadError)}</div>`;
+                    return;
+                }
+
+                trainingsLoadError = '';
             }
 
             if (trainings.length === 0) {
