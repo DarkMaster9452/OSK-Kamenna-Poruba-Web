@@ -159,22 +159,27 @@ async function writeAuditSafe(payload) {
 }
 
 router.get('/', requireAuth, async (req, res) => {
-  const rows = await listTrainings(req.user);
-  const items = rows.map((row) => ({
-    id: row.id,
-    date: row.date,
-    time: row.time,
-    type: row.type,
-    duration: row.duration,
-    category: row.category,
-    note: row.note,
-    isActive: row.isActive,
-    attendance: row.attendances,
-    groups: Array.isArray(row.groups) ? row.groups : [],
-    createdAt: row.createdAt,
-    createdBy: row.createdBy.username
-  }));
-  return res.json({ items });
+  try {
+    const rows = await listTrainings(req.user);
+    const items = rows.map((row) => ({
+      id: row.id,
+      date: row.date,
+      time: row.time,
+      type: row.type,
+      duration: row.duration,
+      category: row.category,
+      note: row.note,
+      isActive: row.isActive,
+      attendance: row.attendances,
+      groups: Array.isArray(row.groups) ? row.groups : [],
+      createdAt: row.createdAt,
+      createdBy: row.createdBy.username
+    }));
+    return res.json({ items });
+  } catch (error) {
+    console.error('Failed to list trainings:', error);
+    return res.status(500).json({ message: 'Nepodarilo sa načítať tréningy.' });
+  }
 });
 
 router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(createTrainingSchema), async (req, res) => {

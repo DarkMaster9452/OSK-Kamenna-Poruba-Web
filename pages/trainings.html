@@ -958,7 +958,9 @@
                 clearTimeout(timeoutId);
 
                 if (!response.ok) {
-                    throw new Error('Nepodarilo sa načítať tréningy z databázy.');
+                    const errorPayload = await response.json().catch(() => ({}));
+                    const serverMessage = errorPayload && errorPayload.message ? errorPayload.message : 'Nepodarilo sa načítať tréningy z databázy.';
+                    throw new Error(`${serverMessage} (HTTP ${response.status})`);
                 }
 
                 const payload = await response.json();
