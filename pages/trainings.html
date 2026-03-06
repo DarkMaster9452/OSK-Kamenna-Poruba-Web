@@ -819,9 +819,13 @@
                         <textarea id="trainingNote" maxlength="1000"
                             placeholder="Voliteľná poznámka pre hráčov a rodičov"></textarea>
                     </div>
-                    <button type="button" class="btn-create" onclick="createTraining()">
+                    <button id="createTrainingBtn" type="button" class="btn-create" onclick="createTraining()">
                         <i class="fas fa-plus"></i> Vytvoriť
                     </button>
+                    <div id="trainingCreateLoading"
+                        style="display:none;color:#ffd700;font-weight:700;text-align:center;padding-top:8px;">
+                        <i class="fas fa-spinner fa-spin"></i> Vytváram tréning, čakajte prosím...
+                    </div>
                 </div>
 
                 <button type="button" id="toggleTrainingsBtn" class="btn-toggle-trainings"
@@ -896,6 +900,9 @@
         let trainings = [];
         let parentChildren = {};
         let coachTrainingsVisible = false;
+        let trainingsLoading = false;
+        let trainingsLoadError = '';
+        let createTrainingPending = false;
         function resolveApiBase() {
             const host = window.location.hostname;
             if (host.endsWith('.vercel.app')) {
@@ -937,6 +944,8 @@
         }
 
         async function loadTrainingsData() {
+            trainingsLoading = true;
+            trainingsLoadError = '';
             try {
                 const response = await fetch(`${API_BASE}/trainings`, {
                     method: 'GET',
@@ -944,7 +953,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Nepodarilo sa načítať tréningy z backendu.');
+                    throw new Error('Nepodarilo sa načítať tréningy z databázy.');
                 }
 
                 const payload = await response.json();
@@ -977,9 +986,31 @@
                 return;
             } catch (error) {
                 console.error(error);
+                trainingsLoadError = error && error.message ? error.message : 'Nepodarilo sa načítať tréningy z databázy.';
+            } finally {
+                trainingsLoading = false;
             }
 
             trainings = [];
+        }
+
+        function setCreateTrainingLoading(isLoading) {
+            createTrainingPending = Boolean(isLoading);
+
+            const createButton = document.getElementById('createTrainingBtn');
+            if (createButton) {
+                createButton.disabled = createTrainingPending;
+                createButton.style.opacity = createTrainingPending ? '0.75' : '1';
+                createButton.style.cursor = createTrainingPending ? 'not-allowed' : 'pointer';
+                createButton.innerHTML = createTrainingPending
+                    ? '<i class="fas fa-spinner fa-spin"></i> Vytváram...'
+                    : '<i class="fas fa-plus"></i> Vytvoriť';
+            }
+
+            const loading = document.getElementById('trainingCreateLoading');
+            if (loading) {
+                loading.style.display = createTrainingPending ? 'block' : 'none';
+            }
         }
 
         window.addEventListener('load', async function () {
@@ -997,8 +1028,6 @@
                             parentChildren: Array.isArray(stored.parentChildren) ? stored.parentChildren : [],
                             isLoggedIn: true
                         };
-                        // Zobraz UI pre prihláseného používateľa ešte pred volaním /me
-                        updateUI();
                     }
                 }
             } catch (e) {
@@ -1018,8 +1047,11 @@
             }
 
             if (!sessionUser) {
-                // Ak sme už mali platného používateľa z localStorage, UI už je nastavené
-                if (!currentUser || !currentUser.isLoggedIn) {
+                // Fallback: ak je používateľ dostupný v localStorage, stále sa pokúsime načítať tréningy zo servera.
+                if (currentUser && currentUser.isLoggedIn) {
+                    await loadTrainingsData();
+                    updateUI();
+                } else {
                     document.getElementById('emptyState').style.display = 'block';
                 }
                 return;
@@ -1165,6 +1197,10 @@
         }
 
         async function createTraining() {
+            if (createTrainingPending) {
+                return;
+            }
+
             console.log('createTraining called');
 
             const date = document.getElementById('trainingDate').value;
@@ -1198,6 +1234,7 @@
             // Attendance data are now backend-driven; no local player dataset is required.
 
             try {
+                setCreateTrainingLoading(true);
                 const csrfToken = await ensureCsrfToken();
                 const response = await fetch(`${API_BASE}/trainings`, {
                     method: 'POST',
@@ -1220,29 +1257,30 @@
                     const payload = await response.json().catch(() => ({}));
                     throw new Error(payload.message || 'Nepodarilo sa uložiť tréning na server.');
                 }
+
+                // Attendance is managed in backend table TrainingAttendance.
+                await loadTrainingsData();
+
+                // Clear form
+                document.getElementById('trainingDate').value = '';
+                document.getElementById('trainingHour').value = '17';
+                document.getElementById('trainingMinute').value = '00';
+                document.getElementById('trainingType').value = '';
+                document.getElementById('trainingDuration').value = '60';
+                document.getElementById('trainingCategory').value = '';
+                document.getElementById('trainingNote').value = '';
+
+                refreshCoachRoster();
+                refreshPlayerTrainings();
             } catch (error) {
                 console.error(error);
                 if (errorDiv) {
                     errorDiv.textContent = error.message || 'Nepodarilo sa vytvoriť tréning.';
                     errorDiv.style.display = 'block';
                 }
-                return;
+            } finally {
+                setCreateTrainingLoading(false);
             }
-
-            // Attendance is managed in backend table TrainingAttendance.
-            await loadTrainingsData();
-
-            // Clear form
-            document.getElementById('trainingDate').value = '';
-            document.getElementById('trainingHour').value = '17';
-            document.getElementById('trainingMinute').value = '00';
-            document.getElementById('trainingType').value = '';
-            document.getElementById('trainingDuration').value = '60';
-            document.getElementById('trainingCategory').value = '';
-            document.getElementById('trainingNote').value = '';
-
-            refreshCoachRoster();
-            refreshPlayerTrainings();
         }
 
         function toggleCoachTrainings() {
@@ -1269,6 +1307,20 @@
             const upcomingContainer = document.getElementById('coachUpcomingTrainingsContainer');
             const finishedContainer = document.getElementById('coachTrainingsContainer');
             if (!upcomingContainer || !finishedContainer) return;
+
+            if (trainingsLoading) {
+                const loadingHtml = '<div style="text-align:center;color:#ffd700;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Načítavam tréningy z databázy...</div>';
+                upcomingContainer.innerHTML = loadingHtml;
+                finishedContainer.innerHTML = '';
+                return;
+            }
+
+            if (trainingsLoadError) {
+                const errorHtml = `<div style="text-align:center;color:#ffb3b3;padding:30px;">${escapeHtml(trainingsLoadError)}</div>`;
+                upcomingContainer.innerHTML = errorHtml;
+                finishedContainer.innerHTML = '';
+                return;
+            }
 
             const upcomingTrainings = [];
             const finishedTrainings = [];
@@ -1398,6 +1450,17 @@
 
         function refreshPlayerTrainings() {
             const container = document.getElementById('playerTrainingsContainer');
+
+            if (trainingsLoading) {
+                container.innerHTML = '<div style="text-align:center;color:#ffd700;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Načítavam tréningy z databázy...</div>';
+                return;
+            }
+
+            if (trainingsLoadError) {
+                container.innerHTML = `<div style="text-align:center;color:#ffb3b3;padding:30px;">${escapeHtml(trainingsLoadError)}</div>`;
+                return;
+            }
+
             if (trainings.length === 0) {
                 container.innerHTML = '<div style="text-align:center;color:#ffd700;padding:30px;">Žiadne tréningy</div>';
                 return;
