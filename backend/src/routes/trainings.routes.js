@@ -173,7 +173,7 @@ router.get('/', requireAuth, async (req, res) => {
       attendance: row.attendances,
       groups: Array.isArray(row.groups) ? row.groups : [],
       createdAt: row.createdAt,
-      createdBy: row.createdBy.username
+      createdBy: row.createdById || 'unknown'
     }));
     return res.json({ items });
   } catch (error) {

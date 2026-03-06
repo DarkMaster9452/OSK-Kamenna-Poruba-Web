@@ -898,9 +898,6 @@ async function listTrainings(viewerUser) {
     where,
     orderBy: { createdAt: 'desc' },
     include: {
-      createdBy: {
-        select: { username: true }
-      },
       attendances: {
         select: {
           playerUsername: true,
