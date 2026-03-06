@@ -2075,8 +2075,6 @@
 
             try {
                 const csrfToken = await ensureCsrfToken();
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8000);
                 const response = await fetch(`${API_BASE}/trainings/${trainingId}/attendance`, {
                     method: 'POST',
                     credentials: 'include',
@@ -2084,13 +2082,11 @@
                         'Content-Type': 'application/json',
                         'x-csrf-token': csrfToken
                     },
-                    signal: controller.signal,
                     body: JSON.stringify({
                         playerUsername: person,
                         status
                     })
                 });
-                clearTimeout(timeoutId);
 
                 if (!response.ok) {
                     if (response.status === 401) {
@@ -2105,11 +2101,6 @@
                 refreshCoachRoster();
                 if ((error && error.message && error.message.includes('401')) || error?.message === 'Neautorizované') {
                     redirectToLoginWithMessage('Prihlásenie vypršalo. Prihláste sa prosím znova.');
-                    attendanceSaveInProgress.delete(saveKey);
-                    return;
-                }
-                if (error && error.name === 'AbortError') {
-                    alert('Uloženie dochádzky trvá príliš dlho. Skúste to znovu.');
                     attendanceSaveInProgress.delete(saveKey);
                     return;
                 }

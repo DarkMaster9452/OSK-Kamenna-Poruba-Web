@@ -444,7 +444,7 @@ router.post('/:id/attendance', requireAuth, validateBody(attendanceSchema), asyn
     req.user.id
   );
 
-  await writeAuditSafe({
+  writeAuditSafe({
     actorUserId: req.user.id,
     action: 'training_attendance_updated',
     entityType: 'attendance',
