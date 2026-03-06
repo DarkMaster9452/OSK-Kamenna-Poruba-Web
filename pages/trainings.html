@@ -907,6 +907,7 @@
         let trainingsLoadPromise = null;
         const attendanceSaveInProgress = new Set();
         let authRedirectInProgress = false;
+        let attendanceSyncTimeoutId = null;
         function resolveApiBase() {
             const host = window.location.hostname;
             if (host.endsWith('.vercel.app')) {
@@ -1023,6 +1024,26 @@
             return trainingsLoadPromise;
         }
 
+        function scheduleTrainingsSync(delayMs = 1200) {
+            if (attendanceSyncTimeoutId) {
+                clearTimeout(attendanceSyncTimeoutId);
+            }
+
+            attendanceSyncTimeoutId = setTimeout(() => {
+                loadTrainingsData()
+                    .then(() => {
+                        refreshPlayerTrainings();
+                        refreshCoachRoster();
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    })
+                    .finally(() => {
+                        attendanceSyncTimeoutId = null;
+                    });
+            }, delayMs);
+        }
+
         function normalizeTrainingItem(item) {
             const attendanceMap = Array.isArray(item && item.attendance)
                 ? item.attendance.reduce((acc, row) => {
@@ -1137,6 +1158,11 @@
             localStorage.setItem('lastRole', currentUser.role);
 
             await loadTrainingsData();
+
+            // Warm up CSRF token to make first attendance click faster.
+            ensureCsrfToken().catch((error) => {
+                console.error(error);
+            });
 
             // Load parent's children from backend session payload
             if (currentUser.role === 'parent') {
@@ -2049,6 +2075,8 @@
 
             try {
                 const csrfToken = await ensureCsrfToken();
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
                 const response = await fetch(`${API_BASE}/trainings/${trainingId}/attendance`, {
                     method: 'POST',
                     credentials: 'include',
@@ -2056,11 +2084,13 @@
                         'Content-Type': 'application/json',
                         'x-csrf-token': csrfToken
                     },
+                    signal: controller.signal,
                     body: JSON.stringify({
                         playerUsername: person,
                         status
                     })
                 });
+                clearTimeout(timeoutId);
 
                 if (!response.ok) {
                     if (response.status === 401) {
@@ -2078,6 +2108,11 @@
                     attendanceSaveInProgress.delete(saveKey);
                     return;
                 }
+                if (error && error.name === 'AbortError') {
+                    alert('Uloženie dochádzky trvá príliš dlho. Skúste to znovu.');
+                    attendanceSaveInProgress.delete(saveKey);
+                    return;
+                }
                 alert(error.message || 'Nepodarilo sa uložiť dochádzku.');
                 attendanceSaveInProgress.delete(saveKey);
                 return;
@@ -2086,15 +2121,8 @@
             attendanceSaveInProgress.delete(saveKey);
             refreshPlayerTrainings();
             refreshCoachRoster();
-            // Synchronize with canonical backend data in background to avoid UI freeze.
-            loadTrainingsData()
-                .then(() => {
-                    refreshPlayerTrainings();
-                    refreshCoachRoster();
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
+            // Synchronize in background with debounce to avoid extra immediate requests per click.
+            scheduleTrainingsSync();
         }
 
         async function startTraining(trainingId) {
