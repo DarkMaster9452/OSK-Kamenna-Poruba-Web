@@ -904,6 +904,8 @@
         let trainingsLoadError = '';
         let createTrainingPending = false;
         let hasCompletedInitialTrainingsLoad = false;
+        let trainingsLoadPromise = null;
+        const attendanceSaveInProgress = new Set();
         function resolveApiBase() {
             const host = window.location.hostname;
             if (host.endsWith('.vercel.app')) {
@@ -945,40 +947,49 @@
         }
 
         async function loadTrainingsData() {
-            trainingsLoading = true;
-            trainingsLoadError = '';
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000);
-                const response = await fetch(`${API_BASE}/trainings`, {
-                    method: 'GET',
-                    credentials: 'include',
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-
-                if (!response.ok) {
-                    const errorPayload = await response.json().catch(() => ({}));
-                    const serverMessage = errorPayload && errorPayload.message ? errorPayload.message : 'Nepodarilo sa načítať tréningy z databázy.';
-                    throw new Error(`${serverMessage} (HTTP ${response.status})`);
-                }
-
-                const payload = await response.json();
-                const items = Array.isArray(payload.items) ? payload.items : [];
-                trainings = items.map(normalizeTrainingItem);
-                hasCompletedInitialTrainingsLoad = true;
-                return;
-            } catch (error) {
-                console.error(error);
-                if (error && error.name === 'AbortError') {
-                    trainingsLoadError = 'Načítanie tréningov trvá príliš dlho. Skúste obnoviť stránku.';
-                } else {
-                    trainingsLoadError = error && error.message ? error.message : 'Nepodarilo sa načítať tréningy z databázy.';
-                }
-                hasCompletedInitialTrainingsLoad = true;
-            } finally {
-                trainingsLoading = false;
+            if (trainingsLoadPromise) {
+                return trainingsLoadPromise;
             }
+
+            trainingsLoadPromise = (async () => {
+                trainingsLoading = true;
+                trainingsLoadError = '';
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 12000);
+                    const response = await fetch(`${API_BASE}/trainings`, {
+                        method: 'GET',
+                        credentials: 'include',
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        const errorPayload = await response.json().catch(() => ({}));
+                        const serverMessage = errorPayload && errorPayload.message ? errorPayload.message : 'Nepodarilo sa načítať tréningy z databázy.';
+                        throw new Error(`${serverMessage} (HTTP ${response.status})`);
+                    }
+
+                    const payload = await response.json();
+                    const items = Array.isArray(payload.items) ? payload.items : [];
+                    trainings = items.map(normalizeTrainingItem);
+                    hasCompletedInitialTrainingsLoad = true;
+                    return;
+                } catch (error) {
+                    console.error(error);
+                    if (error && error.name === 'AbortError') {
+                        trainingsLoadError = 'Načítanie tréningov trvá príliš dlho. Skúste obnoviť stránku.';
+                    } else {
+                        trainingsLoadError = error && error.message ? error.message : 'Nepodarilo sa načítať tréningy z databázy.';
+                    }
+                    hasCompletedInitialTrainingsLoad = true;
+                } finally {
+                    trainingsLoading = false;
+                    trainingsLoadPromise = null;
+                }
+            })();
+
+            return trainingsLoadPromise;
         }
 
         function normalizeTrainingItem(item) {
@@ -1942,15 +1953,17 @@
                     `;
 
                     if (t.isActive) {
+                        const attendancePendingKey = `${t.id}_${person}`;
+                        const isAttendanceSaving = attendanceSaveInProgress.has(attendancePendingKey);
                         html += `
                             <div class="button-group">
-                                <button class="btn-yes ${status === 'yes' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','yes')">
+                                <button class="btn-yes ${status === 'yes' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','yes')" ${isAttendanceSaving ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
                                     ✓ Prídem
                                 </button>
-                                <button class="btn-no ${status === 'no' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','no')">
+                                <button class="btn-no ${status === 'no' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','no')" ${isAttendanceSaving ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
                                     ✗ Neprídnem
                                 </button>
-                                <button class="btn-unknown ${status === 'unknown' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','unknown')">
+                                <button class="btn-unknown ${status === 'unknown' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','unknown')" ${isAttendanceSaving ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
                                     ? Neviem
                                 </button>
                             </div>
@@ -1976,6 +1989,29 @@
             const t = trainings.find(x => String(x.id) === String(trainingId));
             if (!t || !t.isActive) return;
 
+            const saveKey = `${trainingId}_${person}`;
+            if (attendanceSaveInProgress.has(saveKey)) {
+                return;
+            }
+
+            attendanceSaveInProgress.add(saveKey);
+
+            const attendanceKey = `${trainingId}_${person}`;
+            const previousAttendance = t.attendance && t.attendance[attendanceKey]
+                ? { ...t.attendance[attendanceKey] }
+                : { status: 'unknown', trainingGroupId: null };
+
+            if (!t.attendance) {
+                t.attendance = {};
+            }
+            t.attendance[attendanceKey] = {
+                status,
+                trainingGroupId: previousAttendance.trainingGroupId || null
+            };
+
+            refreshPlayerTrainings();
+            refreshCoachRoster();
+
             try {
                 const csrfToken = await ensureCsrfToken();
                 const response = await fetch(`${API_BASE}/trainings/${trainingId}/attendance`, {
@@ -1996,13 +2032,26 @@
                     throw new Error(payload.message || 'Nepodarilo sa uložiť dochádzku.');
                 }
             } catch (error) {
+                t.attendance[attendanceKey] = previousAttendance;
+                refreshPlayerTrainings();
+                refreshCoachRoster();
                 alert(error.message || 'Nepodarilo sa uložiť dochádzku.');
+                attendanceSaveInProgress.delete(saveKey);
                 return;
             }
 
-            await loadTrainingsData();
+            attendanceSaveInProgress.delete(saveKey);
             refreshPlayerTrainings();
             refreshCoachRoster();
+            // Synchronize with canonical backend data in background to avoid UI freeze.
+            loadTrainingsData()
+                .then(() => {
+                    refreshPlayerTrainings();
+                    refreshCoachRoster();
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         }
 
         async function startTraining(trainingId) {
