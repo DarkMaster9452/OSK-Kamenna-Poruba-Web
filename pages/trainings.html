@@ -903,6 +903,7 @@
         let trainingsLoading = false;
         let trainingsLoadError = '';
         let createTrainingPending = false;
+        let hasCompletedInitialTrainingsLoad = false;
         function resolveApiBase() {
             const host = window.location.hostname;
             if (host.endsWith('.vercel.app')) {
@@ -947,10 +948,14 @@
             trainingsLoading = true;
             trainingsLoadError = '';
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 12000);
                 const response = await fetch(`${API_BASE}/trainings`, {
                     method: 'GET',
-                    credentials: 'include'
+                    credentials: 'include',
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
 
                 if (!response.ok) {
                     throw new Error('Nepodarilo sa načítať tréningy z databázy.');
@@ -959,10 +964,16 @@
                 const payload = await response.json();
                 const items = Array.isArray(payload.items) ? payload.items : [];
                 trainings = items.map(normalizeTrainingItem);
+                hasCompletedInitialTrainingsLoad = true;
                 return;
             } catch (error) {
                 console.error(error);
-                trainingsLoadError = error && error.message ? error.message : 'Nepodarilo sa načítať tréningy z databázy.';
+                if (error && error.name === 'AbortError') {
+                    trainingsLoadError = 'Načítanie tréningov trvá príliš dlho. Skúste obnoviť stránku.';
+                } else {
+                    trainingsLoadError = error && error.message ? error.message : 'Nepodarilo sa načítať tréningy z databázy.';
+                }
+                hasCompletedInitialTrainingsLoad = true;
             } finally {
                 trainingsLoading = false;
             }
@@ -1326,7 +1337,7 @@
             const finishedContainer = document.getElementById('coachTrainingsContainer');
             if (!upcomingContainer || !finishedContainer) return;
 
-            if (trainingsLoading) {
+            if (trainingsLoading && trainings.length === 0 && !hasCompletedInitialTrainingsLoad) {
                 const loadingHtml = '<div style="text-align:center;color:#ffd700;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Načítavam tréningy z databázy...</div>';
                 upcomingContainer.innerHTML = loadingHtml;
                 finishedContainer.innerHTML = '';
@@ -1474,7 +1485,7 @@
         function refreshPlayerTrainings() {
             const container = document.getElementById('playerTrainingsContainer');
 
-            if (trainingsLoading) {
+            if (trainingsLoading && trainings.length === 0 && !hasCompletedInitialTrainingsLoad) {
                 container.innerHTML = '<div style="text-align:center;color:#ffd700;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Načítavam tréningy z databázy...</div>';
                 return;
             }
