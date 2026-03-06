@@ -906,6 +906,7 @@
         let hasCompletedInitialTrainingsLoad = false;
         let trainingsLoadPromise = null;
         const attendanceSaveInProgress = new Set();
+        let authRedirectInProgress = false;
         function resolveApiBase() {
             const host = window.location.hostname;
             if (host.endsWith('.vercel.app')) {
@@ -927,6 +928,28 @@
         const API_BASE = resolveApiBase();
         let csrfTokenCache = null;
 
+        function resetLocalSessionState() {
+            csrfTokenCache = null;
+            trainings = [];
+            parentChildren = {};
+            attendanceSaveInProgress.clear();
+            currentUser = { username: '', role: '', isLoggedIn: false };
+            localStorage.removeItem('lastLogin');
+            localStorage.removeItem('lastRole');
+            localStorage.removeItem('currentUser');
+        }
+
+        function redirectToLoginWithMessage(message) {
+            if (authRedirectInProgress) {
+                return;
+            }
+            authRedirectInProgress = true;
+            resetLocalSessionState();
+            updateUI();
+            alert(message || 'Relácia vypršala. Prihláste sa znova.');
+            window.location.href = '/index.html';
+        }
+
         async function ensureCsrfToken() {
             if (csrfTokenCache) {
                 return csrfTokenCache;
@@ -938,6 +961,10 @@
             });
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    redirectToLoginWithMessage('Relácia vypršala. Prihláste sa znova.');
+                    throw new Error('Neautorizované (HTTP 401)');
+                }
                 throw new Error('Nepodarilo sa načítať CSRF token.');
             }
 
@@ -965,6 +992,10 @@
                     clearTimeout(timeoutId);
 
                     if (!response.ok) {
+                        if (response.status === 401) {
+                            redirectToLoginWithMessage('Vaša relácia vypršala. Prihláste sa znova.');
+                            throw new Error('Neautorizované (HTTP 401)');
+                        }
                         const errorPayload = await response.json().catch(() => ({}));
                         const serverMessage = errorPayload && errorPayload.message ? errorPayload.message : 'Nepodarilo sa načítať tréningy z databázy.';
                         throw new Error(`${serverMessage} (HTTP ${response.status})`);
@@ -1071,6 +1102,10 @@
                     method: 'GET',
                     credentials: 'include'
                 });
+                if (response.status === 401) {
+                    redirectToLoginWithMessage('Prihlásenie vypršalo. Prihláste sa prosím znova.');
+                    return;
+                }
                 if (response.ok) {
                     const payload = await response.json();
                     sessionUser = payload.user || null;
@@ -2028,6 +2063,9 @@
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Neautorizované (HTTP 401)');
+                    }
                     const payload = await response.json().catch(() => ({}));
                     throw new Error(payload.message || 'Nepodarilo sa uložiť dochádzku.');
                 }
@@ -2035,6 +2073,11 @@
                 t.attendance[attendanceKey] = previousAttendance;
                 refreshPlayerTrainings();
                 refreshCoachRoster();
+                if ((error && error.message && error.message.includes('401')) || error?.message === 'Neautorizované') {
+                    redirectToLoginWithMessage('Prihlásenie vypršalo. Prihláste sa prosím znova.');
+                    attendanceSaveInProgress.delete(saveKey);
+                    return;
+                }
                 alert(error.message || 'Nepodarilo sa uložiť dochádzku.');
                 attendanceSaveInProgress.delete(saveKey);
                 return;
