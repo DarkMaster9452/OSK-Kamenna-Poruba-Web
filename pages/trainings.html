@@ -1028,6 +1028,11 @@
                             parentChildren: Array.isArray(stored.parentChildren) ? stored.parentChildren : [],
                             isLoggedIn: true
                         };
+
+                        // Render cached user UI immediately to avoid blank screen while /me is loading.
+                        trainingsLoading = true;
+                        trainingsLoadError = '';
+                        updateUI();
                     }
                 }
             } catch (e) {
