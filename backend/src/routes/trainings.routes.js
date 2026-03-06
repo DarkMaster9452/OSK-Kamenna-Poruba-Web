@@ -170,7 +170,7 @@ router.get('/', requireAuth, async (req, res) => {
       category: row.category,
       note: row.note,
       isActive: row.isActive,
-      attendance: row.attendances,
+      attendance: Array.isArray(row.attendances) ? row.attendances : [],
       groups: Array.isArray(row.groups) ? row.groups : [],
       createdAt: row.createdAt,
       createdBy: row.createdById || 'unknown'

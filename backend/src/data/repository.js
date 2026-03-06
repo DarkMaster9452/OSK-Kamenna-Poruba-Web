@@ -894,28 +894,50 @@ async function listTrainings(viewerUser) {
     };
   }
 
-  return prisma.training.findMany({
-    where,
-    orderBy: { createdAt: 'desc' },
-    include: {
-      attendances: {
-        select: {
-          playerUsername: true,
-          status: true,
-          updatedAt: true,
-          trainingGroupId: true
-        }
-      },
-      groups: {
-        select: {
-          id: true,
-          name: true,
-          location: true,
-          note: true
+  try {
+    return await prisma.training.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        attendances: {
+          select: {
+            playerUsername: true,
+            status: true,
+            updatedAt: true,
+            trainingGroupId: true
+          }
+        },
+        groups: {
+          select: {
+            id: true,
+            name: true,
+            location: true,
+            note: true
+          }
         }
       }
-    }
-  });
+    });
+  } catch (error) {
+    // Production fallback for partially migrated databases: return base trainings
+    // instead of failing the whole page when relation tables are unavailable.
+    console.error('listTrainings fallback to base query:', error);
+    return prisma.training.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        date: true,
+        time: true,
+        type: true,
+        duration: true,
+        category: true,
+        note: true,
+        isActive: true,
+        createdAt: true,
+        createdById: true
+      }
+    });
+  }
 }
 
 async function findTrainingById(id) {
