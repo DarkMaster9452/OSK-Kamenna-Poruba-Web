@@ -94,6 +94,7 @@
         }
 
         .empty-message {
+            display: none;
             text-align: center;
             color: #ffd700;
             padding: 60px 20px;
@@ -983,6 +984,26 @@
 
         window.addEventListener('load', async function () {
             let sessionUser = null;
+
+            // Skús rýchlo načítať používateľa z localStorage, aby sme predišli blikaniu „neprihlásený“
+            try {
+                const storedRaw = localStorage.getItem('currentUser');
+                if (storedRaw) {
+                    const stored = JSON.parse(storedRaw);
+                    if (stored && stored.username && stored.role && stored.isLoggedIn) {
+                        currentUser = {
+                            username: stored.username,
+                            role: stored.role,
+                            parentChildren: Array.isArray(stored.parentChildren) ? stored.parentChildren : [],
+                            isLoggedIn: true
+                        };
+                        // Zobraz UI pre prihláseného používateľa ešte pred volaním /me
+                        updateUI();
+                    }
+                }
+            } catch (e) {
+                console.error('Nepodarilo sa načítať currentUser z localStorage:', e);
+            }
             try {
                 const response = await fetch(`${API_BASE}/me`, {
                     method: 'GET',
@@ -997,7 +1018,10 @@
             }
 
             if (!sessionUser) {
-                document.getElementById('emptyState').style.display = 'block';
+                // Ak sme už mali platného používateľa z localStorage, UI už je nastavené
+                if (!currentUser || !currentUser.isLoggedIn) {
+                    document.getElementById('emptyState').style.display = 'block';
+                }
                 return;
             }
 
