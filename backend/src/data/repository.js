@@ -39,6 +39,24 @@ function shouldFallbackWithoutShirtNumber(error) {
   return isMissingUserShirtNumberColumnError(error) || isUnknownUserShirtNumberFieldError(error);
 }
 
+function isMissingTrainingGroupIdColumnError(error) {
+  if (!error || error.code !== 'P2022') {
+    return false;
+  }
+
+  const column = String(error.meta?.column || '').toLowerCase();
+  return column.includes('traininggroupid');
+}
+
+function isUnknownTrainingGroupIdFieldError(error) {
+  const message = String(error?.message || '').toLowerCase();
+  return message.includes('unknown field') && message.includes('traininggroupid') && message.includes('trainingattendance');
+}
+
+function shouldFallbackWithoutTrainingGroupId(error) {
+  return isMissingTrainingGroupIdColumnError(error) || isUnknownTrainingGroupIdFieldError(error);
+}
+
 function withNullEmail(items) {
   return items.map((item) => ({
     ...item,
@@ -918,6 +936,22 @@ async function listTrainings(viewerUser) {
       }
     });
   } catch (error) {
+    if (shouldFallbackWithoutTrainingGroupId(error)) {
+      return prisma.training.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          attendances: {
+            select: {
+              playerUsername: true,
+              status: true,
+              updatedAt: true
+            }
+          }
+        }
+      });
+    }
+
     // Production fallback for partially migrated databases: return base trainings
     // instead of failing the whole page when relation tables are unavailable.
     console.error('listTrainings fallback to base query:', error);
@@ -1039,24 +1073,84 @@ async function deleteTraining(id) {
 }
 
 async function upsertTrainingAttendance(trainingId, playerUsername, status, updatedById) {
-  return prisma.trainingAttendance.upsert({
-    where: {
+  try {
+    return await prisma.trainingAttendance.upsert({
+      where: {
+        trainingId_playerUsername: {
+          trainingId,
+          playerUsername
+        }
+      },
+      update: {
+        status,
+        updatedById
+      },
+      create: {
+        trainingId,
+        playerUsername,
+        status,
+        updatedById
+      },
+      select: {
+        id: true,
+        trainingId: true,
+        playerUsername: true,
+        status: true,
+        updatedAt: true
+      }
+    });
+  } catch (error) {
+    if (!shouldFallbackWithoutTrainingGroupId(error)) {
+      throw error;
+    }
+
+    const uniqueWhere = {
       trainingId_playerUsername: {
         trainingId,
         playerUsername
       }
-    },
-    update: {
-      status,
-      updatedById
-    },
-    create: {
-      trainingId,
-      playerUsername,
-      status,
-      updatedById
+    };
+
+    const existing = await prisma.trainingAttendance.findUnique({
+      where: uniqueWhere,
+      select: {
+        id: true
+      }
+    });
+
+    if (existing) {
+      return prisma.trainingAttendance.update({
+        where: uniqueWhere,
+        data: {
+          status,
+          updatedById
+        },
+        select: {
+          id: true,
+          trainingId: true,
+          playerUsername: true,
+          status: true,
+          updatedAt: true
+        }
+      });
     }
-  });
+
+    return prisma.trainingAttendance.create({
+      data: {
+        trainingId,
+        playerUsername,
+        status,
+        updatedById
+      },
+      select: {
+        id: true,
+        trainingId: true,
+        playerUsername: true,
+        status: true,
+        updatedAt: true
+      }
+    });
+  }
 }
 
 async function replaceTrainingGroups(trainingId, groupsInput) {
@@ -1089,8 +1183,23 @@ async function replaceTrainingGroups(trainingId, groupsInput) {
 }
 
 async function updateTrainingAttendanceGroup(trainingId, playerUsername, trainingGroupId, updatedById) {
-  if (!trainingGroupId) {
-    return prisma.trainingAttendance.update({
+  try {
+    if (!trainingGroupId) {
+      return await prisma.trainingAttendance.update({
+        where: {
+          trainingId_playerUsername: {
+            trainingId,
+            playerUsername
+          }
+        },
+        data: {
+          trainingGroupId: null,
+          updatedById
+        }
+      });
+    }
+
+    return await prisma.trainingAttendance.update({
       where: {
         trainingId_playerUsername: {
           trainingId,
@@ -1098,24 +1207,19 @@ async function updateTrainingAttendanceGroup(trainingId, playerUsername, trainin
         }
       },
       data: {
-        trainingGroupId: null,
+        trainingGroupId,
         updatedById
       }
     });
-  }
-
-  return prisma.trainingAttendance.update({
-    where: {
-      trainingId_playerUsername: {
-        trainingId,
-        playerUsername
-      }
-    },
-    data: {
-      trainingGroupId,
-      updatedById
+  } catch (error) {
+    if (!shouldFallbackWithoutTrainingGroupId(error)) {
+      throw error;
     }
-  });
+
+    const unavailable = new Error('Podtréningy zatiaľ nie sú dostupné. Databáza čaká na migráciu.');
+    unavailable.status = 400;
+    throw unavailable;
+  }
 }
 
 async function listAnnouncements() {
