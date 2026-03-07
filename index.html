@@ -2314,7 +2314,8 @@
                                         style="color: #ffd700; width: 30px;"></i> <strong>Adresa:</strong><br>Futbalový
                                     štadión, Kamenná Poruba, Slovensko</p>
                                 <p style="margin-bottom: 20px;"><i class="fas fa-phone"
-                                        style="color: #ffd700; width: 30px;"></i> <strong>Telefón:</strong><br>+421 905 553 738</p>
+                                        style="color: #ffd700; width: 30px;"></i> <strong>Telefón:</strong><br>+421 905
+                                    553 738</p>
                                 <p style="margin-bottom: 20px;"><i class="fas fa-envelope"
                                         style="color: #ffd700; width: 30px;"></i>
                                     <strong>Email:</strong><br>oskkamennaporuba@gmail.com
@@ -2886,6 +2887,8 @@
                 }
 
                 const feedCandidates = [
+                    `${API_BASE}/instagram/feed?all=true`,
+                    '/api/instagram/feed?all=true',
                     `${API_BASE}/instagram/feed?all=true&refresh=true`,
                     '/api/instagram/feed?all=true&refresh=true'
                 ];
@@ -2895,6 +2898,7 @@
                     || window.location.hostname === '127.0.0.1';
 
                 if (isLocalLike && window.location.protocol !== 'https:') {
+                    feedCandidates.push('http://localhost:4000/api/instagram/feed?all=true');
                     feedCandidates.push('http://localhost:4000/api/instagram/feed?all=true&refresh=true');
                 }
 

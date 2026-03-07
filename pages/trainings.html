@@ -1667,7 +1667,14 @@
 
                 if (!groupsResponse.ok) {
                     const payload = await groupsResponse.json().catch(() => ({}));
-                    throw new Error(payload.message || 'Nepodarilo sa uložiť podtréningy.');
+                    const details = Array.isArray(payload.errors)
+                        ? payload.errors
+                            .map((errorItem) => String((errorItem && errorItem.message) || '').trim())
+                            .filter(Boolean)
+                            .join(' ')
+                        : '';
+
+                    throw new Error(details || payload.message || 'Nepodarilo sa uložiť podtréningy.');
                 }
 
                 const groupsPayload = await groupsResponse.json().catch(() => ({}));

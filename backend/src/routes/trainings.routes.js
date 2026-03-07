@@ -132,9 +132,43 @@ const upsertTrainingGroupsSchema = z.object({
     name: z.string().trim().min(1).max(100),
     location: z.string().trim().max(100).optional(),
     note: z.string().trim().max(500).optional(),
-    startTime: z.string().trim().regex(/^\d{2}:\d{2}$/).optional(),
-    endTime: z.string().trim().regex(/^\d{2}:\d{2}$/).optional(),
-    maxPlayers: z.coerce.number().int().min(1).max(200).optional()
+    startTime: z.preprocess(
+      (value) => {
+        if (value === null || value === undefined) {
+          return undefined;
+        }
+
+        const trimmed = String(value).trim();
+        return trimmed || undefined;
+      },
+      z.string().regex(/^\d{2}:\d{2}$/).optional()
+    ),
+    endTime: z.preprocess(
+      (value) => {
+        if (value === null || value === undefined) {
+          return undefined;
+        }
+
+        const trimmed = String(value).trim();
+        return trimmed || undefined;
+      },
+      z.string().regex(/^\d{2}:\d{2}$/).optional()
+    ),
+    maxPlayers: z.preprocess(
+      (value) => {
+        if (value === null || value === undefined) {
+          return undefined;
+        }
+
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          return trimmed ? Number(trimmed) : undefined;
+        }
+
+        return value;
+      },
+      z.number().int().min(1).max(200).optional()
+    )
   })).max(20)
 });
 

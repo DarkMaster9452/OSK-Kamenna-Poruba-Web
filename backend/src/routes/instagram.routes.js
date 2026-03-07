@@ -11,7 +11,15 @@ router.get('/feed', async (req, res, next) => {
     const payload = await fetchInstagramFeed({ forceRefresh, requestedLimit });
     return res.json(payload);
   } catch (error) {
-    return next(error);
+    console.error('Instagram feed route fallback:', error);
+    return res.json({
+      source: 'instagram.route_fallback',
+      fetchedAt: new Date().toISOString(),
+      count: 0,
+      items: [],
+      cache: 'BYPASS',
+      message: 'Instagram feed sa momentalne nepodarilo nacitat.'
+    });
   }
 });
 

@@ -26,6 +26,17 @@ function getUnconfiguredPayload() {
   };
 }
 
+function getUnavailablePayload(message) {
+  return {
+    source: 'instagram.unavailable',
+    fetchedAt: new Date().toISOString(),
+    count: 0,
+    items: [],
+    cache: 'BYPASS',
+    message: message || 'Instagram feed sa momentalne nepodarilo nacitat.'
+  };
+}
+
 function normalizeRequestedLimit(value) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
@@ -90,74 +101,86 @@ async function fetchInstagramFeed({ forceRefresh = false, requestedLimit } = {})
     };
   }
 
-  let endpoint = buildInstagramUrl(includeAll ? 25 : normalizedLimit);
-  const rows = [];
-  let pageCounter = 0;
+  try {
+    let endpoint = buildInstagramUrl(includeAll ? 25 : normalizedLimit);
+    const rows = [];
+    let pageCounter = 0;
 
-  while (endpoint && (includeAll || rows.length < normalizedLimit) && pageCounter < 200) {
-    pageCounter += 1;
+    while (endpoint && (includeAll || rows.length < normalizedLimit) && pageCounter < 200) {
+      pageCounter += 1;
 
-    let response;
-    try {
-      response = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json'
-        }
-      });
-    } catch (cause) {
-      const error = new Error('Nepodarilo sa pripojit na Instagram API.');
-      error.status = 502;
-      error.cause = cause;
-      throw error;
+      let response;
+      try {
+        response = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json'
+          }
+        });
+      } catch (cause) {
+        const error = new Error('Nepodarilo sa pripojit na Instagram API.');
+        error.status = 502;
+        error.cause = cause;
+        throw error;
+      }
+
+      if (!response.ok) {
+        const body = await response.text().catch(() => '');
+        const error = new Error(`Instagram API vratilo status ${response.status}. ${body}`.trim());
+        error.status = response.status >= 500 ? 502 : 400;
+        throw error;
+      }
+
+      let payload;
+      try {
+        payload = await response.json();
+      } catch (cause) {
+        const error = new Error('Instagram API nevratilo validne JSON data.');
+        error.status = 502;
+        error.cause = cause;
+        throw error;
+      }
+
+      const pageRows = Array.isArray(payload && payload.data) ? payload.data : [];
+      rows.push(...pageRows);
+
+      const nextUrl = payload && payload.paging && payload.paging.next;
+      endpoint = typeof nextUrl === 'string' && nextUrl.trim() ? nextUrl : null;
     }
 
-    if (!response.ok) {
-      const body = await response.text().catch(() => '');
-      const error = new Error(`Instagram API vratilo status ${response.status}. ${body}`.trim());
-      error.status = response.status >= 500 ? 502 : 400;
-      throw error;
+    const items = rows
+      .slice(0, includeAll ? rows.length : normalizedLimit)
+      .map(mapInstagramItem)
+      .filter(Boolean);
+
+    const normalized = {
+      source: 'instagram.graph',
+      fetchedAt: new Date().toISOString(),
+      includeAll,
+      requestedLimit: normalizedLimit,
+      count: items.length,
+      items
+    };
+
+    const cacheTtl = Math.max(0, env.instagramCacheSeconds || 0) * 1000;
+    cacheState.payload = normalized;
+    cacheState.expiresAt = now + cacheTtl;
+
+    return {
+      ...normalized,
+      cache: 'MISS'
+    };
+  } catch (error) {
+    if (cacheState.payload) {
+      return {
+        ...cacheState.payload,
+        cache: 'STALE',
+        warning: error?.message || 'Instagram API fallback na cache.'
+      };
     }
 
-    let payload;
-    try {
-      payload = await response.json();
-    } catch (cause) {
-      const error = new Error('Instagram API nevratilo validne JSON data.');
-      error.status = 502;
-      error.cause = cause;
-      throw error;
-    }
-
-    const pageRows = Array.isArray(payload && payload.data) ? payload.data : [];
-    rows.push(...pageRows);
-
-    const nextUrl = payload && payload.paging && payload.paging.next;
-    endpoint = typeof nextUrl === 'string' && nextUrl.trim() ? nextUrl : null;
+    return getUnavailablePayload(error?.message);
   }
-
-  const items = rows
-    .slice(0, includeAll ? rows.length : normalizedLimit)
-    .map(mapInstagramItem)
-    .filter(Boolean);
-
-  const normalized = {
-    source: 'instagram.graph',
-    fetchedAt: new Date().toISOString(),
-    includeAll,
-    requestedLimit: normalizedLimit,
-    count: items.length,
-    items
-  };
-
-  const cacheTtl = Math.max(0, env.instagramCacheSeconds || 0) * 1000;
-  cacheState.payload = normalized;
-  cacheState.expiresAt = now + cacheTtl;
-
-  return {
-    ...normalized,
-    cache: 'MISS'
-  };
 }
 
 module.exports = {
