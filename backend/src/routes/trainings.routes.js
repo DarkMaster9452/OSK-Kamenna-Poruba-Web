@@ -490,46 +490,57 @@ router.patch('/:id', requireAuth, requireRole('coach', 'admin'), validateBody(up
 router.post('/:id/update', requireAuth, requireRole('coach', 'admin'), validateBody(updateTrainingSchema), handleUpdateTraining);
 
 router.post('/:id/attendance', requireAuth, validateBody(attendanceSchema), async (req, res) => {
-  const training = await findTrainingById(req.params.id);
-  if (!training) {
-    return res.status(404).json({ message: 'Tréning neexistuje.' });
-  }
-
-  if (!training.isActive) {
-    return res.status(400).json({ message: 'Tréning je uzavretý.' });
-  }
-
-  const requestedUsername = readRequestedAttendanceUsername(req.body);
-  const playerUsername = await resolveAttendanceTargetUsername(req.user, requestedUsername);
-
-  const row = await upsertTrainingAttendance(
-    training.id,
-    playerUsername,
-    req.body.status,
-    req.user.id
-  );
-
-  writeAuditSafe({
-    actorUserId: req.user.id,
-    action: 'training_attendance_updated',
-    entityType: 'attendance',
-    entityId: row.id,
-    details: {
-      trainingId: training.id,
-      playerUsername: row.playerUsername,
-      status: row.status
+  try {
+    const training = await findTrainingById(req.params.id);
+    if (!training) {
+      return res.status(404).json({ message: 'Tréning neexistuje.' });
     }
-  });
 
-  return res.json({
-    item: {
-      id: row.id,
-      trainingId: row.trainingId,
-      playerUsername: row.playerUsername,
-      status: row.status,
-      updatedAt: row.updatedAt
+    if (!training.isActive) {
+      return res.status(400).json({ message: 'Tréning je uzavretý.' });
     }
-  });
+
+    const requestedUsername = readRequestedAttendanceUsername(req.body);
+    const playerUsername = await resolveAttendanceTargetUsername(req.user, requestedUsername);
+
+    const row = await upsertTrainingAttendance(
+      training.id,
+      playerUsername,
+      req.body.status,
+      req.user.id
+    );
+
+    writeAuditSafe({
+      actorUserId: req.user.id,
+      action: 'training_attendance_updated',
+      entityType: 'attendance',
+      entityId: row.id,
+      details: {
+        trainingId: training.id,
+        playerUsername: row.playerUsername,
+        status: row.status
+      }
+    });
+
+    return res.json({
+      item: {
+        id: row.id,
+        trainingId: row.trainingId,
+        playerUsername: row.playerUsername,
+        status: row.status,
+        updatedAt: row.updatedAt
+      }
+    });
+  } catch (error) {
+    const status = Number(error?.status) || 500;
+    if (status >= 500) {
+      console.error('Failed to save training attendance:', error);
+    }
+
+    return res.status(status).json({
+      message: error?.message || 'Nepodarilo sa uložiť dochádzku.'
+    });
+  }
 });
 
 router.post('/:id/groups', requireAuth, requireRole('coach', 'admin'), validateBody(upsertTrainingGroupsSchema), async (req, res) => {

@@ -471,25 +471,34 @@ async function markAttendance(trainingId, personName, status) {
     
     try {
         const csrfToken = typeof ensureCsrfToken === 'function' ? await ensureCsrfToken() : null;
-        const response = await fetch(`${getApiBase()}/trainings/${training.id}/attendance`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
-            },
-            body: JSON.stringify({
-                playerUsername: personName,
-                status
-            })
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+        let response;
+        try {
+            response = await fetch(`${getApiBase()}/trainings/${training.id}/attendance`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
+                },
+                body: JSON.stringify({
+                    playerUsername: personName,
+                    status
+                }),
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timeoutId);
+        }
 
         if (!response.ok) {
             const payload = await response.json().catch(() => ({}));
             throw new Error(payload.message || 'Nepodarilo sa uložiť dochádzku.');
         }
     } catch (error) {
-        alert(error.message || 'Nepodarilo sa uložiť dochádzku.');
+        const isTimeout = error && error.name === 'AbortError';
+        alert(isTimeout ? 'Server neodpovedá. Skúste to prosím znova o chvíľu.' : (error.message || 'Nepodarilo sa uložiť dochádzku.'));
         return;
     }
 

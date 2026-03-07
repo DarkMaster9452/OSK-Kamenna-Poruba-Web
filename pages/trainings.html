@@ -2083,18 +2083,26 @@
 
             try {
                 const csrfToken = await ensureCsrfToken();
-                const response = await fetch(`${API_BASE}/trainings/${trainingId}/attendance`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-csrf-token': csrfToken
-                    },
-                    body: JSON.stringify({
-                        playerUsername: person,
-                        status
-                    })
-                });
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 12000);
+                let response;
+                try {
+                    response = await fetch(`${API_BASE}/trainings/${trainingId}/attendance`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-csrf-token': csrfToken
+                        },
+                        body: JSON.stringify({
+                            playerUsername: person,
+                            status
+                        }),
+                        signal: controller.signal
+                    });
+                } finally {
+                    clearTimeout(timeoutId);
+                }
 
                 if (!response.ok) {
                     if (response.status === 401) {
@@ -2104,6 +2112,7 @@
                     throw new Error(payload.message || 'Nepodarilo sa uložiť dochádzku.');
                 }
             } catch (error) {
+                const isTimeout = error && error.name === 'AbortError';
                 t.attendance[attendanceKey] = previousAttendance;
                 refreshPlayerTrainings();
                 refreshCoachRoster();
@@ -2112,7 +2121,7 @@
                     attendanceSaveInProgress.delete(saveKey);
                     return;
                 }
-                alert(error.message || 'Nepodarilo sa uložiť dochádzku.');
+                alert(isTimeout ? 'Server neodpovedá. Skúste to prosím znova o chvíľu.' : (error.message || 'Nepodarilo sa uložiť dochádzku.'));
                 attendanceSaveInProgress.delete(saveKey);
                 return;
             }
