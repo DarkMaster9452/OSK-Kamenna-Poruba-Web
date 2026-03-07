@@ -57,6 +57,19 @@ function shouldFallbackWithoutTrainingGroupId(error) {
   return isMissingTrainingGroupIdColumnError(error) || isUnknownTrainingGroupIdFieldError(error);
 }
 
+function isMissingTrainingGroupTableError(error) {
+  if (!error || error.code !== 'P2021') {
+    return false;
+  }
+
+  const table = String(error.meta?.table || '').toLowerCase();
+  return table.includes('traininggroup');
+}
+
+function shouldFallbackWithoutTrainingGroups(error) {
+  return shouldFallbackWithoutTrainingGroupId(error) || isMissingTrainingGroupTableError(error);
+}
+
 function withNullEmail(items) {
   return items.map((item) => ({
     ...item,
@@ -936,7 +949,7 @@ async function listTrainings(viewerUser) {
       }
     });
   } catch (error) {
-    if (shouldFallbackWithoutTrainingGroupId(error)) {
+    if (shouldFallbackWithoutTrainingGroups(error)) {
       return prisma.training.findMany({
         where,
         orderBy: { createdAt: 'desc' },
@@ -1154,32 +1167,42 @@ async function upsertTrainingAttendance(trainingId, playerUsername, status, upda
 }
 
 async function replaceTrainingGroups(trainingId, groupsInput) {
-  return prisma.$transaction(async (tx) => {
-    await tx.trainingGroup.deleteMany({
-      where: {
-        trainingId
-      }
-    });
+  try {
+    return await prisma.$transaction(async (tx) => {
+      await tx.trainingGroup.deleteMany({
+        where: {
+          trainingId
+        }
+      });
 
-    if (!Array.isArray(groupsInput) || !groupsInput.length) {
-      return [];
+      if (!Array.isArray(groupsInput) || !groupsInput.length) {
+        return [];
+      }
+
+      const created = await Promise.all(
+        groupsInput.map((group) =>
+          tx.trainingGroup.create({
+            data: {
+              trainingId,
+              name: group.name,
+              location: group.location || null,
+              note: group.note || null
+            }
+          })
+        )
+      );
+
+      return created;
+    });
+  } catch (error) {
+    if (!shouldFallbackWithoutTrainingGroups(error)) {
+      throw error;
     }
 
-    const created = await Promise.all(
-      groupsInput.map((group) =>
-        tx.trainingGroup.create({
-          data: {
-            trainingId,
-            name: group.name,
-            location: group.location || null,
-            note: group.note || null
-          }
-        })
-      )
-    );
-
-    return created;
-  });
+    const unavailable = new Error('Podtréningy zatiaľ nie sú dostupné. Databáza čaká na migráciu.');
+    unavailable.status = 400;
+    throw unavailable;
+  }
 }
 
 async function updateTrainingAttendanceGroup(trainingId, playerUsername, trainingGroupId, updatedById) {
@@ -1212,7 +1235,7 @@ async function updateTrainingAttendanceGroup(trainingId, playerUsername, trainin
       }
     });
   } catch (error) {
-    if (!shouldFallbackWithoutTrainingGroupId(error)) {
+    if (!shouldFallbackWithoutTrainingGroups(error)) {
       throw error;
     }
 

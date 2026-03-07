@@ -1415,19 +1415,61 @@
                     errorBox.textContent = '';
                 };
 
+                const hourOptionsHtml = Array.from({ length: 13 }, (_, index) => String(index + 8).padStart(2, '0'))
+                    .map((hour) => `<option value="${hour}">${hour}</option>`)
+                    .join('');
+
+                const minuteOptionsHtml = ['00', '15', '30', '45']
+                    .map((minute) => `<option value="${minute}">${minute}</option>`)
+                    .join('');
+
+                const splitTime = (rawTime, fallbackHour, fallbackMinute) => {
+                    const match = String(rawTime || '').match(/^(\d{2}):(\d{2})$/);
+                    if (!match) {
+                        return { hour: fallbackHour, minute: fallbackMinute };
+                    }
+
+                    const hour = match[1];
+                    const minute = match[2];
+                    const isAllowedHour = Number(hour) >= 8 && Number(hour) <= 20;
+                    const isAllowedMinute = minute === '00' || minute === '15' || minute === '30' || minute === '45';
+                    return {
+                        hour: isAllowedHour ? hour : fallbackHour,
+                        minute: isAllowedMinute ? minute : fallbackMinute
+                    };
+                };
+
                 const createRowElement = (group) => {
+                    const startParts = splitTime(group && group.startTime ? group.startTime : '', '17', '00');
+                    const endParts = splitTime(group && group.endTime ? group.endTime : '', '18', '00');
                     const row = document.createElement('div');
                     row.className = 'subtraining-row';
                     row.style.display = 'grid';
-                    row.style.gridTemplateColumns = '1.3fr 0.8fr 0.8fr 0.8fr auto';
+                    row.style.gridTemplateColumns = '1.3fr 1.1fr 1.1fr 0.8fr auto';
                     row.style.gap = '8px';
                     row.innerHTML = `
                         <input class="sub-name" type="text" placeholder="Názov podtréningu" value="${escapeHtml(group && group.name ? group.name : '')}" style="padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">
-                        <input class="sub-start" type="time" step="900" value="${escapeHtml(group && group.startTime ? group.startTime : '')}" style="padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">
-                        <input class="sub-end" type="time" step="900" value="${escapeHtml(group && group.endTime ? group.endTime : '')}" style="padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <select class="sub-start-hour" style="flex:1;padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">${hourOptionsHtml}</select>
+                            <select class="sub-start-minute" style="flex:1;padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">${minuteOptionsHtml}</select>
+                        </div>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <select class="sub-end-hour" style="flex:1;padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">${hourOptionsHtml}</select>
+                            <select class="sub-end-minute" style="flex:1;padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">${minuteOptionsHtml}</select>
+                        </div>
                         <input class="sub-max" type="number" min="1" max="200" value="${group && group.maxPlayers ? Number(group.maxPlayers) : ''}" placeholder="Max hráčov" style="padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">
                         <button type="button" class="remove-sub-row" style="padding:8px 10px;border:none;border-radius:6px;background:#e74c3c;color:#fff;cursor:pointer;">X</button>
                     `;
+
+                    const startHourSelect = row.querySelector('.sub-start-hour');
+                    const startMinuteSelect = row.querySelector('.sub-start-minute');
+                    const endHourSelect = row.querySelector('.sub-end-hour');
+                    const endMinuteSelect = row.querySelector('.sub-end-minute');
+
+                    if (startHourSelect) startHourSelect.value = startParts.hour;
+                    if (startMinuteSelect) startMinuteSelect.value = startParts.minute;
+                    if (endHourSelect) endHourSelect.value = endParts.hour;
+                    if (endMinuteSelect) endMinuteSelect.value = endParts.minute;
 
                     const removeButton = row.querySelector('.remove-sub-row');
                     removeButton?.addEventListener('click', () => {
@@ -1435,8 +1477,9 @@
                         renderAssignments();
                     });
 
-                    Array.from(row.querySelectorAll('input')).forEach((input) => {
+                    Array.from(row.querySelectorAll('input, select')).forEach((input) => {
                         input.addEventListener('input', () => renderAssignments());
+                        input.addEventListener('change', () => renderAssignments());
                     });
 
                     return row;
@@ -1445,8 +1488,12 @@
                 const getRowsData = () => {
                     return Array.from(rowsContainer.querySelectorAll('.subtraining-row')).map((row) => {
                         const name = String(row.querySelector('.sub-name')?.value || '').trim();
-                        const startTime = String(row.querySelector('.sub-start')?.value || '').trim();
-                        const endTime = String(row.querySelector('.sub-end')?.value || '').trim();
+                        const startHour = String(row.querySelector('.sub-start-hour')?.value || '').trim();
+                        const startMinute = String(row.querySelector('.sub-start-minute')?.value || '').trim();
+                        const endHour = String(row.querySelector('.sub-end-hour')?.value || '').trim();
+                        const endMinute = String(row.querySelector('.sub-end-minute')?.value || '').trim();
+                        const startTime = startHour && startMinute ? `${startHour}:${startMinute}` : '';
+                        const endTime = endHour && endMinute ? `${endHour}:${endMinute}` : '';
                         const maxRaw = String(row.querySelector('.sub-max')?.value || '').trim();
                         const maxPlayers = maxRaw ? Number(maxRaw) : null;
                         return {

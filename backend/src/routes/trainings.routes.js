@@ -544,137 +544,159 @@ router.post('/:id/attendance', requireAuth, validateBody(attendanceSchema), asyn
 });
 
 router.post('/:id/groups', requireAuth, requireRole('coach', 'admin'), validateBody(upsertTrainingGroupsSchema), async (req, res) => {
-  const training = await findTrainingById(req.params.id);
-  if (!training) {
-    return res.status(404).json({ message: 'Tréning neexistuje.' });
+  try {
+    const training = await findTrainingById(req.params.id);
+    if (!training) {
+      return res.status(404).json({ message: 'Tréning neexistuje.' });
+    }
+
+    const incomingGroups = Array.isArray(req.body.groups) ? req.body.groups : [];
+    const invalidTimeRange = incomingGroups.some((group) => {
+      const hasStart = typeof group.startTime === 'string' && group.startTime.trim().length > 0;
+      const hasEnd = typeof group.endTime === 'string' && group.endTime.trim().length > 0;
+
+      if (!hasStart && !hasEnd) {
+        return false;
+      }
+
+      if (!hasStart || !hasEnd) {
+        return true;
+      }
+
+      if (!isValidQuarterHourTime(group.startTime) || !isValidQuarterHourTime(group.endTime)) {
+        return true;
+      }
+
+      return group.startTime >= group.endTime;
+    });
+
+    if (invalidTimeRange) {
+      return res.status(400).json({ message: 'Každý podtréning musí mať platný čas od-do (po 15 minútach).' });
+    }
+
+    const duplicateNames = new Set();
+    for (const group of incomingGroups) {
+      const normalizedName = String(group.name || '').trim().toLowerCase();
+      if (!normalizedName) {
+        continue;
+      }
+      if (duplicateNames.has(normalizedName)) {
+        return res.status(400).json({ message: 'Podtréningy musia mať unikátne názvy.' });
+      }
+      duplicateNames.add(normalizedName);
+    }
+
+    const groupsPayload = incomingGroups.map((group) => ({
+      name: group.name,
+      location: group.location || null,
+      note: buildGroupStoredNote(group)
+    }));
+
+    const groups = await replaceTrainingGroups(training.id, groupsPayload);
+    return res.json({
+      items: groups.map((group) => {
+        const meta = extractGroupMeta(group.note);
+        return {
+          id: group.id,
+          name: group.name,
+          location: group.location,
+          note: meta.coachNote,
+          startTime: meta.startTime,
+          endTime: meta.endTime,
+          maxPlayers: meta.maxPlayers
+        };
+      })
+    });
+  } catch (error) {
+    const status = Number(error?.status) || 500;
+    if (status >= 500) {
+      console.error('Failed to save training groups:', error);
+    }
+
+    return res.status(status).json({
+      message: error?.message || 'Nepodarilo sa uložiť podtréningy.'
+    });
   }
-
-  const incomingGroups = Array.isArray(req.body.groups) ? req.body.groups : [];
-  const invalidTimeRange = incomingGroups.some((group) => {
-    const hasStart = typeof group.startTime === 'string' && group.startTime.trim().length > 0;
-    const hasEnd = typeof group.endTime === 'string' && group.endTime.trim().length > 0;
-
-    if (!hasStart && !hasEnd) {
-      return false;
-    }
-
-    if (!hasStart || !hasEnd) {
-      return true;
-    }
-
-    if (!isValidQuarterHourTime(group.startTime) || !isValidQuarterHourTime(group.endTime)) {
-      return true;
-    }
-
-    return group.startTime >= group.endTime;
-  });
-
-  if (invalidTimeRange) {
-    return res.status(400).json({ message: 'Každý podtréning musí mať platný čas od-do (po 15 minútach).' });
-  }
-
-  const duplicateNames = new Set();
-  for (const group of incomingGroups) {
-    const normalizedName = String(group.name || '').trim().toLowerCase();
-    if (!normalizedName) {
-      continue;
-    }
-    if (duplicateNames.has(normalizedName)) {
-      return res.status(400).json({ message: 'Podtréningy musia mať unikátne názvy.' });
-    }
-    duplicateNames.add(normalizedName);
-  }
-
-  const groupsPayload = incomingGroups.map((group) => ({
-    name: group.name,
-    location: group.location || null,
-    note: buildGroupStoredNote(group)
-  }));
-
-  const groups = await replaceTrainingGroups(training.id, groupsPayload);
-  return res.json({
-    items: groups.map((group) => {
-      const meta = extractGroupMeta(group.note);
-      return {
-        id: group.id,
-        name: group.name,
-        location: group.location,
-        note: meta.coachNote,
-        startTime: meta.startTime,
-        endTime: meta.endTime,
-        maxPlayers: meta.maxPlayers
-      };
-    })
-  });
 });
 
 router.patch('/:id/attendance/:playerUsername/group', requireAuth, requireRole('coach', 'admin'), validateBody(updateAttendanceGroupSchema), async (req, res) => {
-  const training = await findTrainingById(req.params.id);
-  if (!training) {
-    return res.status(404).json({ message: 'Tréning neexistuje.' });
-  }
-
-  const trainingGroupId = req.body.trainingGroupId || null;
-
-  if (trainingGroupId) {
-    const group = await prisma.trainingGroup.findFirst({
-      where: {
-        id: trainingGroupId,
-        trainingId: training.id
-      }
-    });
-
-    if (!group) {
-      return res.status(400).json({ message: 'Podtréning neexistuje pre daný tréning.' });
+  try {
+    const training = await findTrainingById(req.params.id);
+    if (!training) {
+      return res.status(404).json({ message: 'Tréning neexistuje.' });
     }
 
-    const meta = extractGroupMeta(group.note);
-    if (meta.maxPlayers) {
-      const currentAttendance = await prisma.trainingAttendance.findUnique({
+    const trainingGroupId = req.body.trainingGroupId || null;
+
+    if (trainingGroupId) {
+      const group = await prisma.trainingGroup.findFirst({
         where: {
-          trainingId_playerUsername: {
-            trainingId: training.id,
-            playerUsername: req.params.playerUsername
-          }
-        },
-        select: {
-          trainingGroupId: true
+          id: trainingGroupId,
+          trainingId: training.id
         }
       });
 
-      const isAlreadyAssigned = currentAttendance && currentAttendance.trainingGroupId === trainingGroupId;
-      if (!isAlreadyAssigned) {
-        const assignedCount = await prisma.trainingAttendance.count({
+      if (!group) {
+        return res.status(400).json({ message: 'Podtréning neexistuje pre daný tréning.' });
+      }
+
+      const meta = extractGroupMeta(group.note);
+      if (meta.maxPlayers) {
+        const currentAttendance = await prisma.trainingAttendance.findUnique({
           where: {
-            trainingId: training.id,
-            trainingGroupId
+            trainingId_playerUsername: {
+              trainingId: training.id,
+              playerUsername: req.params.playerUsername
+            }
+          },
+          select: {
+            trainingGroupId: true
           }
         });
 
-        if (assignedCount >= meta.maxPlayers) {
-          return res.status(400).json({ message: `Podtréning ${group.name} je plný (max ${meta.maxPlayers} hráčov).` });
+        const isAlreadyAssigned = currentAttendance && currentAttendance.trainingGroupId === trainingGroupId;
+        if (!isAlreadyAssigned) {
+          const assignedCount = await prisma.trainingAttendance.count({
+            where: {
+              trainingId: training.id,
+              trainingGroupId
+            }
+          });
+
+          if (assignedCount >= meta.maxPlayers) {
+            return res.status(400).json({ message: `Podtréning ${group.name} je plný (max ${meta.maxPlayers} hráčov).` });
+          }
         }
       }
     }
-  }
 
-  const row = await updateTrainingAttendanceGroup(
-    training.id,
-    req.params.playerUsername,
-    trainingGroupId,
-    req.user.id
-  );
+    const row = await updateTrainingAttendanceGroup(
+      training.id,
+      req.params.playerUsername,
+      trainingGroupId,
+      req.user.id
+    );
 
-  return res.json({
-    item: {
-      id: row.id,
-      trainingId: row.trainingId,
-      playerUsername: row.playerUsername,
-      status: row.status,
-      trainingGroupId: row.trainingGroupId,
-      updatedAt: row.updatedAt
+    return res.json({
+      item: {
+        id: row.id,
+        trainingId: row.trainingId,
+        playerUsername: row.playerUsername,
+        status: row.status,
+        trainingGroupId: row.trainingGroupId,
+        updatedAt: row.updatedAt
+      }
+    });
+  } catch (error) {
+    const status = Number(error?.status) || 500;
+    if (status >= 500) {
+      console.error('Failed to assign training group:', error);
     }
-  });
+
+    return res.status(status).json({
+      message: error?.message || 'Nepodarilo sa uložiť priradenie podtréningu.'
+    });
+  }
 });
 
 router.patch('/:id/close', requireAuth, requireRole('coach', 'admin'), async (req, res) => {
