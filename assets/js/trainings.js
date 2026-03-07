@@ -20,6 +20,12 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function escapeJsSingleQuotedString(value) {
+    return String(value || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'");
+}
+
 function isQuarterHourTime(value) {
     const match = String(value || '').match(/^(\d{2}):(\d{2})$/);
     if (!match) {
@@ -373,6 +379,8 @@ function refreshPlayerTrainings() {
         
         // Show attendance options for each person
         peopleToDisplay.forEach(personName => {
+            const safeTrainingId = escapeJsSingleQuotedString(training.id);
+            const safePersonName = escapeJsSingleQuotedString(personName);
             const trainingKey = training.id + '_' + personName;
             const currentStatus = training.attendance ? training.attendance[trainingKey] : undefined;
             const statusToUse = currentStatus || 'unknown';
@@ -385,15 +393,15 @@ function refreshPlayerTrainings() {
             
             if (training.isActive) {
                 html += `
-                        <button onclick="markAttendance('${training.id}', '${personName}', 'yes')" 
+                        <button onclick="markAttendance('${safeTrainingId}', '${safePersonName}', 'yes')" 
                             style="flex: 1; padding: 8px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 12px; ${statusToUse === 'yes' ? 'background: #2ecc71; color: white;' : 'background: rgba(255, 255, 255, 0.1); color: white;'} transition: all 0.3s;">
                             <i class="fas fa-check"></i> Prídem
                         </button>
-                        <button onclick="markAttendance('${training.id}', '${personName}', 'no')" 
+                        <button onclick="markAttendance('${safeTrainingId}', '${safePersonName}', 'no')" 
                             style="flex: 1; padding: 8px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 12px; ${statusToUse === 'no' ? 'background: #e74c3c; color: white;' : 'background: rgba(255, 255, 255, 0.1); color: white;'} transition: all 0.3s;">
                             <i class="fas fa-times"></i> Neprídnem
                         </button>
-                        <button onclick="markAttendance('${training.id}', '${personName}', 'unknown')" 
+                        <button onclick="markAttendance('${safeTrainingId}', '${safePersonName}', 'unknown')" 
                             style="flex: 1; padding: 8px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 12px; ${statusToUse === 'unknown' ? 'background: #95a5a6; color: white;' : 'background: rgba(255, 255, 255, 0.1); color: white;'} transition: all 0.3s;">
                             <i class="fas fa-question"></i> Neviem
                         </button>

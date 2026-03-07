@@ -1290,6 +1290,12 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function escapeJsSingleQuotedString(value) {
+            return String(value || '')
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'");
+        }
+
         function isValidQuarterHourTime(value) {
             return isQuarterHourTime(value);
         }
@@ -1991,6 +1997,8 @@
                 const groupById = new Map((t.groups || []).map((g) => [g.id, g]));
 
                 peopleToDisplay.forEach(person => {
+                    const safeTrainingId = escapeJsSingleQuotedString(t.id);
+                    const safePerson = escapeJsSingleQuotedString(person);
                     const key = t.id + '_' + person;
                     const att = t.attendance ? t.attendance[key] : null;
                     const status = att && att.status ? att.status : 'unknown';
@@ -2018,13 +2026,13 @@
                         const isAttendanceSaving = attendanceSaveInProgress.has(attendancePendingKey);
                         html += `
                             <div class="button-group">
-                                <button class="btn-yes ${status === 'yes' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','yes')" ${isAttendanceSaving ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
+                                <button class="btn-yes ${status === 'yes' ? 'active' : ''}" onclick="markAttendance('${safeTrainingId}','${safePerson}','yes')" ${isAttendanceSaving ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
                                     ✓ Prídem
                                 </button>
-                                <button class="btn-no ${status === 'no' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','no')" ${isAttendanceSaving ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
+                                <button class="btn-no ${status === 'no' ? 'active' : ''}" onclick="markAttendance('${safeTrainingId}','${safePerson}','no')" ${isAttendanceSaving ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
                                     ✗ Neprídnem
                                 </button>
-                                <button class="btn-unknown ${status === 'unknown' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','unknown')" ${isAttendanceSaving ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
+                                <button class="btn-unknown ${status === 'unknown' ? 'active' : ''}" onclick="markAttendance('${safeTrainingId}','${safePerson}','unknown')" ${isAttendanceSaving ? 'disabled style="opacity:0.7;cursor:not-allowed;"' : ''}>
                                     ? Neviem
                                 </button>
                             </div>

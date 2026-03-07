@@ -12,9 +12,11 @@ const {
   upsertTrainingAttendance,
   createAuditLog,
   listActivePlayerEmailsByTrainingCategory,
+  listParentChildrenByParentId,
   replaceTrainingGroups,
   updateTrainingAttendanceGroup
 } = require('../data/repository');
+const prisma = require('../data/db');
 const { sendTrainingCreatedEmails, sendTrainingUpdatedEmails } = require('../services/email.service');
 
 const router = express.Router();
@@ -46,8 +48,25 @@ const createTrainingSchema = z.object({
 
 const updateTrainingSchema = createTrainingSchema;
 
+const usernameFieldSchema = z.preprocess(
+  (value) => {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+
+    return String(value).trim();
+  },
+  z.string().min(3).max(100).optional()
+);
+
 const attendanceSchema = z.object({
-  playerUsername: z.string().min(3).max(100),
+  playerUsername: usernameFieldSchema,
+  username: usernameFieldSchema,
+  personName: usernameFieldSchema,
   status: z.enum(['yes', 'no', 'unknown'])
 });
 
@@ -216,6 +235,49 @@ async function writeAuditSafe(payload) {
   } catch (error) {
     console.error('Audit log write failed:', error);
   }
+}
+
+function readRequestedAttendanceUsername(body) {
+  const username = body?.playerUsername || body?.username || body?.personName || '';
+  return String(username).trim();
+}
+
+async function resolveAttendanceTargetUsername(user, requestedUsername) {
+  if (!user || !user.role) {
+    const notAuthorizedError = new Error('Neautorizované');
+    notAuthorizedError.status = 401;
+    throw notAuthorizedError;
+  }
+
+  if (user.role === 'player') {
+    return user.username;
+  }
+
+  if (user.role === 'parent') {
+    const allowedChildren = await listParentChildrenByParentId(user.id);
+    const allowedUsernames = new Set(allowedChildren.map((child) => String(child.username || '').trim()));
+    if (!requestedUsername || !allowedUsernames.has(requestedUsername)) {
+      const forbiddenError = new Error('Môžete upraviť dochádzku iba svojim deťom.');
+      forbiddenError.status = 403;
+      throw forbiddenError;
+    }
+
+    return requestedUsername;
+  }
+
+  if (user.role === 'coach' || user.role === 'admin') {
+    if (!requestedUsername) {
+      const validationError = new Error('Chýba používateľ hráča pre uloženie dochádzky.');
+      validationError.status = 400;
+      throw validationError;
+    }
+
+    return requestedUsername;
+  }
+
+  const forbiddenError = new Error('Nemáte oprávnenie upravovať dochádzku.');
+  forbiddenError.status = 403;
+  throw forbiddenError;
 }
 
 router.get('/', requireAuth, async (req, res) => {
@@ -437,9 +499,12 @@ router.post('/:id/attendance', requireAuth, validateBody(attendanceSchema), asyn
     return res.status(400).json({ message: 'Tréning je uzavretý.' });
   }
 
+  const requestedUsername = readRequestedAttendanceUsername(req.body);
+  const playerUsername = await resolveAttendanceTargetUsername(req.user, requestedUsername);
+
   const row = await upsertTrainingAttendance(
     training.id,
-    req.body.playerUsername,
+    playerUsername,
     req.body.status,
     req.user.id
   );
