@@ -1666,15 +1666,23 @@
                 });
 
                 if (!groupsResponse.ok) {
-                    const payload = await groupsResponse.json().catch(() => ({}));
+                    const rawBody = await groupsResponse.text().catch(() => '');
+                    let payload = {};
+                    if (rawBody) {
+                        try {
+                            payload = JSON.parse(rawBody);
+                        } catch (_) {
+                            payload = {};
+                        }
+                    }
                     const details = Array.isArray(payload.errors)
                         ? payload.errors
                             .map((errorItem) => String((errorItem && errorItem.message) || '').trim())
                             .filter(Boolean)
                             .join(' ')
                         : '';
-
-                    throw new Error(details || payload.message || 'Nepodarilo sa uložiť podtréningy.');
+                    const message = details || payload.message || rawBody || 'Nepodarilo sa uložiť podtréningy.';
+                    throw new Error(`HTTP ${groupsResponse.status}: ${message}`);
                 }
 
                 const groupsPayload = await groupsResponse.json().catch(() => ({}));
