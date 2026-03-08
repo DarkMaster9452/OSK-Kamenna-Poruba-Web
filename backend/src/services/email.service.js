@@ -267,6 +267,128 @@ async function sendTrainingUpdatedEmails({ training, recipients, updatedByUserna
   }));
 }
 
+function buildSubtrainingAssignmentHtml({
+  training,
+  categoryLabel,
+  assignedByUsername,
+  recipientUsername,
+  groupName,
+  groupTime,
+  groupCapacity
+}) {
+  const note = getTrainingNoteLine(training);
+  const groupTimeLine = groupTime ? `<tr><td style="padding:8px 0;color:#5f6b7a;width:170px;">Čas podtréningu</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(groupTime)}</td></tr>` : '';
+  const capacityLine = groupCapacity ? `<tr><td style="padding:8px 0;color:#5f6b7a;">Kapacita podtréningu</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(groupCapacity)}</td></tr>` : '';
+
+  return `
+  <div style="font-family:Arial,Helvetica,sans-serif;background:#f6f8fb;padding:24px;color:#1a1a1a;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;margin:0 auto;background:#ffffff;border-radius:14px;border:1px solid #e5eaf3;overflow:hidden;">
+      <tr>
+        <td style="background:#003399;padding:20px 24px;">
+          <div style="font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:#ffd700;font-weight:700;">OŠK Kamenná Poruba</div>
+          <div style="font-size:26px;line-height:1.2;font-weight:800;color:#ffffff;margin-top:6px;">PODTRÉNING PRIRADENÝ</div>
+          <div style="font-size:14px;color:#dbe7ff;margin-top:8px;">Ahoj ${escapeHtml(recipientUsername)}, tréner ti priradil podtréning s presným časom.</div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:22px 24px;">
+          <div style="font-size:13px;color:#5f6b7a;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:10px;">Detaily tréningu</div>
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:15px;">
+            <tr><td style="padding:8px 0;color:#5f6b7a;width:170px;">Kategória</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(categoryLabel)}</td></tr>
+            <tr><td style="padding:8px 0;color:#5f6b7a;">Dátum</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(training.date)}</td></tr>
+            <tr><td style="padding:8px 0;color:#5f6b7a;">Hlavný čas tréningu</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(training.time)}</td></tr>
+            <tr><td style="padding:8px 0;color:#5f6b7a;">Podtréning</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(groupName)}</td></tr>
+            ${groupTimeLine}
+            ${capacityLine}
+            <tr><td style="padding:8px 0;color:#5f6b7a;">Typ</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(formatTrainingType(training.type))}</td></tr>
+            <tr><td style="padding:8px 0;color:#5f6b7a;">Trvanie</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(training.duration)} min</td></tr>
+            <tr><td style="padding:8px 0;color:#5f6b7a;">Poznámka</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(note)}</td></tr>
+            <tr><td style="padding:8px 0;color:#5f6b7a;">Priradil tréner</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(assignedByUsername)}</td></tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 24px 24px;">
+          <div style="background:#f0f5ff;border:1px solid #d8e5ff;border-radius:10px;padding:14px 16px;color:#20304d;font-size:14px;line-height:1.45;">
+            Skontroluj dochádzku v klubovom systéme.
+            <a href="https://osk-kamenna-poruba.vercel.app/pages/trainings.html" style="display:inline-block;margin-top:12px;padding:10px 18px;background:#003399;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:700;">Otvoriť tréningy</a>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>`;
+}
+
+async function sendSubtrainingAssignedEmails({ training, assignments, assignedByUsername }) {
+  if (!env.emailNotificationsEnabled) {
+    return { sent: 0, skipped: 'disabled' };
+  }
+
+  if (!Array.isArray(assignments) || !assignments.length) {
+    return { sent: 0, skipped: 'no_recipients' };
+  }
+
+  const mailer = getTransporter();
+  if (!mailer) {
+    return { sent: 0, skipped: 'smtp_not_configured' };
+  }
+
+  const categoryLabel = formatTrainingCategory(training.category);
+  const jobs = assignments.map((assignment) => {
+    const recipientEmail = String(assignment.email || '').trim().toLowerCase();
+    if (!recipientEmail) {
+      return Promise.resolve({ skipped: true });
+    }
+
+    const groupTime = assignment.groupStartTime && assignment.groupEndTime
+      ? `${assignment.groupStartTime} - ${assignment.groupEndTime}`
+      : '';
+    const capacity = Number.isInteger(Number(assignment.groupMaxPlayers)) && Number(assignment.groupMaxPlayers) > 0
+      ? String(assignment.groupMaxPlayers)
+      : '';
+    const subject = `OŠK: Tvoj podtréning ${training.date} ${groupTime || training.time}`;
+    const text = [
+      `Ahoj ${assignment.playerUsername},`,
+      '',
+      'tréner priradil podtréning pre tvoj najbližší tréning.',
+      '',
+      `Kategória: ${categoryLabel}`,
+      `Dátum: ${training.date}`,
+      `Hlavný čas tréningu: ${training.time}`,
+      `Podtréning: ${assignment.groupName}`,
+      groupTime ? `Čas podtréningu: ${groupTime}` : '',
+      capacity ? `Kapacita podtréningu: ${capacity}` : '',
+      `Typ: ${formatTrainingType(training.type)}`,
+      `Trvanie: ${training.duration} min`,
+      `Priradil tréner: ${assignedByUsername}`,
+      '',
+      'Skontroluj dochádzku v klubovom systéme.',
+      '',
+      'OŠK Kamenná Poruba'
+    ].filter(Boolean).join('\n');
+
+    return mailer.sendMail({
+      from: `"${env.smtpFromName}" <${env.smtpFromEmail}>`,
+      to: recipientEmail,
+      subject,
+      text,
+      html: buildSubtrainingAssignmentHtml({
+        training,
+        categoryLabel,
+        assignedByUsername,
+        recipientUsername: assignment.playerUsername,
+        groupName: assignment.groupName,
+        groupTime,
+        groupCapacity: capacity
+      })
+    });
+  });
+
+  const results = await Promise.allSettled(jobs);
+  const sent = results.filter((result) => result.status === 'fulfilled').length;
+  return { sent, skipped: sent > 0 ? null : 'send_failed' };
+}
+
 async function sendContactFormEmail({ name, email, message }) {
   const mailer = getTransporter();
   if (!mailer) {
@@ -308,5 +430,6 @@ async function sendContactFormEmail({ name, email, message }) {
 module.exports = {
   sendTrainingCreatedEmails,
   sendTrainingUpdatedEmails,
+  sendSubtrainingAssignedEmails,
   sendContactFormEmail
 };

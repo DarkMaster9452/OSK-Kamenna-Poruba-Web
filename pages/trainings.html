@@ -1732,6 +1732,7 @@
 
             try {
                 const csrfToken = await ensureCsrfToken();
+                let subtrainingEmailNotification = null;
 
                 const groupsResponse = await fetch(`${API_BASE}/trainings/${training.id}/groups`, {
                     method: 'POST',
@@ -1808,15 +1809,36 @@
                         throw new Error(payload.message || `Nepodarilo sa priradiť hráča ${entry.playerUsername}.`);
                     }
                 }
+
+                const notifyResponse = await fetch(`${API_BASE}/trainings/${training.id}/groups/notify`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    }
+                });
+
+                if (notifyResponse.ok) {
+                    const notifyPayload = await notifyResponse.json().catch(() => ({}));
+                    subtrainingEmailNotification = notifyPayload && notifyPayload.emailNotification
+                        ? notifyPayload.emailNotification
+                        : null;
+                }
+
+                const emailStatusText = subtrainingEmailNotification && subtrainingEmailNotification.sent
+                    ? ` Email odoslaný hráčom: ${subtrainingEmailNotification.sent}/${subtrainingEmailNotification.recipients}.`
+                    : '';
+
+                await loadTrainingsData();
+                refreshCoachRoster();
+                refreshPlayerTrainings();
+                alert(`Podtréningy a rozdelenie hráčov boli uložené.${emailStatusText}`);
+                return;
             } catch (error) {
                 alert(error.message || 'Ukladanie podtréningov zlyhalo.');
                 return;
             }
-
-            await loadTrainingsData();
-            refreshCoachRoster();
-            refreshPlayerTrainings();
-            alert('Podtréningy a rozdelenie hráčov boli uložené.');
         }
 
         async function createTraining() {

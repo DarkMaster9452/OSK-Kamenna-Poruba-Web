@@ -17,7 +17,7 @@ const {
   updateTrainingAttendanceGroup
 } = require('../data/repository');
 const prisma = require('../data/db');
-const { sendTrainingCreatedEmails, sendTrainingUpdatedEmails } = require('../services/email.service');
+const { sendTrainingCreatedEmails, sendTrainingUpdatedEmails, sendSubtrainingAssignedEmails } = require('../services/email.service');
 
 const router = express.Router();
 
@@ -750,6 +750,139 @@ router.patch('/:id/attendance/:playerUsername/group', requireAuth, requireRole('
     return res.status(status).json({
       message: error?.message || 'Nepodarilo sa uložiť priradenie podtréningu.'
     });
+  }
+});
+
+router.post('/:id/groups/notify', requireAuth, requireRole('coach', 'admin'), async (req, res) => {
+  try {
+    const training = await findTrainingById(req.params.id);
+    if (!training) {
+      return res.status(404).json({ message: 'Tréning neexistuje.' });
+    }
+
+    const assignedAttendances = await prisma.trainingAttendance.findMany({
+      where: {
+        trainingId: training.id,
+        status: 'yes',
+        trainingGroupId: {
+          not: null
+        }
+      },
+      select: {
+        playerUsername: true,
+        trainingGroupId: true
+      }
+    });
+
+    if (!assignedAttendances.length) {
+      return res.json({
+        emailNotification: {
+          status: 'skipped',
+          reason: 'no_assigned_players',
+          sent: 0,
+          recipients: 0
+        }
+      });
+    }
+
+    const groupIds = Array.from(new Set(assignedAttendances
+      .map((row) => row.trainingGroupId)
+      .filter(Boolean)));
+    const usernames = Array.from(new Set(assignedAttendances
+      .map((row) => String(row.playerUsername || '').trim())
+      .filter(Boolean)));
+
+    const [groups, users] = await Promise.all([
+      prisma.trainingGroup.findMany({
+        where: {
+          id: {
+            in: groupIds
+          }
+        },
+        select: {
+          id: true,
+          name: true,
+          note: true
+        }
+      }),
+      prisma.user.findMany({
+        where: {
+          username: {
+            in: usernames
+          },
+          role: 'player',
+          isActive: true,
+          email: {
+            not: ''
+          }
+        },
+        select: {
+          username: true,
+          email: true
+        }
+      })
+    ]);
+
+    const groupById = new Map(groups.map((group) => {
+      const meta = extractGroupMeta(group.note);
+      return [group.id, {
+        id: group.id,
+        name: group.name,
+        startTime: meta.startTime,
+        endTime: meta.endTime,
+        maxPlayers: meta.maxPlayers
+      }];
+    }));
+    const emailByUsername = new Map(users.map((user) => [user.username, user.email]));
+
+    const assignments = assignedAttendances
+      .map((attendance) => {
+        const group = attendance.trainingGroupId ? groupById.get(attendance.trainingGroupId) : null;
+        const email = emailByUsername.get(attendance.playerUsername);
+        if (!group || !email) {
+          return null;
+        }
+
+        return {
+          playerUsername: attendance.playerUsername,
+          email,
+          groupName: group.name,
+          groupStartTime: group.startTime,
+          groupEndTime: group.endTime,
+          groupMaxPlayers: group.maxPlayers
+        };
+      })
+      .filter(Boolean);
+
+    if (!assignments.length) {
+      return res.json({
+        emailNotification: {
+          status: 'skipped',
+          reason: 'no_valid_emails',
+          sent: 0,
+          recipients: 0
+        }
+      });
+    }
+
+    const emailResult = await sendSubtrainingAssignedEmails({
+      training,
+      assignments,
+      assignedByUsername: req.user.username
+    });
+
+    const status = emailResult.skipped ? 'skipped' : 'sent';
+    return res.json({
+      emailNotification: {
+        status,
+        reason: emailResult.skipped || null,
+        sent: Number(emailResult.sent || 0),
+        recipients: assignments.length
+      }
+    });
+  } catch (error) {
+    console.error('Failed to send subtraining assignment emails:', error);
+    return res.status(500).json({ message: 'Nepodarilo sa odoslať emaily pre podtréningy.' });
   }
 });
 
