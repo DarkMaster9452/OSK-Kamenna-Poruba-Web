@@ -277,14 +277,11 @@ function buildSubtrainingAssignmentHtml({
   categoryLabel,
   assignedByUsername,
   recipientUsername,
-  groupName,
   groupTime,
-  groupCapacity,
   preheaderText
 }) {
   const note = getTrainingNoteLine(training);
-  const groupTimeLine = groupTime ? `<tr><td style="padding:8px 0;color:#5f6b7a;width:170px;">Čas podtréningu</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(groupTime)}</td></tr>` : '';
-  const capacityLine = groupCapacity ? `<tr><td style="padding:8px 0;color:#5f6b7a;">Kapacita podtréningu</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(groupCapacity)}</td></tr>` : '';
+  const groupTimeLine = groupTime ? `<tr><td style="padding:8px 0;color:#5f6b7a;width:170px;">Presný čas príchodu</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(groupTime)}</td></tr>` : '';
 
   return `
   <div style="font-family:Arial,Helvetica,sans-serif;background:#f6f8fb;padding:24px;color:#1a1a1a;">
@@ -304,9 +301,7 @@ function buildSubtrainingAssignmentHtml({
             <tr><td style="padding:8px 0;color:#5f6b7a;width:170px;">Kategória</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(categoryLabel)}</td></tr>
             <tr><td style="padding:8px 0;color:#5f6b7a;">Dátum</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(training.date)}</td></tr>
             <tr><td style="padding:8px 0;color:#5f6b7a;">Hlavný čas tréningu</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(training.time)}</td></tr>
-            <tr><td style="padding:8px 0;color:#5f6b7a;">Podtréning</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(groupName)}</td></tr>
             ${groupTimeLine}
-            ${capacityLine}
             <tr><td style="padding:8px 0;color:#5f6b7a;">Typ</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(formatTrainingType(training.type))}</td></tr>
             <tr><td style="padding:8px 0;color:#5f6b7a;">Trvanie</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(training.duration)} min</td></tr>
             <tr><td style="padding:8px 0;color:#5f6b7a;">Poznámka</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(note)}</td></tr>
@@ -350,22 +345,19 @@ async function sendSubtrainingAssignedEmails({ training, assignments, assignedBy
     const groupTime = assignment.groupStartTime && assignment.groupEndTime
       ? `${assignment.groupStartTime} - ${assignment.groupEndTime}`
       : '';
-    const capacity = Number.isInteger(Number(assignment.groupMaxPlayers)) && Number(assignment.groupMaxPlayers) > 0
-      ? String(assignment.groupMaxPlayers)
-      : '';
-    const previewLine = `${assignment.groupName}${groupTime ? ` (${groupTime})` : ''}, ${training.date}`;
-    const subject = `OŠK: Podtréning ${previewLine}`;
+    const previewLine = `${training.date}${groupTime ? `, ${groupTime}` : `, ${training.time}`}`;
+    const subject = `OŠK: Tréning ${previewLine}`;
     const text = [
-      `Podtréning: ${previewLine}.`,
+      `Tréning: ${previewLine}.`,
       '',
       `Ahoj ${assignment.playerUsername},`,
       '',
-      'tréner priradil podtréning pre tvoj najbližší tréning.',
+      'tréner potvrdil presný čas tvojho najbližšieho tréningu.',
       '',
       `Kategória: ${categoryLabel}`,
       `Dátum: ${training.date}`,
       `Hlavný čas tréningu: ${training.time}`,
-      groupTime ? `Čas podtréningu: ${groupTime}` : '',
+      groupTime ? `Presný čas príchodu: ${groupTime}` : '',
       `Typ: ${formatTrainingType(training.type)}`,
       `Trvanie: ${training.duration} min`,
       `Priradil tréner: ${assignedByUsername}`,
@@ -385,10 +377,8 @@ async function sendSubtrainingAssignedEmails({ training, assignments, assignedBy
         categoryLabel,
         assignedByUsername,
         recipientUsername: assignment.playerUsername,
-        groupName: assignment.groupName,
         groupTime,
-        groupCapacity: capacity,
-        preheaderText: `Podtréning: ${previewLine}`
+        preheaderText: `Tréning: ${previewLine}`
       })
     });
   });
