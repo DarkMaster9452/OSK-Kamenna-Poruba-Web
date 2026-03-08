@@ -86,7 +86,7 @@
             gap: 10px;
         }
 
-        input,
+        input:not([type="checkbox"]),
         textarea {
             width: 100%;
             border-radius: 8px;
@@ -100,6 +100,24 @@
         textarea {
             min-height: 150px;
             resize: vertical;
+        }
+
+        .checkbox-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            user-select: none;
+        }
+
+        .checkbox-inline input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #ffd700;
+            cursor: pointer;
+            flex: 0 0 auto;
+            margin: 0;
         }
 
         .post {
@@ -212,7 +230,8 @@
             <div class="form-grid">
                 <input id="postTitle" placeholder="Nadpis príspevku" maxlength="200" />
                 <textarea id="postContent" placeholder="Obsah príspevku"></textarea>
-                <label><input id="postPublished" type="checkbox" checked /> Publikovať ihneď</label>
+                <label class="checkbox-inline"><input id="postPublished" type="checkbox" checked /> Publikovať
+                    ihneď</label>
                 <div>
                     <button class="btn btn-primary" onclick="createPost()">
                         <i class="fas fa-plus"></i> Pridať príspevok

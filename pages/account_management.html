@@ -112,13 +112,38 @@
             font-weight: 700;
         }
 
-        input,
+        input:not([type="checkbox"]),
         select {
             width: 100%;
             border: 1px solid #cfd6e4;
             border-radius: 6px;
             padding: 10px;
             font-size: 14px;
+        }
+
+        .children-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 2px;
+            border-bottom: 1px solid #f2f4f8;
+            margin: 0;
+            font-weight: 600;
+            color: #1f2f55;
+            cursor: pointer;
+        }
+
+        .children-option:last-child {
+            border-bottom: none;
+        }
+
+        .children-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #003399;
+            cursor: pointer;
+            margin: 0;
+            flex: 0 0 auto;
         }
 
         table {
@@ -978,7 +1003,7 @@
             node.innerHTML = activePlayers.map((player) => {
                 const checked = selectedChildIds.has(player.id) ? 'checked' : '';
                 return `
-                    <label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f2f4f8;">
+                    <label class="children-option">
                         <input type="checkbox" value="${player.id}" ${checked} onchange="toggleChildSelection('${player.id}', this.checked)">
                         <span><strong>${player.username}</strong>${player.category ? ` • ${categoryLabel(player.category)}` : ''}</span>
                     </label>
