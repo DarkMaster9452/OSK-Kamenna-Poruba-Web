@@ -130,8 +130,28 @@ function buildGroupStoredNote(groupInput) {
 const upsertTrainingGroupsSchema = z.object({
   groups: z.array(z.object({
     name: z.string().trim().min(1).max(100),
-    location: z.string().trim().max(100).optional(),
-    note: z.string().trim().max(500).optional(),
+    location: z.preprocess(
+      (value) => {
+        if (value === null || value === undefined) {
+          return undefined;
+        }
+
+        const trimmed = String(value).trim();
+        return trimmed || undefined;
+      },
+      z.string().max(100).optional()
+    ),
+    note: z.preprocess(
+      (value) => {
+        if (value === null || value === undefined) {
+          return undefined;
+        }
+
+        const trimmed = String(value).trim();
+        return trimmed || undefined;
+      },
+      z.string().max(500).optional()
+    ),
     startTime: z.preprocess(
       (value) => {
         if (value === null || value === undefined) {

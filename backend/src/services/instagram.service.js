@@ -37,6 +37,41 @@ function getUnavailablePayload(message) {
   };
 }
 
+function parseInstagramApiErrorMessage(status, body) {
+  const rawBody = String(body || '').trim();
+  let parsed = null;
+
+  if (rawBody) {
+    try {
+      parsed = JSON.parse(rawBody);
+    } catch (_) {
+      parsed = null;
+    }
+  }
+
+  const apiError = parsed && parsed.error ? parsed.error : null;
+  const code = Number(apiError && apiError.code);
+  const upstreamMessage = String(apiError && apiError.message || '').trim();
+
+  if (code === 190) {
+    return 'Instagram token je neplatny alebo expiroval. Obnov INSTAGRAM_ACCESS_TOKEN.';
+  }
+
+  if (status === 400) {
+    return upstreamMessage || 'Instagram API odmietlo poziadavku.';
+  }
+
+  if (status === 401 || status === 403) {
+    return 'Instagram API odmietlo pristup. Skontroluj pristupovy token.';
+  }
+
+  if (status >= 500) {
+    return 'Instagram API je docasne nedostupne.';
+  }
+
+  return upstreamMessage || `Instagram API vratilo status ${status}.`;
+}
+
 function normalizeRequestedLimit(value) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
@@ -126,7 +161,8 @@ async function fetchInstagramFeed({ forceRefresh = false, requestedLimit } = {})
 
       if (!response.ok) {
         const body = await response.text().catch(() => '');
-        const error = new Error(`Instagram API vratilo status ${response.status}. ${body}`.trim());
+        const message = parseInstagramApiErrorMessage(response.status, body);
+        const error = new Error(message);
         error.status = response.status >= 500 ? 502 : 400;
         throw error;
       }
