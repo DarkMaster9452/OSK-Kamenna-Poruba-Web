@@ -1321,6 +1321,93 @@
             return `${group.startTime} - ${group.endTime}`;
         }
 
+        function buildTrainingGroupAnalytics(training) {
+            const groups = Array.isArray(training && training.groups) ? training.groups : [];
+            const entries = getTrainingAttendanceEntries(training);
+            const countsByGroupId = {};
+            const yesPlayersByGroupId = {};
+            let unassignedYesCount = 0;
+
+            entries.forEach((entry) => {
+                const groupId = entry && entry.trainingGroupId ? entry.trainingGroupId : null;
+                const status = entry && entry.status ? entry.status : 'unknown';
+
+                if (groupId) {
+                    countsByGroupId[groupId] = (countsByGroupId[groupId] || 0) + 1;
+                    if (status === 'yes') {
+                        if (!Array.isArray(yesPlayersByGroupId[groupId])) {
+                            yesPlayersByGroupId[groupId] = [];
+                        }
+                        yesPlayersByGroupId[groupId].push(entry.playerUsername);
+                    }
+                } else if (status === 'yes') {
+                    unassignedYesCount += 1;
+                }
+            });
+
+            groups.forEach((group) => {
+                const groupPlayers = yesPlayersByGroupId[group.id];
+                if (Array.isArray(groupPlayers)) {
+                    groupPlayers.sort((a, b) => a.localeCompare(b));
+                }
+            });
+
+            return {
+                groups,
+                countsByGroupId,
+                yesPlayersByGroupId,
+                unassignedYesCount
+            };
+        }
+
+        function renderSubtrainingSummary(training, options = {}) {
+            const analytics = buildTrainingGroupAnalytics(training);
+            if (!analytics.groups.length) {
+                return '';
+            }
+
+            const mode = options.mode === 'player' ? 'player' : 'coach';
+            const heading = mode === 'player' ? 'Podtréningy pre tento tréning' : 'Rozdelenie podtréningov';
+
+            const cardsHtml = analytics.groups.map((group) => {
+                const assignedCount = analytics.countsByGroupId[group.id] || 0;
+                const maxPlayers = Number.isInteger(group.maxPlayers) ? group.maxPlayers : null;
+                const isOverCapacity = Boolean(maxPlayers && assignedCount > maxPlayers);
+                const schedule = formatGroupSchedule(group);
+                const players = analytics.yesPlayersByGroupId[group.id] || [];
+                const capacityLabel = maxPlayers
+                    ? `${assignedCount}/${maxPlayers}`
+                    : `${assignedCount}`;
+
+                return `
+                    <div style="background:rgba(255,255,255,0.06);border:1px solid ${isOverCapacity ? '#ff7675' : 'rgba(255,215,0,0.35)'};border-radius:8px;padding:10px;">
+                        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">
+                            <strong style="color:#ffd700;font-size:13px;">${escapeHtml(group.name)}</strong>
+                            <span style="font-size:12px;font-weight:700;color:${isOverCapacity ? '#ff7675' : '#a8ffd8'};">${escapeHtml(capacityLabel)}</span>
+                        </div>
+                        ${schedule ? `<div style="font-size:12px;color:#d9e6ff;margin-top:4px;"><i class="fas fa-clock"></i> ${escapeHtml(schedule)}</div>` : ''}
+                        ${mode === 'coach'
+                        ? `<div style="font-size:12px;color:rgba(255,255,255,0.88);margin-top:6px;">${players.length ? `Hráči: ${escapeHtml(players.join(', '))}` : 'Hráči: --'}</div>`
+                        : ''}
+                    </div>
+                `;
+            }).join('');
+
+            const unassignedNotice = mode === 'coach' && analytics.unassignedYesCount > 0
+                ? `<div style="margin-top:8px;color:#ffdf80;font-size:12px;"><i class="fas fa-triangle-exclamation"></i> Nepriradení hráči (status Prídem): ${analytics.unassignedYesCount}</div>`
+                : '';
+
+            return `
+                <div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(0,0,0,0.16);border:1px solid rgba(255,215,0,0.22);">
+                    <div style="color:#ffd700;font-weight:700;font-size:13px;margin-bottom:8px;"><i class="fas fa-layer-group"></i> ${heading}</div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;">
+                        ${cardsHtml}
+                    </div>
+                    ${unassignedNotice}
+                </div>
+            `;
+        }
+
         async function manageSubtrainings(trainingId) {
             const training = trainings.find((t) => String(t.id) === String(trainingId));
             if (!training) {
@@ -1911,14 +1998,7 @@
                     const percent = total > 0 ? Math.round((attending / total) * 100) : 0;
                     const statusInfo = getTrainingStatus(t);
                     const hasGroups = Array.isArray(t.groups) && t.groups.length > 0;
-                    const groupCountMap = Object.values(t.attendance || {}).reduce((acc, item) => {
-                        const groupId = item && item.trainingGroupId ? item.trainingGroupId : null;
-                        if (!groupId) {
-                            return acc;
-                        }
-                        acc[groupId] = (acc[groupId] || 0) + 1;
-                        return acc;
-                    }, {});
+                    const groupSummaryHtml = hasGroups ? renderSubtrainingSummary(t, { mode: 'coach' }) : '';
 
                     html += `
                         <div class="training-card">
@@ -1927,16 +2007,6 @@
                                 <p><i class="fas fa-calendar"></i> ${date} o ${t.time}</p>
                                 <p><i class="fas fa-users"></i> ${categoryLabel} | ${t.duration} min</p>
                                 ${noteHtml}
-                                ${hasGroups ? `
-                                    <p style="margin-top:8px;color:#ffd700;">
-                                        <i class="fas fa-layer-group"></i> Podtréningy: ${t.groups.map(g => {
-                        const schedule = formatGroupSchedule(g);
-                        const assignedCount = groupCountMap[g.id] || 0;
-                        const capacity = g.maxPlayers ? ` ${assignedCount}/${g.maxPlayers}` : ` ${assignedCount}`;
-                        return `${escapeHtml(g.name)}${schedule ? ` (${escapeHtml(schedule)})` : ''}[${capacity.trim()}]`;
-                    }).join(', ')}
-                                    </p>
-                                ` : ''}
                                 <p style="color: ${statusInfo.color};">
                                     ${statusInfo.text}
                                 </p>
@@ -1944,33 +2014,24 @@
                             <div class="attendance-grid">
                                 <div class="attendance-group">
                                     <h4 style="color:#2ecc71;"><i class="fas fa-check-circle"></i> Prídu (${attending})</h4>
-                                    ${getAttendanceList(t.attendance, 'yes', '#2ecc71')}
+                                    ${getAttendanceList(t, 'yes', '#2ecc71')}
                                 </div>
                                 <div class="attendance-group">
                                     <h4 style="color:#e74c3c;"><i class="fas fa-times-circle"></i> Neprídú (${notAttending})</h4>
-                                    ${getAttendanceList(t.attendance, 'no', '#e74c3c')}
+                                    ${getAttendanceList(t, 'no', '#e74c3c')}
                                 </div>
                                 <div class="attendance-group">
                                     <h4 style="color:#95a5a6;"><i class="fas fa-question-circle"></i> Nevedia (${unknown})</h4>
-                                    ${getAttendanceList(t.attendance, 'unknown', '#95a5a6')}
+                                    ${getAttendanceList(t, 'unknown', '#95a5a6')}
                                 </div>
                             </div>
+                            ${groupSummaryHtml}
                             <div class="training-footer">
                                 <div style="color:#2ecc71;">Účasť: ${percent}%</div>
                                 <button class="btn-action" style="background:#9b59b6;color:white;" onclick="manageSubtrainings('${t.id}')"><i class="fas fa-layer-group"></i> Podtréningy</button>
                                 <button class="btn-action" style="background:#3498db;color:white;" onclick="editTraining('${t.id}')"><i class="fa-solid fa-pen-to-square"></i> Upraviť</button>
                                 <button class="btn-action btn-delete" onclick="deleteTraining('${t.id}')"><i class="fas fa-trash"></i> Odstrániť</button>
                             </div>
-                            ${Array.isArray(t.groups) && t.groups.length > 0 ? `
-                                <div style="padding: 10px 20px 20px 20px;border-top:1px solid rgba(255,215,0,0.2);">
-                                    <div style="font-size:13px;color:#ffd700;margin-bottom:6px;">
-                                        <i class="fas fa-layer-group"></i> Podtréningy: ${t.groups.map(g => {
-                        const schedule = formatGroupSchedule(g);
-                        return `${escapeHtml(g.name)}${schedule ? ` (${escapeHtml(schedule)})` : ''}${g.maxPlayers ? ` [max ${g.maxPlayers}]` : ''}`;
-                    }).join(', ')}
-                                    </div>
-                                </div>
-                            ` : ''}
                         </div>
                     `;
                 });
@@ -1991,17 +2052,22 @@
             }
         }
 
-        function getAttendanceList(attendance, status, color) {
+        function getAttendanceList(training, status, color) {
             const items = [];
             let index = 1;
-            Object.entries(attendance || {}).forEach(([key, value]) => {
+            const attendance = training && training.attendance ? training.attendance : {};
+            const groupById = new Map((training && Array.isArray(training.groups) ? training.groups : []).map((group) => [group.id, group]));
+
+            Object.entries(attendance).forEach(([key, value]) => {
                 const s = value && value.status ? value.status : 'unknown';
                 if (s === status) {
                     const name = key.substring(key.indexOf('_') + 1);
+                    const group = value && value.trainingGroupId ? groupById.get(value.trainingGroupId) : null;
+                    const groupLabel = group ? ` • ${group.name}` : '';
                     items.push(`
                         <div class="attendance-item">
                             <span class="attendance-number" style="background:${color}">${index}</span>
-                            ${name}
+                            <span>${name}${groupLabel ? ` <span style="color:#ffd700;font-size:12px;">${escapeHtml(groupLabel)}</span>` : ''}</span>
                         </div>
                     `);
                     index++;
@@ -2066,6 +2132,14 @@
                     const status = att && att.status ? att.status : 'unknown';
                     const group = att && att.trainingGroupId ? groupById.get(att.trainingGroupId) : null;
                     const groupSchedule = group ? formatGroupSchedule(group) : '';
+                    const groupHighlight = group
+                        ? `<p style="margin-top:8px;padding:8px 10px;background:rgba(46,204,113,0.18);border:1px solid rgba(46,204,113,0.65);border-radius:8px;color:#d5ffe8;font-weight:700;"><i class="fas fa-layer-group"></i> Tvoj podtréning: ${escapeHtml(group.name)}${groupSchedule ? ` (${escapeHtml(groupSchedule)})` : ''}</p>`
+                        : (t.isActive && Array.isArray(t.groups) && t.groups.length
+                            ? '<p style="margin-top:8px;padding:8px 10px;background:rgba(243,156,18,0.18);border:1px solid rgba(243,156,18,0.6);border-radius:8px;color:#ffe8be;font-weight:700;"><i class="fas fa-triangle-exclamation"></i> Podtréning ešte nie je priradený.</p>'
+                            : '');
+                    const groupsInfoHtml = Array.isArray(t.groups) && t.groups.length
+                        ? renderSubtrainingSummary(t, { mode: 'player' })
+                        : '';
 
                     html += `
                         <div class="training-card">
@@ -2074,10 +2148,11 @@
                                 <p><i class="fas fa-calendar"></i> ${date} o ${t.time}</p>
                                 <p><i class="fas fa-clock"></i> ${t.duration} min</p>
                                 ${noteHtml}
-                                ${group ? `<p><i class="fas fa-layer-group"></i> Podtréning: ${escapeHtml(group.name)}${groupSchedule ? ` (${escapeHtml(groupSchedule)})` : ''}</p>` : ''}
+                                ${groupHighlight}
                                 <p style="color:${statusInfo.color};">
                                     ${statusInfo.text}
                                 </p>
+                                ${groupsInfoHtml}
                             </div>
                             <div class="person-options">
                                 <p style="color:#ffd700;margin-bottom:10px;font-weight:bold;">${person}</p>
