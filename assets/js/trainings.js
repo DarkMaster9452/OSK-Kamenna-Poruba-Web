@@ -494,6 +494,21 @@ async function markAttendance(trainingId, personName, status) {
 
         if (!response.ok) {
             const payload = await response.json().catch(() => ({}));
+            if (response.status === 403) {
+                const message403 = String(payload && payload.message ? payload.message : '').trim();
+                if (typeof syncCurrentUserFromSessionWithRetry === 'function') {
+                    try {
+                        await syncCurrentUserFromSessionWithRetry();
+                        if (typeof updateLoginButtonText === 'function') {
+                            updateLoginButtonText();
+                        }
+                    } catch (_) {
+                        // Ignore sync error and show original 403 context.
+                    }
+                }
+
+                throw new Error(message403 || 'Nemáte oprávnenie potvrdzovať tento tréning pre zvolený účet.');
+            }
             throw new Error(payload.message || 'Nepodarilo sa uložiť dochádzku.');
         }
     } catch (error) {

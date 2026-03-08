@@ -2268,6 +2268,21 @@
                         throw new Error('Neautorizované (HTTP 401)');
                     }
                     const payload = await response.json().catch(() => ({}));
+                    if (response.status === 403) {
+                        const message403 = String(payload && payload.message ? payload.message : '').trim();
+                        if (typeof syncCurrentUserFromSessionWithRetry === 'function') {
+                            try {
+                                await syncCurrentUserFromSessionWithRetry();
+                                updateUI();
+                            } catch (_) {
+                                // Ignore sync error, original 403 message will be shown below.
+                            }
+                        }
+
+                        throw new Error(
+                            message403 || 'Nemáte oprávnenie potvrdzovať tento tréning pre zvolený účet. Prihláste sa správnym účtom.'
+                        );
+                    }
                     throw new Error(payload.message || 'Nepodarilo sa uložiť dochádzku.');
                 }
             } catch (error) {
