@@ -1207,30 +1207,37 @@ async function replaceTrainingGroups(trainingId, groupsInput) {
 
 async function updateTrainingAttendanceGroup(trainingId, playerUsername, trainingGroupId, updatedById) {
   try {
-    if (!trainingGroupId) {
+    const uniqueWhere = {
+      trainingId_playerUsername: {
+        trainingId,
+        playerUsername
+      }
+    };
+
+    const existing = await prisma.trainingAttendance.findUnique({
+      where: uniqueWhere,
+      select: {
+        id: true,
+        status: true
+      }
+    });
+
+    if (existing) {
       return await prisma.trainingAttendance.update({
-        where: {
-          trainingId_playerUsername: {
-            trainingId,
-            playerUsername
-          }
-        },
+        where: uniqueWhere,
         data: {
-          trainingGroupId: null,
+          trainingGroupId: trainingGroupId || null,
           updatedById
         }
       });
     }
 
-    return await prisma.trainingAttendance.update({
-      where: {
-        trainingId_playerUsername: {
-          trainingId,
-          playerUsername
-        }
-      },
+    return await prisma.trainingAttendance.create({
       data: {
-        trainingGroupId,
+        trainingId,
+        playerUsername,
+        status: 'unknown',
+        trainingGroupId: trainingGroupId || null,
         updatedById
       }
     });

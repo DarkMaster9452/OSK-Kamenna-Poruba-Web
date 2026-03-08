@@ -2925,8 +2925,9 @@
                 const payload = await response.json();
                 const items = Array.isArray(payload && payload.items) ? payload.items : [];
                 if (!items.length) {
+                    const backendMessage = payload && payload.message ? String(payload.message) : '';
                     if (statusNode) {
-                        statusNode.textContent = 'Instagram zatiaľ nevrátil žiadne príspevky.';
+                        statusNode.textContent = backendMessage || 'Instagram zatiaľ nevrátil žiadne príspevky.';
                     }
                     return false;
                 }
