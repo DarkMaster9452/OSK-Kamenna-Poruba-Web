@@ -62,6 +62,11 @@ function getTrainingNoteLine(training) {
   return note || 'Bez poznámky';
 }
 
+function buildHiddenPreheader(text) {
+  const safeText = escapeHtml(String(text || '').trim());
+  return `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;visibility:hidden;mso-hide:all;font-size:1px;line-height:1px;">${safeText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>`;
+}
+
 function normalizeRecipientAddresses(recipients) {
   const unique = new Set();
 
@@ -274,7 +279,8 @@ function buildSubtrainingAssignmentHtml({
   recipientUsername,
   groupName,
   groupTime,
-  groupCapacity
+  groupCapacity,
+  preheaderText
 }) {
   const note = getTrainingNoteLine(training);
   const groupTimeLine = groupTime ? `<tr><td style="padding:8px 0;color:#5f6b7a;width:170px;">Čas podtréningu</td><td style="padding:8px 0;font-weight:700;color:#1b2330;">${escapeHtml(groupTime)}</td></tr>` : '';
@@ -282,6 +288,7 @@ function buildSubtrainingAssignmentHtml({
 
   return `
   <div style="font-family:Arial,Helvetica,sans-serif;background:#f6f8fb;padding:24px;color:#1a1a1a;">
+    ${buildHiddenPreheader(preheaderText)}
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;margin:0 auto;background:#ffffff;border-radius:14px;border:1px solid #e5eaf3;overflow:hidden;">
       <tr>
         <td style="background:#003399;padding:20px 24px;">
@@ -346,8 +353,11 @@ async function sendSubtrainingAssignedEmails({ training, assignments, assignedBy
     const capacity = Number.isInteger(Number(assignment.groupMaxPlayers)) && Number(assignment.groupMaxPlayers) > 0
       ? String(assignment.groupMaxPlayers)
       : '';
-    const subject = `OŠK: Tvoj podtréning ${training.date} ${groupTime || training.time}`;
+    const previewLine = `${assignment.groupName}${groupTime ? ` (${groupTime})` : ''}, ${training.date}`;
+    const subject = `OŠK: Podtréning ${previewLine}`;
     const text = [
+      `Podtréning: ${previewLine}.`,
+      '',
       `Ahoj ${assignment.playerUsername},`,
       '',
       'tréner priradil podtréning pre tvoj najbližší tréning.',
@@ -355,9 +365,7 @@ async function sendSubtrainingAssignedEmails({ training, assignments, assignedBy
       `Kategória: ${categoryLabel}`,
       `Dátum: ${training.date}`,
       `Hlavný čas tréningu: ${training.time}`,
-      `Podtréning: ${assignment.groupName}`,
       groupTime ? `Čas podtréningu: ${groupTime}` : '',
-      capacity ? `Kapacita podtréningu: ${capacity}` : '',
       `Typ: ${formatTrainingType(training.type)}`,
       `Trvanie: ${training.duration} min`,
       `Priradil tréner: ${assignedByUsername}`,
@@ -379,7 +387,8 @@ async function sendSubtrainingAssignedEmails({ training, assignments, assignedBy
         recipientUsername: assignment.playerUsername,
         groupName: assignment.groupName,
         groupTime,
-        groupCapacity: capacity
+        groupCapacity: capacity,
+        preheaderText: `Podtréning: ${previewLine}`
       })
     });
   });
