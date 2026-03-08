@@ -126,6 +126,58 @@
             line-height: 1.5;
         }
 
+        .excerpt {
+            color: rgba(255, 255, 255, 0.92);
+            line-height: 1.6;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 9999;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 840px;
+            max-height: 90vh;
+            overflow: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: linear-gradient(160deg, #0b2b73 0%, #0f3a96 100%);
+            padding: 18px;
+        }
+
+        .modal-card h3 {
+            margin: 0 0 8px;
+            color: #ffd700;
+            font-size: 26px;
+        }
+
+        .modal-content {
+            margin-top: 12px;
+            white-space: pre-wrap;
+            line-height: 1.7;
+            color: #ffffff;
+        }
+
         .muted {
             color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
@@ -179,6 +231,19 @@
         </div>
     </div>
 
+    <div id="postDetailModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <div class="row" style="margin-bottom:10px;">
+                <h3 id="postDetailTitle"></h3>
+                <button class="btn btn-back" type="button" onclick="closePostDetail()">
+                    <i class="fas fa-times"></i> Zavrieť
+                </button>
+            </div>
+            <div id="postDetailMeta" class="meta"></div>
+            <div id="postDetailContent" class="modal-content"></div>
+        </div>
+    </div>
+
     <script>
         function resolveApiBase() {
             const host = window.location.hostname;
@@ -213,6 +278,24 @@
             const date = new Date(value);
             if (Number.isNaN(date.getTime())) return 'Neznámy dátum';
             return date.toLocaleString('sk-SK');
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function buildExcerpt(content, maxLength = 220) {
+            const normalized = String(content || '').replace(/\s+/g, ' ').trim();
+            if (normalized.length <= maxLength) {
+                return normalized;
+            }
+
+            return `${normalized.slice(0, maxLength).trim()}...`;
         }
 
         async function loadSessionUser() {
@@ -267,14 +350,50 @@
                 return `
                     <article class="post">
                         <div class="row">
-                            <h3>${post.title}</h3>
+                            <h3>${escapeHtml(post.title)}</h3>
                             ${canDelete ? `<button class="btn btn-danger" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i> Odstrániť</button>` : ''}
                         </div>
                         <div class="meta">Autor: ${post.createdBy} • ${formatDate(post.createdAt)}</div>
-                        <div class="content">${post.content}</div>
+                        <div class="excerpt">${escapeHtml(buildExcerpt(post.content))}</div>
+                        <button class="btn btn-ghost" type="button" onclick="openPostDetail('${post.id}')">
+                            <i class="fas fa-book-open"></i> Čítať celý článok
+                        </button>
                     </article>
                 `;
             }).join('');
+        }
+
+        function openPostDetail(id) {
+            const modal = document.getElementById('postDetailModal');
+            const title = document.getElementById('postDetailTitle');
+            const meta = document.getElementById('postDetailMeta');
+            const content = document.getElementById('postDetailContent');
+            if (!modal || !title || !meta || !content) {
+                return;
+            }
+
+            const post = window.__blogPostsById && window.__blogPostsById.get(id);
+            if (!post) {
+                return;
+            }
+
+            title.textContent = post.title || 'Bez názvu';
+            meta.textContent = `Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}`;
+            content.textContent = String(post.content || '');
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePostDetail() {
+            const modal = document.getElementById('postDetailModal');
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = 'auto';
         }
 
         async function refresh() {
@@ -295,7 +414,9 @@
             const byId = new Map();
             publicPosts.forEach((item) => byId.set(item.id, item));
             manageItems.forEach((item) => byId.set(item.id, item));
-            renderPosts(Array.from(byId.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+            const orderedPosts = Array.from(byId.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            window.__blogPostsById = new Map(orderedPosts.map((post) => [post.id, post]));
+            renderPosts(orderedPosts);
         }
 
         async function createPost() {
@@ -359,6 +480,20 @@
 
         window.deletePost = deletePost;
         window.createPost = createPost;
+        window.openPostDetail = openPostDetail;
+        window.closePostDetail = closePostDetail;
+
+        document.getElementById('postDetailModal')?.addEventListener('click', (event) => {
+            if (event.target && event.target.id === 'postDetailModal') {
+                closePostDetail();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closePostDetail();
+            }
+        });
 
         refresh().catch((error) => {
             const container = document.getElementById('postsContainer');
