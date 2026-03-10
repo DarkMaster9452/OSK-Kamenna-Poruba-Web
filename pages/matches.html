@@ -776,10 +776,10 @@
 
         function detectCategory(competition) {
             const c = String(competition || '').toLowerCase();
-            if (c.includes('u9') || c.includes('u09') || c.includes('mladší prípravk')) return 'u09_pripravka';
-            if (c.includes('u11') || c.includes('starší prípravk')) return 'u11_pripravka';
-            if (c.includes('u13') || c.includes('mladší žiaci')) return 'u13_ziaci';
-            if (c.includes('u15') || c.includes('starší žiaci')) return 'u15_ziaci';
+            if (c.includes('u9') || c.includes('u09') || c.includes('mladších príprav')) return 'u09_pripravka';
+            if (c.includes('u11') || c.includes('príprav')) return 'u11_pripravka';
+            if (c.includes('u13') || c.includes('mladší žiaci') || c.includes('mladších žiakov')) return 'u13_ziaci';
+            if (c.includes('u15') || c.includes('starší žiaci') || c.includes('starších žiakov')) return 'u15_ziaci';
             if (c.includes('dorast') || c.includes('u17') || c.includes('u19')) return 'u19_dorast';
             return 'dospeli';
         }
