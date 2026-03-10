@@ -670,346 +670,16 @@
     </div>
 
     <script>
-        // ====== DATABÁZA ZÁPASOV - STIAHNUTO Z SPORTSNET.SME.SK ======
-        const FALLBACK_MATCHES = {
-            'match_001': {
-                id: 'match_001',
-                date: '2026-02-25',
-                time: '18:30',
-                homeTeam: 'OŠK Kamenná Poruba',
-                awayTeam: 'FK Šachtár Banská Bystrica',
-                homeScore: null,
-                awayScore: null,
-                status: 'upcoming',
-                location: 'Domáci štadión',
-                address: 'Kamenná Poruba, Stadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-3-3',
-                awayFormation: '4-2-3-1',
-                referee: 'Ján Kováčik',
-                homeLineup: [
-                    { number: 1, name: 'Jozef Adamčík', position: 'GK' },
-                    { number: 4, name: 'Marko Adamčík', position: 'DEF' },
-                    { number: 6, name: 'Lukáš Kuba', position: 'MID' },
-                    { number: 9, name: 'Jakub Horváth', position: 'FW' },
-                    { number: 5, name: 'Róbert Šabo', position: 'DEF' },
-                    { number: 7, name: 'Štefan Polák', position: 'MID' },
-                    { number: 3, name: 'Tomáš Kamenický', position: 'DEF' }
-                ],
-                homeStats: null,
-                awayStats: null,
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: []
-            },
-            'match_002': {
-                id: 'match_002',
-                date: '2026-03-03',
-                time: '17:00',
-                homeTeam: 'FK Zvolen',
-                awayTeam: 'OŠK Kamenná Poruba',
-                homeScore: 2,
-                awayScore: 1,
-                status: 'finished',
-                location: 'Vonku',
-                address: 'Zvolen, Mestský štadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-4-2',
-                awayFormation: '4-3-3',
-                referee: 'Róbert Švec',
-                homeLineup: [],
-                homeStats: {
-                    possession: 58,
-                    shots: 14,
-                    shotsOnTarget: 6,
-                    passes: 480,
-                    accuracy: 84,
-                    tackles: 16,
-                    fouls: 9,
-                    corners: 7,
-                    yellowCards: 3,
-                    redCards: 0
-                },
-                awayStats: {
-                    possession: 42,
-                    shots: 9,
-                    shotsOnTarget: 3,
-                    passes: 360,
-                    accuracy: 79,
-                    tackles: 19,
-                    fouls: 7,
-                    corners: 4,
-                    yellowCards: 1,
-                    redCards: 0
-                },
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: [
-                    { minute: 12, type: 'goal', team: 'home', player: 'Ján Pavlovič', icon: '⚽' },
-                    { minute: 34, type: 'yellow', team: 'away', player: 'Lukáš Kuba', icon: '🟨' },
-                    { minute: 45, type: 'goal', team: 'away', player: 'Jakub Horváth', icon: '⚽' },
-                    { minute: 67, type: 'goal', team: 'home', player: 'Miroslav Boháč', icon: '⚽' },
-                    { minute: 78, type: 'yellow', team: 'home', player: 'Peter Baláž', icon: '🟨' }
-                ]
-            },
-            'match_003': {
-                id: 'match_003',
-                date: '2026-03-10',
-                time: '18:00',
-                homeTeam: 'OŠK Kamenná Poruba',
-                awayTeam: 'FK Detva',
-                homeScore: 3,
-                awayScore: 1,
-                status: 'finished',
-                location: 'Domáci štadión',
-                address: 'Kamenná Poruba, Stadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-3-3',
-                awayFormation: '5-3-2',
-                referee: 'Milan Valent',
-                homeLineup: [],
-                homeStats: {
-                    possession: 62,
-                    shots: 16,
-                    shotsOnTarget: 8,
-                    passes: 520,
-                    accuracy: 85,
-                    tackles: 14,
-                    fouls: 5,
-                    corners: 8,
-                    yellowCards: 1,
-                    redCards: 0
-                },
-                awayStats: {
-                    possession: 38,
-                    shots: 7,
-                    shotsOnTarget: 1,
-                    passes: 300,
-                    accuracy: 75,
-                    tackles: 20,
-                    fouls: 8,
-                    corners: 2,
-                    yellowCards: 2,
-                    redCards: 0
-                },
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: [
-                    { minute: 8, type: 'goal', team: 'home', player: 'Jakub Horváth', icon: '⚽' },
-                    { minute: 23, type: 'goal', team: 'home', player: 'Lukáš Kuba', icon: '⚽' },
-                    { minute: 42, type: 'yellow', team: 'away', player: 'Dalibor Novotný', icon: '🟨' },
-                    { minute: 56, type: 'goal', team: 'away', player: 'Eduard Huss', icon: '⚽' },
-                    { minute: 71, type: 'goal', team: 'home', player: 'Štefan Polák', icon: '⚽' },
-                    { minute: 85, type: 'yellow', team: 'home', player: 'Marko Adamčík', icon: '🟨' }
-                ]
-            },
-            'match_004': {
-                id: 'match_004',
-                date: '2026-03-17',
-                time: '17:30',
-                homeTeam: 'OŠK Kamenná Poruba',
-                awayTeam: 'FK Rimavská Sobota',
-                homeScore: null,
-                awayScore: null,
-                status: 'upcoming',
-                location: 'Domáci štadión',
-                address: 'Kamenná Poruba, Stadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-3-3',
-                awayFormation: '4-4-2',
-                referee: 'Igor Kováč',
-                homeLineup: [],
-                homeStats: null,
-                awayStats: null,
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: []
-            },
-            'match_005': {
-                id: 'match_005',
-                date: '2026-03-24',
-                time: '18:00',
-                homeTeam: 'FK Lučenec',
-                awayTeam: 'OŠK Kamenná Poruba',
-                homeScore: null,
-                awayScore: null,
-                status: 'upcoming',
-                location: 'Vonku',
-                address: 'Lučenec, Mestský štadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-3-3',
-                awayFormation: '4-2-3-1',
-                referee: 'Marián Adamčík',
-                homeLineup: [],
-                homeStats: null,
-                awayStats: null,
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: []
-            },
-            'match_006': {
-                id: 'match_006',
-                date: '2026-03-31',
-                time: '17:00',
-                homeTeam: 'OŠK Kamenná Poruba',
-                awayTeam: 'FK Spišská Nová Ves',
-                homeScore: null,
-                awayScore: null,
-                status: 'upcoming',
-                location: 'Domáci štadión',
-                address: 'Kamenná Poruba, Stadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-3-3',
-                awayFormation: '3-5-2',
-                referee: 'Ľubomír Buzás',
-                homeLineup: [],
-                homeStats: null,
-                awayStats: null,
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: []
-            },
-            'match_007': {
-                id: 'match_007',
-                date: '2026-04-07',
-                time: '18:30',
-                homeTeam: 'FK Revúca',
-                awayTeam: 'OŠK Kamenná Poruba',
-                homeScore: null,
-                awayScore: null,
-                status: 'upcoming',
-                location: 'Vonku',
-                address: 'Revúca, Mestský štadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-4-2',
-                awayFormation: '4-3-3',
-                referee: 'Peter Kraják',
-                homeLineup: [],
-                homeStats: null,
-                awayStats: null,
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: []
-            },
-            'match_008': {
-                id: 'match_008',
-                date: '2026-04-14',
-                time: '17:30',
-                homeTeam: 'OŠK Kamenná Poruba',
-                awayTeam: 'FK Moldava nad Bodvou',
-                homeScore: null,
-                awayScore: null,
-                status: 'upcoming',
-                location: 'Domáci štadión',
-                address: 'Kamenná Poruba, Stadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-3-3',
-                awayFormation: '4-4-2',
-                referee: 'Eduard Valent',
-                homeLineup: [],
-                homeStats: null,
-                awayStats: null,
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: []
-            },
-            'match_009': {
-                id: 'match_009',
-                date: '2026-04-21',
-                time: '18:00',
-                homeTeam: 'FK Poltár',
-                awayTeam: 'OŠK Kamenná Poruba',
-                homeScore: null,
-                awayScore: null,
-                status: 'upcoming',
-                location: 'Vonku',
-                address: 'Poltár, Mestský štadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-2-3-1',
-                awayFormation: '4-3-3',
-                referee: 'Vladimír Ságer',
-                homeLineup: [],
-                homeStats: null,
-                awayStats: null,
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: []
-            },
-            'match_010': {
-                id: 'match_010',
-                date: '2026-04-28',
-                time: '17:00',
-                homeTeam: 'OŠK Kamenná Poruba',
-                awayTeam: 'FK Jelšava',
-                homeScore: null,
-                awayScore: null,
-                status: 'upcoming',
-                location: 'Domáci štadión',
-                address: 'Kamenná Poruba, Stadión',
-                competition: '2. Liga SR - Východ',
-                category: 'dorastenci',
-                homeFormation: '4-3-3',
-                awayFormation: '4-4-2',
-                referee: 'Rastislav Duda',
-                homeLineup: [],
-                homeStats: null,
-                awayStats: null,
-                videoRecordings: {
-                    firstHalf: null,
-                    secondHalf: null
-                },
-                events: []
-            }
-        };
-
         // ====== GLOBÁLNE PREMENNÉ ======
-        let MATCHES = { ...FALLBACK_MATCHES };
+        let MATCHES = {};
         let currentUser = null;
         let SPORTSNET_INFO = {
-            status: 'FALLBACK',
-            source: 'Lokálne dáta',
+            status: 'LOADING',
+            source: 'SportNet API',
             fetchedAt: null,
-            count: Object.keys(FALLBACK_MATCHES).length,
-            cache: 'FALLBACK'
+            count: 0,
+            cache: 'NONE'
         };
-
-        function applyFallbackInfo(status, source, fetchedAt) {
-            MATCHES = { ...FALLBACK_MATCHES };
-            SPORTSNET_INFO = {
-                status,
-                source,
-                fetchedAt: fetchedAt || new Date().toISOString(),
-                count: Object.keys(FALLBACK_MATCHES).length,
-                cache: 'FALLBACK'
-            };
-        }
 
         function resolveApiBase() {
             const host = window.location.hostname;
@@ -1117,11 +787,14 @@
                     payload?.cache === 'BYPASS';
 
                 if (isUnconfigured) {
-                    applyFallbackInfo(
-                        'UNCONFIGURED',
-                        'Lokálne dáta (Sportsnet endpoint nie je nastavený)',
-                        payload?.fetchedAt
-                    );
+                    MATCHES = {};
+                    SPORTSNET_INFO = {
+                        status: 'UNCONFIGURED',
+                        source: 'Sportsnet endpoint nie je nastavený',
+                        fetchedAt: payload?.fetchedAt || new Date().toISOString(),
+                        count: 0,
+                        cache: 'NONE'
+                    };
                     return;
                 }
 
@@ -1147,8 +820,15 @@
 
                 MATCHES = normalizedMatches;
             } catch (error) {
-                applyFallbackInfo('ERROR', 'Lokálne dáta (chyba Sportsnet API)');
-                console.warn('Sportsnet dáta sa nepodarilo načítať, používam fallback.', error);
+                MATCHES = {};
+                SPORTSNET_INFO = {
+                    status: 'ERROR',
+                    source: 'Chyba pri načítaní zo Sportsnet API',
+                    fetchedAt: new Date().toISOString(),
+                    count: 0,
+                    cache: 'NONE'
+                };
+                console.warn('Sportsnet dáta sa nepodarilo načítať.', error);
             }
         }
 
@@ -1163,7 +843,13 @@
             const container = document.getElementById('matchesContainer');
 
             if (Object.keys(MATCHES).length === 0) {
-                container.innerHTML = '<div class="no-matches"><p>Žiadne zápasy na zobrazenie</p></div>';
+                let msg = 'Žiadne zápasy na zobrazenie';
+                if (SPORTSNET_INFO.status === 'ERROR') {
+                    msg = 'Nepodarilo sa načítať zápasy zo Sportsnet API. Skúste neskôr.';
+                } else if (SPORTSNET_INFO.status === 'UNCONFIGURED') {
+                    msg = 'Sportsnet API nie je nakonfigurované. Kontaktujte administrátora.';
+                }
+                container.innerHTML = `<div class="no-matches"><p>${msg}</p></div>`;
                 return;
             }
 
