@@ -807,11 +807,12 @@
                         <label for="trainingCategory">Kategória:</label>
                         <select id="trainingCategory">
                             <option value="">-- Vybrať --</option>
-                            <option value="pripravky">Prípravky (U8-U9)</option>
-                            <option value="ziaci">Žiaci (U12-U15)</option>
-                            <option value="dorastenci">Dorastenci (U16-U19)</option>
-                            <option value="adults_young">Dospelí - Mladí (18-25)</option>
-                            <option value="adults_pro">Dospelí - Skúsení (25+)</option>
+                            <option value="dospeli">Dospelí</option>
+                            <option value="u19_dorast">U19 - Starší dorast</option>
+                            <option value="u15_ziaci">U15 - Starší žiaci</option>
+                            <option value="u13_ziaci">U13 - Mladší žiaci</option>
+                            <option value="u11_pripravka">U11 - Prípravka</option>
+                            <option value="u09_pripravka">U09 - Prípravka</option>
                         </select>
                     </div>
                     <div class="form-group" style="grid-column: 1 / -1;">
@@ -2419,11 +2420,12 @@
                         <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1;">
                             <span>Kategória</span>
                             <select id="editTrainingCategory" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
-                                <option value="pripravky" ${training.category === 'pripravky' ? 'selected' : ''}>Prípravky (U8-U9)</option>
-                                <option value="ziaci" ${training.category === 'ziaci' ? 'selected' : ''}>Žiaci (U10-U12)</option>
-                                <option value="dorastenci" ${training.category === 'dorastenci' ? 'selected' : ''}>Dorastenci (U13-U18)</option>
-                                <option value="adults_young" ${training.category === 'adults_young' ? 'selected' : ''}>Dospelí - Mladí (18-25)</option>
-                                <option value="adults_pro" ${training.category === 'adults_pro' ? 'selected' : ''}>Dospelí - Skúsení (25+)</option>
+                                <option value="dospeli" ${training.category === 'dospeli' ? 'selected' : ''}>Dospelí</option>
+                                <option value="u19_dorast" ${training.category === 'u19_dorast' ? 'selected' : ''}>U19 - Starší dorast</option>
+                                <option value="u15_ziaci" ${training.category === 'u15_ziaci' ? 'selected' : ''}>U15 - Starší žiaci</option>
+                                <option value="u13_ziaci" ${training.category === 'u13_ziaci' ? 'selected' : ''}>U13 - Mladší žiaci</option>
+                                <option value="u11_pripravka" ${training.category === 'u11_pripravka' ? 'selected' : ''}>U11 - Prípravka</option>
+                                <option value="u09_pripravka" ${training.category === 'u09_pripravka' ? 'selected' : ''}>U09 - Prípravka</option>
                             </select>
                         </label>
                         <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1;">
@@ -2633,11 +2635,12 @@
 
         function getCategoryLabel(cat) {
             const cats = {
-                pripravky: 'Prípravky (U8-U9)',
-                ziaci: 'Žiaci (U10-U12)',
-                dorastenci: 'Dorastenci (U13-U18)',
-                adults_young: 'Dospelí - Mladí (18-25)',
-                adults_pro: 'Dospelí - Skúsení (25+)'
+                dospeli: 'Dospelí',
+                u19_dorast: 'U19 - Starší dorast',
+                u15_ziaci: 'U15 - Starší žiaci',
+                u13_ziaci: 'U13 - Mladší žiaci',
+                u11_pripravka: 'U11 - Prípravka',
+                u09_pripravka: 'U09 - Prípravka'
             };
             return cats[cat] || cat;
         }

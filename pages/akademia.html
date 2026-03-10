@@ -265,10 +265,12 @@
         const API_BASE = resolveApiBase();
 
         const CATEGORY_TO_BUCKETS = {
-            pripravka_u9: ['u9'],
-            pripravka_u11: ['u11'],
-            ziaci: ['u13', 'u15'],
-            dorastenci: ['u17', 'u19']
+            dospeli: ['dospeli'],
+            u19_dorast: ['u19'],
+            u15_ziaci: ['u15'],
+            u13_ziaci: ['u13'],
+            u11_pripravka: ['u11'],
+            u09_pripravka: ['u9']
         };
 
         function renderPlayersToList(listId, names) {

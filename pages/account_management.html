@@ -420,12 +420,12 @@
                     <label for="newCategory">Kategória hráča</label>
                     <select id="newCategory">
                         <option value="">—</option>
-                        <option value="pripravka_u9">Prípravka U9</option>
-                        <option value="pripravka_u11">Prípravka U11</option>
-                        <option value="ziaci">Žiaci</option>
-                        <option value="dorastenci">Dorastenci</option>
-                        <option value="adults_young">Dospelí - Mladí</option>
-                        <option value="adults_pro">Dospelí - Skúsení</option>
+                        <option value="dospeli">Dospelí</option>
+                        <option value="u19_dorast">U19 - Starší dorast</option>
+                        <option value="u15_ziaci">U15 - Starší žiaci</option>
+                        <option value="u13_ziaci">U13 - Mladší žiaci</option>
+                        <option value="u11_pripravka">U11 - Prípravka</option>
+                        <option value="u09_pripravka">U09 - Prípravka</option>
                     </select>
                 </div>
                 <div>
@@ -530,12 +530,12 @@
             <label for="editCategorySelect" style="margin-top:10px;">Kategória hráča</label>
             <select id="editCategorySelect">
                 <option value="">—</option>
-                <option value="pripravka_u9">Prípravka U9</option>
-                <option value="pripravka_u11">Prípravka U11</option>
-                <option value="ziaci">Žiaci</option>
-                <option value="dorastenci">Dorastenci</option>
-                <option value="adults_young">Dospelí - Mladí</option>
-                <option value="adults_pro">Dospelí - Skúsení</option>
+                <option value="dospeli">Dospelí</option>
+                <option value="u19_dorast">U19 - Starší dorast</option>
+                <option value="u15_ziaci">U15 - Starší žiaci</option>
+                <option value="u13_ziaci">U13 - Mladší žiaci</option>
+                <option value="u11_pripravka">U11 - Prípravka</option>
+                <option value="u09_pripravka">U09 - Prípravka</option>
             </select>
             <label for="editShirtNumberInput" style="margin-top:10px;">Číslo dresu</label>
             <input id="editShirtNumberInput" type="number" min="1" max="99" step="1" placeholder="napr. 10" />
@@ -617,12 +617,12 @@
 
         function categoryLabel(value) {
             const map = {
-                pripravka_u9: 'Prípravka U9',
-                pripravka_u11: 'Prípravka U11',
-                ziaci: 'Žiaci',
-                dorastenci: 'Dorastenci',
-                adults_young: 'Dospelí - Mladí',
-                adults_pro: 'Dospelí - Skúsení'
+                dospeli: 'Dospelí',
+                u19_dorast: 'U19 - Starší dorast',
+                u15_ziaci: 'U15 - Starší žiaci',
+                u13_ziaci: 'U13 - Mladší žiaci',
+                u11_pripravka: 'U11 - Prípravka',
+                u09_pripravka: 'U09 - Prípravka'
             };
             return map[value] || '—';
         }
