@@ -17,6 +17,7 @@ const playersRoutes = require('./routes/players.routes');
 const sportsnetRoutes = require('./routes/sportsnet.routes');
 const contactRoutes = require('./routes/contact.routes');
 const instagramRoutes = require('./routes/instagram.routes');
+const groupsRoutes = require('./routes/groups.routes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -124,6 +125,8 @@ app.use('/api/contact', contactRoutes);
 app.use('/contact', contactRoutes);
 app.use('/api/instagram', instagramRoutes);
 app.use('/instagram', instagramRoutes);
+app.use('/api/groups', groupsRoutes);
+app.use('/groups', groupsRoutes);
 
 app.get('/', (req, res) => {
   return res.json({

@@ -61,6 +61,7 @@ enum AuditEntityType {
   announcement
   poll
   blog_post
+  player_group
 }
 
 model User {
@@ -84,6 +85,7 @@ model User {
   auditLogs            AuditLog[]     @relation("AuditActor")
   parentChildren       ParentChild[]  @relation("ParentChildren")
   childParents         ParentChild[]  @relation("ChildParents")
+  playerGroupsCreated  PlayerGroup[]  @relation("PlayerGroupsCreatedBy")
 }
 
 model ParentChild {
@@ -179,6 +181,8 @@ model Announcement {
   target    TargetGroup
   playerCategory PlayerCategory?
   important Boolean     @default(false)
+  isPublic  Boolean     @default(false)
+  imageUrl  String?
   createdAt DateTime    @default(now())
 
   createdById String
@@ -235,4 +239,30 @@ model AuditLog {
 
   @@index([createdAt])
   @@index([entityType])
+}
+
+model PlayerGroup {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  createdById String
+  createdBy   User @relation("PlayerGroupsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  members PlayerGroupMember[]
+
+  @@index([createdAt])
+}
+
+model PlayerGroupMember {
+  id        String   @id @default(cuid())
+  playerUsername String
+  createdAt DateTime @default(now())
+
+  groupId String
+  group   PlayerGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, playerUsername])
+  @@index([groupId])
+  @@index([playerUsername])
 }

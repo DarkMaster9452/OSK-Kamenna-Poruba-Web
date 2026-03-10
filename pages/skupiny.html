@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skupiny hráčov | OŠK Kamenná Poruba</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+        }
+
+        .site-nav {
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: #fff;
+            padding: 0 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .site-nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            min-height: 72px;
+        }
+
+        .site-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .site-brand:hover {
+            color: #ffd700;
+        }
+
+        .site-logo {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            padding: 2px;
+        }
+
+        .btn-back {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .btn-back:hover {
+            color: #ffd700;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 0 16px 24px;
+        }
+
+        .page-title {
+            margin: 0 0 24px;
+            font-size: 30px;
+            color: #003399;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin: 0 0 16px;
+            color: #003399;
+        }
+
+        /* Create group form */
+        .form-row {
+            margin-bottom: 14px;
+        }
+
+        .form-row label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .form-row input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        .form-row input[type="text"]:focus {
+            border-color: #003399;
+            outline: none;
+        }
+
+        .player-checklist {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #eee;
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .player-check-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .player-check-item:hover {
+            background: #f0f4ff;
+        }
+
+        .player-check-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #003399;
+        }
+
+        .player-check-item label {
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #003399;
+            color: #ffd700;
+        }
+
+        .btn-primary:hover {
+            background: #1a5ccc;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+            padding: 6px 14px;
+            font-size: 13px;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* Group cards */
+        .group-card {
+            background: #f8f9fc;
+            border-left: 4px solid #ffd700;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+
+        .group-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .group-card-title {
+            font-weight: 700;
+            color: #003399;
+            font-size: 17px;
+        }
+
+        .group-card-meta {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .group-card-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .member-tag {
+            background: #003399;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .muted {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .msg {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .msg.success {
+            background: #eaf7ee;
+            border: 1px solid #2e7d32;
+            color: #1b5e20;
+            display: block;
+        }
+
+        .msg.error {
+            background: #fdecec;
+            border: 1px solid #c62828;
+            color: #8b1f1f;
+            display: block;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+
+        .search-input:focus {
+            border-color: #003399;
+            outline: none;
+        }
+
+        @media (max-width: 700px) {
+            .site-nav {
+                padding: 0 14px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/png" href="/assets/images/O%C5%A0K%20Kamenn%C3%A1%20Poruba%20Logo.png">
+</head>
+
+<body>
+    <header class="site-nav">
+        <div class="site-nav-inner">
+            <a class="site-brand" href="/index.html" aria-label="Prejsť na hlavnú stránku">
+                <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="Logo OŠK Kamenná Poruba" class="site-logo">
+                <span>OŠK Kamenná Poruba</span>
+            </a>
+            <a class="btn-back" href="/index.html"><i class="fas fa-arrow-left"></i> Späť na hlavnú stránku</a>
+        </div>
+    </header>
+
+    <main>
+        <h1 class="page-title"><i class="fas fa-layer-group"></i> Skupiny hráčov</h1>
+
+        <div id="authGate" class="card" style="text-align:center;">
+            <p class="muted">Overujem prihlásenie…</p>
+        </div>
+
+        <div id="mainContent" style="display:none;">
+            <!-- Create group -->
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> Vytvoriť novú skupinu</h3>
+                <div id="createMsg" class="msg"></div>
+                <div class="form-row">
+                    <label for="groupName">Názov skupiny</label>
+                    <input type="text" id="groupName" placeholder="Napr. U15 útok, Brankári…" maxlength="100">
+                </div>
+                <div class="form-row">
+                    <label>Vyber hráčov</label>
+                    <input type="text" class="search-input" id="playerSearch" placeholder="Hľadať hráča…">
+                    <div class="player-checklist" id="playerChecklist">
+                        <span class="muted">Načítavam hráčov…</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="createGroupBtn" disabled>
+                    <i class="fas fa-save"></i> Vytvoriť skupinu
+                </button>
+            </div>
+
+            <!-- Existing groups -->
+            <div class="card">
+                <h3><i class="fas fa-list"></i> Existujúce skupiny</h3>
+                <div id="groupsList">
+                    <span class="muted">Načítavam…</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        /* ===== API ===== */
+        function resolveApiBase() {
+            var host = window.location.hostname;
+            if (host === 'localhost' || host === '127.0.0.1') {
+                return 'http://localhost:4000/api';
+            }
+            var raw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
+            var configured = String(raw || '').trim();
+            if (configured) {
+                var n = configured.replace(/\/+$/, '');
+                return n.endsWith('/api') ? n : n + '/api';
+            }
+            return '/api';
+        }
+        var API_BASE = resolveApiBase();
+        var csrfTokenCache = null;
+
+        async function ensureCsrfToken() {
+            if (csrfTokenCache) return csrfTokenCache;
+            var res = await fetch(API_BASE + '/csrf-token', { method: 'GET', credentials: 'include' });
+            var data = await res.json();
+            csrfTokenCache = data.csrfToken;
+            return csrfTokenCache;
+        }
+
+        async function fetchSession() {
+            var res = await fetch(API_BASE + '/me', { method: 'GET', credentials: 'include' });
+            if (!res.ok) return null;
+            var data = await res.json();
+            return data.user || null;
+        }
+
+        /* ===== STATE ===== */
+        var allPlayers = [];
+        var groups = [];
+
+        /* ===== PLAYER NAMES ===== */
+        function toFullName(username) {
+            return String(username || '')
+                .replace(/[_.]/g, ' ')
+                .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        }
+
+        /* ===== LOAD PLAYERS ===== */
+        async function loadPlayers() {
+            var res = await fetch(API_BASE + '/players', { method: 'GET', credentials: 'include' });
+            if (!res.ok) return;
+            var data = await res.json();
+            allPlayers = Array.isArray(data.items) ? data.items : [];
+            allPlayers.sort(function (a, b) {
+                return (a.fullName || a.username).localeCompare(b.fullName || b.username, 'sk');
+            });
+            renderPlayerChecklist('');
+        }
+
+        function renderPlayerChecklist(filter) {
+            var container = document.getElementById('playerChecklist');
+            var lowerFilter = filter.toLowerCase();
+            var filtered = allPlayers.filter(function (p) {
+                var name = (p.fullName || p.username).toLowerCase();
+                return !lowerFilter || name.includes(lowerFilter);
+            });
+
+            if (!filtered.length) {
+                container.innerHTML = '<span class="muted">Žiadni hráči nenájdení.</span>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(function (p) {
+                var displayName = p.fullName || toFullName(p.username);
+                var catLabel = getCategoryLabel(p.category);
+                return '<div class="player-check-item">' +
+                    '<input type="checkbox" id="chk_' + p.username + '" value="' + p.username + '">' +
+                    '<label for="chk_' + p.username + '">' + displayName + ' <span style="color:#888;font-size:12px;">(' + catLabel + ')</span></label>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function getCategoryLabel(cat) {
+            var labels = {
+                'pripravka_u9': 'U9',
+                'pripravka_u11': 'U11',
+                'ziaci': 'Žiaci',
+                'dorastenci': 'Dorastenci',
+                'adults_young': 'Dospelí ML',
+                'adults_pro': 'Dospelí SK'
+            };
+            return labels[cat] || cat || '';
+        }
+
+        function getSelectedUsernames() {
+            var checks = document.querySelectorAll('#playerChecklist input[type="checkbox"]:checked');
+            return Array.from(checks).map(function (c) { return c.value; });
+        }
+
+        /* ===== CREATE GROUP ===== */
+        async function createGroup() {
+            var nameInput = document.getElementById('groupName');
+            var name = nameInput.value.trim();
+            var usernames = getSelectedUsernames();
+            var msgDiv = document.getElementById('createMsg');
+
+            if (!name || name.length < 2) {
+                msgDiv.className = 'msg error';
+                msgDiv.textContent = 'Zadaj názov skupiny (aspoň 2 znaky).';
+                return;
+            }
+            if (!usernames.length) {
+                msgDiv.className = 'msg error';
+                msgDiv.textContent = 'Vyber aspoň jedného hráča.';
+                return;
+            }
+
+            var btn = document.getElementById('createGroupBtn');
+            btn.disabled = true;
+
+            try {
+                var csrf = await ensureCsrfToken();
+                var res = await fetch(API_BASE + '/groups', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrf
+                    },
+                    body: JSON.stringify({ name: name, playerUsernames: usernames })
+                });
+
+                if (!res.ok) {
+                    var err = await res.json().catch(function () { return {}; });
+                    throw new Error(err.message || 'Nepodarilo sa vytvoriť skupinu.');
+                }
+
+                msgDiv.className = 'msg success';
+                msgDiv.textContent = 'Skupina "' + name + '" bola vytvorená.';
+                nameInput.value = '';
+                document.querySelectorAll('#playerChecklist input[type="checkbox"]').forEach(function (c) { c.checked = false; });
+                await loadGroups();
+            } catch (e) {
+                msgDiv.className = 'msg error';
+                msgDiv.textContent = e.message || 'Chyba pri vytváraní skupiny.';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        /* ===== LOAD GROUPS ===== */
+        async function loadGroups() {
+            var container = document.getElementById('groupsList');
+            try {
+                var res = await fetch(API_BASE + '/groups', { method: 'GET', credentials: 'include' });
+                if (!res.ok) throw new Error('Chyba');
+                var data = await res.json();
+                groups = Array.isArray(data.items) ? data.items : [];
+                renderGroups();
+            } catch (e) {
+                container.innerHTML = '<span class="muted">Nepodarilo sa načítať skupiny.</span>';
+            }
+        }
+
+        function renderGroups() {
+            var container = document.getElementById('groupsList');
+            if (!groups.length) {
+                container.innerHTML = '<span class="muted">Žiadne skupiny zatiaľ neboli vytvorené.</span>';
+                return;
+            }
+
+            container.innerHTML = groups.map(function (g) {
+                var members = g.playerUsernames.map(function (u) {
+                    var player = allPlayers.find(function (p) { return p.username === u; });
+                    var displayName = player ? (player.fullName || toFullName(u)) : toFullName(u);
+                    return '<span class="member-tag">' + displayName + '</span>';
+                }).join('');
+
+                var date = new Date(g.createdAt);
+                var dateStr = date.toLocaleDateString('sk-SK');
+
+                return '<div class="group-card">' +
+                    '<div class="group-card-header">' +
+                    '<span class="group-card-title">' + g.name + '</span>' +
+                    '<button class="btn btn-danger" onclick="deleteGroup(\'' + g.id + '\', \'' + g.name.replace(/'/g, "\\'") + '\')">' +
+                    '<i class="fas fa-trash"></i> Zmazať</button>' +
+                    '</div>' +
+                    '<div class="group-card-meta">Vytvoril: ' + toFullName(g.createdBy) + ' | ' + dateStr + ' | ' + g.playerUsernames.length + ' hráčov</div>' +
+                    '<div class="group-card-members">' + members + '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        /* ===== DELETE GROUP ===== */
+        async function deleteGroup(id, name) {
+            if (!confirm('Naozaj chceš zmazať skupinu "' + name + '"?')) return;
+
+            try {
+                var csrf = await ensureCsrfToken();
+                var res = await fetch(API_BASE + '/groups/' + id + '/delete', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrf
+                    }
+                });
+
+                if (!res.ok && res.status !== 204) {
+                    throw new Error('Nepodarilo sa zmazať skupinu.');
+                }
+
+                await loadGroups();
+            } catch (e) {
+                alert(e.message || 'Chyba pri mazaní skupiny.');
+            }
+        }
+
+        /* ===== SEARCH ===== */
+        document.getElementById('playerSearch').addEventListener('input', function () {
+            renderPlayerChecklist(this.value);
+        });
+
+        /* ===== CREATE BUTTON ===== */
+        document.getElementById('createGroupBtn').addEventListener('click', createGroup);
+
+        /* ===== INIT ===== */
+        (async function () {
+            await ensureCsrfToken().catch(function () { });
+            var user = await fetchSession();
+            var gate = document.getElementById('authGate');
+            var main = document.getElementById('mainContent');
+
+            if (!user || (user.role !== 'coach' && user.role !== 'admin')) {
+                gate.innerHTML = '<p style="color:#e74c3c;font-weight:bold;">Prístup je povolený len trénerom a administrátorom.</p>' +
+                    '<p><a href="/index.html" style="color:#003399;">Späť na hlavnú stránku</a></p>';
+                return;
+            }
+
+            gate.style.display = 'none';
+            main.style.display = '';
+            document.getElementById('createGroupBtn').disabled = false;
+
+            await Promise.all([loadPlayers(), loadGroups()]);
+        })();
+    </script>
+</body>
+
+</html>

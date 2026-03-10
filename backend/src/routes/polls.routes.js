@@ -88,6 +88,9 @@ async function ensurePollClosedIfExpired(poll) {
 }
 
 router.get('/', requireAuth, async (req, res) => {
+  if (req.user.role === 'blogger') {
+    return res.status(403).json({ message: 'Nemáte oprávnenie na zobrazenie ankiet.' });
+  }
   const rows = await listPolls();
   const rowsWithState = await Promise.all(rows.map((row) => ensurePollClosedIfExpired(row)));
   const visibleRows = rowsWithState.filter((row) => {

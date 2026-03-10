@@ -335,6 +335,9 @@ async function resolveAttendanceTargetUsername(user, requestedUsername) {
 }
 
 router.get('/', requireAuth, async (req, res) => {
+  if (req.user.role === 'blogger') {
+    return res.status(403).json({ message: 'Nemáte oprávnenie na zobrazenie tréningov.' });
+  }
   try {
     const rows = await listTrainings(req.user);
     const items = rows.map((row) => ({
@@ -544,8 +547,10 @@ router.patch('/:id', requireAuth, requireRole('coach', 'admin'), validateBody(up
 router.post('/:id/update', requireAuth, requireRole('coach', 'admin'), validateBody(updateTrainingSchema), handleUpdateTraining);
 
 router.post('/:id/attendance', requireAuth, validateBody(attendanceSchema), async (req, res) => {
+  if (req.user.role === 'blogger') {
+    return res.status(403).json({ message: 'Nemáte oprávnenie na túto akciu.' });
+  }
   try {
-    const training = await findTrainingById(req.params.id);
     if (!training) {
       return res.status(404).json({ message: 'Tréning neexistuje.' });
     }

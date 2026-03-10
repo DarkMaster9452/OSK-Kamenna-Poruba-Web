@@ -393,6 +393,14 @@
                         <label><input id="noticeImportant" type="checkbox" style="width:auto;vertical-align:middle;">
                             Dôležité</label>
                     </div>
+                    <div class="form-group">
+                        <label><input id="noticePublic" type="checkbox" style="width:auto;vertical-align:middle;">
+                            Verejný oznam (zobrazí sa na hlavnej stránke aj pre neprihlásených)</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="noticeImageUrl">URL obrázka (voliteľné)</label>
+                        <input id="noticeImageUrl" type="url" placeholder="https://...">
+                    </div>
                     <button class="btn" onclick="createNotice()"><i class="fas fa-plus"></i> Pridať oznámenie</button>
                 </div>
 
@@ -692,6 +700,9 @@
             const playerCategoryRaw = document.getElementById('noticePlayerCategory').value;
             const playerCategory = target === 'players' && playerCategoryRaw ? playerCategoryRaw : null;
             const important = document.getElementById('noticeImportant').checked;
+            const isPublic = document.getElementById('noticePublic').checked;
+            const imageUrlVal = document.getElementById('noticeImageUrl').value.trim();
+            const imageUrl = imageUrlVal || null;
 
             if (!title || !message) {
                 alert('Vyplňte nadpis aj správu.');
@@ -705,7 +716,7 @@
                     headers: {
                         'x-csrf-token': csrfToken
                     },
-                    body: JSON.stringify({ title, message, target, playerCategory, important })
+                    body: JSON.stringify({ title, message, target, playerCategory, important, isPublic, imageUrl })
                 });
                 notices.unshift(payload.item);
             } catch (error) {
@@ -717,6 +728,8 @@
             document.getElementById('noticeMessage').value = '';
             document.getElementById('noticePlayerCategory').value = '';
             document.getElementById('noticeImportant').checked = false;
+            document.getElementById('noticePublic').checked = false;
+            document.getElementById('noticeImageUrl').value = '';
             renderEvents();
         }
 

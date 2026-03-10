@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galéria | OŠK Kamenná Poruba</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+        }
+
+        .site-nav {
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: #fff;
+            padding: 0 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .site-nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            min-height: 72px;
+        }
+
+        .site-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .site-brand:hover {
+            color: #ffd700;
+        }
+
+        .site-logo {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            padding: 2px;
+        }
+
+        .btn-back {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .btn-back:hover {
+            color: #ffd700;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px 24px;
+        }
+
+        .page-title {
+            margin: 0 0 24px;
+            font-size: 30px;
+            color: #003399;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Tabs for album selection */
+        .album-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .album-tab {
+            padding: 8px 18px;
+            border: 2px solid #003399;
+            border-radius: 20px;
+            background: #fff;
+            color: #003399;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .album-tab:hover {
+            background: #e8eef8;
+        }
+
+        .album-tab.active {
+            background: #003399;
+            color: #ffd700;
+        }
+
+        /* Gallery Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+        }
+
+        .gallery-item {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-caption {
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .gallery-caption-link {
+            color: #003399;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .gallery-caption-link:hover {
+            text-decoration: underline;
+        }
+
+        .gallery-actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .gallery-load-more-btn {
+            padding: 10px 28px;
+            background: #003399;
+            color: #ffd700;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .gallery-load-more-btn:hover {
+            background: #1a5ccc;
+        }
+
+        .instagram-status {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: #888;
+            padding: 40px 0;
+            font-size: 16px;
+        }
+
+        /* Modal */
+        .gallery-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gallery-modal.open {
+            display: flex !important;
+        }
+
+        .gallery-modal img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+            background: #fff;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2100;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #ffd700;
+        }
+
+        .modal-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.92);
+            color: #003399;
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            z-index: 2100;
+            border: 2px solid #ffd700;
+            transition: background 0.2s, border 0.2s;
+        }
+
+        .modal-arrow:hover {
+            background: #ffd700;
+            border-color: #003399;
+        }
+
+        .modal-arrow.prev {
+            left: 40px;
+        }
+
+        .modal-arrow.next {
+            right: 40px;
+        }
+
+        @media (max-width: 700px) {
+            .site-nav {
+                padding: 0 14px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 8px;
+            }
+
+            .gallery-image {
+                height: 160px;
+            }
+
+            .modal-arrow {
+                width: 40px;
+                height: 40px;
+            }
+
+            .modal-arrow.prev {
+                left: 10px;
+            }
+
+            .modal-arrow.next {
+                right: 10px;
+            }
+
+            .modal-close {
+                top: 14px;
+                right: 18px;
+                font-size: 36px;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/png" href="/assets/images/O%C5%A0K%20Kamenn%C3%A1%20Poruba%20Logo.png">
+</head>
+
+<body>
+    <header class="site-nav">
+        <div class="site-nav-inner">
+            <a class="site-brand" href="/index.html" aria-label="Prejsť na hlavnú stránku">
+                <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="Logo OŠK Kamenná Poruba" class="site-logo">
+                <span>OŠK Kamenná Poruba</span>
+            </a>
+            <a class="btn-back" href="/index.html"><i class="fas fa-arrow-left"></i> Späť na hlavnú stránku</a>
+        </div>
+    </header>
+
+    <main>
+        <h1 class="page-title"><i class="fas fa-images"></i> Galéria</h1>
+
+        <div class="album-tabs" id="albumTabs">
+            <button class="album-tab active" data-album="all">Všetky</button>
+            <button class="album-tab" data-album="instagram">Instagram</button>
+            <button class="album-tab" data-album="historia">História</button>
+            <button class="album-tab" data-album="2024-tribuny">2024 Tribúny</button>
+            <button class="album-tab" data-album="2023-pristresok">2023 Prístrešok</button>
+            <button class="album-tab" data-album="2023-siet">2023 Sieť</button>
+            <button class="album-tab" data-album="zapasy">Zápasy / Klub</button>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid"></div>
+
+        <div class="gallery-actions">
+            <button type="button" class="gallery-load-more-btn" id="loadMoreBtn" hidden>Načítať viac</button>
+            <p class="instagram-status" id="statusText" hidden></p>
+        </div>
+    </main>
+
+    <!-- Zoom modal -->
+    <div class="gallery-modal" id="galleryModal">
+        <span class="modal-close" id="modalClose">&times;</span>
+        <span class="modal-arrow prev" id="modalPrev">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <polyline points="20,8 12,16 20,24" stroke="#003399" stroke-width="3.5" stroke-linecap="round"
+                    stroke-linejoin="round" fill="none" />
+            </svg>
+        </span>
+        <span class="modal-arrow next" id="modalNext">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <polyline points="12,8 20,16 12,24" stroke="#003399" stroke-width="3.5" stroke-linecap="round"
+                    stroke-linejoin="round" fill="none" />
+            </svg>
+        </span>
+        <img id="modalImg" src="" alt="Zoom">
+    </div>
+
+    <script>
+        /* ===== API BASE ===== */
+        function resolveApiBase() {
+            const host = window.location.hostname;
+            if (host === 'localhost' || host === '127.0.0.1') {
+                return 'http://localhost:4000/api';
+            }
+            const raw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
+            const configured = String(raw || '').trim();
+            if (configured) {
+                const n = configured.replace(/\/+$/, '');
+                return n.endsWith('/api') ? n : `${n}/api`;
+            }
+            return '/api';
+        }
+        const API_BASE = resolveApiBase();
+
+        /* ===== LOCAL ALBUM DATA ===== */
+        const LOCAL_ALBUMS = {
+            historia: [
+                '/assets/images/HISTORIA/100_1314.JPG',
+                '/assets/images/HISTORIA/100_2855.JPG',
+                '/assets/images/HISTORIA/100_2857.JPG',
+                '/assets/images/HISTORIA/dorast.JPG',
+                '/assets/images/HISTORIA/DSC_0227.JPG',
+                '/assets/images/HISTORIA/DSC_0488.JPG',
+                '/assets/images/HISTORIA/img004 upr 2.jpg',
+                '/assets/images/HISTORIA/img005 upr 3.jpg',
+                '/assets/images/HISTORIA/img006 upr 4.jpg',
+                '/assets/images/HISTORIA/img007 upr 5.jpg',
+                '/assets/images/HISTORIA/img008 upr 6.jpg',
+                '/assets/images/HISTORIA/img009 upr 7.jpg',
+                '/assets/images/HISTORIA/img010 upr.jpg',
+                '/assets/images/HISTORIA/img013 upr 1.jpg',
+                '/assets/images/HISTORIA/img016 upr8.jpg',
+                '/assets/images/HISTORIA/img017 upr 9.jpg',
+                '/assets/images/HISTORIA/img018 upr 10.jpg',
+                '/assets/images/HISTORIA/img019 upr.jpg',
+                '/assets/images/HISTORIA/img021.jpg',
+                '/assets/images/HISTORIA/img192.jpg',
+                '/assets/images/HISTORIA/img193.jpg',
+                '/assets/images/HISTORIA/P8270140.JPG',
+                '/assets/images/HISTORIA/Plagat OŠK.jpg',
+                '/assets/images/HISTORIA/Spoločná fotka muži.JPG',
+                '/assets/images/HISTORIA/ST.Ž..jpg'
+            ],
+            '2024-tribuny': [
+                '/assets/images/2024 tribuny/459462f5-9449-4d0b-a77f-a1809ddd4700.jpg',
+                '/assets/images/2024 tribuny/9b614a75-dbfa-44ea-89f4-99932e1d3658.jpg',
+                '/assets/images/2024 tribuny/a74b9d59-9366-4c43-aeeb-3c2be2bb8e90.jpg',
+                '/assets/images/2024 tribuny/f7f854d6-01aa-4544-80ee-8dc4c8d82b89.jpg'
+            ],
+            '2023-pristresok': [],
+            '2023-siet': [],
+            zapasy: [
+                '/assets/images/10750142878023431842.jpg',
+                '/assets/images/2.jpg',
+                '/assets/images/508120564_29838519272462811_2048504803720081817_n.jpg',
+                '/assets/images/508433324_29841234952191243_3332785514084510977_n.jpg',
+                '/assets/images/508538663_29841234848857920_7529913858397432447_n.jpg',
+                '/assets/images/51597284815_c985abef70_b.jpg',
+                '/assets/images/IMG_5259-Enhanced-NR-1024x683.jpg',
+                '/assets/images/memorial-milana-smehyla-pre-favorizovanu-kamennu-porubu-117368.1920x1080t.jpg',
+                '/assets/images/memorial-milana-smehyla-pre-favorizovanu-kamennu-porubu-13661.1920x1080t.jpg',
+                '/assets/images/rozhovor-kamenna-poruba-okusi-prvykrat-v-historii-klubu-krajsku-sutaz-117322.1920x1080t.jpg'
+            ]
+        };
+
+        /* ===== STATE ===== */
+        let instagramItems = [];
+        let currentAlbum = 'all';
+        let currentImgIdx = 0;
+        const PAGE_SIZE = 20;
+        let renderedCount = 0;
+        let itemsToShow = [];
+
+        /* ===== HELPERS ===== */
+        function makeLocalItem(src, album) {
+            const parts = src.split('/');
+            const name = decodeURIComponent(parts[parts.length - 1]).replace(/\.[^.]+$/, '');
+            return { src, alt: name, album, type: 'local' };
+        }
+
+        function makeInstagramItem(item) {
+            return {
+                src: item.imageUrl,
+                alt: item.caption ? String(item.caption).slice(0, 150) : 'Instagram',
+                album: 'instagram',
+                type: 'instagram',
+                permalink: item.permalink || null
+            };
+        }
+
+        function getAllLocalItems() {
+            const items = [];
+            Object.keys(LOCAL_ALBUMS).forEach(function (album) {
+                LOCAL_ALBUMS[album].forEach(function (src) {
+                    items.push(makeLocalItem(src, album));
+                });
+            });
+            return items;
+        }
+
+        /* ===== RENDER ===== */
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+            renderedCount = 0;
+
+            if (currentAlbum === 'all') {
+                itemsToShow = getAllLocalItems().concat(instagramItems.map(makeInstagramItem));
+            } else if (currentAlbum === 'instagram') {
+                itemsToShow = instagramItems.map(makeInstagramItem);
+            } else {
+                itemsToShow = (LOCAL_ALBUMS[currentAlbum] || []).map(function (src) {
+                    return makeLocalItem(src, currentAlbum);
+                });
+            }
+
+            if (!itemsToShow.length) {
+                grid.innerHTML = '<div class="empty-msg">Žiadne fotky v tomto albume.</div>';
+                document.getElementById('loadMoreBtn').hidden = true;
+                return;
+            }
+
+            renderNextBatch();
+        }
+
+        function renderNextBatch() {
+            const grid = document.getElementById('galleryGrid');
+            const batch = itemsToShow.slice(renderedCount, renderedCount + PAGE_SIZE);
+            const fragment = document.createDocumentFragment();
+
+            batch.forEach(function (item) {
+                var wrapper = document.createElement('div');
+                wrapper.className = 'gallery-item';
+
+                var img = document.createElement('img');
+                img.className = 'gallery-image';
+                img.src = item.src;
+                img.alt = item.alt;
+                img.loading = 'lazy';
+                wrapper.appendChild(img);
+
+                if (item.type === 'instagram') {
+                    var cap = document.createElement('div');
+                    cap.className = 'gallery-caption';
+                    cap.textContent = item.alt;
+                    if (item.permalink) {
+                        var br = document.createElement('br');
+                        cap.appendChild(br);
+                        var a = document.createElement('a');
+                        a.className = 'gallery-caption-link';
+                        a.href = item.permalink;
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.textContent = 'Pozrieť na Instagrame';
+                        cap.appendChild(a);
+                    }
+                    wrapper.appendChild(cap);
+                }
+
+                fragment.appendChild(wrapper);
+            });
+
+            grid.appendChild(fragment);
+            renderedCount += batch.length;
+
+            var btn = document.getElementById('loadMoreBtn');
+            btn.hidden = renderedCount >= itemsToShow.length;
+        }
+
+        /* ===== INSTAGRAM FEED ===== */
+        async function loadInstagramFeed() {
+            var status = document.getElementById('statusText');
+            try {
+                status.hidden = false;
+                status.textContent = 'Načítavam Instagram príspevky…';
+
+                var endpoints = [
+                    API_BASE + '/instagram/feed?all=true',
+                    '/api/instagram/feed?all=true'
+                ];
+                var response = null;
+                for (var i = 0; i < endpoints.length; i++) {
+                    try {
+                        var r = await fetch(endpoints[i], { method: 'GET' });
+                        if (r.ok) { response = r; break; }
+                    } catch (_) { }
+                }
+
+                if (!response) {
+                    status.textContent = 'Instagram feed sa momentálne nepodarilo načítať.';
+                    return;
+                }
+
+                var payload = await response.json();
+                var items = Array.isArray(payload && payload.items) ? payload.items : [];
+                instagramItems = items.filter(function (it) { return it && it.imageUrl; });
+
+                status.textContent = instagramItems.length
+                    ? 'Instagram: ' + instagramItems.length + ' príspevkov načítaných.'
+                    : 'Instagram zatiaľ nevrátil žiadne príspevky.';
+            } catch (e) {
+                status.textContent = 'Instagram feed sa momentálne nepodarilo načítať.';
+            }
+        }
+
+        /* ===== TABS ===== */
+        document.getElementById('albumTabs').addEventListener('click', function (e) {
+            var tab = e.target.closest('.album-tab');
+            if (!tab) return;
+            document.querySelectorAll('.album-tab').forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            currentAlbum = tab.dataset.album;
+            renderGallery();
+        });
+
+        /* ===== LOAD MORE ===== */
+        document.getElementById('loadMoreBtn').addEventListener('click', function () {
+            renderNextBatch();
+        });
+
+        /* ===== MODAL ===== */
+        var modal = document.getElementById('galleryModal');
+        var modalImg = document.getElementById('modalImg');
+
+        function getVisibleImages() {
+            return Array.from(document.querySelectorAll('.gallery-image'));
+        }
+
+        function showModal(idx) {
+            var imgs = getVisibleImages();
+            if (!imgs.length) return;
+            if (idx < 0) idx = imgs.length - 1;
+            if (idx >= imgs.length) idx = 0;
+            currentImgIdx = idx;
+            modalImg.src = imgs[idx].src;
+            modalImg.alt = imgs[idx].alt;
+            modal.classList.add('open');
+        }
+
+        document.getElementById('galleryGrid').addEventListener('click', function (e) {
+            var img = e.target.closest('.gallery-image');
+            if (!img) return;
+            var all = getVisibleImages();
+            showModal(all.indexOf(img));
+        });
+
+        document.getElementById('modalClose').addEventListener('click', function () {
+            modal.classList.remove('open');
+            modalImg.src = '';
+        });
+
+        document.getElementById('modalPrev').addEventListener('click', function (e) {
+            e.stopPropagation();
+            showModal(currentImgIdx - 1);
+        });
+
+        document.getElementById('modalNext').addEventListener('click', function (e) {
+            e.stopPropagation();
+            showModal(currentImgIdx + 1);
+        });
+
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                modal.classList.remove('open');
+                modalImg.src = '';
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (!modal.classList.contains('open')) return;
+            if (e.key === 'ArrowLeft') showModal(currentImgIdx - 1);
+            else if (e.key === 'ArrowRight') showModal(currentImgIdx + 1);
+            else if (e.key === 'Escape') { modal.classList.remove('open'); modalImg.src = ''; }
+        });
+
+        /* ===== INIT ===== */
+        (async function () {
+            await loadInstagramFeed();
+            renderGallery();
+        })();
+    </script>
+</body>
+
+</html>

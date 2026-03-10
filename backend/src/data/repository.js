@@ -1283,6 +1283,26 @@ async function deleteAnnouncement(id) {
   });
 }
 
+async function listPublicAnnouncements() {
+  try {
+    return await prisma.announcement.findMany({
+      where: { isPublic: true },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: {
+        createdBy: {
+          select: { username: true }
+        }
+      }
+    });
+  } catch (error) {
+    if (String(error.message).includes('isPublic') || String(error.message).includes('Unknown arg')) {
+      return [];
+    }
+    throw error;
+  }
+}
+
 async function listBlogPosts() {
   if (!prisma.blogPost) {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
@@ -1435,7 +1455,9 @@ async function createAuditLog(input) {
     'poll_created',
     'poll_deleted',
     'training_created',
-    'training_deleted'
+    'training_deleted',
+    'player_group_created',
+    'player_group_deleted'
   ]);
 
   const action = String(input && input.action ? input.action : '').trim();
@@ -1445,6 +1467,57 @@ async function createAuditLog(input) {
 
   return prisma.auditLog.create({
     data: input
+  });
+}
+
+// ======== Player Groups ========
+
+async function listPlayerGroups() {
+  try {
+    return await prisma.playerGroup.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        createdBy: { select: { username: true } },
+        members: { select: { playerUsername: true } }
+      }
+    });
+  } catch (error) {
+    if (String(error.message).includes('playerGroup') || String(error.code) === 'P2021') {
+      return [];
+    }
+    throw error;
+  }
+}
+
+async function createPlayerGroup(name, playerUsernames, createdById) {
+  return prisma.playerGroup.create({
+    data: {
+      name,
+      createdById,
+      members: {
+        create: playerUsernames.map((username) => ({ playerUsername: username }))
+      }
+    },
+    include: {
+      createdBy: { select: { username: true } },
+      members: { select: { playerUsername: true } }
+    }
+  });
+}
+
+async function findPlayerGroupById(id) {
+  return prisma.playerGroup.findUnique({
+    where: { id },
+    include: {
+      createdBy: { select: { username: true } },
+      members: { select: { playerUsername: true } }
+    }
+  });
+}
+
+async function deletePlayerGroup(id) {
+  return prisma.playerGroup.delete({
+    where: { id }
   });
 }
 
@@ -1475,6 +1548,7 @@ module.exports = {
   listAnnouncements,
   createAnnouncement,
   deleteAnnouncement,
+  listPublicAnnouncements,
   listBlogPosts,
   createBlogPost,
   findBlogPostById,
@@ -1485,5 +1559,9 @@ module.exports = {
   closePoll,
   deletePoll,
   upsertPollVote,
-  createAuditLog
+  createAuditLog,
+  listPlayerGroups,
+  createPlayerGroup,
+  findPlayerGroupById,
+  deletePlayerGroup
 };
