@@ -592,13 +592,49 @@
             color: #444;
         }
 
-        .sportsnet-chip {
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 4px 8px;
-            background: #eef4ff;
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .category-tab {
+            padding: 8px 18px;
+            border: 2px solid #003399;
+            background: white;
             color: #003399;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-tab:hover,
+        .category-tab.active {
+            background: #003399;
+            color: white;
+        }
+
+        .match-competition {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .match-category-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 8px;
+            background: #e8f0ff;
+            color: #003399;
+            margin-bottom: 8px;
+        }
+
+        color: #003399;
         }
 
         @media (max-width: 768px) {
@@ -657,6 +693,9 @@
 
         <div id="sportsnetInfo" class="sportsnet-info"></div>
 
+        <!-- Filtre podla kategorie -->
+        <div class="category-tabs" id="categoryTabs"></div>
+
         <!-- Matches List -->
         <div id="matchesContainer" class="matches-grid"></div>
     </div>
@@ -673,6 +712,7 @@
         // ====== GLOBÁLNE PREMENNÉ ======
         let MATCHES = {};
         let currentUser = null;
+        let activeCategory = 'all';
         let SPORTSNET_INFO = {
             status: 'LOADING',
             source: 'SportNet API',
@@ -721,11 +761,34 @@
             `;
         }
 
+        function detectCategory(competition) {
+            const c = String(competition || '').toLowerCase();
+            if (c.includes('u9') || c.includes('u09') || c.includes('mladší prípravk')) return 'u09_pripravka';
+            if (c.includes('u11') || c.includes('starší prípravk')) return 'u11_pripravka';
+            if (c.includes('u13') || c.includes('mladší žiaci')) return 'u13_ziaci';
+            if (c.includes('u15') || c.includes('starší žiaci')) return 'u15_ziaci';
+            if (c.includes('dorast') || c.includes('u17') || c.includes('u19')) return 'u19_dorast';
+            return 'dospeli';
+        }
+
+        const CATEGORY_LABELS = {
+            all: 'Všetky',
+            dospeli: 'Dospelí',
+            u19_dorast: 'U19 - Starší dorast',
+            u15_ziaci: 'U15 - Starší žiaci',
+            u13_ziaci: 'U13 - Mladší žiaci',
+            u11_pripravka: 'U11 - Prípravka',
+            u09_pripravka: 'U09 - Prípravka'
+        };
+
+        const CATEGORY_ORDER = ['all', 'dospeli', 'u19_dorast', 'u15_ziaci', 'u13_ziaci', 'u11_pripravka', 'u09_pripravka'];
+
         function normalizeSportsnetMatch(item, index) {
             const startsAt = item.startsAt || (item.date && item.time ? `${item.date}T${item.time}` : null);
             const dateValue = item.date || (startsAt ? startsAt.slice(0, 10) : null);
             const timeValue = item.time || (startsAt ? startsAt.slice(11, 16) : null) || '00:00';
             const rawStatus = String(item.status || '').toLowerCase();
+            const competition = item.competition || 'Súťaž';
 
             let status = 'upcoming';
             if (rawStatus.includes('live')) {
@@ -750,8 +813,8 @@
                 status,
                 location: item.venue || 'Štadión',
                 address: item.venue || 'Neuvedené',
-                competition: item.competition || 'Súťaž',
-                category: 'muži',
+                competition,
+                category: detectCategory(competition),
                 homeFormation: '-',
                 awayFormation: '-',
                 referee: 'Neuvedené',
@@ -836,13 +899,37 @@
         window.addEventListener('load', async function () {
             await loadMatchesFromApi();
             renderSportsnetInfo();
+            renderCategoryTabs();
             renderMatches();
         });
 
+        function renderCategoryTabs() {
+            const container = document.getElementById('categoryTabs');
+            if (!container) return;
+            const allMatches = Object.values(MATCHES);
+            if (allMatches.length === 0) { container.innerHTML = ''; return; }
+
+            const usedCategories = new Set(allMatches.map(m => m.category));
+            const tabs = CATEGORY_ORDER.filter(c => c === 'all' || usedCategories.has(c));
+
+            container.innerHTML = tabs.map(cat => `
+                <button class="category-tab${activeCategory === cat ? ' active' : ''}" onclick="setCategory('${cat}')">
+                    ${CATEGORY_LABELS[cat] || cat}
+                </button>
+            `).join('');
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            renderCategoryTabs();
+            renderMatches();
+        }
+
         function renderMatches() {
             const container = document.getElementById('matchesContainer');
+            const allMatches = Object.values(MATCHES);
 
-            if (Object.keys(MATCHES).length === 0) {
+            if (allMatches.length === 0) {
                 let msg = 'Žiadne zápasy na zobrazenie';
                 if (SPORTSNET_INFO.status === 'ERROR') {
                     msg = 'Nepodarilo sa načítať zápasy zo Sportsnet API. Skúste neskôr.';
@@ -853,8 +940,17 @@
                 return;
             }
 
+            const filtered = activeCategory === 'all'
+                ? allMatches
+                : allMatches.filter(m => m.category === activeCategory);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="no-matches"><p>Žiadne zápasy pre túto kategóriu.</p></div>';
+                return;
+            }
+
             let html = '';
-            Object.values(MATCHES).forEach(match => {
+            filtered.forEach(match => {
                 const dateObj = new Date(match.date + 'T' + match.time);
                 const formattedDate = dateObj.toLocaleDateString('sk-SK', {
                     weekday: 'long',
@@ -893,6 +989,7 @@
 
                 html += `
                     <div class="match-card" onclick="openMatchModal('${match.id}')">
+                        <div class="match-competition">${match.competition}</div>
                         <div class="match-status ${statusClass}">${statusText}</div>
                         ${scoreHtml}
                         <div class="match-details">
@@ -905,7 +1002,7 @@
                                 <i class="fas fa-map-marker-alt"></i> ${match.location}
                             </div>
                             <div style="font-size: 12px; margin-top: 8px;">
-                                <i class="fas fa-users"></i> Kategória: ${match.category}
+                                <i class="fas fa-users"></i> ${CATEGORY_LABELS[match.category] || match.category}
                             </div>
                         </div>
                         <button class="view-details-btn">
