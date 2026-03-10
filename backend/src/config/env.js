@@ -2,6 +2,11 @@
 
 dotenv.config({ override: true });
 
+// Auto-calculate current Slovak football season (July–June cycle)
+const _now = new Date();
+const _seasonStartYear = _now.getMonth() >= 6 ? _now.getFullYear() : _now.getFullYear() - 1;
+const _currentSeason = `${_seasonStartYear}/${_seasonStartYear + 1}`;
+
 const nodeEnvRaw = String(process.env.NODE_ENV || 'development');
 const defaultFrontendOrigin = nodeEnvRaw === 'production'
   ? 'https://*.vercel.app'
@@ -42,7 +47,7 @@ const env = {
   sportsnetApiKey: process.env.SPORTNET_API_KEY || process.env.SPORTSNET_API_KEY || '',
   sportsnetTeamId: process.env.SPORTSNET_TEAM_ID || '',
   sportsnetCompetitionId: process.env.SPORTSNET_COMPETITION_ID || '',
-  sportsnetSeason: process.env.SPORTSNET_SEASON || '',
+  sportsnetSeason: process.env.SPORTSNET_SEASON || _currentSeason,
   sportsnetCacheSeconds: Number(process.env.SPORTSNET_CACHE_SECONDS || 300),
   instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
   instagramUserId: process.env.INSTAGRAM_USER_ID || 'me',

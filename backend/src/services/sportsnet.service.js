@@ -65,7 +65,10 @@ function buildSportsnetUrl() {
     url.searchParams.set('seasonName', env.sportsnetSeason.trim());
   }
 
-  url.searchParams.set('sorter', 'dateFromDesc');
+  url.searchParams.set('sorter', 'dateFromAsc');
+  if (!url.searchParams.has('limit')) {
+    url.searchParams.set('limit', '200');
+  }
 
   [
     'apiKey',
@@ -108,6 +111,10 @@ function mapMatch(item, index) {
     const rawStatus = String(item.status || item.state || '').toLowerCase();
     if (rawStatus.includes('live')) status = 'live';
     else if (rawStatus.includes('finish') || rawStatus.includes('ended') || rawStatus.includes('completed')) status = 'finished';
+    else if (item.startDate && new Date(item.startDate) < new Date()) {
+      // Match date has passed but was never closed in SportNet — treat as past
+      status = 'finished';
+    }
   }
 
   const round = (item.round && item.round.name) || item.round || item.matchday || null;

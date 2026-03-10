@@ -119,6 +119,19 @@
             margin-bottom: 40px;
         }
 
+        .matches-section-header {
+            grid-column: 1 / -1;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1a1a1a;
+            border-left: 5px solid #ffd700;
+            padding: 8px 16px;
+            margin-bottom: 5px;
+            background: #f9f9f9;
+        }
+
         .match-card {
             background: white;
             border-radius: 0;
@@ -949,8 +962,28 @@
                 return;
             }
 
+            // Split into upcoming (nearest first) and results (most recent first)
+            const upcoming = filtered
+                .filter(m => m.status === 'upcoming' || m.status === 'live')
+                .sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+            const results = filtered
+                .filter(m => m.status === 'finished')
+                .sort((a, b) => new Date(b.date + 'T' + b.time) - new Date(a.date + 'T' + a.time));
+            const sorted = [...upcoming, ...results];
+
             let html = '';
-            filtered.forEach(match => {
+            if (upcoming.length > 0 && results.length > 0) {
+                html += `<div class="matches-section-header">Program</div>`;
+            }
+            let pastHeaderAdded = results.length > 0 && upcoming.length === 0;
+
+            sorted.forEach(match => {
+                // Insert "Výsledky" header when switching from upcoming to results
+                if (!pastHeaderAdded && match.status === 'finished' && upcoming.length > 0) {
+                    html += `<div class="matches-section-header">Výsledky</div>`;
+                    pastHeaderAdded = true;
+                }
+
                 const dateObj = new Date(match.date + 'T' + match.time);
                 const formattedDate = dateObj.toLocaleDateString('sk-SK', {
                     weekday: 'long',
