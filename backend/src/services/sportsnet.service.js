@@ -92,17 +92,50 @@ function toIsoDate(value) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
+// Convert UTC ISO date to Slovak local date/time (Europe/Bratislava)
+function toSlovakDateTime(isoString) {
+  if (!isoString) return { date: null, time: null };
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return { date: null, time: null };
+
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Bratislava',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).formatToParts(d);
+
+  const get = type => (parts.find(p => p.type === type) || {}).value || '';
+  return {
+    date: `${get('year')}-${get('month')}-${get('day')}`,
+    time: `${get('hour')}:${get('minute')}`
+  };
+}
+
 function mapMatch(item, index) {
   // SportNet v2 format: teams is an array with additionalProperties.homeaway
   const teams = Array.isArray(item.teams) ? item.teams : [];
-  const homeTeamObj = teams.find(t => t.additionalProperties && t.additionalProperties.homeaway === 'home') || teams[0] || {};
-  const awayTeamObj = teams.find(t => t.additionalProperties && t.additionalProperties.homeaway === 'away') || teams[1] || {};
+  const homeTeamIdx = teams.findIndex(t => t.additionalProperties && t.additionalProperties.homeaway === 'home');
+  const awayTeamIdx = teams.findIndex(t => t.additionalProperties && t.additionalProperties.homeaway === 'away');
+  const homeTeamObj = (homeTeamIdx >= 0 ? teams[homeTeamIdx] : teams[0]) || {};
+  const awayTeamObj = (awayTeamIdx >= 0 ? teams[awayTeamIdx] : teams[1]) || {};
 
   const homeTeamName = homeTeamObj.name || item.homeTeamName || item.home || 'Domáci';
   const awayTeamName = awayTeamObj.name || item.awayTeamName || item.away || 'Hostia';
 
-  const scoreHome = Array.isArray(item.score) ? (item.score[0] ?? null) : (item.scoreHome ?? item.homeScore ?? null);
-  const scoreAway = Array.isArray(item.score) ? (item.score[1] ?? null) : (item.scoreAway ?? item.awayScore ?? null);
+  // Score array maps to teams array by index, NOT by home/away
+  let scoreHome = null;
+  let scoreAway = null;
+  if (Array.isArray(item.score)) {
+    scoreHome = item.score[homeTeamIdx >= 0 ? homeTeamIdx : 0] ?? null;
+    scoreAway = item.score[awayTeamIdx >= 0 ? awayTeamIdx : 1] ?? null;
+  } else {
+    scoreHome = item.scoreHome ?? item.homeScore ?? null;
+    scoreAway = item.scoreAway ?? item.awayScore ?? null;
+  }
 
   let status = 'upcoming';
   if (item.closed === true) {
@@ -122,12 +155,13 @@ function mapMatch(item, index) {
   const venue = (item.sportGround && (item.sportGround.name || item.sportGround.city)) || item.venue || item.stadium || null;
 
   const startsAt = toIsoDate(item.startDate || item.startsAt || item.start_at || item.dateTime || item.date);
+  const localDt = toSlovakDateTime(startsAt);
 
   return {
     id: String(item._id || item.id || item.matchId || `sportsnet-${index}`),
     startsAt,
-    date: startsAt ? startsAt.slice(0, 10) : null,
-    time: startsAt ? startsAt.slice(11, 16) : null,
+    date: localDt.date,
+    time: localDt.time,
     status,
     homeTeam: homeTeamName,
     awayTeam: awayTeamName,
