@@ -248,41 +248,54 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
   }
 
   const endpoint = buildSportsnetUrl();
+  const headers = getHeaders();
+  const allMatches = [];
+  let offset = 0;
+  const maxPages = 10; // safety limit
 
-  let response;
-  try {
-    response = await fetch(endpoint, {
-      method: 'GET',
-      headers: getHeaders()
-    });
-  } catch (cause) {
-    const error = new Error('Nepodarilo sa pripojiť na Sportsnet API endpoint.');
-    error.status = 502;
-    error.cause = cause;
-    throw error;
+  for (let page = 0; page < maxPages; page++) {
+    const pageUrl = new URL(endpoint);
+    if (offset > 0) pageUrl.searchParams.set('offset', String(offset));
+
+    let response;
+    try {
+      response = await fetch(pageUrl.toString(), { method: 'GET', headers });
+    } catch (cause) {
+      const error = new Error('Nepodarilo sa pripojiť na Sportsnet API endpoint.');
+      error.status = 502;
+      error.cause = cause;
+      throw error;
+    }
+
+    if (!response.ok) {
+      let responseBody = '';
+      try { responseBody = await response.text(); } catch (_) {}
+      const error = new Error(`Sportsnet API vrátilo status ${response.status}. URL: ${pageUrl}. Body: ${responseBody.slice(0, 300)}`);
+      error.status = 502;
+      throw error;
+    }
+
+    const rawBody = await response.text();
+    let payload;
+    try {
+      payload = JSON.parse(rawBody);
+    } catch (cause) {
+      const error = new Error('Sportsnet endpoint nevrátil validné JSON dáta. Skontroluj SPORTNET_API_BASE/SPORTNET_API_URL.');
+      error.status = 502;
+      error.cause = cause;
+      throw error;
+    }
+
+    const pageMatches = extractMatches(payload);
+    allMatches.push(...pageMatches);
+
+    // Stop if no more pages
+    const nextOffset = payload.nextOffset;
+    if (!nextOffset || nextOffset <= offset || pageMatches.length === 0) break;
+    offset = nextOffset;
   }
 
-  if (!response.ok) {
-    let responseBody = '';
-    try { responseBody = await response.text(); } catch (_) {}
-    const error = new Error(`Sportsnet API vrátilo status ${response.status}. URL: ${endpoint}. Body: ${responseBody.slice(0, 300)}`);
-    error.status = 502;
-    throw error;
-  }
-
-  const rawBody = await response.text();
-  let payload;
-  try {
-    payload = JSON.parse(rawBody);
-  } catch (cause) {
-    const error = new Error('Sportsnet endpoint nevrátil validné JSON dáta. Skontroluj SPORTNET_API_BASE/SPORTNET_API_URL.');
-    error.status = 502;
-    error.cause = cause;
-    throw error;
-  }
-
-  const matches = extractMatches(payload);
-  const items = matches.map(mapMatch);
+  const items = allMatches.map(mapMatch);
 
   const normalized = {
     source: 'sportsnet.online',
