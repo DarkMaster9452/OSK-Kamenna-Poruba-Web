@@ -50,11 +50,11 @@ function buildSportsnetUrl() {
   }
 
   if (isNonEmptyString(env.sportnetOrgId)) {
-    url.searchParams.set('appSpace', env.sportnetOrgId.trim());
+    url.searchParams.set('teamAppSpaces', env.sportnetOrgId.trim());
   }
 
   if (isNonEmptyString(env.sportsnetTeamId)) {
-    url.searchParams.set('teamId', env.sportsnetTeamId.trim());
+    url.searchParams.set('teamIds', env.sportsnetTeamId.trim());
   }
 
   if (isNonEmptyString(env.sportsnetCompetitionId)) {
@@ -64,6 +64,8 @@ function buildSportsnetUrl() {
   if (isNonEmptyString(env.sportsnetSeason)) {
     url.searchParams.set('seasonName', env.sportsnetSeason.trim());
   }
+
+  url.searchParams.set('sorter', 'dateFromDesc');
 
   [
     'apiKey',
@@ -88,46 +90,46 @@ function toIsoDate(value) {
 }
 
 function mapMatch(item, index) {
-  const homeTeam = item.homeTeam || item.home_team || item.teamHome || item.host || {};
-  const awayTeam = item.awayTeam || item.away_team || item.teamAway || item.guest || {};
+  // SportNet v2 format: teams is an array with additionalProperties.homeaway
+  const teams = Array.isArray(item.teams) ? item.teams : [];
+  const homeTeamObj = teams.find(t => t.additionalProperties && t.additionalProperties.homeaway === 'home') || teams[0] || {};
+  const awayTeamObj = teams.find(t => t.additionalProperties && t.additionalProperties.homeaway === 'away') || teams[1] || {};
 
-  const homeTeamName =
-    homeTeam.name ||
-    item.homeTeamName ||
-    item.home_team_name ||
-    item.home ||
-    'Domáci';
+  const homeTeamName = homeTeamObj.name || item.homeTeamName || item.home || 'Domáci';
+  const awayTeamName = awayTeamObj.name || item.awayTeamName || item.away || 'Hostia';
 
-  const awayTeamName =
-    awayTeam.name ||
-    item.awayTeamName ||
-    item.away_team_name ||
-    item.away ||
-    'Hostia';
+  const scoreHome = Array.isArray(item.score) ? (item.score[0] ?? null) : (item.scoreHome ?? item.homeScore ?? null);
+  const scoreAway = Array.isArray(item.score) ? (item.score[1] ?? null) : (item.scoreAway ?? item.awayScore ?? null);
 
-  const round = item.round || item.matchday || item.kolo || null;
-  const competition =
-    (item.competition && item.competition.name) ||
-    item.competitionName ||
-    item.competition_name ||
-    item.league ||
-    null;
+  let status = 'upcoming';
+  if (item.closed === true) {
+    status = 'finished';
+  } else {
+    const rawStatus = String(item.status || item.state || '').toLowerCase();
+    if (rawStatus.includes('live')) status = 'live';
+    else if (rawStatus.includes('finish') || rawStatus.includes('ended') || rawStatus.includes('completed')) status = 'finished';
+  }
 
-  const startsAt = toIsoDate(item.startsAt || item.start_at || item.datetime || item.dateTime || item.date);
+  const round = (item.round && item.round.name) || item.round || item.matchday || null;
+  const competition = (item.competition && item.competition.name) || item.competitionName || null;
+  const venue = (item.sportGround && (item.sportGround.name || item.sportGround.city)) || item.venue || item.stadium || null;
+
+  const startsAt = toIsoDate(item.startDate || item.startsAt || item.start_at || item.dateTime || item.date);
 
   return {
-    id: String(item.id || item.matchId || item.uuid || `sportsnet-${index}`),
+    id: String(item._id || item.id || item.matchId || `sportsnet-${index}`),
     startsAt,
     date: startsAt ? startsAt.slice(0, 10) : null,
     time: startsAt ? startsAt.slice(11, 16) : null,
-    status: item.status || item.state || item.matchStatus || 'unknown',
+    status,
     homeTeam: homeTeamName,
     awayTeam: awayTeamName,
-    scoreHome: item.scoreHome ?? item.homeScore ?? item.goalsHome ?? null,
-    scoreAway: item.scoreAway ?? item.awayScore ?? item.goalsAway ?? null,
-    venue: item.venue || item.stadium || item.location || null,
+    scoreHome,
+    scoreAway,
+    venue,
     round,
     competition,
+    detailUrl: item.detailUrl || null,
     raw: item
   };
 }
