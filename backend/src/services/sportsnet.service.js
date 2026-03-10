@@ -49,6 +49,10 @@ function buildSportsnetUrl() {
     }
   }
 
+  if (isNonEmptyString(env.sportnetOrgId)) {
+    url.searchParams.set('appSpace', env.sportnetOrgId.trim());
+  }
+
   if (isNonEmptyString(env.sportsnetTeamId)) {
     url.searchParams.set('teamId', env.sportsnetTeamId.trim());
   }
@@ -58,7 +62,7 @@ function buildSportsnetUrl() {
   }
 
   if (isNonEmptyString(env.sportsnetSeason)) {
-    url.searchParams.set('season', env.sportsnetSeason.trim());
+    url.searchParams.set('seasonName', env.sportsnetSeason.trim());
   }
 
   [
@@ -216,7 +220,9 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
   }
 
   if (!response.ok) {
-    const error = new Error(`Sportsnet API vrátilo status ${response.status}.`);
+    let responseBody = '';
+    try { responseBody = await response.text(); } catch (_) {}
+    const error = new Error(`Sportsnet API vrátilo status ${response.status}. URL: ${endpoint}. Body: ${responseBody.slice(0, 300)}`);
     error.status = 502;
     throw error;
   }
