@@ -15,13 +15,23 @@ function getHeaders() {
   };
 
   if (isNonEmptyString(env.sportsnetApiKey)) {
-    const apiKey = env.sportsnetApiKey
-      .trim()
-      .replace(/^(ApiKey|Bearer)\s+/i, '')
-      .trim();
+    const rawKey = env.sportsnetApiKey.trim();
+    let prefix = 'Bearer';
+    let token = rawKey;
 
-    if (apiKey) {
-      headers.Authorization = `ApiKey ${apiKey}`;
+    if (/^ApiKey\s+/i.test(rawKey)) {
+      prefix = 'ApiKey';
+      token = rawKey.replace(/^ApiKey\s+/i, '').trim();
+    } else if (/^Bearer\s+/i.test(rawKey)) {
+      prefix = 'Bearer';
+      token = rawKey.replace(/^Bearer\s+/i, '').trim();
+    } else {
+      // If no prefix, guess based on length/format. JWTs are very long and have dots.
+      prefix = token.includes('.') ? 'Bearer' : 'ApiKey';
+    }
+
+    if (token) {
+      headers.Authorization = `${prefix} ${token}`;
     }
   }
 
