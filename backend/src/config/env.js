@@ -1,4 +1,4 @@
-﻿const dotenv = require('dotenv');
+const dotenv = require('dotenv');
 
 dotenv.config({ override: true });
 
@@ -49,6 +49,7 @@ const env = {
   sportsnetCompetitionId: process.env.SPORTSNET_COMPETITION_ID || '',
   sportsnetSeason: process.env.SPORTSNET_SEASON || _currentSeason,
   sportsnetCacheSeconds: Number(process.env.SPORTSNET_CACHE_SECONDS || 300),
+  sportnetPlayersCacheSeconds: Number(process.env.SPORTNET_PLAYERS_CACHE_SECONDS || 300),
   instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
   instagramUserId: process.env.INSTAGRAM_USER_ID || 'me',
   instagramFeedLimit: Number(process.env.INSTAGRAM_FEED_LIMIT || 8),

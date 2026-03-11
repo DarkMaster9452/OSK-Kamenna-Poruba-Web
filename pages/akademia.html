@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sk">
 
 <head>
@@ -264,15 +264,6 @@
 
         const API_BASE = resolveApiBase();
 
-        const CATEGORY_TO_BUCKETS = {
-            dospeli: ['dospeli'],
-            u19_dorast: ['u19'],
-            u15_ziaci: ['u15'],
-            u13_ziaci: ['u13'],
-            u11_pripravka: ['u11'],
-            u09_pripravka: ['u9']
-        };
-
         function renderPlayersToList(listId, names) {
             const list = document.getElementById(listId);
             if (!list) return;
@@ -290,56 +281,105 @@
 
         async function loadAcademyPlayers() {
             const status = document.getElementById('academyPlayersStatus');
+
             try {
-                const response = await fetch(`${API_BASE}/players`, {
+                // Fetch from SportNet API
+                const response = await fetch(`${API_BASE}/sportsnet/players`, {
                     method: 'GET',
-                    credentials: 'include'
+                    headers: { Accept: 'application/json' }
                 });
 
                 if (!response.ok) {
-                    throw new Error('Nepodarilo sa načítať hráčov.');
+                    throw new Error('Nepodarilo sa načítať hráčov zo SportNet.');
                 }
 
                 const payload = await response.json();
-                const items = Array.isArray(payload?.items) ? payload.items : [];
+                const teams = payload.teams || {};
 
-                const buckets = {
-                    u9: [],
-                    u11: [],
-                    u13: [],
-                    u15: [],
-                    u17: [],
-                    u19: []
+                const catMap = {
+                    u19: 'players-u19',
+                    u17: 'players-u17',
+                    u15: 'players-u15',
+                    u13: 'players-u13',
+                    u11: 'players-u11',
+                    u09: 'players-u9'
                 };
 
-                items.forEach((player) => {
-                    const category = player?.category;
-                    const name = player?.fullName || player?.username || null;
-                    if (!category || !name) return;
+                let totalPlayers = 0;
 
-                    const targetBuckets = CATEGORY_TO_BUCKETS[category] || [];
-                    targetBuckets.forEach((bucket) => {
-                        buckets[bucket].push(name);
-                    });
+                Object.entries(catMap).forEach(([key, listId]) => {
+                    const team = teams[key];
+                    if (team && Array.isArray(team.players)) {
+                        const names = team.players.map(p => p.name).filter(Boolean);
+                        totalPlayers += names.length;
+                        renderPlayersToList(listId, names);
+                    } else {
+                        renderPlayersToList(listId, []);
+                    }
                 });
 
-                renderPlayersToList('players-u9', buckets.u9);
-                renderPlayersToList('players-u11', buckets.u11);
-                renderPlayersToList('players-u13', buckets.u13);
-                renderPlayersToList('players-u15', buckets.u15);
-                renderPlayersToList('players-u17', buckets.u17);
-                renderPlayersToList('players-u19', buckets.u19);
-
                 if (status) {
-                    status.textContent = `Načítané mená hráčov z účtov: ${items.length}`;
+                    const source = payload.cache === 'HIT' ? 'cache' : 'API';
+                    status.textContent = `Načítaných ${totalPlayers} hráčov zo SportNet (${source})`;
                 }
             } catch (error) {
-                ['players-u9', 'players-u11', 'players-u13', 'players-u15', 'players-u17', 'players-u19']
-                    .forEach((id) => renderPlayersToList(id, []));
+                // Fallback: try original /api/players
+                try {
+                    await loadAcademyPlayersFromDb();
+                } catch (_) {
+                    ['players-u9', 'players-u11', 'players-u13', 'players-u15', 'players-u17', 'players-u19']
+                        .forEach((id) => renderPlayersToList(id, []));
 
-                if (status) {
-                    status.textContent = error.message || 'Načítanie hráčov sa nepodarilo.';
+                    if (status) {
+                        status.textContent = error.message || 'Načítanie hráčov sa nepodarilo.';
+                    }
                 }
+            }
+        }
+
+        async function loadAcademyPlayersFromDb() {
+            const status = document.getElementById('academyPlayersStatus');
+            const CATEGORY_TO_BUCKETS = {
+                dospeli: ['dospeli'],
+                u19_dorast: ['u19'],
+                u15_ziaci: ['u15'],
+                u13_ziaci: ['u13'],
+                u11_pripravka: ['u11'],
+                u09_pripravka: ['u9']
+            };
+
+            const response = await fetch(`${API_BASE}/players`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error('Nepodarilo sa načítať hráčov.');
+
+            const payload = await response.json();
+            const items = Array.isArray(payload?.items) ? payload.items : [];
+
+            const buckets = { u9: [], u11: [], u13: [], u15: [], u17: [], u19: [] };
+
+            items.forEach((player) => {
+                const category = player?.category;
+                const name = player?.fullName || player?.username || null;
+                if (!category || !name) return;
+
+                const targetBuckets = CATEGORY_TO_BUCKETS[category] || [];
+                targetBuckets.forEach((bucket) => {
+                    buckets[bucket].push(name);
+                });
+            });
+
+            renderPlayersToList('players-u9', buckets.u9);
+            renderPlayersToList('players-u11', buckets.u11);
+            renderPlayersToList('players-u13', buckets.u13);
+            renderPlayersToList('players-u15', buckets.u15);
+            renderPlayersToList('players-u17', buckets.u17);
+            renderPlayersToList('players-u19', buckets.u19);
+
+            if (status) {
+                status.textContent = `Načítané mená hráčov z účtov: ${items.length}`;
             }
         }
 
