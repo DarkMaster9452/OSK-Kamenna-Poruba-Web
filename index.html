@@ -2160,94 +2160,10 @@
                     <i class="fas fa-mug-hot"></i>
                     <span>Počas domácich zápasov a podujatí je bufet s občerstvením otvorený.</span>
                 </div>
-                <div class="matches-container">
-                    <div class="match-card" onclick="goToMatches({preventDefault: function(){}})">
-                        <div
-                            style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center; margin-bottom: 20px;">
-                            <div style="text-align: right; font-weight: bold; color: #003399; font-size: 16px;">OŠK
-                                Kamenná Poruba</div>
-                            <div style="color: #ffd700; font-weight: bold; font-size: 18px; text-align: center;">VS
-                            </div>
-                            <div style="text-align: left; font-weight: bold; color: #003399; font-size: 16px;">FK
-                                Šachtár Banská Bystrica</div>
-                        </div>
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
-                                <i class="fas fa-calendar"></i> 25. február 2026
-                            </div>
-                            <div style="font-size: 12px; color: #666;">
-                                <i class="fas fa-clock"></i> 18:30
-                            </div>
-                        </div>
-                        <div style="text-align: center; padding-top: 15px; border-top: 1px solid #ddd;">
-                            <i class="fas fa-map-marker-alt"></i> Domáci štadión
-                        </div>
-                    </div>
-                    <div class="match-card" onclick="goToMatches({preventDefault: function(){}})">
-                        <div
-                            style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center; margin-bottom: 20px;">
-                            <div style="text-align: right; font-weight: bold; color: #003399; font-size: 16px;">FK
-                                Zvolen</div>
-                            <div style="color: #ffd700; font-weight: bold; font-size: 18px; text-align: center;">VS
-                            </div>
-                            <div style="text-align: left; font-weight: bold; color: #003399; font-size: 16px;">OŠK
-                                Kamenná Poruba</div>
-                        </div>
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
-                                <i class="fas fa-calendar"></i> 3. marec 2026
-                            </div>
-                            <div style="font-size: 12px; color: #666;">
-                                <i class="fas fa-clock"></i> 17:00
-                            </div>
-                        </div>
-                        <div style="text-align: center; padding-top: 15px; border-top: 1px solid #ddd;">
-                            <i class="fas fa-map-marker-alt"></i> Vonku
-                        </div>
-                    </div>
-                    <div class="match-card" onclick="goToMatches({preventDefault: function(){}})">
-                        <div
-                            style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center; margin-bottom: 20px;">
-                            <div style="text-align: right; font-weight: bold; color: #003399; font-size: 16px;">OŠK
-                                Kamenná Poruba</div>
-                            <div style="color: #ffd700; font-weight: bold; font-size: 18px; text-align: center;">VS
-                            </div>
-                            <div style="text-align: left; font-weight: bold; color: #003399; font-size: 16px;">FK Detva
-                            </div>
-                        </div>
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
-                                <i class="fas fa-calendar"></i> 10. marec 2026
-                            </div>
-                            <div style="font-size: 12px; color: #666;">
-                                <i class="fas fa-clock"></i> 18:00
-                            </div>
-                        </div>
-                        <div style="text-align: center; padding-top: 15px; border-top: 1px solid #ddd;">
-                            <i class="fas fa-map-marker-alt"></i> Domáci štadión
-                        </div>
-                    </div>
-                    <div class="match-card" onclick="goToMatches({preventDefault: function(){}})">
-                        <div
-                            style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center; margin-bottom: 20px;">
-                            <div style="text-align: right; font-weight: bold; color: #003399; font-size: 16px;">FK
-                                Lučenec</div>
-                            <div style="color: #ffd700; font-weight: bold; font-size: 18px; text-align: center;">VS
-                            </div>
-                            <div style="text-align: left; font-weight: bold; color: #003399; font-size: 16px;">OŠK
-                                Kamenná Poruba</div>
-                        </div>
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
-                                <i class="fas fa-calendar"></i> 17. marec 2026
-                            </div>
-                            <div style="font-size: 12px; color: #666;">
-                                <i class="fas fa-clock"></i> 17:30
-                            </div>
-                        </div>
-                        <div style="text-align: center; padding-top: 15px; border-top: 1px solid #ddd;">
-                            <i class="fas fa-map-marker-alt"></i> Vonku
-                        </div>
+                <div class="matches-container" id="upcomingMatchesContainer">
+                    <div style="text-align: center; padding: 40px; color: #666; grid-column: 1 / -1;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #003399;"></i>
+                        <p style="margin-top: 12px;">Načítavam zápasy...</p>
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 40px;">

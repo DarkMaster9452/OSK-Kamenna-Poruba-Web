@@ -157,8 +157,12 @@ function mapMatch(item, index) {
   const startsAt = toIsoDate(item.startDate || item.startsAt || item.start_at || item.dateTime || item.date);
   const localDt = toSlovakDateTime(startsAt);
 
+  const matchId = String(item._id || item.id || item.matchId || `sportsnet-${index}`);
+  const detailUrl = item.detailUrl
+    || (matchId.startsWith('sportsnet-') ? null : `https://sportnet.sme.sk/futbalnet/zapas/${encodeURIComponent(matchId)}/`);
+
   return {
-    id: String(item._id || item.id || item.matchId || `sportsnet-${index}`),
+    id: matchId,
     startsAt,
     date: localDt.date,
     time: localDt.time,
@@ -170,7 +174,7 @@ function mapMatch(item, index) {
     venue,
     round,
     competition,
-    detailUrl: item.detailUrl || null,
+    detailUrl,
     raw: item
   };
 }

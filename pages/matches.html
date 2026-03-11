@@ -647,12 +647,144 @@
             margin-bottom: 8px;
         }
 
-        color: #003399;
+        .toggle-results-btn {
+            grid-column: 1 / -1;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: background 0.3s;
+            text-align: center;
+        }
+
+        .toggle-results-btn:hover {
+            background: linear-gradient(135deg, #1a5ccc 0%, #003399 100%);
+        }
+
+        .toggle-results-btn i {
+            margin-right: 8px;
+        }
+
+        .results-hidden {
+            display: none !important;
+        }
+
+        .sportnet-link-section {
+            background: #f0f4ff;
+            border-left: 4px solid #003399;
+            padding: 16px 20px;
+            margin: 20px 0;
+        }
+
+        .sportnet-link-title {
+            font-weight: bold;
+            color: #003399;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .sportnet-link-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .sportnet-link-card {
+            background: white;
+            border-left: 3px solid #ffd700;
+            padding: 12px 16px;
+        }
+
+        .sportnet-link-card .half-label {
+            font-weight: bold;
+            color: #003399;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .sportnet-link-card a {
+            color: #1a5ccc;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sportnet-link-card a:hover {
+            text-decoration: underline;
         }
 
         @media (max-width: 768px) {
+            .container {
+                margin: 16px auto;
+                padding: 0 10px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 16px;
+            }
+
             .matches-grid {
                 grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .match-card {
+                padding: 16px;
+            }
+
+            .match-card .team-name {
+                font-size: 13px;
+                padding: 6px;
+            }
+
+            .match-card .vs-text {
+                font-size: 12px;
+            }
+
+            .match-card .score-value {
+                font-size: 22px;
+            }
+
+            .match-card .match-score {
+                font-size: 18px;
+                margin: 8px 0;
+            }
+
+            .match-card .match-details {
+                font-size: 12px;
+                margin: 8px 0;
+            }
+
+            .match-card .match-date,
+            .match-card .match-location {
+                padding: 5px;
+                margin: 4px 0;
+            }
+
+            .match-card .view-details-btn {
+                padding: 8px;
+                font-size: 13px;
+                margin-top: 6px;
+            }
+
+            .matches-section-header {
+                font-size: 16px;
+                padding: 6px 12px;
+            }
+
+            .match-status {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+
+            .match-competition {
+                font-size: 10px;
             }
 
             .detail-teams {
@@ -670,16 +802,45 @@
             }
 
             .modal-content {
-                margin: 20px;
-                padding: 20px;
+                margin: 10px;
+                padding: 16px;
             }
 
             .stats-grid {
                 grid-template-columns: 1fr;
             }
 
-            .video-grid {
+            .video-grid,
+            .sportnet-link-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .sportsnet-info {
+                padding: 12px 14px;
+                margin-bottom: 14px;
+            }
+
+            .sportsnet-info-grid {
+                font-size: 12px;
+            }
+
+            .category-tabs {
+                gap: 5px;
+                margin-bottom: 14px;
+            }
+
+            .category-tab {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            header {
+                padding: 12px 16px;
+            }
+
+            .toggle-results-btn {
+                padding: 12px 20px;
+                font-size: 14px;
             }
         }
     </style>
@@ -726,6 +887,7 @@
         let MATCHES = {};
         let currentUser = null;
         let activeCategory = 'all';
+        let showResults = false;
         let SPORTSNET_INFO = {
             status: 'LOADING',
             source: 'SportNet API',
@@ -828,6 +990,7 @@
                 address: item.venue || 'Neuvedené',
                 competition,
                 category: detectCategory(competition),
+                detailUrl: item.detailUrl || null,
                 homeFormation: '-',
                 awayFormation: '-',
                 referee: 'Neuvedené',
@@ -972,37 +1135,58 @@
             const sorted = [...upcoming, ...results];
 
             let html = '';
-            if (upcoming.length > 0 && results.length > 0) {
+            if (upcoming.length > 0) {
                 html += `<div class="matches-section-header">Program</div>`;
             }
-            let pastHeaderAdded = results.length > 0 && upcoming.length === 0;
 
-            sorted.forEach(match => {
-                // Insert "Výsledky" header when switching from upcoming to results
-                if (!pastHeaderAdded && match.status === 'finished' && upcoming.length > 0) {
-                    html += `<div class="matches-section-header">Výsledky</div>`;
-                    pastHeaderAdded = true;
-                }
+            // Render upcoming matches
+            upcoming.forEach(match => {
+                html += renderMatchCard(match);
+            });
 
-                const dateObj = new Date(match.date + 'T' + match.time);
-                const formattedDate = dateObj.toLocaleDateString('sk-SK', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
+            // Render results toggle button and results
+            if (results.length > 0) {
+                const btnIcon = showResults ? 'fa-eye-slash' : 'fa-eye';
+                const btnText = showResults ? 'Skryť výsledky' : `Zobraziť výsledky (${results.length})`;
+                html += `<button class="toggle-results-btn" onclick="toggleResults()">
+                    <i class="fas ${btnIcon}"></i>${btnText}
+                </button>`;
+                const hiddenClass = showResults ? '' : ' results-hidden';
+                html += `<div class="matches-section-header${hiddenClass}" id="resultsHeader">Výsledky</div>`;
+                results.forEach(match => {
+                    html += `<div class="${hiddenClass}" data-result-card>${renderMatchCard(match)}</div>`;
                 });
+            }
 
-                let scoreHtml = '';
-                if (match.status === 'finished' || match.status === 'live') {
-                    scoreHtml = `
+            container.innerHTML = html;
+        }
+
+        function toggleResults() {
+            showResults = !showResults;
+            renderMatches();
+        }
+
+        function renderMatchCard(match) {
+
+            const dateObj = new Date(match.date + 'T' + match.time);
+            const formattedDate = dateObj.toLocaleDateString('sk-SK', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            let scoreHtml = '';
+            if (match.status === 'finished' || match.status === 'live') {
+                scoreHtml = `
                         <div class="match-score">
                             <div>${match.homeTeam}</div>
                             <div class="score-value">${match.homeScore} - ${match.awayScore}</div>
                             <div>${match.awayTeam}</div>
                         </div>
                     `;
-                } else {
-                    scoreHtml = `
+            } else {
+                scoreHtml = `
                         <div class="match-teams">
                             <div class="team-vs">
                                 <div class="team-name">${match.homeTeam}</div>
@@ -1011,41 +1195,38 @@
                             </div>
                         </div>
                     `;
-                }
+            }
 
-                const statusClass = match.status;
-                const statusText = {
-                    'upcoming': 'NADCHÁDZAJÚCI',
-                    'finished': 'SKONČENÝ',
-                    'live': 'NAŽIVO'
-                }[match.status];
+            const statusClass = match.status;
+            const statusText = {
+                'upcoming': 'NADCHÁDZAJÚCI',
+                'finished': 'SKONČENÝ',
+                'live': 'NAŽIVO'
+            }[match.status];
 
-                html += `
-                    <div class="match-card" onclick="openMatchModal('${match.id}')">
-                        <div class="match-competition">${match.competition}</div>
-                        <div class="match-status ${statusClass}">${statusText}</div>
-                        ${scoreHtml}
-                        <div class="match-details">
-                            <div class="match-date">
-                                <i class="fas fa-calendar"></i> ${formattedDate}
-                                <br>
-                                <i class="fas fa-clock"></i> ${match.time}
-                            </div>
-                            <div class="match-location">
-                                <i class="fas fa-map-marker-alt"></i> ${match.location}
-                            </div>
-                            <div style="font-size: 12px; margin-top: 8px;">
-                                <i class="fas fa-users"></i> ${CATEGORY_LABELS[match.category] || match.category}
-                            </div>
+            return `
+                <div class="match-card" onclick="openMatchModal('${match.id}')">
+                    <div class="match-competition">${match.competition}</div>
+                    <div class="match-status ${statusClass}">${statusText}</div>
+                    ${scoreHtml}
+                    <div class="match-details">
+                        <div class="match-date">
+                            <i class="fas fa-calendar"></i> ${formattedDate}
+                            <br>
+                            <i class="fas fa-clock"></i> ${match.time}
                         </div>
-                        <button class="view-details-btn">
-                            <i class="fas fa-info-circle"></i> Detaily zápasu
-                        </button>
+                        <div class="match-location">
+                            <i class="fas fa-map-marker-alt"></i> ${match.location}
+                        </div>
+                        <div style="font-size: 12px; margin-top: 8px;">
+                            <i class="fas fa-users"></i> ${CATEGORY_LABELS[match.category] || match.category}
+                        </div>
                     </div>
-                `;
-            });
-
-            container.innerHTML = html;
+                    <button class="view-details-btn">
+                        <i class="fas fa-info-circle"></i> Detaily zápasu
+                    </button>
+                </div>
+            `;
         }
 
         function openMatchModal(matchId) {
@@ -1059,6 +1240,35 @@
 
         function closeMatchModal() {
             document.getElementById('matchModal').classList.remove('active');
+        }
+
+        function generateSportnetVideoSection(match) {
+            // Show SportNet recording link only for adult finished matches
+            if (match.category !== 'dospeli' || match.status !== 'finished' || !match.detailUrl) {
+                return '';
+            }
+            return `
+                <div class="sportnet-link-section">
+                    <div class="sportnet-link-title"><i class="fas fa-video"></i> Záznam zápasu na SportNet</div>
+                    <div class="sportnet-link-grid">
+                        <div class="sportnet-link-card">
+                            <div class="half-label">1. polčas</div>
+                            <a href="${match.detailUrl}" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-play-circle"></i> Pozrieť na SportNet
+                            </a>
+                        </div>
+                        <div class="sportnet-link-card">
+                            <div class="half-label">2. polčas</div>
+                            <a href="${match.detailUrl}" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-play-circle"></i> Pozrieť na SportNet
+                            </a>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 10px;">
+                        <i class="fas fa-info-circle"></i> Záznamy oboch polčasov nájdete na stránke zápasu na SportNet.
+                    </div>
+                </div>
+            `;
         }
 
         function generateMatchDetail(match) {
@@ -1211,6 +1421,8 @@
 
                 ${statsHtml}
                 ${eventsHtml}
+
+                ${generateSportnetVideoSection(match)}
 
                 <div class="formation">
                     <div class="formation-title"><i class="fas fa-sitemap"></i> Zostavenie: ${match.homeFormation} vs ${match.awayFormation}</div>
