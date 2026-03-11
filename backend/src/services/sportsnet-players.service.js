@@ -196,7 +196,8 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
     
     let errMsg = `Sportsnet API (teams) vrátilo status ${teamsResponse.status}.`;
     if (teamsResponse.status === 401) {
-      errMsg += ` Chýba alebo je neplatný SPORTNET_API_KEY. Uistite sa, že je správne nastavený v prostredí (napr. Vercel).`;
+      const hasKey = isNonEmptyString(env.sportsnetApiKey) ? 'MÁŠ NASTAVENÝ nejaký API kľúč (možno je expirovaný/zlý)' : 'KĽÚČ ÚPLNE CHÝBA';
+      errMsg += ` Vrátená chyba 401 Unauthorized. Stav tvojho Vercel prostredia: SPORTNET_API_KEY -> ${hasKey}. Skontroluj Vercel Environment Variables!`;
     }
     errMsg += ` Body: ${responseBody.slice(0, 300)}`;
 
