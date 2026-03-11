@@ -1132,7 +1132,6 @@
             const results = filtered
                 .filter(m => m.status === 'finished')
                 .sort((a, b) => new Date(b.date + 'T' + b.time) - new Date(a.date + 'T' + a.time));
-            const sorted = [...upcoming, ...results];
 
             let html = '';
             if (upcoming.length > 0) {
