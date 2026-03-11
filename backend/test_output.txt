@@ -1,0 +1,177 @@
+  console.error
+    Error: Sportsnet API vr├ítilo status 503. URL: https://api.sportsnet.test/organizations/54b532721c6198f161840003/matches?teamAppSpaces=54b532721c6198f161840003&teamIds=1234&competitionId=9876&seasonName=2025-2026&sorter=dateFromAsc&limit=200. Body: {"error":"upstream failure"}
+        at fetchSportsnetMatches (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\src\services\sportsnet.service.js:277:21)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\src\routes\sportsnet.routes.js:10:21 {
+      status: 502
+    }
+
+    [0m [90m  7 |[39m   [36mconst[39m message [33m=[39m err[33m.[39mmessage [33m||[39m [32m'Intern├í chyba servera'[39m[33m;[39m
+     [90m  8 |[39m   [36mif[39m (status [33m>=[39m [35m500[39m) {
+    [31m[1m>[22m[39m[90m  9 |[39m     console[33m.[39merror(err)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 10 |[39m   }
+     [90m 11 |[39m   [36mreturn[39m res[33m.[39mstatus(status)[33m.[39mjson({ message })[33m;[39m
+     [90m 12 |[39m }[0m
+
+      at error (src/middleware/errorHandler.js:9:13)
+      at Layer.handle_error (node_modules/express/lib/router/layer.js:71:5)
+      at trim_prefix (node_modules/express/lib/router/index.js:326:13)
+      at node_modules/express/lib/router/index.js:286:9
+      at router.process_params (node_modules/express/lib/router/index.js:346:12)
+      at next (node_modules/express/lib/router/index.js:280:10)
+      at Layer.handle_error (node_modules/express/lib/router/layer.js:67:12)
+      at trim_prefix (node_modules/express/lib/router/index.js:326:13)
+      at node_modules/express/lib/router/index.js:286:9
+      at router.process_params (node_modules/express/lib/router/index.js:346:12)
+      at next (node_modules/express/lib/router/index.js:280:10)
+      at Layer.handle_error (node_modules/express/lib/router/layer.js:67:12)
+      at trim_prefix (node_modules/express/lib/router/index.js:326:13)
+      at node_modules/express/lib/router/index.js:286:9
+      at router.process_params (node_modules/express/lib/router/index.js:346:12)
+      at Immediate.next (node_modules/express/lib/router/index.js:280:10)
+      at Immediate._onImmediate (node_modules/express/lib/router/index.js:646:15)
+
+  console.error
+    Error: Nepodarilo sa pripoji┼ą na Sportsnet API endpoint.
+        at fetchSportsnetMatches (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\src\services\sportsnet.service.js:268:21)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\src\routes\sportsnet.routes.js:10:21 {
+      status: 502,
+      cause: Error: fetch failed
+          at Object.<anonymous> (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\tests\sportsnet.api.test.js:171:36)
+          at Promise.finally.completed (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:103:5)
+          at _runTest (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\node_modules\jest-runner\build\index.js:343:7)
+    }
+
+    [0m [90m  7 |[39m   [36mconst[39m message [33m=[39m err[33m.[39mmessage [33m||[39m [32m'Intern├í chyba servera'[39m[33m;[39m
+     [90m  8 |[39m   [36mif[39m (status [33m>=[39m [35m500[39m) {
+    [31m[1m>[22m[39m[90m  9 |[39m     console[33m.[39merror(err)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 10 |[39m   }
+     [90m 11 |[39m   [36mreturn[39m res[33m.[39mstatus(status)[33m.[39mjson({ message })[33m;[39m
+     [90m 12 |[39m }[0m
+
+      at error (src/middleware/errorHandler.js:9:13)
+      at Layer.handle_error (node_modules/express/lib/router/layer.js:71:5)
+      at trim_prefix (node_modules/express/lib/router/index.js:326:13)
+      at node_modules/express/lib/router/index.js:286:9
+      at router.process_params (node_modules/express/lib/router/index.js:346:12)
+      at next (node_modules/express/lib/router/index.js:280:10)
+      at Layer.handle_error (node_modules/express/lib/router/layer.js:67:12)
+      at trim_prefix (node_modules/express/lib/router/index.js:326:13)
+      at node_modules/express/lib/router/index.js:286:9
+      at router.process_params (node_modules/express/lib/router/index.js:346:12)
+      at next (node_modules/express/lib/router/index.js:280:10)
+      at Layer.handle_error (node_modules/express/lib/router/layer.js:67:12)
+      at trim_prefix (node_modules/express/lib/router/index.js:326:13)
+      at node_modules/express/lib/router/index.js:286:9
+      at router.process_params (node_modules/express/lib/router/index.js:346:12)
+      at Immediate.next (node_modules/express/lib/router/index.js:280:10)
+      at Immediate._onImmediate (node_modules/express/lib/router/index.js:646:15)
+
+  console.error
+    Error: Sportsnet endpoint nevr├ítil validn├ę JSON d├íta. Skontroluj SPORTNET_API_BASE/SPORTNET_API_URL.
+        at fetchSportsnetMatches (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\src\services\sportsnet.service.js:287:21)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\src\routes\sportsnet.routes.js:10:21 {
+      status: 502,
+      cause: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+          at JSON.parse (<anonymous>)
+          at parse (C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\src\services\sportsnet.service.js:285:22)
+          at processTicksAndRejections (node:internal/process/task_queues:103:5)
+          at C:\Users\stran\Documents\GitHub\O-K-Kamenn-Poruba\backend\src\routes\sportsnet.routes.js:10:21
+    }
+
+    [0m [90m  7 |[39m   [36mconst[39m message [33m=[39m err[33m.[39mmessage [33m||[39m [32m'Intern├í chyba servera'[39m[33m;[39m
+     [90m  8 |[39m   [36mif[39m (status [33m>=[39m [35m500[39m) {
+    [31m[1m>[22m[39m[90m  9 |[39m     console[33m.[39merror(err)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 10 |[39m   }
+     [90m 11 |[39m   [36mreturn[39m res[33m.[39mstatus(status)[33m.[39mjson({ message })[33m;[39m
+     [90m 12 |[39m }[0m
+
+      at error (src/middleware/errorHandler.js:9:13)
+      at Layer.handle_error (node_modules/express/lib/router/layer.js:71:5)
+      at trim_prefix (node_modules/express/lib/router/index.js:326:13)
+      at node_modules/express/lib/router/index.js:286:9
+      at router.process_params (node_modules/express/lib/router/index.js:346:12)
+      at next (node_modules/express/lib/router/index.js:280:10)
+      at Layer.handle_error (node_modules/express/lib/router/layer.js:67:12)
+      at trim_prefix (node_modules/express/lib/router/index.js:326:13)
+      at node_modules/express/lib/router/index.js:286:9
+      at router.process_params (node_modules/express/lib/router/index.js:346:12)
+      at next (node_modules/express/lib/router/index.js:280:10)
+      at Layer.handle_error (node_modules/express/lib/router/layer.js:67:12)
+      at trim_prefix (node_modules/express/lib/router/index.js:326:13)
+      at node_modules/express/lib/router/index.js:286:9
+      at router.process_params (node_modules/express/lib/router/index.js:346:12)
+      at Immediate.next (node_modules/express/lib/router/index.js:280:10)
+      at Immediate._onImmediate (node_modules/express/lib/router/index.js:646:15)
+
+FAIL tests/sportsnet.api.test.js
+  GET /api/sportsnet/matches
+    ├Ś na─Ź├şta ├║daje zo Sportsnet API a normalizuje odpove─Ć (219 ms)
+    ÔłÜ vr├íti cache HIT pri opakovanom volan├ş bez refresh parametra (59 ms)
+    ÔłÜ refresh=true ob├şde cache a vyn├║ti nov├ę volanie Sportsnet API (47 ms)
+    ├Ś pri chybe Sportsnet API vr├íti backend status 502 (61 ms)
+    ÔłÜ pri sie┼ąovej chybe na Sportsnet endpoint vr├íti backend status 502 (46 ms)
+    ÔłÜ pri HTML odpovedi zo Sportsnet endpointu vr├íti backend status 502 (48 ms)
+    ÔłÜ bez nakonfigurovan├ęho Sportsnet endpointu vr├íti pr├ízdnu odpove─Ć bez volania API (45 ms)
+
+  ÔŚĆ GET /api/sportsnet/matches ÔÇ║ na─Ź├şta ├║daje zo Sportsnet API a normalizuje odpove─Ć
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "teamId=1234"
+    Received string:    "https://api.sportsnet.test/organizations/54b532721c6198f161840003/matches?teamAppSpaces=54b532721c6198f161840003&teamIds=1234&competitionId=9876&seasonName=2025-2026&sorter=dateFromAsc&limit=200"
+
+      80 |     const [url, options] = global.fetch.mock.calls[0];
+      81 |     expect(url).toContain('/organizations/54b532721c6198f161840003/matches');
+    > 82 |     expect(url).toContain('teamId=1234');
+         |                 ^
+      83 |     expect(url).toContain('competitionId=9876');
+      84 |     expect(url).toContain('season=2025-2026');
+      85 |     expect(options).toMatchObject({
+
+      at Object.toContain (tests/sportsnet.api.test.js:82:17)
+
+  ÔŚĆ GET /api/sportsnet/matches ÔÇ║ pri chybe Sportsnet API vr├íti backend status 502
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "message": "Sportsnet API vr├ítilo status 503.",
+    +   "message": "Sportsnet API vr├ítilo status 503. URL: https://api.sportsnet.test/organizations/54b532721c6198f161840003/matches?teamAppSpaces=54b532721c6198f161840003&teamIds=1234&competitionId=9876&seasonName=2025-2026&sorter=dateFromAsc&limit=200. Body: {\"error\":\"upstream failure\"}",
+      }
+
+      163 |
+      164 |     expect(response.status).toBe(502);
+    > 165 |     expect(response.body).toEqual({
+          |                           ^
+      166 |       message: 'Sportsnet API vr├ítilo status 503.'
+      167 |     });
+      168 |   });
+
+      at Object.toEqual (tests/sportsnet.api.test.js:165:27)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 5 passed, 7 total
+Snapshots:   0 total
+Time:        0.742 s, estimated 1 s
+Ran all test suites.

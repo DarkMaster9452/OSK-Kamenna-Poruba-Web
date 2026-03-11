@@ -29,16 +29,7 @@ function getHeaders() {
 }
 
 function buildApiBase() {
-  if (isNonEmptyString(env.sportnetApiBase)) {
-    return env.sportnetApiBase.trim().replace(/\/+$/, '');
-  }
-  if (isNonEmptyString(env.sportsnetApiUrl)) {
-    try {
-      const url = new URL(env.sportsnetApiUrl);
-      return `${url.origin}${url.pathname.replace(/\/organizations\/.*$/, '').replace(/\/+$/, '')}`;
-    } catch (_) {}
-  }
-  return '';
+  return 'https://sutaze.api.sportnet.online/api/v2';
 }
 
 // Map SportNet internal team names to our categories
@@ -192,7 +183,14 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
   if (!teamsResponse.ok) {
     let responseBody = '';
     try { responseBody = await teamsResponse.text(); } catch (_) {}
-    const error = new Error(`Sportsnet API (teams) vrátilo status ${teamsResponse.status}. Body: ${responseBody.slice(0, 300)}`);
+    
+    let errMsg = `Sportsnet API (teams) vrátilo status ${teamsResponse.status}.`;
+    if (teamsResponse.status === 401) {
+      errMsg += ` Chýba alebo je neplatný SPORTNET_API_KEY. Uistite sa, že je správne nastavený v prostredí (napr. Vercel).`;
+    }
+    errMsg += ` Body: ${responseBody.slice(0, 300)}`;
+
+    const error = new Error(errMsg);
     error.status = 502;
     throw error;
   }
