@@ -69,8 +69,27 @@ function mapAthlete(athlete) {
     position: normalizePosition(data.position),
     number: data.nr || null,
     captain: data.captain === true,
-    age: data.age || null
+    age: data.age || null,
+    stats: null
   };
+}
+
+async function fetchPlayerStats(sportnetId) {
+  if (!sportnetId) return null;
+  try {
+    const data = await fetchJson(`${API_BASE}/player/${encodeURIComponent(sportnetId)}/statistics`);
+    const s = data.overallStats || {};
+    return {
+      matches: s.match_appearances || 0,
+      goals: s.goals || 0,
+      minutes: s.minutes || 0,
+      yellowCards: s.yellow_cards || 0,
+      secondYellowCards: s.yellow_cards_second || 0,
+      redCards: s.red_cards || 0
+    };
+  } catch (_) {
+    return null;
+  }
 }
 
 function groupByPosition(athletes) {
@@ -186,6 +205,12 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
     }
 
     const mappedAthletes = athletes.map(mapAthlete);
+
+    // Fetch stats for all players in parallel
+    await Promise.all(mappedAthletes.map(async (player) => {
+      player.stats = await fetchPlayerStats(player.sportnetId);
+    }));
+
     const mappedCrew = crew.map((c) => ({
       sportnetId: c.sportnetUser ? c.sportnetUser._id : null,
       name: c.sportnetUser ? c.sportnetUser.name : 'Neznámy',

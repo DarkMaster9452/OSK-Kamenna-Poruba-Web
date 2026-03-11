@@ -200,7 +200,8 @@
         <section class="card">
             <h3>Súpiska hráčov</h3>
             <div id="rosterContainer">
-                <p style="color:#888;text-align:center;padding:24px 0;"><i class="fas fa-spinner fa-spin"></i> Načítavam súpisku...</p>
+                <p style="color:#888;text-align:center;padding:24px 0;"><i class="fas fa-spinner fa-spin"></i> Načítavam
+                    súpisku...</p>
             </div>
         </section>
 
@@ -257,12 +258,20 @@
 
         function renderPositionGroup(label, players) {
             if (!players || players.length === 0) return '';
-            const rows = players.map(p => `
+            const rows = players.map(p => {
+                const s = p.stats || {};
+                return `
                 <tr>
                     <td>${p.number || '—'}</td>
                     <td>${p.captain ? 'ⓒ ' : ''}${p.name}</td>
+                    <td>${s.matches ?? '—'}</td>
+                    <td>${s.goals ?? '—'}</td>
+                    <td>${s.minutes ?? '—'}</td>
+                    <td>${s.yellowCards ?? '—'}</td>
+                    <td>${s.redCards ?? '—'}</td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
 
             return `
                 <div class="group">
@@ -271,8 +280,13 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width:60px;">#</th>
+                                    <th style="width:50px;">#</th>
                                     <th>Meno hráča</th>
+                                    <th style="width:70px;"><i class="fas fa-futbol" title="Zápasy"></i> Záp.</th>
+                                    <th style="width:60px;"><i class="fas fa-futbol" title="Góly"></i> Góly</th>
+                                    <th style="width:70px;"><i class="far fa-clock" title="Minúty"></i> Min.</th>
+                                    <th style="width:50px;"><span title="Žlté karty" style="color:#e8b500;">&#9632;</span></th>
+                                    <th style="width:50px;"><span title="Červené karty" style="color:#d00;">&#9632;</span></th>
                                 </tr>
                             </thead>
                             <tbody>${rows}</tbody>

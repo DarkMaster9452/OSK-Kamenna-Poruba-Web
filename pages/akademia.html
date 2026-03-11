@@ -125,6 +125,50 @@
             margin-bottom: 4px;
         }
 
+        .team-section {
+            margin-bottom: 20px;
+        }
+
+        .team-section h4 {
+            margin: 0 0 8px;
+            color: #003399;
+            border-left: 4px solid #ffd700;
+            padding-left: 8px;
+            font-size: 16px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid #e6ebf3;
+            border-radius: 8px;
+        }
+
+        .table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #f8f9fc;
+            min-width: 600px;
+        }
+
+        .table-wrap th,
+        .table-wrap td {
+            text-align: left;
+            padding: 9px;
+            border-bottom: 1px solid #eef2f8;
+            font-size: 14px;
+        }
+
+        .table-wrap th {
+            border-bottom: 1px solid #e1e6ef;
+            background: #eef3fb;
+            color: #003399;
+            font-weight: 700;
+        }
+
+        .table-wrap tbody tr:nth-child(even) {
+            background: #fdfdff;
+        }
+
         .muted {
             color: #666;
             font-size: 14px;
@@ -162,37 +206,9 @@
         <h1 class="page-title"><i class="fas fa-graduation-cap"></i> Akadémia</h1>
         <section class="card">
             <h3>Prehľad mládežníckych kategórií</h3>
-            <div class="grid">
-                <div class="category-card">
-                    <h4>U19</h4>
-                    <p style="margin:0;">I. trieda ObFZ Žilina</p>
-                    <ul id="players-u19" class="players-list"></ul>
-                </div>
-                <div class="category-card">
-                    <h4>U17</h4>
-                    <p style="margin:0;">Rozvojová kategória dorastu</p>
-                    <ul id="players-u17" class="players-list"></ul>
-                </div>
-                <div class="category-card">
-                    <h4>U15</h4>
-                    <p style="margin:0;">II. liga</p>
-                    <ul id="players-u15" class="players-list"></ul>
-                </div>
-                <div class="category-card">
-                    <h4>U13</h4>
-                    <p style="margin:0;">I./II. liga</p>
-                    <ul id="players-u13" class="players-list"></ul>
-                </div>
-                <div class="category-card">
-                    <h4>U11</h4>
-                    <p style="margin:0;">Prípravka</p>
-                    <ul id="players-u11" class="players-list"></ul>
-                </div>
-                <div class="category-card">
-                    <h4>U9</h4>
-                    <p style="margin:0;">Prípravka</p>
-                    <ul id="players-u9" class="players-list"></ul>
-                </div>
+            <div id="academyTeamsContainer">
+                <p style="color:#888;text-align:center;padding:24px 0;"><i class="fas fa-spinner fa-spin"></i> Načítavam
+                    súpisky...</p>
             </div>
             <p id="academyPlayersStatus" class="muted" style="margin-top:12px;">Načítavam mená hráčov z účtov…</p>
         </section>
@@ -279,6 +295,53 @@
                 .join('');
         }
 
+        const CATEGORY_LABELS = {
+            u19: 'U19 - Starší dorast',
+            u17: 'U17',
+            u15: 'U15 - Starší žiaci',
+            u13: 'U13 - Mladší žiaci',
+            u11: 'U11 - Prípravka',
+            u09: 'U9 - Prípravka'
+        };
+
+        function renderTeamTable(label, players) {
+            if (!players || players.length === 0) {
+                return `<div class="team-section"><h4>${label}</h4><p class="muted">Zatiaľ bez hráčov</p></div>`;
+            }
+            const rows = players.map(p => {
+                const s = p.stats || {};
+                return `<tr>
+                    <td>${p.number || '—'}</td>
+                    <td>${p.name}</td>
+                    <td>${s.matches ?? '—'}</td>
+                    <td>${s.goals ?? '—'}</td>
+                    <td>${s.minutes ?? '—'}</td>
+                    <td>${s.yellowCards ?? '—'}</td>
+                    <td>${s.redCards ?? '—'}</td>
+                </tr>`;
+            }).join('');
+
+            return `<div class="team-section">
+                <h4>${label}</h4>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:50px;">#</th>
+                                <th>Meno hráča</th>
+                                <th style="width:70px;"><i class="fas fa-futbol" title="Zápasy"></i> Záp.</th>
+                                <th style="width:60px;"><i class="fas fa-futbol" title="Góly"></i> Góly</th>
+                                <th style="width:70px;"><i class="far fa-clock" title="Minúty"></i> Min.</th>
+                                <th style="width:50px;"><span title="Žlté karty" style="color:#e8b500;">&#9632;</span></th>
+                                <th style="width:50px;"><span title="Červené karty" style="color:#d00;">&#9632;</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
         async function loadAcademyPlayers() {
             const status = document.getElementById('academyPlayersStatus');
 
@@ -296,27 +359,21 @@
                 const payload = await response.json();
                 const teams = payload.teams || {};
 
-                const catMap = {
-                    u19: 'players-u19',
-                    u17: 'players-u17',
-                    u15: 'players-u15',
-                    u13: 'players-u13',
-                    u11: 'players-u11',
-                    u09: 'players-u9'
-                };
-
+                const categories = ['u19', 'u17', 'u15', 'u13', 'u11', 'u09'];
+                const container = document.getElementById('academyTeamsContainer');
+                let html = '';
                 let totalPlayers = 0;
 
-                Object.entries(catMap).forEach(([key, listId]) => {
+                categories.forEach(key => {
                     const team = teams[key];
-                    if (team && Array.isArray(team.players)) {
-                        const names = team.players.map(p => p.name).filter(Boolean);
-                        totalPlayers += names.length;
-                        renderPlayersToList(listId, names);
-                    } else {
-                        renderPlayersToList(listId, []);
+                    const label = CATEGORY_LABELS[key] || key.toUpperCase();
+                    if (team && Array.isArray(team.players) && team.players.length > 0) {
+                        totalPlayers += team.players.length;
+                        html += renderTeamTable(label, team.players);
                     }
                 });
+
+                container.innerHTML = html || '<p class="muted" style="text-align:center;padding:24px 0;">Žiadni hráči neboli nájdení.</p>';
 
                 if (status) {
                     const source = payload.cache === 'HIT' ? 'cache' : 'API';
@@ -327,8 +384,10 @@
                 try {
                     await loadAcademyPlayersFromDb();
                 } catch (_) {
-                    ['players-u9', 'players-u11', 'players-u13', 'players-u15', 'players-u17', 'players-u19']
-                        .forEach((id) => renderPlayersToList(id, []));
+                    const container = document.getElementById('academyTeamsContainer');
+                    if (container) {
+                        container.innerHTML = '<p class="muted" style="text-align:center;padding:24px 0;">Nepodarilo sa načítať hráčov.</p>';
+                    }
 
                     if (status) {
                         status.textContent = error.message || 'Načítanie hráčov sa nepodarilo.';
