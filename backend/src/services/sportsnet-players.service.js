@@ -1,104 +1,54 @@
 const env = require('../config/env');
 
+const API_BASE = 'https://sutaze.api.sportnet.online/api/v2';
+const APP_SPACE = 'osk-kamenna-poruba.futbalnet.sk';
+
 const cacheState = {
   expiresAt: 0,
   payload: null
 };
 
-function isNonEmptyString(value) {
-  return typeof value === 'string' && value.trim().length > 0;
-}
-
-function getHeaders() {
-  const headers = {
-    Accept: 'application/json'
-  };
-
-  if (isNonEmptyString(env.sportsnetApiKey)) {
-    const rawKey = env.sportsnetApiKey.trim();
-    let prefix = 'Bearer';
-    let token = rawKey;
-
-    if (/^ApiKey\s+/i.test(rawKey)) {
-      prefix = 'ApiKey';
-      token = rawKey.replace(/^ApiKey\s+/i, '').trim();
-    } else if (/^Bearer\s+/i.test(rawKey)) {
-      prefix = 'Bearer';
-      token = rawKey.replace(/^Bearer\s+/i, '').trim();
-    } else {
-      // If no prefix, guess based on length/format. JWTs are very long and have dots.
-      prefix = token.includes('.') ? 'Bearer' : 'ApiKey';
-    }
-
-    if (token) {
-      headers.Authorization = `${prefix} ${token}`;
-    }
-  }
-
-  return headers;
-}
-
-function buildApiBase() {
-  return 'https://sutaze.api.sportnet.online/api/v2';
-}
-
-// Map SportNet internal team names to our categories
-const TEAM_NAME_MAP = {
-  'dospeli-m-a': 'dospeli',
-  'dospeli m a': 'dospeli',
-  'u19-m-a': 'u19',
-  'u19 m a': 'u19',
-  'u17-m-a': 'u17',
-  'u17 m a': 'u17',
-  'u15-m-a': 'u15',
-  'u15 m a': 'u15',
-  'u13-m-a': 'u13',
-  'u13 m a': 'u13',
-  'u11-m-a': 'u11',
-  'u11 m a': 'u11',
-  'u09-m-a': 'u09',
-  'u09 m a': 'u09',
-  'u9-m-a': 'u09',
-  'u9 m a': 'u09'
+// Age-category detection from team ageCategory / displayName
+const AGE_CATEGORY_MAP = {
+  ADULTS: 'dospeli',
+  U19: 'u19',
+  U17: 'u17',
+  U15: 'u15',
+  U13: 'u13',
+  U11: 'u11',
+  U09: 'u09'
 };
 
 function detectTeamCategory(team) {
-  const name = String(team.name || '').toLowerCase().trim();
-  const displayName = String(team.displayName || '').toLowerCase().trim();
+  const ac = String(team.ageCategory || '').toUpperCase().trim();
+  if (AGE_CATEGORY_MAP[ac]) return AGE_CATEGORY_MAP[ac];
 
-  // Try direct map
-  for (const [pattern, category] of Object.entries(TEAM_NAME_MAP)) {
-    if (name === pattern || name.includes(pattern)) return category;
-    if (displayName === pattern || displayName.includes(pattern)) return category;
-  }
-
-  // Fallback: detect from display name patterns
-  if (displayName.includes('u19') || displayName.includes('u-19') || displayName.includes('dorast')) return 'u19';
-  if (displayName.includes('u17') || displayName.includes('u-17')) return 'u17';
-  if (displayName.includes('u15') || displayName.includes('u-15') || displayName.includes('starší žiaci')) return 'u15';
-  if (displayName.includes('u13') || displayName.includes('u-13') || displayName.includes('mladší žiaci')) return 'u13';
-  if (displayName.includes('u11') || displayName.includes('u-11') || displayName.includes('prípravka')) return 'u11';
-  if (displayName.includes('u09') || displayName.includes('u-09') || displayName.includes('u9')) return 'u09';
-  if (displayName.includes('dospel') || displayName.includes('muž') || name.includes('dospel')) return 'dospeli';
-
+  const dn = String(team.displayName || '').toLowerCase();
+  if (dn.includes('dospel') || dn.includes('muž')) return 'dospeli';
+  if (dn.includes('u19') || dn.includes('dorast')) return 'u19';
+  if (dn.includes('u17')) return 'u17';
+  if (dn.includes('u15') || dn.includes('starší žiaci')) return 'u15';
+  if (dn.includes('u13') || dn.includes('mladší žiaci')) return 'u13';
+  if (dn.includes('u11') || dn.includes('prípravka')) return 'u11';
+  if (dn.includes('u09') || dn.includes('u9')) return 'u09';
   return null;
 }
 
 const POSITION_LABELS = {
+  goalkeeper: 'Brankár',
   brankár: 'Brankár',
   brankar: 'Brankár',
-  goalkeeper: 'Brankár',
   gk: 'Brankár',
-  obranca: 'Obranca',
   defender: 'Obranca',
+  obranca: 'Obranca',
   def: 'Obranca',
+  midfielder: 'Záložník',
   záložník: 'Záložník',
   zaloznik: 'Záložník',
-  midfielder: 'Záložník',
   mid: 'Záložník',
+  forward: 'Útočník',
   útočník: 'Útočník',
   utocnik: 'Útočník',
-  forward: 'Útočník',
   fw: 'Útočník',
   striker: 'Útočník',
   str: 'Útočník'
@@ -113,7 +63,6 @@ function normalizePosition(raw) {
 function mapAthlete(athlete) {
   const user = athlete.sportnetUser || {};
   const data = athlete.additionalData || {};
-
   return {
     sportnetId: user._id || null,
     name: user.name || 'Neznámy',
@@ -125,139 +74,122 @@ function mapAthlete(athlete) {
 }
 
 function groupByPosition(athletes) {
-  const groups = {
-    'Brankár': [],
-    'Obranca': [],
-    'Záložník': [],
-    'Útočník': [],
-    'Neznáma': []
-  };
-
-  athletes.forEach((player) => {
-    const pos = player.position;
-    if (groups[pos]) {
-      groups[pos].push(player);
-    } else {
-      groups['Neznáma'].push(player);
-    }
+  const groups = { 'Brankár': [], 'Obranca': [], 'Záložník': [], 'Útočník': [], 'Neznáma': [] };
+  athletes.forEach((p) => {
+    (groups[p.position] || groups['Neznáma']).push(p);
   });
-
   return groups;
 }
 
-function getUnconfiguredPayload() {
-  return {
-    source: 'sportsnet-players.unconfigured',
-    fetchedAt: new Date().toISOString(),
-    teams: {},
-    cache: 'BYPASS',
-    message: 'Sportsnet endpoint nie je nakonfigurovaný. Nastav SPORTNET_API_BASE a SPORTNET_API_KEY.'
-  };
+/**
+ * Pick the best (most recent) team for each age category.
+ * Prefers the current or latest season that actually has data.
+ */
+function pickLatestTeams(teamsList) {
+  const best = {};
+  for (const t of teamsList) {
+    const cat = detectTeamCategory(t);
+    if (!cat) continue;
+    const seasonFrom = t.season ? new Date(t.season.dateFrom || 0).getTime() : 0;
+    if (!best[cat] || seasonFrom > best[cat].seasonFrom) {
+      best[cat] = { team: t, seasonFrom };
+    }
+  }
+  return best;
+}
+
+/**
+ * Build a date string (YYYY-MM-DD) that falls inside the team's season,
+ * so the squad endpoint returns the correct roster.
+ */
+function getSquadDate(team) {
+  if (!team.season) return new Date().toISOString().slice(0, 10);
+  const from = new Date(team.season.dateFrom);
+  const to = new Date(team.season.dateTo);
+  const now = new Date();
+  // If today is within the season, use today; otherwise use the season midpoint
+  if (now >= from && now <= to) return now.toISOString().slice(0, 10);
+  const mid = new Date((from.getTime() + to.getTime()) / 2);
+  return mid.toISOString().slice(0, 10);
+}
+
+async function fetchJson(url) {
+  const res = await fetch(url, { headers: { Accept: 'application/json' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
 async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
-  const apiBase = buildApiBase();
-  if (!apiBase) {
-    return getUnconfiguredPayload();
-  }
-
-  if (!isNonEmptyString(env.sportnetOrgId)) {
-    return getUnconfiguredPayload();
-  }
-
-  if (!isNonEmptyString(env.sportsnetApiKey)) {
-    return getUnconfiguredPayload();
-  }
-
   const now = Date.now();
 
   if (!forceRefresh && cacheState.payload && cacheState.expiresAt > now) {
-    return {
-      ...cacheState.payload,
-      cache: 'HIT'
-    };
+    return { ...cacheState.payload, cache: 'HIT' };
   }
 
-  const appSpace = env.sportnetOrgId.trim();
-  const headers = getHeaders();
+  const appSpace = encodeURIComponent(APP_SPACE);
 
-  // Step 1: Fetch all teams
-  const teamsUrl = `${apiBase}/admin/${encodeURIComponent(appSpace)}/teams?limit=100`;
-
-  let teamsResponse;
-  try {
-    teamsResponse = await fetch(teamsUrl, { method: 'GET', headers });
-  } catch (cause) {
-    console.error('Sportsnet API (teams) connection error:', cause);
-    if (cacheState.payload) {
-      return { ...cacheState.payload, cache: 'STALE' };
-    }
-    return { ...getUnconfiguredPayload(), source: 'sportsnet-players.error', message: 'Nepodarilo sa pripojiť na Sportsnet API.' };
-  }
-
-  if (!teamsResponse.ok) {
-    let responseBody = '';
-    try { responseBody = await teamsResponse.text(); } catch (_) {}
-    console.error(`Sportsnet API (teams) returned status ${teamsResponse.status}: ${responseBody.slice(0, 300)}`);
-    if (cacheState.payload) {
-      return { ...cacheState.payload, cache: 'STALE' };
-    }
-    return { ...getUnconfiguredPayload(), source: 'sportsnet-players.error', message: `Sportsnet API vrátilo status ${teamsResponse.status}.` };
-  }
-
+  // Step 1: Fetch all teams (public, no auth needed)
   let teamsPayload;
   try {
-    teamsPayload = await teamsResponse.json();
-  } catch (cause) {
-    console.error('Sportsnet teams endpoint invalid JSON:', cause);
-    if (cacheState.payload) {
-      return { ...cacheState.payload, cache: 'STALE' };
-    }
-    return { ...getUnconfiguredPayload(), source: 'sportsnet-players.error', message: 'Sportsnet API nevrátilo validné dáta.' };
+    teamsPayload = await fetchJson(`${API_BASE}/public/${appSpace}/teams?limit=200`);
+  } catch (err) {
+    console.error('Sportsnet public API (teams) error:', err.message);
+    if (cacheState.payload) return { ...cacheState.payload, cache: 'STALE' };
+    return { source: 'sportsnet-players.error', fetchedAt: new Date().toISOString(), teams: {}, cache: 'MISS', message: 'Nepodarilo sa načítať tímy zo Sportsnet.' };
   }
 
   const teamsList = Array.isArray(teamsPayload.teams) ? teamsPayload.teams : [];
+  const bestByCategory = pickLatestTeams(teamsList);
 
-  // Step 2: For each team, fetch its squads and map
+  // Step 2: Fetch squad for each category in parallel (public, no auth needed)
   const teams = {};
+  const entries = Object.entries(bestByCategory);
 
-  for (const team of teamsList) {
-    const category = detectTeamCategory(team);
-    if (!category) continue;
-
-    // Try to get squad data from the team object directly if available
+  await Promise.all(entries.map(async ([category, { team }]) => {
+    const date = getSquadDate(team);
+    const squadUrl = `${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(team._id)}/squad?date=${date}`;
     let athletes = [];
     let crew = [];
 
-    if (Array.isArray(team.athletes) && team.athletes.length > 0) {
-      athletes = team.athletes;
-    } else {
-      // Fetch squads endpoint for this team
-      const squadsUrl = `${apiBase}/admin/${encodeURIComponent(appSpace)}/teams/${encodeURIComponent(team._id)}/squads`;
-      try {
-        const squadsResponse = await fetch(squadsUrl, { method: 'GET', headers });
-        if (squadsResponse.ok) {
-          const squadsPayload = await squadsResponse.json();
-          const items = Array.isArray(squadsPayload.items) ? squadsPayload.items : [];
-          // Use the most recent squad (last one or sorted by validFrom)
-          if (items.length > 0) {
-            const latestSquad = items.sort((a, b) => {
-              return new Date(b.validFrom || 0) - new Date(a.validFrom || 0);
-            })[0];
-            athletes = latestSquad.athletes || [];
-            crew = latestSquad.crew || [];
-          }
-        }
-      } catch (_) {
-        // Skip squad fetch errors; we'll have empty roster
+    try {
+      const squad = await fetchJson(squadUrl);
+      athletes = Array.isArray(squad.athletes) ? squad.athletes : [];
+      crew = Array.isArray(squad.crew) ? squad.crew : [];
+    } catch (_) {
+      // If the latest season is empty, try the previous one
+      const fallback = teamsList
+        .filter((t) => detectTeamCategory(t) === category && t._id !== team._id)
+        .sort((a, b) => new Date(b.season?.dateFrom || 0) - new Date(a.season?.dateFrom || 0))[0];
+      if (fallback) {
+        try {
+          const fbDate = getSquadDate(fallback);
+          const fbSquad = await fetchJson(`${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(fallback._id)}/squad?date=${fbDate}`);
+          athletes = Array.isArray(fbSquad.athletes) ? fbSquad.athletes : [];
+          crew = Array.isArray(fbSquad.crew) ? fbSquad.crew : [];
+        } catch (__) { /* empty roster */ }
+      }
+    }
+
+    // If latest season returned 0 athletes, try the previous season automatically
+    if (athletes.length === 0) {
+      const fallback = teamsList
+        .filter((t) => detectTeamCategory(t) === category && t._id !== team._id)
+        .sort((a, b) => new Date(b.season?.dateFrom || 0) - new Date(a.season?.dateFrom || 0))[0];
+      if (fallback) {
+        try {
+          const fbDate = getSquadDate(fallback);
+          const fbSquad = await fetchJson(`${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(fallback._id)}/squad?date=${fbDate}`);
+          athletes = Array.isArray(fbSquad.athletes) ? fbSquad.athletes : [];
+          crew = Array.isArray(fbSquad.crew) ? fbSquad.crew : [];
+        } catch (__) { /* empty roster */ }
       }
     }
 
     const mappedAthletes = athletes.map(mapAthlete);
-    const mappedCrew = (crew || []).map((c) => ({
+    const mappedCrew = crew.map((c) => ({
       sportnetId: c.sportnetUser ? c.sportnetUser._id : null,
       name: c.sportnetUser ? c.sportnetUser.name : 'Neznámy',
-      position: c.position || 'Tréner'
+      position: c.additionalData?.position || 'Tréner'
     }));
 
     teams[category] = {
@@ -268,7 +200,7 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
       crew: mappedCrew,
       count: mappedAthletes.length
     };
-  }
+  }));
 
   const normalized = {
     source: 'sportsnet-players.online',
@@ -280,10 +212,7 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
   cacheState.payload = normalized;
   cacheState.expiresAt = now + cacheTtl;
 
-  return {
-    ...normalized,
-    cache: 'MISS'
-  };
+  return { ...normalized, cache: 'MISS' };
 }
 
 module.exports = {
