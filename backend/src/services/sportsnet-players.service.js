@@ -165,6 +165,10 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
     return getUnconfiguredPayload();
   }
 
+  if (!isNonEmptyString(env.sportsnetApiKey)) {
+    return getUnconfiguredPayload();
+  }
+
   const now = Date.now();
 
   if (!forceRefresh && cacheState.payload && cacheState.expiresAt > now) {
@@ -184,36 +188,32 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
   try {
     teamsResponse = await fetch(teamsUrl, { method: 'GET', headers });
   } catch (cause) {
-    const error = new Error('Nepodarilo sa pripojiť na Sportsnet API (teams).');
-    error.status = 502;
-    error.cause = cause;
-    throw error;
+    console.error('Sportsnet API (teams) connection error:', cause);
+    if (cacheState.payload) {
+      return { ...cacheState.payload, cache: 'STALE' };
+    }
+    return { ...getUnconfiguredPayload(), source: 'sportsnet-players.error', message: 'Nepodarilo sa pripojiť na Sportsnet API.' };
   }
 
   if (!teamsResponse.ok) {
     let responseBody = '';
     try { responseBody = await teamsResponse.text(); } catch (_) {}
-    
-    let errMsg = `Sportsnet API (teams) vrátilo status ${teamsResponse.status}.`;
-    if (teamsResponse.status === 401) {
-      const hasKey = isNonEmptyString(env.sportsnetApiKey) ? 'MÁŠ NASTAVENÝ nejaký API kľúč (možno je expirovaný/zlý)' : 'KĽÚČ ÚPLNE CHÝBA';
-      errMsg += ` Vrátená chyba 401 Unauthorized. Stav tvojho Vercel prostredia: SPORTNET_API_KEY -> ${hasKey}. Skontroluj Vercel Environment Variables!`;
+    console.error(`Sportsnet API (teams) returned status ${teamsResponse.status}: ${responseBody.slice(0, 300)}`);
+    if (cacheState.payload) {
+      return { ...cacheState.payload, cache: 'STALE' };
     }
-    errMsg += ` Body: ${responseBody.slice(0, 300)}`;
-
-    const error = new Error(errMsg);
-    error.status = 502;
-    throw error;
+    return { ...getUnconfiguredPayload(), source: 'sportsnet-players.error', message: `Sportsnet API vrátilo status ${teamsResponse.status}.` };
   }
 
   let teamsPayload;
   try {
     teamsPayload = await teamsResponse.json();
   } catch (cause) {
-    const error = new Error('Sportsnet teams endpoint nevrátil validné JSON dáta.');
-    error.status = 502;
-    error.cause = cause;
-    throw error;
+    console.error('Sportsnet teams endpoint invalid JSON:', cause);
+    if (cacheState.payload) {
+      return { ...cacheState.payload, cache: 'STALE' };
+    }
+    return { ...getUnconfiguredPayload(), source: 'sportsnet-players.error', message: 'Sportsnet API nevrátilo validné dáta.' };
   }
 
   const teamsList = Array.isArray(teamsPayload.teams) ? teamsPayload.teams : [];
