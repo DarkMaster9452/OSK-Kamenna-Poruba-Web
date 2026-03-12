@@ -1049,6 +1049,47 @@
             flex-shrink: 0;
         }
 
+        /* Standings category tabs */
+        .standings-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .standings-tab {
+            padding: 10px 20px;
+            border: 2px solid #003399;
+            border-radius: 25px;
+            background: #fff;
+            color: #003399;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .standings-tab:hover {
+            background: #e6eeff;
+        }
+
+        .standings-tab.active {
+            background: #003399;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .standings-tabs {
+                gap: 6px;
+            }
+
+            .standings-tab {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+        }
+
         @media (max-width: 768px) {
             #standings {
                 padding: 40px 12px;
@@ -2294,9 +2335,15 @@
         <!-- League Standings Section -->
         <section id="standings" style="background: #fff; padding: 60px 40px;">
             <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 style="text-align: center; color: #003399; margin-bottom: 40px; font-size: 36px;">
-                    <i class="fas fa-ranking-star"></i> TABUĽKA SÚŤAŽe
+                <h2 style="text-align: center; color: #003399; margin-bottom: 24px; font-size: 36px;">
+                    <i class="fas fa-ranking-star"></i> TABUĽKA SÚŤAŽE
                 </h2>
+                <div class="standings-tabs" id="standingsTabs">
+                    <button class="standings-tab active" data-cat="dospeli">Dospelí</button>
+                    <button class="standings-tab" data-cat="dorast">Dorast</button>
+                    <button class="standings-tab" data-cat="ziaci">Žiaci</button>
+                    <button class="standings-tab" data-cat="pripravka">Prípravka</button>
+                </div>
                 <div id="standingsSectionContainer">
                     <div style="text-align:center;padding:40px;color:#666;">
                         <i class="fas fa-spinner fa-spin" style="font-size:24px;color:#003399;"></i>
@@ -3392,6 +3439,13 @@
                     ensureCoverage();
                 });
 
+                // Fix: Reset lastTimestamp when page becomes visible again (after clicking sponsor link)
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) {
+                        lastTimestamp = 0;
+                    }
+                });
+
                 function animateMarquee(timestamp) {
                     if (!lastTimestamp) {
                         lastTimestamp = timestamp;
@@ -3879,11 +3933,114 @@
         }
 
         // ====== TABULKA SUTAZE (index.html) ======
-        const IDX_OWN_TEAM = ['kamenn\u00e1 poruba', 'kamenna poruba', 'o\u0161k kamen', 'osk kamen'];
+        const IDX_OWN_TEAM = ['kamenná poruba', 'kamenna poruba', 'ošk kamen', 'osk kamen'];
+        let ALL_STANDINGS_GROUPS = [];
+        let ACTIVE_STANDINGS_CAT = 'dospeli';
 
         function idxIsOwnTeam(name) {
             const l = String(name || '').toLowerCase();
             return IDX_OWN_TEAM.some(p => l.includes(p));
+        }
+
+        // Map competition/part name to category
+        function detectStandingsCategory(competition, part) {
+            const text = `${competition} ${part}`.toLowerCase();
+            if (text.includes('dorast') || text.includes('u19') || text.includes('u17')) return 'dorast';
+            if (text.includes('žiac') || text.includes('ziac') || text.includes('u15') || text.includes('u13')) return 'ziaci';
+            if (text.includes('príprav') || text.includes('priprav') || text.includes('u11') || text.includes('u09') || text.includes('u9') || text.includes('respect')) return 'pripravka';
+            return 'dospeli';
+        }
+
+        function renderStandingsForCategory(category) {
+            const container = document.getElementById('standingsSectionContainer');
+            if (!container) return;
+
+            const filtered = ALL_STANDINGS_GROUPS.filter(g => detectStandingsCategory(g.competition, g.part) === category);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Žiadne tabuľky pre túto kategóriu.</p>';
+                return;
+            }
+
+            const QUALIFY = 2;
+            container.innerHTML = filtered.map(group => {
+                const teams = group.results || [];
+                const title = group.part && group.part !== group.competition
+                    ? `${group.competition} – ${group.part}`
+                    : group.competition;
+
+                const rows = teams.map((team, idx) => {
+                    const rank = team.rank ?? idx + 1;
+                    const name = team.teamName || team.name || 'Tím';
+                    const diff = (team.goalsFor || 0) - (team.goalsAgainst || 0);
+                    const diffStr = diff > 0 ? `+${diff}` : String(diff);
+                    const diffCls = diff > 0 ? 'idx-diff-pos' : (diff < 0 ? 'idx-diff-neg' : '');
+                    const own = idxIsOwnTeam(name);
+                    const qual = rank <= QUALIFY && teams.length > QUALIFY;
+                    const abbr = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+                    const rankCell = qual
+                        ? `<span class="idx-rank-qualifier">${rank}</span>`
+                        : `<span style="font-weight:600;color:#555;">${rank}.</span>`;
+                    return `
+                        <tr${own ? ' style="background:#fffbe6;"' : ''}>
+                            <td>${rankCell}</td>
+                            <td>
+                                <div class="idx-team-cell">
+                                    <div class="idx-team-abbr${own ? ' own' : ''}">${abbr}</div>
+                                    <span class="idx-team-name${own ? ' own' : ''}">${name}</span>
+                                </div>
+                            </td>
+                            <td class="c">${team.played ?? 0}</td>
+                            <td class="c">${team.won ?? 0}</td>
+                            <td class="c">${team.drawn ?? 0}</td>
+                            <td class="c">${team.lost ?? 0}</td>
+                            <td class="c">${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}</td>
+                            <td class="c"><span class="${diffCls}">${diffStr}</span></td>
+                            <td class="c"><span class="idx-pts">${team.points ?? 0}</span></td>
+                        </tr>`;
+                }).join('');
+
+                const legend = QUALIFY > 0 && teams.length > QUALIFY
+                    ? `<div class="idx-standings-legend"><div class="idx-standings-legend-dot"></div> Postup do ďalšej fázy</div>`
+                    : '';
+
+                return `
+                    <div class="idx-standings-group">
+                        <div class="idx-standings-header"><i class="fas fa-table-cells"></i> ${title}</div>
+                        <table class="idx-standings-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:44px">#</th>
+                                    <th>Tím</th>
+                                    <th class="c" title="Odohrané zápasy">OZ</th>
+                                    <th class="c" title="Výhry">V</th>
+                                    <th class="c" title="Remízy">R</th>
+                                    <th class="c" title="Prehry">P</th>
+                                    <th class="c" title="Góly">Góly</th>
+                                    <th class="c" title="Rozdiel gólov">+/-</th>
+                                    <th class="c" title="Body">B</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                        ${legend}
+                    </div>`;
+            }).join('');
+        }
+
+        function initStandingsTabs() {
+            const tabsContainer = document.getElementById('standingsTabs');
+            if (!tabsContainer) return;
+            tabsContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('.standings-tab');
+                if (!btn) return;
+                const cat = btn.dataset.cat;
+                if (cat === ACTIVE_STANDINGS_CAT) return;
+                ACTIVE_STANDINGS_CAT = cat;
+                tabsContainer.querySelectorAll('.standings-tab').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+                renderStandingsForCategory(cat);
+            });
         }
 
         async function loadStandingsSection() {
@@ -3908,72 +4065,11 @@
                     return;
                 }
 
-                const QUALIFY = 2;
-                container.innerHTML = ownGroups.map(group => {
-                    const teams = group.results || [];
-                    const title = group.part && group.part !== group.competition
-                        ? `${group.competition} \u2013 ${group.part}`
-                        : group.competition;
-
-                    const rows = teams.map((team, idx) => {
-                        const rank = team.rank ?? idx + 1;
-                        const name = team.teamName || team.name || 'Tím';
-                        const diff = (team.goalsFor || 0) - (team.goalsAgainst || 0);
-                        const diffStr = diff > 0 ? `+${diff}` : String(diff);
-                        const diffCls = diff > 0 ? 'idx-diff-pos' : (diff < 0 ? 'idx-diff-neg' : '');
-                        const own = idxIsOwnTeam(name);
-                        const qual = rank <= QUALIFY && teams.length > QUALIFY;
-                        const abbr = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
-                        const rankCell = qual
-                            ? `<span class="idx-rank-qualifier">${rank}</span>`
-                            : `<span style="font-weight:600;color:#555;">${rank}.</span>`;
-                        return `
-                            <tr${own ? ' style="background:#fffbe6;"' : ''}>
-                                <td>${rankCell}</td>
-                                <td>
-                                    <div class="idx-team-cell">
-                                        <div class="idx-team-abbr${own ? ' own' : ''}">${abbr}</div>
-                                        <span class="idx-team-name${own ? ' own' : ''}">${name}</span>
-                                    </div>
-                                </td>
-                                <td class="c">${team.played ?? 0}</td>
-                                <td class="c">${team.won ?? 0}</td>
-                                <td class="c">${team.drawn ?? 0}</td>
-                                <td class="c">${team.lost ?? 0}</td>
-                                <td class="c">${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}</td>
-                                <td class="c"><span class="${diffCls}">${diffStr}</span></td>
-                                <td class="c"><span class="idx-pts">${team.points ?? 0}</span></td>
-                            </tr>`;
-                    }).join('');
-
-                    const legend = QUALIFY > 0 && teams.length > QUALIFY
-                        ? `<div class="idx-standings-legend"><div class="idx-standings-legend-dot"></div> Postup do \u010fal\u0161ej f\u00e1zy</div>`
-                        : '';
-
-                    return `
-                        <div class="idx-standings-group">
-                            <div class="idx-standings-header"><i class="fas fa-table-cells"></i> ${title}</div>
-                            <table class="idx-standings-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:44px">#</th>
-                                        <th>T\u00edm</th>
-                                        <th class="c" title="Odohran\u00e9 z\u00e1pasy">OZ</th>
-                                        <th class="c" title="V\u00fdhry">V</th>
-                                        <th class="c" title="Rem\u00edzy">R</th>
-                                        <th class="c" title="Prehry">P</th>
-                                        <th class="c" title="G\u00f3ly">G\u00f3ly</th>
-                                        <th class="c" title="Rozdiel g\u00f3lov">+/-</th>
-                                        <th class="c" title="Body">B</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${rows}</tbody>
-                            </table>
-                            ${legend}
-                        </div>`;
-                }).join('');
+                ALL_STANDINGS_GROUPS = ownGroups;
+                initStandingsTabs();
+                renderStandingsForCategory(ACTIVE_STANDINGS_CAT);
             } catch (err) {
-                console.warn('Nepodarilo sa na\u010d\u00edta\u0165 tabu\u013eku:', err);
+                console.warn('Nepodarilo sa načítať tabuľku:', err);
                 const standing = document.getElementById('standings');
                 if (standing) standing.style.display = 'none';
             }
