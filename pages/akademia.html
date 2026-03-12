@@ -12,6 +12,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f4f4f4;
             color: #333;
+            overflow-x: hidden;
         }
 
         .site-nav {
@@ -58,7 +59,7 @@
         .btn-back {
             color: #fff;
             text-decoration: none;
-            padding: 0;
+            padding: 10px 0;
             border-radius: 0;
             font-weight: 700;
             border: none;
@@ -67,6 +68,7 @@
             align-items: center;
             gap: 8px;
             font-size: 16px;
+            min-height: 44px;
         }
 
         .page-title {
@@ -86,7 +88,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 16px;
         }
 
@@ -181,10 +183,35 @@
 
             .site-nav-inner {
                 min-height: 62px;
+                flex-wrap: wrap;
+                padding: 10px 0;
+                gap: 6px;
             }
 
             .page-title {
-                font-size: 24px;
+                font-size: 22px;
+            }
+
+            main {
+                padding: 0 12px 20px;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
+            .table-wrap table {
+                min-width: 480px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .site-brand span {
+                display: none;
+            }
+
+            .btn-back {
+                font-size: 14px;
             }
         }
     </style>
@@ -217,7 +244,8 @@
             <h3>Ligové tabuľky mládeže</h3>
             <!-- Sem sa pridajú tabuľky pre jednotlivé kategórie (U19, U15 atď.) -->
             <div id="leagueTablesContainer">
-                <p style="text-align:center; color:#666; padding: 20px 0;">Čakáme na dodanie API URL pre mládežnícke súťaže...</p>
+                <p style="text-align:center; color:#666; padding: 20px 0;">Čakáme na dodanie API URL pre mládežnícke
+                    súťaže...</p>
             </div>
         </section>
 
@@ -460,13 +488,13 @@
                 tableDiv = document.createElement('div');
                 tableDiv.id = `league-table-${competitionId}`;
                 tableDiv.style.marginBottom = '24px';
-                
+
                 // Odstránime placeholder ak existuje
                 const placeholder = container.querySelector('p');
                 if (placeholder && placeholder.textContent.includes('Čakáme na dodanie')) {
                     placeholder.remove();
                 }
-                
+
                 container.appendChild(tableDiv);
             }
 
@@ -499,7 +527,7 @@
                     const matches = stats.matches || {};
                     const goals = stats.goals || {};
                     const points = stats.points || 0;
-                    
+
                     const isOsk = row.team && row.team.name && row.team.name.includes('Kamenná Poruba');
                     const rowStyle = isOsk ? 'background-color: #f0f5ff; font-weight: bold;' : '';
 

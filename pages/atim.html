@@ -12,6 +12,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f4f4f4;
             color: #333;
+            overflow-x: hidden;
         }
 
         .site-nav {
@@ -58,7 +59,7 @@
         .btn-back {
             color: #fff;
             text-decoration: none;
-            padding: 0;
+            padding: 10px 0;
             border-radius: 0;
             font-weight: 700;
             border: none;
@@ -67,6 +68,7 @@
             align-items: center;
             gap: 8px;
             font-size: 16px;
+            min-height: 44px;
         }
 
         .page-title {
@@ -124,7 +126,7 @@
             width: 100%;
             border-collapse: collapse;
             background: #f8f9fc;
-            min-width: 760px;
+            min-width: 580px;
         }
 
         th,
@@ -148,7 +150,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 18px;
         }
 
@@ -165,19 +167,36 @@
 
             .site-nav-inner {
                 min-height: 62px;
+                flex-wrap: wrap;
+                padding: 10px 0;
+                gap: 6px;
             }
 
             .page-title {
-                font-size: 24px;
+                font-size: 22px;
             }
 
-            .site-nav {
-                flex-direction: column;
-                align-items: flex-start;
+            main {
+                margin: 16px auto;
+                padding: 0 12px 20px;
             }
 
             .card {
                 padding: 14px;
+            }
+
+            table {
+                min-width: 480px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .site-brand span {
+                display: none;
+            }
+
+            .btn-back {
+                font-size: 14px;
             }
         }
     </style>
@@ -215,7 +234,8 @@
         <section class="card">
             <h3>Ligová tabuľka</h3>
             <div id="leagueTableContainer">
-                <p style="color:#888;text-align:center;padding:24px 0;"><i class="fas fa-spinner fa-spin"></i> Načítavam tabuľku...</p>
+                <p style="color:#888;text-align:center;padding:24px 0;"><i class="fas fa-spinner fa-spin"></i> Načítavam
+                    tabuľku...</p>
             </div>
         </section>
 
@@ -392,7 +412,7 @@
                 }
 
                 const data = await response.json();
-                
+
                 // Zvyčajne je tabuľka v data.parts[0].resultsTable.results
                 const parts = data.parts || [];
                 let results = [];
@@ -411,7 +431,7 @@
                     const matches = stats.matches || {};
                     const goals = stats.goals || {};
                     const points = stats.points || 0;
-                    
+
                     const isOsk = row.team && row.team.name && row.team.name.includes('Kamenná Poruba');
                     const rowStyle = isOsk ? 'background-color: #f0f5ff; font-weight: bold;' : '';
 

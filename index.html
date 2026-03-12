@@ -159,6 +159,27 @@
             left: auto;
         }
 
+        @media (max-width: 480px) {
+            #galleryModalPrev {
+                left: 8px;
+            }
+
+            #galleryModalNext {
+                right: 8px;
+            }
+
+            #galleryModalClose {
+                top: 12px;
+                right: 12px;
+                font-size: 36px;
+                min-width: 44px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+            }
+        }
+
         /* Gallery Modal Zoom */
         #galleryModal {
             display: none;
@@ -913,6 +934,11 @@
             overflow: hidden;
         }
 
+        .idx-standings-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .idx-standings-header {
             background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
             color: white;
@@ -1085,8 +1111,9 @@
             }
 
             .standings-tab {
-                padding: 8px 14px;
+                padding: 10px 14px;
                 font-size: 12px;
+                min-height: 44px;
             }
         }
 
@@ -4007,6 +4034,7 @@
                 return `
                     <div class="idx-standings-group">
                         <div class="idx-standings-header"><i class="fas fa-table-cells"></i> ${title}</div>
+                        <div class="idx-standings-scroll">
                         <table class="idx-standings-table">
                             <thead>
                                 <tr>
@@ -4023,6 +4051,7 @@
                             </thead>
                             <tbody>${rows}</tbody>
                         </table>
+                        </div>
                         ${legend}
                     </div>`;
             }).join('');
