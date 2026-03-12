@@ -212,6 +212,13 @@
             </div>
         </section>
 
+        <section class="card">
+            <h3>Ligová tabuľka</h3>
+            <div id="leagueTableContainer">
+                <p style="color:#888;text-align:center;padding:24px 0;"><i class="fas fa-spinner fa-spin"></i> Načítavam tabuľku...</p>
+            </div>
+        </section>
+
         <section class="grid">
             <div class="card">
                 <h3>Najbližší zápas</h3>
@@ -343,7 +350,119 @@
             }
         }
 
-        window.addEventListener('load', loadPlayers);
+        async function fetchAndRenderLeagueTable(competitionId, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (!competitionId) {
+                container.innerHTML = `
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:50px;">Por.</th>
+                                    <th>Tím</th>
+                                    <th style="width:50px;" title="Zápasy">Z</th>
+                                    <th style="width:50px;" title="Výhry">V</th>
+                                    <th style="width:50px;" title="Remízy">R</th>
+                                    <th style="width:50px;" title="Prehry">P</th>
+                                    <th style="width:70px;" title="Skóre">Skóre</th>
+                                    <th style="width:50px;" title="Body">B</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="8" style="text-align:center; color:#666;">Čakáme na dodanie API URL od používateľa...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                // Skúsime načítať data. URL bude prispôsobená podľa toho, čo pošlete.
+                // Pre priame volanie SportNet API (ak nie je CORS zablokované):
+                const response = await fetch(`https://sutaze.api.sportnet.online/api/v2/competitions/${competitionId}`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Chyba pri načítaní tabuľky: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Zvyčajne je tabuľka v data.parts[0].resultsTable.results
+                const parts = data.parts || [];
+                let results = [];
+                if (parts.length > 0 && parts[0].resultsTable && parts[0].resultsTable.results) {
+                    results = parts[0].resultsTable.results;
+                }
+
+                if (results.length === 0) {
+                    container.innerHTML = '<p style="color:#888;text-align:center;padding:24px 0;">Tabuľka je zatiaľ prázdna.</p>';
+                    return;
+                }
+
+                // Generovanie riadkov tabuľky
+                const rows = results.map((row, index) => {
+                    const stats = row.stats || {};
+                    const matches = stats.matches || {};
+                    const goals = stats.goals || {};
+                    const points = stats.points || 0;
+                    
+                    const isOsk = row.team && row.team.name && row.team.name.includes('Kamenná Poruba');
+                    const rowStyle = isOsk ? 'background-color: #f0f5ff; font-weight: bold;' : '';
+
+                    return `
+                        <tr style="${rowStyle}">
+                            <td>${index + 1}.</td>
+                            <td>${row.team?.name || 'Neznámy tím'}</td>
+                            <td>${matches.played || 0}</td>
+                            <td>${matches.won || 0}</td>
+                            <td>${matches.draw || 0}</td>
+                            <td>${matches.lost || 0}</td>
+                            <td>${goals.given || 0}:${goals.received || 0}</td>
+                            <td><strong>${points}</strong></td>
+                        </tr>
+                    `;
+                }).join('');
+
+                container.innerHTML = `
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:50px;">Por.</th>
+                                    <th>Tím</th>
+                                    <th style="width:50px;" title="Zápasy">Z</th>
+                                    <th style="width:50px;" title="Výhry">V</th>
+                                    <th style="width:50px;" title="Remízy">R</th>
+                                    <th style="width:50px;" title="Prehry">P</th>
+                                    <th style="width:70px;" title="Skóre">Skóre</th>
+                                    <th style="width:50px;" title="Body">B</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error("Nepodarilo sa načítať tabuľku:", error);
+                container.innerHTML = `<p style="color:#c00;text-align:center;padding:24px 0;"><i class="fas fa-exclamation-triangle"></i> Nepodarilo sa načítať ligovú tabuľku.</p>`;
+            }
+        }
+
+        window.addEventListener('load', () => {
+            loadPlayers();
+            // Zavolajte funkciu s ID súťaže, keď ho budete mať, napr:
+            // fetchAndRenderLeagueTable('123abc456def', 'leagueTableContainer');
+            fetchAndRenderLeagueTable('', 'leagueTableContainer');
+        });
     </script>
 </body>
 

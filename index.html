@@ -349,6 +349,59 @@
             color: #003399;
         }
 
+        /* Submenu styles */
+        .nav-item-has-submenu {
+            position: relative;
+        }
+
+        .sub-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #003399;
+            min-width: 180px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 10px 0;
+            z-index: 1000;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .sub-menu li {
+            width: 100%;
+        }
+
+        .sub-menu a {
+            padding: 10px 20px;
+            display: block;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .sub-menu a::after {
+            display: none;
+        }
+
+        .nav-item-has-submenu:hover .sub-menu {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .nav-item-has-submenu .sub-menu {
+                position: static;
+                display: block;
+                background: rgba(0, 0, 0, 0.1);
+                box-shadow: none;
+                padding-left: 20px;
+                margin-top: 5px;
+                border-radius: 0;
+            }
+            .nav-item-has-submenu a i {
+                display: none;
+            }
+        }
+
         .header-actions {
             display: flex;
             align-items: center;
@@ -1999,7 +2052,13 @@
             </div>
             <nav id="mainNav">
                 <ul>
-                    <li><a href="#about">O nás</a></li>
+                    <li class="nav-item-has-submenu">
+                        <a href="#about">O nás <i class="fas fa-chevron-down" style="font-size: 10px;"></i></a>
+                        <ul class="sub-menu">
+                            <li><a href="#about">História</a></li>
+                            <li><a href="/pages/vedenie.html">Vedenie klubu</a></li>
+                        </ul>
+                    </li>
                     <li><a href="/pages/atim.html">A-tím</a></li>
                     <li><a href="/pages/akademia.html">Akadémia</a></li>
                     <li><a href="#matches">Zápasy</a></li>
@@ -2007,11 +2066,11 @@
                     <li><a href="/pages/blog.html">Blog</a></li>
                     <li><a href="#contact">Kontakt</a></li>
                     <li id="coachPlayerCardBtn" style="display:none;"><a href="/pages/players_list_coach.html"><i
-                                class="fas fa-id-card"></i> Karty hráčov</a></li>
+                                 class="fas fa-id-card"></i> Karty hráčov</a></li>
                     <li id="coachAccountMgmtBtn" style="display:none;"><a href="/pages/account_management.html"><i
-                                class="fas fa-users-cog"></i> Správa účtov</a></li>
+                                 class="fas fa-users-cog"></i> Správa účtov</a></li>
                     <li id="coachGroupsBtn" style="display:none;"><a href="/pages/skupiny.html"><i
-                                class="fas fa-layer-group"></i> Skupiny</a></li>
+                                 class="fas fa-layer-group"></i> Skupiny</a></li>
                     <li><a href="#" id="trainingNavLink" style="cursor: pointer; display: none;"
                             onclick="goToTrainings(event)"><i class="fas fa-dumbbell"></i> Tréningy</a></li>
                     <li><a href="#" id="infoNavLink" style="cursor: pointer; display: none;"
@@ -2019,8 +2078,7 @@
                     <li class="mobile-login-item"><a href="#" class="login-btn" id="mobileLoginBtnText">Prihlásiť sa</a>
                     </li>
                 </ul>
-            </nav>
-            <div class="header-actions">
+            </nav>            <div class="header-actions">
                 <a href="#" class="login-btn" id="loginBtnText">Prihlásiť sa</a>
                 <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Menu"
                     aria-expanded="false">
@@ -2043,112 +2101,6 @@
 
     <!-- Main Content -->
     <main>
-        <!-- Public Announcements Section -->
-        <section id="publicAnnouncements" style="display:none; padding: 40px 40px 0;">
-            <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 style="text-align:center; color:#003399; margin-bottom:24px; font-size:28px;">
-                    <i class="fas fa-bullhorn"></i> Oznamy a udalosti
-                </h2>
-                <div id="publicAnnouncementsList"
-                    style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px;"></div>
-            </div>
-        </section>
-
-        <!-- About Section -->
-
-        <section id="about">
-            <h2><i class="fas fa-info-circle"></i> O našom klube</h2>
-            <div class="about-history">
-
-                <div class="about-milestones">
-                    <span class="about-milestone"><i class="fas fa-flag"></i> 1955 - vznik hnutia</span>
-                    <span class="about-milestone"><i class="fas fa-signature"></i> 2003 - názov OŠK</span>
-                    <span class="about-milestone"><i class="fas fa-futbol"></i> 1980 - nové ihrisko</span>
-                </div>
-
-                <p>Pri zrode klubu stáli najmä miestni nadšenci: Karol Vereš, Jozef Čuklovič, Ignác Vereš, Pavol
-                    Chovančík, Anton Turanec, Blažej Pleva, Ondrej Rybárik a František Sandanus.</p>
-
-                <p>Klub niesol názvy <span class="about-emphasis">Sokol Kamenná Poruba</span>, neskôr
-                    <span class="about-emphasis">TJ ŠM Kamenná Poruba</span>, a od roku 2003 pôsobí ako
-                    <span class="about-emphasis">Obecný športový klub Kamenná Poruba</span>.
-                </p>
-
-                <p>Futbal sa najskôr hrával v Porubskej doline, potom od roku 1969 na ihrisku na Skotni. Keďže podmienky
-                    neboli ideálne, miestni fanúšikovia a dobrovoľníci vybudovali nové ihrisko v lokalite Dub, kde sa
-                    začalo hrávať od roku 1980.</p>
-
-                <p>Postupne sa pridalo aj kvalitnejšie zázemie: výstavba šatní (2006 - 2010), umelé zavlažovanie a
-                    menšia tribúna (2018). Klub tak rástol spolu s obcou a zostal miestom, kde sa stretáva šport,
-                    disciplína a komunita.</p>
-
-                <div class="about-note">
-                    <i class="fas fa-heart" style="color:#d62828;margin-right:8px;"></i>
-                    OŠK Kamenná Poruba nie je len tím - je to tradícia, ktorú ďalej tvoria hráči, tréneri, rodičia,
-                    dobrovoľníci a fanúšikovia.
-                </div>
-
-
-            </div>
-
-        </section>
-
-        <section id="achievements">
-            <h2><i class="fas fa-trophy"></i> Úspechy klubu</h2>
-            <div class="achievements-cta">
-                <div class="achievements-cta-text"><i class="fas fa-images"></i> Chceš vidieť kompletnú fototimeline
-                    výstavby? Otvor ju tu:</div>
-                <a href="/pages/timeline_ihriska.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i>
-                    Otvoriť
-                    timeline</a>
-            </div>
-            <div class="achievements-wrap">
-                <div class="achievements-card">
-                    <div class="achievements-subtitle">Ocenenia a športové výsledky</div>
-                    <ul class="achievements-list">
-                        <li><i class="fas fa-medal"></i><span><strong>Viacnásobné umiestnenia na popredných
-                                    priečkach</strong> v oblastných a regionálnych súťažiach.</span></li>
-                        <li><i class="fas fa-star"></i><span><strong>Postupové sezóny</strong> s potvrdením dlhodobej
-                                práce hráčov a trénerov.</span></li>
-                        <li><i class="fas fa-users"></i><span><strong>Silná mládežnícka základňa</strong> a pravidelné
-                                zapájanie odchovancov do klubu.</span></li>
-                        <li><i class="fas fa-handshake"></i><span><strong>Stabilná komunita fanúšikov</strong> a
-                                partnerov, ktorá klub dlhodobo podporuje.</span></li>
-                    </ul>
-                </div>
-
-                <div class="achievements-card">
-                    <div class="achievements-subtitle">Míľniky B-tímu</div>
-                    <div class="milestones-timeline">
-                        <div class="milestone-item">
-                            <strong>Vznik - pred ~30-34 rokmi</strong>
-                            <p>Skupina nadšencov zakladá B-tím pre radosť z futbalu.</p>
-                        </div>
-
-                        <div class="milestone-item">
-                            <strong>Pred ~20 rokmi</strong>
-                            <p>B-tím pôsobí v organizovanej amatérskej súťaži regiónu.</p>
-                        </div>
-
-                        <div class="milestone-item">
-                            <strong>15-20+ rokov tradície</strong>
-                            <p>Turnaj starších pánov - Kunerad, Kamenná Poruba, Stránske, Konská.</p>
-                        </div>
-
-                        <div class="milestone-item">
-                            <strong>Posledné roky pred pandémiou</strong>
-                            <p>Postupné utlmovanie činnosti; posledné zápasy odohraté krátko pred pandémiou.</p>
-                        </div>
-
-                        <div class="milestone-item">
-                            <strong>Po pandémii</strong>
-                            <p>Činnosť tímu sa nepodarilo obnoviť - B-tím ukončil svoju éru.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Matches Section -->
         <section id="matches"
             style="background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); padding: 80px 40px;">
@@ -2167,169 +2119,234 @@
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 40px;">
-
                     <button class="btn btn-primary" style="margin-bottom: 32px; margin-top: 0;"
                         onclick="goToMatches({preventDefault: function(){}})">
                         <i class="fas fa-arrow-right"></i> Detaily všetkých zápasov so štatistikami
                     </button>
                 </div>
+            </div>
+        </section>
 
-                <!-- Gallery Section (replaces News) -->
-                <section id="gallery">
-                    <h2><i class="fas fa-images"></i> Galéria</h2>
-                    <div class="gallery-grid" id="galleryGrid">
-                        <div class="gallery-item">
-                            <img class="gallery-image" src="/assets/images/10750142878023431842.jpg" alt="Galéria 1"
-                                style="min-width:220px; min-height:220px; background:#eaeaea;">
-                        </div>
-                        <div class="gallery-item">
-                            <img class="gallery-image" src="/assets/images/2.jpg" alt="Galéria 2">
-                        </div>
-                        <div class="gallery-item">
-                            <img class="gallery-image"
-                                src="/assets/images/508120564_29838519272462811_2048504803720081817_n.jpg"
-                                alt="Galéria 3">
-                        </div>
-                        <div class="gallery-item">
-                            <img class="gallery-image"
-                                src="/assets/images/508433324_29841234952191243_3332785514084510977_n.jpg"
-                                alt="Galéria 4">
-                        </div>
-                        <div class="gallery-item">
-                            <img class="gallery-image"
-                                src="/assets/images/508538663_29841234848857920_7529913858397432447_n.jpg"
-                                alt="Galéria 5">
-                        </div>
-                        <div class="gallery-item">
-                            <img class="gallery-image" src="/assets/images/51597284815_c985abef70_b.jpg"
-                                alt="Galéria 6">
-                        </div>
-                        <div class="gallery-item">
-                            <img class="gallery-image" src="/assets/images/IMG_5259-Enhanced-NR-1024x683.jpg"
-                                alt="Galéria 7">
-                        </div>
-                        <div class="gallery-item">
-                            <img class="gallery-image"
-                                src="/assets/images/memorial-milana-smehyla-pre-favorizovanu-kamennu-porubu-117368.1920x1080t.jpg"
-                                alt="Galéria 8">
-                        </div>
-                        <div class="gallery-item">
-                            <img class="gallery-image"
-                                src="/assets/images/memorial-milana-smehyla-pre-favorizovanu-kamennu-porubu-13661.1920x1080t.jpg"
-                                alt="Galéria 9">
-                        </div>
-                        <div class="gallery-item">
-                            <img class="gallery-image"
-                                src="/assets/images/rozhovor-kamenna-poruba-okusi-prvykrat-v-historii-klubu-krajsku-sutaz-117322.1920x1080t.jpg"
-                                alt="Galéria 10">
-                        </div>
+        <!-- Public Announcements Section -->
+        <section id="publicAnnouncements" style="display:none; padding: 40px 40px 0;">
+            <div style="max-width: 1200px; margin: 0 auto;">
+                <h2 style="text-align:center; color:#003399; margin-bottom:24px; font-size:28px;">
+                    <i class="fas fa-bullhorn"></i> Oznamy a udalosti
+                </h2>
+                <div id="publicAnnouncementsList"
+                    style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px;"></div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about">
+            <h2><i class="fas fa-info-circle"></i> O našom klube</h2>
+            <div class="about-history">
+                <div class="about-milestones">
+                    <span class="about-milestone"><i class="fas fa-flag"></i> 1955 - vznik hnutia</span>
+                    <span class="about-milestone"><i class="fas fa-signature"></i> 2003 - názov OŠK</span>
+                    <span class="about-milestone"><i class="fas fa-futbol"></i> 1980 - nové ihrisko</span>
+                </div>
+                <p>Pri zrode klubu stáli najmä miestni nadšenci: Karol Vereš, Jozef Čuklovič, Ignác Vereš, Pavol
+                    Chovančík, Anton Turanec, Blažej Pleva, Ondrej Rybárik a František Sandanus.</p>
+                <p>Klub niesol názvy <span class="about-emphasis">Sokol Kamenná Poruba</span>, neskôr
+                    <span class="about-emphasis">TJ ŠM Kamenná Poruba</span>, a od roku 2003 pôsobí ako
+                    <span class="about-emphasis">Obecný športový klub Kamenná Poruba</span>.
+                </p>
+                <p>Futbal sa najskôr hrával v Porubskej doline, potom od roku 1969 na ihrisku na Skotni. Keďže podmienky
+                    neboli ideálne, miestni fanúšikovia a dobrovoľníci vybudovali nové ihrisko v lokalite Dub, kde sa
+                    začalo hrávár od roku 1980.</p>
+                <p>Postupne sa pridalo aj kvalitnejšie zázemie: výstavba šatní (2006 - 2010), umelé zavlažovanie a
+                    menšia tribúna (2018). Klub tak rástol spolu s obcou a zostal miestom, kde sa stretáva šport,
+                    disciplína a komunita.</p>
+                <div class="about-note">
+                    <i class="fas fa-heart" style="color:#d62828;margin-right:8px;"></i>
+                    OŠK Kamenná Poruba nie je len tím - je to tradícia, ktorú ďalej tvoria hráči, tréneri, rodičia,
+                    dobrovoľníci a fanúšikovia.
+                </div>
+            </div>
+        </section>
+
+        <section id="achievements">
+            <h2><i class="fas fa-trophy"></i> Úspechy klubu</h2>
+            <div class="achievements-cta">
+                <div class="achievements-cta-text"><i class="fas fa-images"></i> Chceš vidieť kompletnú fototimeline
+                    výstavby? Otvor ju tu:</div>
+                <a href="/pages/timeline_ihriska.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i>
+                    Otvoriť
+                    timeline</a>
+            </div>
+            <div class="achievements-wrap" style="grid-template-columns: 1fr;">
+                <div class="achievements-card">
+                    <div class="achievements-subtitle">Ocenenia a športové výsledky</div>
+                    <ul class="achievements-list">
+                        <li><i class="fas fa-medal"></i><span><strong>Viacnásobné umiestnenia na popredných
+                                    priečkach</strong> v oblastných a regionálnych súťažiach.</span></li>
+                        <li><i class="fas fa-star"></i><span><strong>Postupové sezóny</strong> s potvrdením dlhodobej
+                                práce hráčov a trénerov.</span></li>
+                        <li><i class="fas fa-users"></i><span><strong>Silná mládežnícka základňa</strong> a pravidelné
+                                zapájanie odchovancov do klubu.</span></li>
+                        <li><i class="fas fa-handshake"></i><span><strong>Stabilná komunita fanúšikov</strong> a
+                                partnerov, ktorá klub dlhodobo podporuje.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery">
+            <h2><i class="fas fa-images"></i> Galéria</h2>
+            <div class="gallery-grid" id="galleryGrid">
+                <div class="gallery-item">
+                    <img class="gallery-image" src="/assets/images/10750142878023431842.jpg" alt="Galéria 1"
+                        style="min-width:220px; min-height:220px; background:#eaeaea;">
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image" src="/assets/images/2.jpg" alt="Galéria 2">
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image"
+                        src="/assets/images/508120564_29838519272462811_2048504803720081817_n.jpg"
+                        alt="Galéria 3">
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image"
+                        src="/assets/images/508433324_29841234952191243_3332785514084510977_n.jpg"
+                        alt="Galéria 4">
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image"
+                        src="/assets/images/508538663_29841234848857920_7529913858397432447_n.jpg"
+                        alt="Galéria 5">
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image" src="/assets/images/51597284815_c985abef70_b.jpg"
+                        alt="Galéria 6">
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image" src="/assets/images/IMG_5259-Enhanced-NR-1024x683.jpg"
+                        alt="Galéria 7">
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image"
+                        src="/assets/images/memorial-milana-smehyla-pre-favorizovanu-kamennu-porubu-117368.1920x1080t.jpg"
+                        alt="Galéria 8">
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image"
+                        src="/assets/images/memorial-milana-smehyla-pre-favorizovanu-kamennu-porubu-13661.1920x1080t.jpg"
+                        alt="Galéria 9">
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image"
+                        src="/assets/images/rozhovor-kamenna-poruba-okusi-prvykrat-v-historii-klubu-krajsku-sutaz-117322.1920x1080t.jpg"
+                        alt="Galéria 10">
+                </div>
+            </div>
+
+            <div class="gallery-actions">
+                <button type="button" class="gallery-load-more-btn" id="instagramLoadMoreBtn" hidden>
+                    Načítať viac
+                </button>
+                <p class="instagram-status" id="instagramGalleryStatus" hidden></p>
+            </div>
+
+            <!-- Modal for zoomed image -->
+            <div id="galleryModal"
+                style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); justify-content:center; align-items:center;">
+                <span id="galleryModalClose"
+                    style="position:absolute; top:30px; right:40px; color:white; font-size:48px; font-weight:bold; cursor:pointer; z-index:2100;">&times;</span>
+                <span id="galleryModalPrev">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="16" cy="16" r="16" fill="none" />
+                        <polyline points="20,8 12,16 20,24" stroke="#003399" stroke-width="3.5"
+                            stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                    </svg>
+                </span>
+                <span id="galleryModalNext">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="16" cy="16" r="16" fill="none" />
+                        <polyline points="12,8 20,16 12,24" stroke="#003399" stroke-width="3.5"
+                            stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                    </svg>
+                </span>
+                <img id="galleryModalImg" src="" alt="Zoom"
+                    style="max-width:90vw; max-height:85vh; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.7);">
+            </div>
+        </section>
+
+        <section id="parking" style="margin-top: 40px;">
+            <h2><i class="fas fa-car"></i> Mapa parkovania</h2>
+            <div class="club-extra-card">
+                <div class="parking-notice">
+                    <div class="parking-notice-title">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        Dôležitý oznam pre návštevníkov
                     </div>
+                    <p>
+                        Parkujte prosím iba na vyznačenom mieste pri ihrisku a neblokujte prístupové cesty
+                        k šatniam a hlavnému vstupu.
+                    </p>
+                </div>
+                <iframe class="parking-map"
+                    src="https://maps.google.com/maps?q=49.1016944,18.6856944&z=19&t=k&output=embed"
+                    loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Mapa parkovania">
+                </iframe>
+                <p style="margin-top: 12px;">
+                    <a href="https://www.google.com/maps/search/?api=1&query=49.1016944,18.6856944"
+                        target="_blank" rel="noopener" style="color:#003399;font-weight:bold;">Navigovať cez
+                        Google Maps</a>
+                </p>
+            </div>
+        </section>
 
-                    <div class="gallery-actions">
-                        <button type="button" class="gallery-load-more-btn" id="instagramLoadMoreBtn" hidden>
-                            Načítať viac
-                        </button>
-                        <p class="instagram-status" id="instagramGalleryStatus" hidden></p>
-                    </div>
-
-                    <!-- Modal for zoomed image -->
-                    <div id="galleryModal"
-                        style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); justify-content:center; align-items:center;">
-                        <span id="galleryModalClose"
-                            style="position:absolute; top:30px; right:40px; color:white; font-size:48px; font-weight:bold; cursor:pointer; z-index:2100;">&times;</span>
-                        <span id="galleryModalPrev">
-                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="16" cy="16" r="16" fill="none" />
-                                <polyline points="20,8 12,16 20,24" stroke="#003399" stroke-width="3.5"
-                                    stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                            </svg>
-                        </span>
-                        <span id="galleryModalNext">
-                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="16" cy="16" r="16" fill="none" />
-                                <polyline points="12,8 20,16 12,24" stroke="#003399" stroke-width="3.5"
-                                    stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                            </svg>
-                        </span>
-                        <img id="galleryModalImg" src="" alt="Zoom"
-                            style="max-width:90vw; max-height:85vh; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.7);">
-                    </div>
-                </section>
-
-                <section id="parking" style="margin-top: 40px;">
-                    <h2><i class="fas fa-car"></i> Mapa parkovania</h2>
-                    <div class="club-extra-card">
-                        <div class="parking-notice">
-                            <div class="parking-notice-title">
-                                <i class="fas fa-triangle-exclamation"></i>
-                                Dôležitý oznam pre návštevníkov
-                            </div>
-                            <p>
-                                Parkujte prosím iba na vyznačenom mieste pri ihrisku a neblokujte prístupové cesty
-                                k šatniam a hlavnému vstupu.
-                            </p>
-                        </div>
-                        <iframe class="parking-map"
-                            src="https://maps.google.com/maps?q=49.1016944,18.6856944&z=19&t=k&output=embed"
-                            loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Mapa parkovania">
-                        </iframe>
-                        <p style="margin-top: 12px;">
-                            <a href="https://www.google.com/maps/search/?api=1&query=49.1016944,18.6856944"
-                                target="_blank" rel="noopener" style="color:#003399;font-weight:bold;">Navigovať cez
-                                Google Maps</a>
-                        </p>
-                    </div>
-                </section>
-
-
-
-                <!-- Contact Section -->
-                <section id="contact" style="margin-top: 40px;">
-                    <h2><i class="fas fa-envelope"></i> Kontaktujte nás</h2>
+        <!-- Contact Section -->
+        <section id="contact" style="margin-top: 40px;">
+            <h2><i class="fas fa-envelope"></i> Kontaktujte nás</h2>
+            <div
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; margin-bottom: 0; background: transparent; min-height: 0; padding-bottom: 0;">
+                <div>
+                    <h3 style="margin-bottom: 20px; color: #1a1a2e;">Kontaktné informácie</h3>
                     <div
-                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; margin-bottom: 0; background: transparent; min-height: 0; padding-bottom: 0;">
-                        <div>
-                            <h3 style="margin-bottom: 20px; color: #1a1a2e;">Kontaktné informácie</h3>
-                            <div
-                                style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
-                                <p style="margin-bottom: 20px;"><i class="fas fa-map-marker-alt"
-                                        style="color: #ffd700; width: 30px;"></i> <strong>Adresa:</strong><br>Futbalový
-                                    štadión, Kamenná Poruba, Slovensko</p>
-                                <p style="margin-bottom: 20px;"><i class="fas fa-phone"
-                                        style="color: #ffd700; width: 30px;"></i> <strong>Telefón:</strong><br>+421 905
-                                    553 738</p>
-                                <p style="margin-bottom: 20px;"><i class="fas fa-envelope"
-                                        style="color: #ffd700; width: 30px;"></i>
-                                    <strong>Email:</strong><br>oskkamennaporuba@gmail.com
-                            </div>
-                        </div>
-                        <div>
-                            <h3 style="margin-bottom: 20px; color: #1a1a2e;">Pošlite nám správu</h3>
-                            <form id="contactForm" onsubmit="handleContactSubmit(event)"
-                                style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
-                                <div class="form-group">
-                                    <label for="contactName">Meno a priezvisko</label>
-                                    <input type="text" id="contactName" name="name" placeholder="Vaše meno" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="contactEmail">Email</label>
-                                    <input type="email" id="contactEmail" name="email" placeholder="Váš email" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="contactMessage">Správa</label>
-                                    <textarea id="contactMessage" name="message" rows="5" placeholder="Vaša správa"
-                                        required></textarea>
-                                </div>
-                                <div id="contactFormMessage" role="status" aria-live="polite"
-                                    style="display:none; margin-bottom: 14px; padding: 10px; border-radius: 8px;"></div>
-                                <button type="submit" class="btn btn-primary" style="width: 100%;">Poslať
-                                    správu</button>
-                            </form>
-                        </div>
+                        style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
+                        <p style="margin-bottom: 20px;"><i class="fas fa-map-marker-alt"
+                                style="color: #ffd700; width: 30px;"></i> <strong>Adresa:</strong><br>Futbalový
+                            štadión, Kamenná Poruba, Slovensko</p>
+                        <p style="margin-bottom: 20px;"><i class="fas fa-phone"
+                                style="color: #ffd700; width: 30px;"></i> <strong>Telefón:</strong><br>+421 905
+                            553 738</p>
+                        <p style="margin-bottom: 20px;"><i class="fas fa-envelope"
+                                style="color: #ffd700; width: 30px;"></i>
+                            <strong>Email:</strong><br>oskkamennaporuba@gmail.com
                     </div>
-                </section>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 20px; color: #1a1a2e;">Pošlite nám správu</h3>
+                    <form id="contactForm" onsubmit="handleContactSubmit(event)"
+                        style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
+                        <div class="form-group">
+                            <label for="contactName">Meno a priezvisko</label>
+                            <input type="text" id="contactName" name="name" placeholder="Vaše meno" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail">Email</label>
+                            <input type="email" id="contactEmail" name="email" placeholder="Váš email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactMessage">Správa</label>
+                            <textarea id="contactMessage" name="message" rows="5" placeholder="Vaša správa"
+                                required></textarea>
+                        </div>
+                        <div id="contactFormMessage" role="status" aria-live="polite"
+                            style="display:none; margin-bottom: 14px; padding: 10px; border-radius: 8px;"></div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Poslať
+                            správu</button>
+                    </form>
+                </div>
+            </div>
+        </section>
     </main>
 
     <style>
