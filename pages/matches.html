@@ -672,6 +672,203 @@
             display: none !important;
         }
 
+        /* ===== STANDINGS / LEAGUE TABLE ===== */
+        .standings-section {
+            margin-bottom: 32px;
+        }
+
+        .standings-group {
+            background: white;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .standings-group-header {
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: white;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .standings-table thead tr {
+            background: #f5f7fa;
+            border-bottom: 2px solid #eee;
+        }
+
+        .standings-table th {
+            padding: 9px 12px;
+            text-align: left;
+            font-size: 11px;
+            color: #888;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .standings-table th.center,
+        .standings-table td.center {
+            text-align: center;
+        }
+
+        .standings-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .standings-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        .standings-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .standings-table td {
+            padding: 11px 12px;
+            font-size: 14px;
+        }
+
+        .standings-rank-cell {
+            width: 44px;
+        }
+
+        .standings-rank {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #555;
+            font-size: 14px;
+            padding-left: 4px;
+        }
+
+        .standings-rank-qualifier {
+            background: #003399;
+            color: white;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .standings-team-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .standings-team-abbr {
+            width: 30px;
+            height: 30px;
+            background: #003399;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .standings-team-abbr.own-team {
+            background: #ffd700;
+            color: #003399;
+        }
+
+        .standings-team-name {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .standings-team-name.own-team {
+            color: #003399;
+            font-weight: 700;
+        }
+
+        .standings-points {
+            font-weight: 700;
+            color: #003399;
+            font-size: 15px;
+        }
+
+        .standings-diff-pos {
+            color: #1a7a1a;
+            font-weight: 600;
+        }
+
+        .standings-diff-neg {
+            color: #b71c1c;
+            font-weight: 600;
+        }
+
+        .standings-legend {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            font-size: 12px;
+            color: #555;
+            background: #f5f7fa;
+            border-top: 1px solid #eee;
+        }
+
+        .standings-legend-dot {
+            width: 14px;
+            height: 14px;
+            background: #003399;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .standings-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1a1a1a;
+            border-left: 5px solid #ffd700;
+            padding: 8px 16px;
+            margin-bottom: 14px;
+            background: #f9f9f9;
+        }
+
+        @media (max-width: 768px) {
+
+            .standings-table th,
+            .standings-table td {
+                padding: 8px 8px;
+                font-size: 12px;
+            }
+
+            .standings-team-abbr {
+                width: 24px;
+                height: 24px;
+                font-size: 9px;
+            }
+
+            .standings-team-cell {
+                gap: 6px;
+            }
+
+            .standings-points {
+                font-size: 13px;
+            }
+        }
+
         .sportnet-link-section {
             background: #f0f4ff;
             border-left: 4px solid #003399;
@@ -872,6 +1069,9 @@
 
         <!-- Matches List -->
         <div id="matchesContainer" class="matches-grid"></div>
+
+        <!-- Tabuľka súťaže -->
+        <div id="standingsContainer"></div>
     </div>
 
     <!-- Match Detail Modal -->
@@ -1071,12 +1271,169 @@
             }
         }
 
+        // ====== TABUĽKA SÚŤAŽE ======
+        const OWN_TEAM_PATTERNS = ['kamenná poruba', 'kamenna poruba', 'ošk kamen', 'osk kamen'];
+
+        function isOwnTeam(name) {
+            const lower = String(name || '').toLowerCase();
+            return OWN_TEAM_PATTERNS.some(p => lower.includes(p));
+        }
+
+        function computeStandings() {
+            const allMatches = Object.values(MATCHES).filter(m => m.status === 'finished');
+            if (allMatches.length === 0) return {};
+
+            const competitionMap = {};
+            allMatches.forEach(match => {
+                const comp = match.competition || 'Neznáma súťaž';
+                if (!competitionMap[comp]) competitionMap[comp] = {};
+                const table = competitionMap[comp];
+
+                const addTeam = (name) => {
+                    if (!table[name]) {
+                        table[name] = { name, played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 };
+                    }
+                };
+
+                addTeam(match.homeTeam);
+                addTeam(match.awayTeam);
+
+                const hg = Number(match.homeScore ?? 0);
+                const ag = Number(match.awayScore ?? 0);
+
+                table[match.homeTeam].played++;
+                table[match.homeTeam].goalsFor += hg;
+                table[match.homeTeam].goalsAgainst += ag;
+
+                table[match.awayTeam].played++;
+                table[match.awayTeam].goalsFor += ag;
+                table[match.awayTeam].goalsAgainst += hg;
+
+                if (hg > ag) {
+                    table[match.homeTeam].won++;
+                    table[match.homeTeam].points += 3;
+                    table[match.awayTeam].lost++;
+                } else if (hg < ag) {
+                    table[match.awayTeam].won++;
+                    table[match.awayTeam].points += 3;
+                    table[match.homeTeam].lost++;
+                } else {
+                    table[match.homeTeam].drawn++;
+                    table[match.homeTeam].points += 1;
+                    table[match.awayTeam].drawn++;
+                    table[match.awayTeam].points += 1;
+                }
+            });
+
+            const result = {};
+            Object.entries(competitionMap).forEach(([comp, teamsObj]) => {
+                const teams = Object.values(teamsObj);
+                teams.sort((a, b) => {
+                    if (b.points !== a.points) return b.points - a.points;
+                    const aDiff = a.goalsFor - a.goalsAgainst;
+                    const bDiff = b.goalsFor - b.goalsAgainst;
+                    if (bDiff !== aDiff) return bDiff - aDiff;
+                    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+                    return a.name.localeCompare(b.name, 'sk');
+                });
+                result[comp] = teams;
+            });
+
+            return result;
+        }
+
+        function renderStandings() {
+            const container = document.getElementById('standingsContainer');
+            if (!container) return;
+
+            const standings = computeStandings();
+            const allComps = Object.keys(standings);
+
+            if (allComps.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const visibleComps = activeCategory === 'all'
+                ? allComps
+                : allComps.filter(comp => detectCategory(comp) === activeCategory);
+
+            if (visibleComps.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const qualifyCount = 2;
+
+            const groupsHtml = visibleComps.map(comp => {
+                const teams = standings[comp];
+                const rows = teams.map((team, idx) => {
+                    const rank = idx + 1;
+                    const diff = team.goalsFor - team.goalsAgainst;
+                    const diffStr = diff > 0 ? `+${diff}` : String(diff);
+                    const diffClass = diff > 0 ? 'standings-diff-pos' : (diff < 0 ? 'standings-diff-neg' : '');
+                    const own = isOwnTeam(team.name);
+                    const qualifies = rank <= qualifyCount && teams.length > qualifyCount;
+                    const abbr = team.name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+
+                    const rankCell = qualifies
+                        ? `<div class="standings-rank-qualifier">${rank}</div>`
+                        : `<div class="standings-rank">${rank}.</div>`;
+
+                    return `
+                        <tr>
+                            <td class="standings-rank-cell">
+                                <div style="display:flex;align-items:center;padding-left:8px;">${rankCell}</div>
+                            </td>
+                            <td>
+                                <div class="standings-team-cell">
+                                    <div class="standings-team-abbr${own ? ' own-team' : ''}">${abbr}</div>
+                                    <span class="standings-team-name${own ? ' own-team' : ''}">${team.name}</span>
+                                </div>
+                            </td>
+                            <td class="center">${team.played}</td>
+                            <td class="center"><span class="${diffClass}">${diffStr}</span></td>
+                            <td class="center"><span class="standings-points">${team.points}</span></td>
+                        </tr>`;
+                }).join('');
+
+                const legend = qualifyCount > 0 && teams.length > qualifyCount
+                    ? `<div class="standings-legend"><div class="standings-legend-dot"></div> Postup do ďalšej fázy</div>`
+                    : '';
+
+                return `
+                    <div class="standings-group">
+                        <div class="standings-group-header"><i class="fas fa-table-cells"></i> ${comp}</div>
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th class="standings-rank-cell">#</th>
+                                    <th>Tím</th>
+                                    <th class="center" title="Odohrané zápasy">OZ</th>
+                                    <th class="center" title="Rozdiel gólov">+/-</th>
+                                    <th class="center" title="Body">B</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                        ${legend}
+                    </div>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="standings-section">
+                    <div class="standings-section-title"><i class="fas fa-ranking-star"></i> Tabuľka</div>
+                    ${groupsHtml}
+                </div>`;
+        }
+
         // ====== INICIALIZÁCIA ======
         window.addEventListener('load', async function () {
             await loadMatchesFromApi();
             renderSportsnetInfo();
             renderCategoryTabs();
             renderMatches();
+            renderStandings();
         });
 
         function renderCategoryTabs() {
@@ -1099,6 +1456,7 @@
             activeCategory = cat;
             renderCategoryTabs();
             renderMatches();
+            renderStandings();
         }
 
         function renderMatches() {
