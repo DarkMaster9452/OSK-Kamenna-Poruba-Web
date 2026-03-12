@@ -1272,6 +1272,7 @@
         }
 
         // ====== TABUĽKA SÚŤAŽE ======
+        let STANDINGS = {};
         const OWN_TEAM_PATTERNS = ['kamenná poruba', 'kamenna poruba', 'ošk kamen', 'osk kamen'];
 
         function isOwnTeam(name) {
@@ -1279,74 +1280,26 @@
             return OWN_TEAM_PATTERNS.some(p => lower.includes(p));
         }
 
-        function computeStandings() {
-            const allMatches = Object.values(MATCHES).filter(m => m.status === 'finished');
-            if (allMatches.length === 0) return {};
-
-            const competitionMap = {};
-            allMatches.forEach(match => {
-                const comp = match.competition || 'Neznáma súťaž';
-                if (!competitionMap[comp]) competitionMap[comp] = {};
-                const table = competitionMap[comp];
-
-                const addTeam = (name) => {
-                    if (!table[name]) {
-                        table[name] = { name, played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 };
-                    }
-                };
-
-                addTeam(match.homeTeam);
-                addTeam(match.awayTeam);
-
-                const hg = Number(match.homeScore ?? 0);
-                const ag = Number(match.awayScore ?? 0);
-
-                table[match.homeTeam].played++;
-                table[match.homeTeam].goalsFor += hg;
-                table[match.homeTeam].goalsAgainst += ag;
-
-                table[match.awayTeam].played++;
-                table[match.awayTeam].goalsFor += ag;
-                table[match.awayTeam].goalsAgainst += hg;
-
-                if (hg > ag) {
-                    table[match.homeTeam].won++;
-                    table[match.homeTeam].points += 3;
-                    table[match.awayTeam].lost++;
-                } else if (hg < ag) {
-                    table[match.awayTeam].won++;
-                    table[match.awayTeam].points += 3;
-                    table[match.homeTeam].lost++;
-                } else {
-                    table[match.homeTeam].drawn++;
-                    table[match.homeTeam].points += 1;
-                    table[match.awayTeam].drawn++;
-                    table[match.awayTeam].points += 1;
-                }
-            });
-
-            const result = {};
-            Object.entries(competitionMap).forEach(([comp, teamsObj]) => {
-                const teams = Object.values(teamsObj);
-                teams.sort((a, b) => {
-                    if (b.points !== a.points) return b.points - a.points;
-                    const aDiff = a.goalsFor - a.goalsAgainst;
-                    const bDiff = b.goalsFor - b.goalsAgainst;
-                    if (bDiff !== aDiff) return bDiff - aDiff;
-                    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
-                    return a.name.localeCompare(b.name, 'sk');
+        async function loadStandingsFromApi() {
+            try {
+                const response = await fetch(`${API_BASE}/sportsnet/standings`, {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' }
                 });
-                result[comp] = teams;
-            });
-
-            return result;
+                if (!response.ok) throw new Error(`standings status ${response.status}`);
+                const payload = await response.json();
+                STANDINGS = payload.standings || {};
+            } catch (error) {
+                STANDINGS = {};
+                console.warn('Nepodarilo sa načítať tabuľku.', error);
+            }
         }
 
         function renderStandings() {
             const container = document.getElementById('standingsContainer');
             if (!container) return;
 
-            const standings = computeStandings();
+            const standings = STANDINGS;
             const allComps = Object.keys(standings);
 
             if (allComps.length === 0) {
@@ -1380,6 +1333,8 @@
                         ? `<div class="standings-rank-qualifier">${rank}</div>`
                         : `<div class="standings-rank">${rank}.</div>`;
 
+                    const goals = `${team.goalsFor}:${team.goalsAgainst}`;
+
                     return `
                         <tr>
                             <td class="standings-rank-cell">
@@ -1392,6 +1347,10 @@
                                 </div>
                             </td>
                             <td class="center">${team.played}</td>
+                            <td class="center">${team.won}</td>
+                            <td class="center">${team.drawn}</td>
+                            <td class="center">${team.lost}</td>
+                            <td class="center">${goals}</td>
                             <td class="center"><span class="${diffClass}">${diffStr}</span></td>
                             <td class="center"><span class="standings-points">${team.points}</span></td>
                         </tr>`;
@@ -1410,6 +1369,10 @@
                                     <th class="standings-rank-cell">#</th>
                                     <th>Tím</th>
                                     <th class="center" title="Odohrané zápasy">OZ</th>
+                                    <th class="center" title="Výhry">V</th>
+                                    <th class="center" title="Remízy">R</th>
+                                    <th class="center" title="Prehry">P</th>
+                                    <th class="center" title="Góly">Góly</th>
                                     <th class="center" title="Rozdiel gólov">+/-</th>
                                     <th class="center" title="Body">B</th>
                                 </tr>
@@ -1429,7 +1392,10 @@
 
         // ====== INICIALIZÁCIA ======
         window.addEventListener('load', async function () {
-            await loadMatchesFromApi();
+            await Promise.all([
+                loadMatchesFromApi(),
+                loadStandingsFromApi()
+            ]);
             renderSportsnetInfo();
             renderCategoryTabs();
             renderMatches();
