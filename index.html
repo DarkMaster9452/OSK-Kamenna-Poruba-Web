@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -397,6 +397,7 @@
                 margin-top: 5px;
                 border-radius: 0;
             }
+
             .nav-item-has-submenu a i {
                 display: none;
             }
@@ -902,6 +903,168 @@
         .player-number {
             font-size: 12px;
             color: #666;
+        }
+
+        /* Standings table (index.html) */
+        .idx-standings-group {
+            background: white;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .idx-standings-header {
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: white;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .idx-standings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .idx-standings-table thead tr {
+            background: #f5f7fa;
+            border-bottom: 2px solid #eee;
+        }
+
+        .idx-standings-table th {
+            padding: 9px 12px;
+            font-size: 11px;
+            color: #888;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .idx-standings-table th.c,
+        .idx-standings-table td.c {
+            text-align: center;
+        }
+
+        .idx-standings-table th:first-child,
+        .idx-standings-table td:first-child {
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .idx-standings-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .idx-standings-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        .idx-standings-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .idx-standings-table td {
+            padding: 11px 12px;
+            font-size: 14px;
+        }
+
+        .idx-rank-qualifier {
+            background: #003399;
+            color: white;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .idx-team-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .idx-team-abbr {
+            width: 28px;
+            height: 28px;
+            background: #003399;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .idx-team-abbr.own {
+            background: #ffd700;
+            color: #003399;
+        }
+
+        .idx-team-name.own {
+            color: #003399;
+            font-weight: 700;
+        }
+
+        .idx-pts {
+            font-weight: 700;
+            color: #003399;
+            font-size: 15px;
+        }
+
+        .idx-diff-pos {
+            color: #1a7a1a;
+            font-weight: 600;
+        }
+
+        .idx-diff-neg {
+            color: #b71c1c;
+            font-weight: 600;
+        }
+
+        .idx-standings-legend {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            font-size: 12px;
+            color: #555;
+            background: #f5f7fa;
+            border-top: 1px solid #eee;
+        }
+
+        .idx-standings-legend-dot {
+            width: 14px;
+            height: 14px;
+            background: #003399;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            #standings {
+                padding: 40px 12px;
+            }
+
+            .idx-standings-table th,
+            .idx-standings-table td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+
+            .idx-team-abbr {
+                width: 22px;
+                height: 22px;
+                font-size: 9px;
+            }
         }
 
         /* Category Filter Buttons */
@@ -2066,11 +2229,11 @@
                     <li><a href="/pages/blog.html">Blog</a></li>
                     <li><a href="#contact">Kontakt</a></li>
                     <li id="coachPlayerCardBtn" style="display:none;"><a href="/pages/players_list_coach.html"><i
-                                 class="fas fa-id-card"></i> Karty hráčov</a></li>
+                                class="fas fa-id-card"></i> Karty hráčov</a></li>
                     <li id="coachAccountMgmtBtn" style="display:none;"><a href="/pages/account_management.html"><i
-                                 class="fas fa-users-cog"></i> Správa účtov</a></li>
+                                class="fas fa-users-cog"></i> Správa účtov</a></li>
                     <li id="coachGroupsBtn" style="display:none;"><a href="/pages/skupiny.html"><i
-                                 class="fas fa-layer-group"></i> Skupiny</a></li>
+                                class="fas fa-layer-group"></i> Skupiny</a></li>
                     <li><a href="#" id="trainingNavLink" style="cursor: pointer; display: none;"
                             onclick="goToTrainings(event)"><i class="fas fa-dumbbell"></i> Tréningy</a></li>
                     <li><a href="#" id="infoNavLink" style="cursor: pointer; display: none;"
@@ -2078,7 +2241,8 @@
                     <li class="mobile-login-item"><a href="#" class="login-btn" id="mobileLoginBtnText">Prihlásiť sa</a>
                     </li>
                 </ul>
-            </nav>            <div class="header-actions">
+            </nav>
+            <div class="header-actions">
                 <a href="#" class="login-btn" id="loginBtnText">Prihlásiť sa</a>
                 <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Menu"
                     aria-expanded="false">
@@ -2123,6 +2287,26 @@
                         onclick="goToMatches({preventDefault: function(){}})">
                         <i class="fas fa-arrow-right"></i> Detaily všetkých zápasov so štatistikami
                     </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- League Standings Section -->
+        <section id="standings" style="background: #fff; padding: 60px 40px;">
+            <div style="max-width: 1200px; margin: 0 auto;">
+                <h2 style="text-align: center; color: #003399; margin-bottom: 40px; font-size: 36px;">
+                    <i class="fas fa-ranking-star"></i> TABUĽKA SÚŤAŽe
+                </h2>
+                <div id="standingsSectionContainer">
+                    <div style="text-align:center;padding:40px;color:#666;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:24px;color:#003399;"></i>
+                        <p style="margin-top:12px;">Načítívam tabuľku...</p>
+                    </div>
+                </div>
+                <div style="text-align:center;margin-top:28px;">
+                    <a href="/pages/matches.html" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Zobraziť všetky zápasy
+                    </a>
                 </div>
             </div>
         </section>
@@ -2206,26 +2390,21 @@
                 </div>
                 <div class="gallery-item">
                     <img class="gallery-image"
-                        src="/assets/images/508120564_29838519272462811_2048504803720081817_n.jpg"
-                        alt="Galéria 3">
+                        src="/assets/images/508120564_29838519272462811_2048504803720081817_n.jpg" alt="Galéria 3">
                 </div>
                 <div class="gallery-item">
                     <img class="gallery-image"
-                        src="/assets/images/508433324_29841234952191243_3332785514084510977_n.jpg"
-                        alt="Galéria 4">
+                        src="/assets/images/508433324_29841234952191243_3332785514084510977_n.jpg" alt="Galéria 4">
                 </div>
                 <div class="gallery-item">
                     <img class="gallery-image"
-                        src="/assets/images/508538663_29841234848857920_7529913858397432447_n.jpg"
-                        alt="Galéria 5">
+                        src="/assets/images/508538663_29841234848857920_7529913858397432447_n.jpg" alt="Galéria 5">
                 </div>
                 <div class="gallery-item">
-                    <img class="gallery-image" src="/assets/images/51597284815_c985abef70_b.jpg"
-                        alt="Galéria 6">
+                    <img class="gallery-image" src="/assets/images/51597284815_c985abef70_b.jpg" alt="Galéria 6">
                 </div>
                 <div class="gallery-item">
-                    <img class="gallery-image" src="/assets/images/IMG_5259-Enhanced-NR-1024x683.jpg"
-                        alt="Galéria 7">
+                    <img class="gallery-image" src="/assets/images/IMG_5259-Enhanced-NR-1024x683.jpg" alt="Galéria 7">
                 </div>
                 <div class="gallery-item">
                     <img class="gallery-image"
@@ -2257,19 +2436,17 @@
                 <span id="galleryModalClose"
                     style="position:absolute; top:30px; right:40px; color:white; font-size:48px; font-weight:bold; cursor:pointer; z-index:2100;">&times;</span>
                 <span id="galleryModalPrev">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="16" cy="16" r="16" fill="none" />
-                        <polyline points="20,8 12,16 20,24" stroke="#003399" stroke-width="3.5"
-                            stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                        <polyline points="20,8 12,16 20,24" stroke="#003399" stroke-width="3.5" stroke-linecap="round"
+                            stroke-linejoin="round" fill="none" />
                     </svg>
                 </span>
                 <span id="galleryModalNext">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="16" cy="16" r="16" fill="none" />
-                        <polyline points="12,8 20,16 12,24" stroke="#003399" stroke-width="3.5"
-                            stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                        <polyline points="12,8 20,16 12,24" stroke="#003399" stroke-width="3.5" stroke-linecap="round"
+                            stroke-linejoin="round" fill="none" />
                     </svg>
                 </span>
                 <img id="galleryModalImg" src="" alt="Zoom"
@@ -2291,12 +2468,12 @@
                     </p>
                 </div>
                 <iframe class="parking-map"
-                    src="https://maps.google.com/maps?q=49.1016944,18.6856944&z=19&t=k&output=embed"
-                    loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Mapa parkovania">
+                    src="https://maps.google.com/maps?q=49.1016944,18.6856944&z=19&t=k&output=embed" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade" title="Mapa parkovania">
                 </iframe>
                 <p style="margin-top: 12px;">
-                    <a href="https://www.google.com/maps/search/?api=1&query=49.1016944,18.6856944"
-                        target="_blank" rel="noopener" style="color:#003399;font-weight:bold;">Navigovať cez
+                    <a href="https://www.google.com/maps/search/?api=1&query=49.1016944,18.6856944" target="_blank"
+                        rel="noopener" style="color:#003399;font-weight:bold;">Navigovať cez
                         Google Maps</a>
                 </p>
             </div>
@@ -3701,6 +3878,102 @@
             window.location.href = '/pages/matches.html';
         }
 
+        // ====== TABULKA SUTAZE (index.html) ======
+        const IDX_OWN_TEAM = ['kamenn\u00e1 poruba', 'kamenna poruba', 'o\u0161k kamen', 'osk kamen'];
+
+        function idxIsOwnTeam(name) {
+            const l = String(name || '').toLowerCase();
+            return IDX_OWN_TEAM.some(p => l.includes(p));
+        }
+
+        async function loadStandingsSection() {
+            const container = document.getElementById('standingsSectionContainer');
+            if (!container) return;
+            try {
+                const res = await fetch(`${API_BASE}/sportsnet/standings`, {
+                    headers: { Accept: 'application/json' }
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const payload = await res.json();
+                const standing = document.getElementById('standings');
+                const groups = Array.isArray(payload.standings) ? payload.standings : [];
+
+                if (!payload.configured || groups.length === 0) {
+                    if (standing) standing.style.display = 'none';
+                    return;
+                }
+
+                const QUALIFY = 2;
+                container.innerHTML = groups.map(group => {
+                    const teams = group.results || [];
+                    const title = group.part && group.part !== group.competition
+                        ? `${group.competition} \u2013 ${group.part}`
+                        : group.competition;
+
+                    const rows = teams.map((team, idx) => {
+                        const rank = team.rank ?? idx + 1;
+                        const name = team.teamName || team.name || 'T\u00edm';
+                        const diff = (team.goalsFor || 0) - (team.goalsAgainst || 0);
+                        const diffStr = diff > 0 ? `+${diff}` : String(diff);
+                        const diffCls = diff > 0 ? 'idx-diff-pos' : (diff < 0 ? 'idx-diff-neg' : '');
+                        const own = idxIsOwnTeam(name);
+                        const qual = rank <= QUALIFY && teams.length > QUALIFY;
+                        const abbr = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+                        const rankCell = qual
+                            ? `<span class="idx-rank-qualifier">${rank}</span>`
+                            : `<span style="font-weight:600;color:#555;">${rank}.</span>`;
+                        return `
+                            <tr>
+                                <td>${rankCell}</td>
+                                <td>
+                                    <div class="idx-team-cell">
+                                        <div class="idx-team-abbr${own ? ' own' : ''}">${abbr}</div>
+                                        <span class="idx-team-name${own ? ' own' : ''}">${name}</span>
+                                    </div>
+                                </td>
+                                <td class="c">${team.played ?? 0}</td>
+                                <td class="c">${team.won ?? 0}</td>
+                                <td class="c">${team.drawn ?? 0}</td>
+                                <td class="c">${team.lost ?? 0}</td>
+                                <td class="c">${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}</td>
+                                <td class="c"><span class="${diffCls}">${diffStr}</span></td>
+                                <td class="c"><span class="idx-pts">${team.points ?? 0}</span></td>
+                            </tr>`;
+                    }).join('');
+
+                    const legend = QUALIFY > 0 && teams.length > QUALIFY
+                        ? `<div class="idx-standings-legend"><div class="idx-standings-legend-dot"></div> Postup do \u010fal\u0161ej f\u00e1zy</div>`
+                        : '';
+
+                    return `
+                        <div class="idx-standings-group">
+                            <div class="idx-standings-header"><i class="fas fa-table-cells"></i> ${title}</div>
+                            <table class="idx-standings-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:44px">#</th>
+                                        <th>T\u00edm</th>
+                                        <th class="c" title="Odohran\u00e9 z\u00e1pasy">OZ</th>
+                                        <th class="c" title="V\u00fdhry">V</th>
+                                        <th class="c" title="Rem\u00edzy">R</th>
+                                        <th class="c" title="Prehry">P</th>
+                                        <th class="c" title="G\u00f3ly">G\u00f3ly</th>
+                                        <th class="c" title="Rozdiel g\u00f3lov">+/-</th>
+                                        <th class="c" title="Body">B</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                            ${legend}
+                        </div>`;
+                }).join('');
+            } catch (err) {
+                console.warn('Nepodarilo sa na\u010d\u00edta\u0165 tabu\u013eku:', err);
+                const standing = document.getElementById('standings');
+                if (standing) standing.style.display = 'none';
+            }
+        }
+
         async function loadUpcomingMatches() {
             const container = document.getElementById('upcomingMatchesContainer');
             if (!container) return;
@@ -3975,6 +4248,7 @@
             await loadInstagramGalleryFeed();
             await loadPublicAnnouncements();
             loadUpcomingMatches();
+            loadStandingsSection();
 
             // Gallery zoom modal logic
             const galleryGrid = document.getElementById('galleryGrid');
