@@ -3898,13 +3898,18 @@
                 const standing = document.getElementById('standings');
                 const groups = Array.isArray(payload.standings) ? payload.standings : [];
 
-                if (!payload.configured || groups.length === 0) {
+                // Only show groups where OŠK Kamenná Poruba plays
+                const ownGroups = groups.filter(g =>
+                    (g.results || []).some(t => idxIsOwnTeam(t.teamName))
+                );
+
+                if (ownGroups.length === 0) {
                     if (standing) standing.style.display = 'none';
                     return;
                 }
 
                 const QUALIFY = 2;
-                container.innerHTML = groups.map(group => {
+                container.innerHTML = ownGroups.map(group => {
                     const teams = group.results || [];
                     const title = group.part && group.part !== group.competition
                         ? `${group.competition} \u2013 ${group.part}`
@@ -3912,7 +3917,7 @@
 
                     const rows = teams.map((team, idx) => {
                         const rank = team.rank ?? idx + 1;
-                        const name = team.teamName || team.name || 'T\u00edm';
+                        const name = team.teamName || team.name || 'Tím';
                         const diff = (team.goalsFor || 0) - (team.goalsAgainst || 0);
                         const diffStr = diff > 0 ? `+${diff}` : String(diff);
                         const diffCls = diff > 0 ? 'idx-diff-pos' : (diff < 0 ? 'idx-diff-neg' : '');
@@ -3923,7 +3928,7 @@
                             ? `<span class="idx-rank-qualifier">${rank}</span>`
                             : `<span style="font-weight:600;color:#555;">${rank}.</span>`;
                         return `
-                            <tr>
+                            <tr${own ? ' style="background:#fffbe6;"' : ''}>
                                 <td>${rankCell}</td>
                                 <td>
                                     <div class="idx-team-cell">
