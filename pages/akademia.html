@@ -255,40 +255,46 @@
                 trénera, tu nájdete kontaktné údaje.</p>
             <div class="grid">
                 <div class="category-card">
+                    <h4>Tréner mužov</h4>
+                    <p style="margin:0;"><strong>hnatišin Juraj</strong></p>
+                    <p style="margin:4px 0;"><i class="fas fa-phone" style="color:#003399;width:18px;"></i> <a
+                            href="tel:+421911204520" style="color:#003399;">+421 903 523 691</a></p>
+                </div>
+                <div class="category-card">
                     <h4>U19</h4>
                     <p style="margin:0;"><strong>Tibor Kašjak</strong></p>
                     <p style="margin:4px 0;"><i class="fas fa-phone" style="color:#003399;width:18px;"></i> <a
-                            href="tel:+421000000000" style="color:#003399;">+421 XXX XXX XXX</a></p>
+                            href="tel:+421911204520" style="color:#003399;">+421 911 204 520</a></p>
                 </div>
                 <div class="category-card">
-                    <h4>U15 / U13</h4>
+                    <h4>U15</h4>
                     <p style="margin:0;"><strong>Jaroslav Hodás</strong></p>
                     <p style="margin:4px 0;"><i class="fas fa-phone" style="color:#003399;width:18px;"></i> <a
-                            href="tel:+421000000000" style="color:#003399;">+421 XXX XXX XXX</a></p>
+                            href="tel:+421904131394" style="color:#003399;">+421 904 131 394</a></p>
                 </div>
                 <div class="category-card">
                     <h4>U13</h4>
                     <p style="margin:0;"><strong>Vladimír Michna</strong></p>
                     <p style="margin:4px 0;"><i class="fas fa-phone" style="color:#003399;width:18px;"></i> <a
-                            href="tel:+421000000000" style="color:#003399;">+421 XXX XXX XXX</a></p>
+                            href="tel:+421905252757" style="color:#003399;">+421 905 252 757</a></p>
                 </div>
                 <div class="category-card">
                     <h4>U11</h4>
-                    <p style="margin:0;"><strong>Filip Kasman</strong></p>
+                    <p style="margin:0;"><strong>Miroslav Hodás</strong></p>
                     <p style="margin:4px 0;"><i class="fas fa-phone" style="color:#003399;width:18px;"></i> <a
-                            href="tel:+421000000000" style="color:#003399;">+421 XXX XXX XXX</a></p>
-                    <p style="margin:4px 0;"><strong>Ninka Frnková</strong></p>
+                            href="tel:+421910100372" style="color:#003399;">+421 910 100 372</a></p>
+                </div>
+                <div class="category-card">
+                    <h4>U10</h4>
+                    <p style="margin:4px 0;"><strong>Filip Kasman</strong></p>
                     <p style="margin:4px 0;"><i class="fas fa-phone" style="color:#003399;width:18px;"></i> <a
-                            href="tel:+421000000000" style="color:#003399;">+421 XXX XXX XXX</a></p>
+                            href="tel:+421902809050" style="color:#003399;">+421 902 809 050</a></p>
                 </div>
                 <div class="category-card">
                     <h4>U9</h4>
-                    <p style="margin:0;"><strong>Miroslav Hodás</strong></p>
+                    <p style="margin:4px 0;"><strong>Ninka Frnková</strong></p>
                     <p style="margin:4px 0;"><i class="fas fa-phone" style="color:#003399;width:18px;"></i> <a
-                            href="tel:+421000000000" style="color:#003399;">+421 XXX XXX XXX</a></p>
-                    <p style="margin:4px 0;"><strong>Filip Kasman</strong></p>
-                    <p style="margin:4px 0;"><i class="fas fa-phone" style="color:#003399;width:18px;"></i> <a
-                            href="tel:+421000000000" style="color:#003399;">+421 XXX XXX XXX</a></p>
+                            href="tel:+421911218618" style="color:#003399;">+421 911 218 618</a></p>
                 </div>
             </div>
             <p class="muted" style="margin-top:14px;">
@@ -578,6 +584,20 @@
         // Načítanie tabuliek (zatiaľ zakomentované, kým používateľ nedodá URL/IDs)
         // fetchAndRenderLeagueTable('ID_SUTAZE_U19', 'leagueTablesContainer', 'U19 - Starší dorast');
         // fetchAndRenderLeagueTable('ID_SUTAZE_U15', 'leagueTablesContainer', 'U15 - Starší žiaci');
+    </script>
+
+    <!-- Scroll to top (mobile) -->
+    <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Späť hore"
+        title="Späť hore"
+        style="display:none;position:fixed;bottom:24px;right:20px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#003399;color:#fff;border:2px solid #ffd700;box-shadow:0 4px 14px rgba(0,0,0,0.25);font-size:18px;cursor:pointer;align-items:center;justify-content:center;"><i
+            class="fas fa-chevron-up"></i></button>
+    <script>
+        (function () {
+            var btn = document.getElementById('scrollTopBtn');
+            window.addEventListener('scroll', function () {
+                btn.style.display = (window.innerWidth <= 768 && window.scrollY > 220) ? 'flex' : 'none';
+            }, { passive: true });
+        })();
     </script>
 </body>
 
