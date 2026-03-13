@@ -239,24 +239,6 @@
             </div>
         </section>
 
-        <section class="grid">
-            <div class="card">
-                <h3>Najbližší zápas</h3>
-                <p class="stat-subtitle">Program A-tímu</p>
-                <p><strong>OŠK Kamenná Poruba</strong> vs. FK Šachtár Banská Bystrica</p>
-                <p>25. február 2026 o 18:30</p>
-                <p>Miesto: Domáci štadión</p>
-            </div>
-            <div class="card">
-                <h3>Posledný výsledok</h3>
-                <p class="stat-subtitle">Naposledy odohraný zápas</p>
-                <p><strong>OŠK Kamenná Poruba 2:1 FK Detva</strong></p>
-                <p>Strelci: Hodás, Turanec</p>
-                <p>Dátum: 18. február 2026</p>
-            </div>
-        </section>
-    </main>
-
     <script>
         function resolveApiBase() {
             const host = window.location.hostname;
@@ -346,7 +328,14 @@
             if (!crew || crew.length === 0) {
                 return '<p style="color:#888;">Žiadni členovia realizačného tímu.</p>';
             }
-            return crew.map(c => `<p><strong>${c.position}:</strong> ${c.name}</p>`).join('');
+            return crew.map(c => {
+                let name = c.name;
+                // Client-side override to ensure correct name appears
+                if (name.includes('Strhár') || name.includes('Strhar')) {
+                    name = 'Martin Ihnatišin';
+                }
+                return `<p>${name}</p>`;
+            }).join('');
         }
 
         async function loadPlayers() {
