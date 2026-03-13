@@ -4786,7 +4786,12 @@
                     }
 
                     if (loginResponse.status === 403) {
-                        throw new Error('Bezpečnostná kontrola zlyhala. Obnov stránku a skús to znova.');
+                        const srvMsg = loginErrorPayload.message || '';
+                        // Usually 403 is account deactivated, locked out, or CSRF token failure
+                        if (srvMsg.includes('csrf') || srvMsg.includes('CSRF')) {
+                            throw new Error('Bezpečnostná kontrola zlyhala (CSRF). Obnov stránku a skús to znova.');
+                        }
+                        throw new Error(srvMsg || 'Prístup odmietnutý. Kontaktujte administrátora.');
                     }
 
                     throw new Error(loginErrorPayload.message || 'Prihlásenie zlyhalo. Skúste to znova.');

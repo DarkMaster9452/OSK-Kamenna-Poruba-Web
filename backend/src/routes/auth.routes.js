@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const bcrypt = require('bcryptjs');
 const { z } = require('zod');
 const env = require('../config/env');
@@ -134,98 +134,104 @@ async function handleAdminLoginFailure({ req, user, username }) {
   }
 }
 
-router.post('/login', validateBody(loginSchema), async (req, res) => {
-  const { username, password } = req.body;
-
-  const user = await findUserByUsername(username);
-
-  if (!user) {
-    registerFailedLoginAttempt(username);
-    await handleAdminLoginFailure({ req, user, username });
-    return res.status(401).json({ message: 'Nesprávne prihlasovacie údaje' });
-  }
-
-  if (!user.isActive) {
-    return res.status(403).json({ message: 'Účet je deaktivovaný. Kontaktujte administrátora.' });
-  }
-
-  const validPassword = await bcrypt.compare(password, user.passwordHash);
-  if (!validPassword) {
-    const attemptState = registerFailedLoginAttempt(username);
-    let accountDeactivated = false;
-
-    if (attemptState.failedCount >= LOGIN_MAX_FAILED_ATTEMPTS) {
-      await setUserActiveStatus(user.id, false);
-      clearFailedLoginAttempts(username);
-      accountDeactivated = true;
-
-      try {
-        await createAuditLog({
-          actorUserId: user.id,
-          action: 'account_temporarily_locked',
-          entityType: 'auth',
-          entityId: user.id,
-          details: {
-            username,
-            reason: 'failed_login_attempts_account_deactivated'
-          }
-        });
-      } catch (error) {
-        console.error('Audit log write failed:', error);
-      }
-    }
-
-    await handleAdminLoginFailure({ req, user, username });
-    if (accountDeactivated) {
-      return res.status(403).json({
-        message: 'Účet bol po 5 neúspešných pokusoch deaktivovaný. Kontaktujte administrátora.'
-      });
-    }
-
-    return res.status(401).json({ message: 'Nesprávne prihlasovacie údaje' });
-  }
-
-  clearFailedLoginAttempts(username);
-
-  if (user.role === 'admin') {
-    adminFailedTracker.delete(`user:${user.id}`);
-    adminFailedTracker.delete(`username:${String(username || '').toLowerCase()}`);
-  }
-
-  const token = signAccessToken({
-    sub: user.id,
-    username: user.username,
-    role: user.role,
-    playerCategory: user.playerCategory || null
-  });
-
-  res.cookie(env.cookieName, token, getCookieBaseOptions());
-
+router.post('/login', validateBody(loginSchema), async (req, res, next) => {
   try {
-    await createAuditLog({
-      actorUserId: user.id,
-      action: 'login_success',
-      entityType: 'auth',
-      entityId: user.id,
-      details: {
-        username: user.username,
-        role: user.role,
-        ipAddress: getClientIp(req),
-        userAgent: req.headers['user-agent'] || null
-      }
-    });
-  } catch (error) {
-    console.error('Audit log write failed:', error);
-  }
+    const { username, password } = req.body;
 
-  return res.json({
-    message: 'Prihlásenie úspešné',
-    user: {
+    const user = await findUserByUsername(username);
+
+    if (!user) {
+      registerFailedLoginAttempt(username);
+      await handleAdminLoginFailure({ req, user, username });
+      return res.status(401).json({ message: 'Nesprávne prihlasovacie údaje' });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ message: 'Účet je deaktivovaný. Kontaktujte administrátora.' });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.passwordHash);
+    if (!validPassword) {
+      const attemptState = registerFailedLoginAttempt(username);
+      let accountDeactivated = false;
+
+      if (attemptState.failedCount >= LOGIN_MAX_FAILED_ATTEMPTS) {
+        await setUserActiveStatus(user.id, false);
+        clearFailedLoginAttempts(username);
+        accountDeactivated = true;
+
+        try {
+          await createAuditLog({
+            actorUserId: user.id,
+            action: 'account_temporarily_locked',
+            entityType: 'auth',
+            entityId: user.id,
+            details: {
+              username,
+              reason: 'failed_login_attempts_account_deactivated'
+            }
+          });
+        } catch (error) {
+          console.error('Audit log write failed:', error);
+        }
+      }
+
+      await handleAdminLoginFailure({ req, user, username });
+      if (accountDeactivated) {
+        return res.status(403).json({
+          message: 'Účet bol z bezpečnostných dôvodov zablokovaný pre priveľa nesprávnych pokusov o prihlásenie. Kontaktujte administrátora.'
+        });
+      }
+
+      return res.status(401).json({ message: 'Nesprávne prihlasovacie údaje' });
+    }
+
+    clearFailedLoginAttempts(username);
+
+    if (user.role === 'admin') {
+      adminFailedTracker.delete(`user:${user.id}`);
+      adminFailedTracker.delete(`username:${String(username || '').toLowerCase()}`);
+    }
+
+    const token = signAccessToken({
+      sub: user.id,
       username: user.username,
       role: user.role,
       playerCategory: user.playerCategory || null
+    });
+
+    res.cookie(env.cookieName, token, getCookieBaseOptions());
+
+    try {
+      await createAuditLog({
+        actorUserId: user.id,
+        action: 'login_success',
+        entityType: 'auth',
+        entityId: user.id,
+        details: {
+          username: user.username,
+          role: user.role,
+          ipAddress: getClientIp(req),
+          userAgent: req.headers['user-agent'] || null
+        }
+      });
+    } catch (error) {
+      console.error('Audit log write failed:', error);
     }
-  });
+
+    return res.json({
+      message: 'Prihlásenie úspešné',
+      user: {
+        username: user.username,
+        role: user.role,
+        playerCategory: user.playerCategory || null
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    next(error);
+  }
 });
 
 router.post('/logout', (req, res) => {
