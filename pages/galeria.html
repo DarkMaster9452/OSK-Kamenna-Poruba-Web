@@ -464,7 +464,7 @@
             renderedCount = 0;
 
             if (currentAlbum === 'all') {
-                itemsToShow = getAllLocalItems().concat(instagramItems.map(makeInstagramItem));
+                itemsToShow = instagramItems.map(makeInstagramItem).concat(getAllLocalItems());
             } else if (currentAlbum === 'instagram') {
                 itemsToShow = instagramItems.map(makeInstagramItem);
             } else {
@@ -527,9 +527,39 @@
         }
 
         /* ===== INSTAGRAM FEED ===== */
+        var INSTAGRAM_CACHE_KEY = 'osk_instagram_cache';
+        var INSTAGRAM_CACHE_TTL = 4 * 60 * 60 * 1000; // 4 hours in ms
+
+        function getInstagramCache() {
+            try {
+                var raw = localStorage.getItem(INSTAGRAM_CACHE_KEY);
+                if (!raw) return null;
+                var cached = JSON.parse(raw);
+                if (!cached || !cached.ts || !Array.isArray(cached.items)) return null;
+                if (Date.now() - cached.ts > INSTAGRAM_CACHE_TTL) return null;
+                return cached.items;
+            } catch (_) { return null; }
+        }
+
+        function setInstagramCache(items) {
+            try {
+                localStorage.setItem(INSTAGRAM_CACHE_KEY, JSON.stringify({ ts: Date.now(), items: items }));
+            } catch (_) { }
+        }
+
         async function loadInstagramFeed() {
             var status = document.getElementById('statusText');
             try {
+                var cached = getInstagramCache();
+                if (cached) {
+                    instagramItems = cached.filter(function (it) { return it && it.imageUrl; });
+                    status.hidden = false;
+                    status.textContent = instagramItems.length
+                        ? 'Instagram: ' + instagramItems.length + ' príspevkov (z vyrovnávacej pamäte).'
+                        : 'Instagram zatiaľ nevrátil žiadne príspevky.';
+                    return;
+                }
+
                 status.hidden = false;
                 status.textContent = 'Načítavam Instagram príspevky…';
 
@@ -553,6 +583,7 @@
                 var payload = await response.json();
                 var items = Array.isArray(payload && payload.items) ? payload.items : [];
                 instagramItems = items.filter(function (it) { return it && it.imageUrl; });
+                setInstagramCache(instagramItems);
 
                 status.textContent = instagramItems.length
                     ? 'Instagram: ' + instagramItems.length + ' príspevkov načítaných.'

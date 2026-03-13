@@ -314,6 +314,25 @@
 
         const API_BASE = resolveApiBase();
 
+        /* ===== 4-HOUR CACHE HELPER ===== */
+        const CACHE_TTL = 4 * 60 * 60 * 1000;
+        async function cachedFetch(cacheKey, url, options) {
+            try {
+                const raw = localStorage.getItem(cacheKey);
+                if (raw) {
+                    const cached = JSON.parse(raw);
+                    if (cached && cached.ts && (Date.now() - cached.ts < CACHE_TTL)) {
+                        return cached.data;
+                    }
+                }
+            } catch (_) { }
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
+            return data;
+        }
+
         function renderPlayersToList(listId, names) {
             const list = document.getElementById(listId);
             if (!list) return;
@@ -380,17 +399,11 @@
             const status = document.getElementById('academyPlayersStatus');
 
             try {
-                // Fetch from SportNet API
-                const response = await fetch(`${API_BASE}/sportsnet/players`, {
-                    method: 'GET',
-                    headers: { Accept: 'application/json' }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Nepodarilo sa načítať hráčov zo SportNet.');
-                }
-
-                const payload = await response.json();
+                const payload = await cachedFetch(
+                    'osk_akademia_players',
+                    `${API_BASE}/sportsnet/players`,
+                    { method: 'GET', headers: { Accept: 'application/json' } }
+                );
                 const teams = payload.teams || {};
 
                 const categories = ['u19', 'u17', 'u15', 'u13', 'u11', 'u09'];
@@ -499,16 +512,11 @@
             if (!competitionId) return;
 
             try {
-                const response = await fetch(`https://sutaze.api.sportnet.online/api/v2/competitions/${competitionId}`, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = await cachedFetch(
+                    `osk_akademia_league_${competitionId}`,
+                    `https://sutaze.api.sportnet.online/api/v2/competitions/${competitionId}`,
+                    { method: 'GET', headers: { 'Accept': 'application/json' } }
+                );
                 const parts = data.parts || [];
                 let results = [];
                 if (parts.length > 0 && parts[0].resultsTable && parts[0].resultsTable.results) {

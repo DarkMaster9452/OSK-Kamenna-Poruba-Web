@@ -1113,6 +1113,25 @@
 
         const API_BASE = resolveApiBase();
 
+        /* ===== 4-HOUR CACHE HELPER ===== */
+        const CACHE_TTL = 4 * 60 * 60 * 1000;
+        async function cachedFetch(cacheKey, url, options) {
+            try {
+                const raw = localStorage.getItem(cacheKey);
+                if (raw) {
+                    const cached = JSON.parse(raw);
+                    if (cached && cached.ts && (Date.now() - cached.ts < CACHE_TTL)) {
+                        return cached.data;
+                    }
+                }
+            } catch (_) { }
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
+            return data;
+        }
+
         function renderSportsnetInfo() {
             const container = document.getElementById('sportsnetInfo');
             if (!container) return;
@@ -1207,18 +1226,11 @@
 
         async function loadMatchesFromApi() {
             try {
-                const response = await fetch(`${API_BASE}/sportsnet/matches`, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Sportsnet endpoint error (${response.status})`);
-                }
-
-                const payload = await response.json();
+                const payload = await cachedFetch(
+                    'osk_matches_sportsnet',
+                    `${API_BASE}/sportsnet/matches`,
+                    { method: 'GET', headers: { Accept: 'application/json' } }
+                );
                 const items = Array.isArray(payload?.items) ? payload.items : [];
 
                 const isUnconfigured =
@@ -1283,12 +1295,11 @@
 
         async function loadStandingsFromApi() {
             try {
-                const response = await fetch(`${API_BASE}/sportsnet/standings`, {
-                    method: 'GET',
-                    headers: { Accept: 'application/json' }
-                });
-                if (!response.ok) throw new Error(`standings status ${response.status}`);
-                const payload = await response.json();
+                const payload = await cachedFetch(
+                    'osk_standings_sportsnet',
+                    `${API_BASE}/sportsnet/standings`,
+                    { method: 'GET', headers: { Accept: 'application/json' } }
+                );
                 STANDINGS = Array.isArray(payload.standings) ? payload.standings : [];
             } catch (error) {
                 STANDINGS = [];
