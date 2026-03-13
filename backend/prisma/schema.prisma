@@ -86,6 +86,8 @@ model User {
   parentChildren       ParentChild[]  @relation("ParentChildren")
   childParents         ParentChild[]  @relation("ChildParents")
   playerGroupsCreated  PlayerGroup[]  @relation("PlayerGroupsCreatedBy")
+
+  @@map("All Accs")
 }
 
 model ParentChild {
