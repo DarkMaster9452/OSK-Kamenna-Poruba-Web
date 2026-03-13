@@ -6,10 +6,6 @@
       "destination": "/api/cron-sportnet.js"
     },
     {
-      "source": "/api/cron-keepalive",
-      "destination": "/api/cron-keepalive.js"
-    },
-    {
       "source": "/api/:path*",
       "destination": "/api/[...all].js"
     },
@@ -21,11 +17,7 @@
   "crons": [
     {
       "path": "/api/cron-sportnet",
-      "schedule": "0 */4 * * *"
-    },
-    {
-      "path": "/api/cron-keepalive",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 4 * * *"
     }
   ]
 }
