@@ -4015,28 +4015,32 @@
                 const computedTrackStyles = window.getComputedStyle(track);
                 const gapPx = parseFloat(computedTrackStyles.columnGap || computedTrackStyles.gap || '0') || 0;
 
-                slider.addEventListener('mouseenter', () => {
-                    isPaused = true;
-                });
+                slider.addEventListener('mouseenter', () => { isPaused = true; });
+                slider.addEventListener('mouseleave', () => { isPaused = false; });
 
-                slider.addEventListener('mouseleave', () => {
-                    isPaused = false;
-                });
+                // Mobile fix: when user returns from a sponsor link, skip the next
+                // delta calculation so we don't get a huge time-jump that freezes the slider.
+                let skipNextDelta = false;
 
-                window.addEventListener('resize', () => {
-                    ensureCoverage();
-                });
-
-                // Fix: Reset lastTimestamp when page becomes visible again (after clicking sponsor link)
                 document.addEventListener('visibilitychange', () => {
                     if (!document.hidden) {
-                        lastTimestamp = 0;
+                        skipNextDelta = true;
+                    }
+                });
+
+                // iOS/Safari bfcache fix – fires when restored from back-forward cache
+                window.addEventListener('pageshow', (e) => {
+                    if (e.persisted) {
+                        skipNextDelta = true;
                     }
                 });
 
                 function animateMarquee(timestamp) {
-                    if (!lastTimestamp) {
+                    if (!lastTimestamp || skipNextDelta) {
                         lastTimestamp = timestamp;
+                        skipNextDelta = false;
+                        requestAnimationFrame(animateMarquee);
+                        return;
                     }
 
                     const deltaSeconds = (timestamp - lastTimestamp) / 1000;
@@ -4048,10 +4052,7 @@
                         let firstLogo = track.firstElementChild;
                         while (firstLogo) {
                             const firstWidth = firstLogo.offsetWidth + gapPx;
-                            if (offset < firstWidth) {
-                                break;
-                            }
-
+                            if (offset < firstWidth) break;
                             offset -= firstWidth;
                             track.appendChild(firstLogo);
                             firstLogo = track.firstElementChild;
