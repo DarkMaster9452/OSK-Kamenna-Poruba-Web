@@ -266,3 +266,12 @@ model PlayerGroupMember {
   @@index([groupId])
   @@index([playerUsername])
 }
+
+model SportnetCache {
+  key       String   @id
+  payload   Json
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+}

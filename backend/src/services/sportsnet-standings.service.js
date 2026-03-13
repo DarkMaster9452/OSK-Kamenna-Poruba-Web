@@ -15,6 +15,7 @@
  */
 
 const env = require('../config/env');
+const { readCache, writeCache } = require('./cache');
 
 const SUTAZE_BASE = 'https://sutaze.api.sportnet.online/api/v2';
 const APP_SPACE   = 'osk-kamenna-poruba.futbalnet.sk';
@@ -83,8 +84,21 @@ function normalizeRow(r, idx) {
 
 async function fetchSportsnetStandings({ forceRefresh = false } = {}) {
   const now = Date.now();
+
+  // 1) Fast in-memory cache (same container, same process)
   if (!forceRefresh && standingsCache.payload && standingsCache.expiresAt > now) {
     return { ...standingsCache.payload, cache: 'HIT' };
+  }
+
+  // 2) Persistent DB cache (survives serverless cold starts)
+  if (!forceRefresh) {
+    const dbCached = await readCache('standings');
+    if (dbCached) {
+      const cacheTtl = Math.max(0, env.sportsnetCacheSeconds || 0) * 1000;
+      standingsCache.payload = dbCached;
+      standingsCache.expiresAt = now + cacheTtl;
+      return { ...dbCached, cache: 'HIT' };
+    }
   }
 
   // 1. Fetch all teams for the club
@@ -184,7 +198,10 @@ async function fetchSportsnetStandings({ forceRefresh = false } = {}) {
 
   const cacheTtl = Math.max(0, env.sportsnetCacheSeconds || 0) * 1000;
   standingsCache.payload  = result;
-  standingsCache.expiresAt = now + cacheTtl;
+  standingsCache.expiresAt = Date.now() + cacheTtl;
+  
+  // Fire and forget writing to DB cache
+  writeCache('standings', result, cacheTtl).catch(console.error);
 
   return result;
 }

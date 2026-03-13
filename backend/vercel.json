@@ -2,12 +2,22 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/cron-sportnet",
+      "destination": "/api/cron-sportnet.js"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/[...all].js"
     },
     {
       "source": "/:path*",
       "destination": "/api/[...all].js"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron-sportnet",
+      "schedule": "0 */4 * * *"
     }
   ]
 }

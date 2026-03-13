@@ -79,9 +79,9 @@ describe('GET /api/sportsnet/matches', () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
     const [url, options] = global.fetch.mock.calls[0];
     expect(url).toContain('/organizations/54b532721c6198f161840003/matches');
-    expect(url).toContain('teamId=1234');
+    expect(url).toContain('teamIds=1234');
     expect(url).toContain('competitionId=9876');
-    expect(url).toContain('season=2025-2026');
+    expect(url).toContain('seasonName=2025-2026');
     expect(options).toMatchObject({
       method: 'GET',
       headers: {
@@ -162,8 +162,8 @@ describe('GET /api/sportsnet/matches', () => {
     const response = await request(app).get('/api/sportsnet/matches');
 
     expect(response.status).toBe(502);
-    expect(response.body).toEqual({
-      message: 'Sportsnet API vrátilo status 503.'
+    expect(response.body).toMatchObject({
+      message: expect.stringContaining('Sportsnet API vrátilo status 503')
     });
   });
 

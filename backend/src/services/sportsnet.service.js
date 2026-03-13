@@ -1,4 +1,5 @@
-﻿const env = require('../config/env');
+const env = require('../config/env');
+const { readCache, writeCache } = require('./cache');
 
 const cacheState = {
   expiresAt: 0,
@@ -244,11 +245,24 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
 
   const now = Date.now();
 
+  // 1) Fast in-memory cache (same container, same process)
   if (!forceRefresh && cacheState.payload && cacheState.expiresAt > now) {
     return {
       ...cacheState.payload,
       cache: 'HIT'
     };
+  }
+
+  // 2) Persistent DB cache (survives serverless cold starts)
+  if (!forceRefresh) {
+    const dbCached = await readCache('matches');
+    if (dbCached) {
+      // Warm the in-memory cache too
+      const cacheTtl = Math.max(0, env.sportsnetCacheSeconds || 0) * 1000;
+      cacheState.payload = dbCached;
+      cacheState.expiresAt = now + cacheTtl;
+      return { ...dbCached, cache: 'HIT' };
+    }
   }
 
   const endpoint = buildSportsnetUrl();
@@ -310,12 +324,12 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
 
   const cacheTtl = Math.max(0, env.sportsnetCacheSeconds || 0) * 1000;
   cacheState.payload = normalized;
-  cacheState.expiresAt = now + cacheTtl;
+  cacheState.expiresAt = Date.now() + cacheTtl;
 
-  return {
-    ...normalized,
-    cache: 'MISS'
-  };
+  // Fire and forget writing to DB cache
+  writeCache('matches', normalized, cacheTtl).catch(console.error);
+
+  return { ...normalized, cache: 'MISS' };
 }
 
 module.exports = {

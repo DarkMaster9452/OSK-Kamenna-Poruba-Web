@@ -1,4 +1,5 @@
 const env = require('../config/env');
+const { readCache, writeCache } = require('./cache');
 
 const API_BASE = 'https://sutaze.api.sportnet.online/api/v2';
 const APP_SPACE = 'osk-kamenna-poruba.futbalnet.sk';
@@ -141,8 +142,20 @@ async function fetchJson(url) {
 async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
   const now = Date.now();
 
+  // 1) Fast in-memory cache (same container, same process)
   if (!forceRefresh && cacheState.payload && cacheState.expiresAt > now) {
     return { ...cacheState.payload, cache: 'HIT' };
+  }
+
+  // 2) Persistent DB cache (survives serverless cold starts)
+  if (!forceRefresh) {
+    const dbCached = await readCache('players');
+    if (dbCached) {
+      const cacheTtl = Math.max(0, env.sportnetPlayersCacheSeconds || 0) * 1000;
+      cacheState.payload = dbCached;
+      cacheState.expiresAt = now + cacheTtl;
+      return { ...dbCached, cache: 'HIT' };
+    }
   }
 
   const appSpace = encodeURIComponent(APP_SPACE);
@@ -235,7 +248,10 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
 
   const cacheTtl = Math.max(0, env.sportnetPlayersCacheSeconds || 0) * 1000;
   cacheState.payload = normalized;
-  cacheState.expiresAt = now + cacheTtl;
+  cacheState.expiresAt = Date.now() + cacheTtl;
+
+  // Fire and forget writing to DB cache
+  writeCache('players', normalized, cacheTtl).catch(console.error);
 
   return { ...normalized, cache: 'MISS' };
 }
