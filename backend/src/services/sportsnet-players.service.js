@@ -224,11 +224,20 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
       player.stats = await fetchPlayerStats(player.sportnetId);
     }));
 
-    const mappedCrew = crew.map((c) => ({
-      sportnetId: c.sportnetUser ? c.sportnetUser._id : null,
-      name: c.sportnetUser ? c.sportnetUser.name : 'Neznámy',
-      position: c.additionalData?.position || 'Tréner'
-    }));
+    const mappedCrew = crew.map((c) => {
+      let name = c.sportnetUser ? c.sportnetUser.name : 'Neznámy';
+      
+      // Override for A-team Realizačný tím
+      if (category === 'dospeli' && (name.includes('Strhár') || name.includes('Strhar'))) {
+        name = 'Martin Ihnatišin';
+      }
+
+      return {
+        sportnetId: c.sportnetUser ? c.sportnetUser._id : null,
+        name: name,
+        position: c.additionalData?.position || 'Tréner'
+      };
+    });
 
     teams[category] = {
       teamId: team._id,
