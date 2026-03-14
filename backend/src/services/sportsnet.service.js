@@ -153,14 +153,24 @@ function mapMatch(item, index) {
 
   const round = (item.round && item.round.name) || item.round || item.matchday || null;
   const competition = (item.competition && item.competition.name) || item.competitionName || null;
+  const competitionAppSpace = (item.competition && item.competition.appSpace) || null;
   const venue = (item.sportGround && (item.sportGround.name || item.sportGround.city)) || item.venue || item.stadium || null;
 
   const startsAt = toIsoDate(item.startDate || item.startsAt || item.start_at || item.dateTime || item.date);
   const localDt = toSlovakDateTime(startsAt);
 
   const matchId = String(item._id || item.id || item.matchId || `sportsnet-${index}`);
+  const isRealId = !matchId.startsWith('sportsnet-');
+
+  // Build the direct link to the video recording section on SportNet
+  // URL format: https://sportnet.sme.sk/futbalnet/z/{appSpace}/zapas/{matchId}/videozaznam/
+  let videoUrl = null;
+  if (isRealId && competitionAppSpace) {
+    videoUrl = `https://sportnet.sme.sk/futbalnet/z/${encodeURIComponent(competitionAppSpace)}/zapas/${encodeURIComponent(matchId)}/videozaznam/`;
+  }
+
   const detailUrl = item.detailUrl
-    || (matchId.startsWith('sportsnet-') ? null : `https://sportnet.sme.sk/futbalnet/zapas/${encodeURIComponent(matchId)}/`);
+    || (isRealId ? `https://sportnet.sme.sk/futbalnet/zapas/${encodeURIComponent(matchId)}/` : null);
 
   return {
     id: matchId,
@@ -176,6 +186,7 @@ function mapMatch(item, index) {
     round,
     competition,
     detailUrl,
+    videoUrl,
     raw: item
   };
 }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sk">
 
 <head>
@@ -1577,8 +1577,9 @@
         }
 
         function generateSportnetVideoSection(match) {
-            // Show SportNet recording link only for adult finished matches
-            if (match.category !== 'dospeli' || match.status !== 'finished' || !match.detailUrl) {
+            // Show SportNet recording link only for finished matches that have a video or detail URL
+            const videoLink = match.videoUrl || (match.detailUrl ? match.detailUrl : null);
+            if (match.status !== 'finished' || !videoLink) {
                 return '';
             }
             return `
@@ -1587,19 +1588,19 @@
                     <div class="sportnet-link-grid">
                         <div class="sportnet-link-card">
                             <div class="half-label">1. polčas</div>
-                            <a href="${match.detailUrl}" target="_blank" rel="noopener noreferrer">
-                                <i class="fas fa-play-circle"></i> Pozrieť na SportNet
+                            <a href="${videoLink}" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-play-circle"></i> Videozáznamy na SportNet
                             </a>
                         </div>
                         <div class="sportnet-link-card">
                             <div class="half-label">2. polčas</div>
-                            <a href="${match.detailUrl}" target="_blank" rel="noopener noreferrer">
-                                <i class="fas fa-play-circle"></i> Pozrieť na SportNet
+                            <a href="${videoLink}" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-play-circle"></i> Videozáznamy na SportNet
                             </a>
                         </div>
                     </div>
                     <div style="font-size: 12px; color: #666; margin-top: 10px;">
-                        <i class="fas fa-info-circle"></i> Záznamy oboch polčasov nájdete na stránke zápasu na SportNet.
+                        <i class="fas fa-info-circle"></i> Po kliknutí sa dostaneš priamo na sekciu videozáznamov na SportNet.
                     </div>
                 </div>
             `;
