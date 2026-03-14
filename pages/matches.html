@@ -1577,11 +1577,12 @@
         }
 
         function generateSportnetVideoSection(match) {
-            // Zobraziť len pre VI. ligu a skončené zápasy
-            const isViLiga = String(match.competition || '').toLowerCase().includes('vi. liga');
+            // Zobraziť len pre VI. ligu — API vracia "VI.liga" (bez medzery)
+            const compLower = String(match.competition || '').toLowerCase().replace(/\s+/g, '');
+            const isViLiga = compLower.includes('vi.liga') || compLower.includes('vi.league');
             if (!isViLiga || match.status !== 'finished') return '';
 
-            // Zostav URL priamo na videozáznamy — vždy musí končiť /videozaznam/
+            // Použij videoUrl (ak existuje z novej cache) alebo detailUrl
             let videoLink = match.videoUrl || match.detailUrl || null;
             if (!videoLink) return '';
 
