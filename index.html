@@ -4125,7 +4125,7 @@
                 const speedPxPerSecond = 65;
                 const computedTrackStyles = window.getComputedStyle(track);
                 const gapPx = parseFloat(computedTrackStyles.columnGap || computedTrackStyles.gap || '0') || 0;
-                const MAX_DELTA_MS = 100; // cap delta aby sa slider nezasekol po dlhej pauze
+                const MAX_DELTA_MS = 100;
 
                 slider.addEventListener('mouseenter', () => { isPaused = true; });
                 slider.addEventListener('mouseleave', () => { isPaused = false; });
@@ -4133,16 +4133,13 @@
                 function animateMarquee(timestamp) {
                     rafId = null;
 
-                    // Prvý frame alebo reset po pauze — preskočíme delta výpočet
                     if (lastTimestamp === null) {
                         lastTimestamp = timestamp;
                         rafId = requestAnimationFrame(animateMarquee);
                         return;
                     }
 
-                    const rawDelta = timestamp - lastTimestamp;
-                    // Ohranič delta na MAX_DELTA_MS — zabraňuje obrovskému skoku po návrate
-                    const deltaSeconds = Math.min(rawDelta, MAX_DELTA_MS) / 1000;
+                    const deltaSeconds = Math.min(timestamp - lastTimestamp, MAX_DELTA_MS) / 1000;
                     lastTimestamp = timestamp;
 
                     if (!isPaused) {
@@ -4163,29 +4160,40 @@
                     rafId = requestAnimationFrame(animateMarquee);
                 }
 
-                function startSlider() {
-                    lastTimestamp = null; // reset timestampu pri každom reštarte
-                    if (!rafId) {
-                        rafId = requestAnimationFrame(animateMarquee);
+                function stopSlider() {
+                    if (rafId) {
+                        cancelAnimationFrame(rafId); // ZRUŠ starý rAF — inak rafId zostane nenulové!
+                        rafId = null;
                     }
                 }
 
-                // Keď sa stránka stane viditeľnou (vrátane návratu z inej stránky)
+                function startSlider() {
+                    stopSlider();             // vždy zruš starý, aj keby bol
+                    lastTimestamp = null;     // reset delta
+                    rafId = requestAnimationFrame(animateMarquee);
+                }
+
+                // Stránka sa skryje (odchod na inú stránku / prepnutie taby)
                 document.addEventListener('visibilitychange', () => {
-                    if (!document.hidden) {
-                        startSlider();
+                    if (document.hidden) {
+                        stopSlider(); // aktívne zrušíme rAF pri skrytí
+                    } else {
+                        startSlider(); // reštartujeme pri zobrazení
                     }
                 });
 
-                // Safari / iOS bfcache — stránka sa obnoví zo zálohy (back/forward)
-                window.addEventListener('pageshow', (e) => {
-                    startSlider();
-                });
+                // iOS Safari bfcache — stránka sa obnovila zo zálohy
+                window.addEventListener('pageshow', () => startSlider());
 
-                // Fallback — window focus (napr. po Alt+Tab alebo mobilnom návratu)
-                window.addEventListener('focus', () => {
-                    startSlider();
-                });
+                // Fallback: focus (napr. po prepnutí oken)
+                window.addEventListener('focus', () => startSlider());
+
+                // Watchdog: každú sekundu skontroluje že slider beží (bezpečnostná sieť)
+                setInterval(() => {
+                    if (!document.hidden && !rafId) {
+                        startSlider();
+                    }
+                }, 1000);
 
                 startSlider();
             }
