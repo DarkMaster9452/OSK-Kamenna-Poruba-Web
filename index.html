@@ -4102,10 +4102,7 @@
             const baseLogos = Array.from(track.children);
 
             function ensureCoverage() {
-                if (baseLogos.length === 0) {
-                    return;
-                }
-
+                if (baseLogos.length === 0) return;
                 const minimumTrackWidth = slider.clientWidth * 2;
                 while (track.scrollWidth < minimumTrackWidth) {
                     baseLogos.forEach((logo) => {
@@ -4122,41 +4119,30 @@
             const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             if (!prefersReducedMotion) {
                 let offset = 0;
-                let lastTimestamp = 0;
+                let lastTimestamp = null;
                 let isPaused = false;
+                let rafId = null;
                 const speedPxPerSecond = 65;
                 const computedTrackStyles = window.getComputedStyle(track);
                 const gapPx = parseFloat(computedTrackStyles.columnGap || computedTrackStyles.gap || '0') || 0;
+                const MAX_DELTA_MS = 100; // cap delta aby sa slider nezasekol po dlhej pauze
 
                 slider.addEventListener('mouseenter', () => { isPaused = true; });
                 slider.addEventListener('mouseleave', () => { isPaused = false; });
 
-                // Mobile fix: when user returns from a sponsor link, skip the next
-                // delta calculation so we don't get a huge time-jump that freezes the slider.
-                let skipNextDelta = false;
-
-                document.addEventListener('visibilitychange', () => {
-                    if (!document.hidden) {
-                        skipNextDelta = true;
-                    }
-                });
-
-                // iOS/Safari bfcache fix – fires when restored from back-forward cache
-                window.addEventListener('pageshow', (e) => {
-                    if (e.persisted) {
-                        skipNextDelta = true;
-                    }
-                });
-
                 function animateMarquee(timestamp) {
-                    if (!lastTimestamp || skipNextDelta) {
+                    rafId = null;
+
+                    // Prvý frame alebo reset po pauze — preskočíme delta výpočet
+                    if (lastTimestamp === null) {
                         lastTimestamp = timestamp;
-                        skipNextDelta = false;
-                        requestAnimationFrame(animateMarquee);
+                        rafId = requestAnimationFrame(animateMarquee);
                         return;
                     }
 
-                    const deltaSeconds = (timestamp - lastTimestamp) / 1000;
+                    const rawDelta = timestamp - lastTimestamp;
+                    // Ohranič delta na MAX_DELTA_MS — zabraňuje obrovskému skoku po návrate
+                    const deltaSeconds = Math.min(rawDelta, MAX_DELTA_MS) / 1000;
                     lastTimestamp = timestamp;
 
                     if (!isPaused) {
@@ -4174,10 +4160,34 @@
                         track.style.transform = `translate3d(${-offset}px, 0, 0)`;
                     }
 
-                    requestAnimationFrame(animateMarquee);
+                    rafId = requestAnimationFrame(animateMarquee);
                 }
 
-                requestAnimationFrame(animateMarquee);
+                function startSlider() {
+                    lastTimestamp = null; // reset timestampu pri každom reštarte
+                    if (!rafId) {
+                        rafId = requestAnimationFrame(animateMarquee);
+                    }
+                }
+
+                // Keď sa stránka stane viditeľnou (vrátane návratu z inej stránky)
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) {
+                        startSlider();
+                    }
+                });
+
+                // Safari / iOS bfcache — stránka sa obnoví zo zálohy (back/forward)
+                window.addEventListener('pageshow', (e) => {
+                    startSlider();
+                });
+
+                // Fallback — window focus (napr. po Alt+Tab alebo mobilnom návratu)
+                window.addEventListener('focus', () => {
+                    startSlider();
+                });
+
+                startSlider();
             }
         }
 
