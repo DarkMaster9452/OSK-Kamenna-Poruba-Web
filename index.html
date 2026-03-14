@@ -3542,6 +3542,18 @@
                     }
                     updateHeaderScrollOffset();
                 });
+
+                // Zatvorí menu ak sa zascrolluje nadol 
+                let lastScrollY = window.scrollY;
+                window.addEventListener('scroll', function () {
+                    const currentScrollY = window.scrollY;
+                    const scrolledDown = currentScrollY > lastScrollY + 10;
+                    lastScrollY = currentScrollY;
+
+                    if (scrolledDown && mainNav.classList.contains('open')) {
+                        closeMobileMenu();
+                    }
+                }, { passive: true });
             }
 
             function handleAuthButtonClick(e) {
