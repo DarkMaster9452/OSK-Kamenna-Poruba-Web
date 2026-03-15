@@ -1387,19 +1387,22 @@
                 return;
             }
 
-            const visible = activeCategory === 'all'
-                ? STANDINGS
-                : STANDINGS.filter(g => detectCategory(g.competition) === activeCategory);
-
-            if (visible.length === 0) {
+            // Vyber len tú skupinu, kde je vlastný tím
+            let mainGroup = null;
+            for (const group of STANDINGS) {
+                if ((group.results || []).some(team => isOwnTeam(team.teamName || team.name))) {
+                    mainGroup = group;
+                    break;
+                }
+            }
+            if (!mainGroup) {
                 container.innerHTML = '';
                 return;
             }
-
             container.innerHTML = `
                 <div class="standings-section">
                     <div class="standings-section-title"><i class="fas fa-ranking-star"></i> Tabuľka</div>
-                    ${visible.map(renderStandingGroup).join('')}
+                    ${renderStandingGroup(mainGroup)}
                 </div>`;
         }
 
