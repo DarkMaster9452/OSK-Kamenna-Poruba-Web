@@ -229,7 +229,7 @@ router.post('/login', validateBody(loginSchema), async (req, res, next) => {
     });
 
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('[CRITICAL] Login flow crash:', error);
     next(error);
   }
 });
