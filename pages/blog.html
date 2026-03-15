@@ -134,6 +134,13 @@
             background: rgba(255, 255, 255, 0.06);
             padding: 14px;
             margin-bottom: 12px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .post:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
         }
 
         .post h3 {
@@ -163,6 +170,77 @@
             background: rgba(255, 255, 255, 0.15);
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        /* Hamburger menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,51,153,0.97);
+            z-index: 99999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .mobile-nav.open {
+            display: flex;
+        }
+
+        .mobile-nav a {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 12px 32px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.2);
+            width: 80%;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .mobile-nav a:hover {
+            background: rgba(255,215,0,0.15);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        .mobile-nav-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 32px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 700px) {
+            .hamburger { display: flex; }
         }
 
         .modal {
@@ -228,10 +306,26 @@
     <div class="container">
         <div class="topbar">
             <h1><i class="fas fa-blog"></i> Klubový blog</h1>
-            <button class="btn btn-back" onclick="window.location.href='/index.html'">
-                <i class="fas fa-arrow-left"></i> Späť
-            </button>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <button class="btn btn-back" onclick="window.location.href='/index.html'" style="display:none;" id="backBtnDesktop">
+                    <i class="fas fa-arrow-left"></i> Späť
+                </button>
+                <button class="hamburger" id="hamburgerBtn" aria-label="Menu" onclick="openMobileNav()">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
         </div>
+
+        <!-- Mobile navigation overlay -->
+        <nav class="mobile-nav" id="mobileNav">
+            <button class="mobile-nav-close" onclick="closeMobileNav()">&#x2715;</button>
+            <a href="/index.html"><i class="fas fa-home"></i> Hlavná stránka</a>
+            <a href="/pages/atim.html"><i class="fas fa-shield-alt"></i> A-tím</a>
+            <a href="/pages/akademia.html"><i class="fas fa-graduation-cap"></i> Akadémia</a>
+            <a href="/pages/matches.html"><i class="fas fa-futbol"></i> Zápasy</a>
+            <a href="/pages/trainings.html"><i class="fas fa-dumbbell"></i> Tréningy</a>
+            <a href="/pages/galeria.html"><i class="fas fa-images"></i> Galéria</a>
+        </nav>
 
         <div id="composerCard" class="card">
             <h2><i class="fas fa-pen"></i> Nový blog príspevok</h2>
@@ -375,16 +469,16 @@
             container.innerHTML = posts.map((post) => {
                 const canDelete = canManagePost(post);
                 return `
-                    <article class="post">
+                    <article class="post" onclick="openPostDetail('${post.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPostDetail('${post.id}')">
                         <div class="row">
                             <h3>${escapeHtml(post.title)}</h3>
-                            ${canDelete ? `<button class="btn btn-danger" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i> Odstrániť</button>` : ''}
+                            ${canDelete ? `<button class="btn btn-danger" onclick="event.stopPropagation();deletePost('${post.id}')"><i class="fas fa-trash"></i> Odstrániť</button>` : ''}
                         </div>
                         <div class="meta">Autor: ${post.createdBy} • ${formatDate(post.createdAt)}</div>
                         <div class="excerpt">${escapeHtml(buildExcerpt(post.content))}</div>
-                        <button class="btn btn-ghost" type="button" onclick="openPostDetail('${post.id}')">
+                        <div class="btn btn-ghost" style="pointer-events:none;display:inline-flex;align-items:center;gap:6px;margin-top:6px;">
                             <i class="fas fa-book-open"></i> Čítať celý článok
-                        </button>
+                        </div>
                     </article>
                 `;
             }).join('');
@@ -509,6 +603,17 @@
         window.createPost = createPost;
         window.openPostDetail = openPostDetail;
         window.closePostDetail = closePostDetail;
+
+        function openMobileNav() {
+            document.getElementById('mobileNav').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeMobileNav() {
+            document.getElementById('mobileNav').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        window.openMobileNav = openMobileNav;
+        window.closeMobileNav = closeMobileNav;
 
         document.getElementById('postDetailModal')?.addEventListener('click', (event) => {
             if (event.target && event.target.id === 'postDetailModal') {

@@ -308,6 +308,78 @@
                 font-size: 36px;
             }
         }
+
+        /* Hamburger menu */
+        .hamburger-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,51,153,0.97);
+            z-index: 99999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .mobile-nav.open { display: flex; }
+
+        .mobile-nav a {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.2);
+            width: 80%;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .mobile-nav a:hover, .mobile-nav a:active {
+            background: rgba(255,215,0,0.15);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        .mobile-nav-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 32px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        @media (max-width: 700px) {
+            .hamburger-btn { display: inline-flex; }
+        }
     </style>
     <link rel="icon" type="image/png" href="/assets/images/O%C5%A0K%20Kamenn%C3%A1%20Poruba%20Logo.png">
 </head>
@@ -319,9 +391,26 @@
                 <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="Logo OŠK Kamenná Poruba" class="site-logo">
                 <span>OŠK Kamenná Poruba</span>
             </a>
-            <a class="btn-back" href="/index.html"><i class="fas fa-arrow-left"></i> Späť na hlavnú stránku</a>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <a class="btn-back" href="/index.html"><i class="fas fa-arrow-left"></i> Späť na hlavnú stránku</a>
+                <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" onclick="document.getElementById('mobileNav').classList.add('open');document.body.style.overflow='hidden'">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
         </div>
     </header>
+
+    <!-- Mobile navigation overlay -->
+    <nav class="mobile-nav" id="mobileNav">
+        <button class="mobile-nav-close" onclick="document.getElementById('mobileNav').classList.remove('open');document.body.style.overflow=''">✕</button>
+        <a href="/index.html"><i class="fas fa-home"></i> Hlavná stránka</a>
+        <a href="/pages/atim.html"><i class="fas fa-shield-alt"></i> A-tím</a>
+        <a href="/pages/akademia.html"><i class="fas fa-graduation-cap"></i> Akadémia</a>
+        <a href="/pages/matches.html"><i class="fas fa-futbol"></i> Zápasy</a>
+        <a href="/pages/trainings.html"><i class="fas fa-dumbbell"></i> Tréningy</a>
+        <a href="/pages/galeria.html"><i class="fas fa-images"></i> Galéria</a>
+        <a href="/pages/blog.html"><i class="fas fa-blog"></i> Blog</a>
+    </nav>
 
     <main>
         <h1 class="page-title"><i class="fas fa-images"></i> Galéria</h1>
