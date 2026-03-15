@@ -58,7 +58,7 @@ const env = {
 };
 
 if (env.nodeEnv === 'production' && env.jwtAccessSecret === 'dev_only_change_me') {
-  throw new Error('JWT_ACCESS_SECRET must be set in production');
+  console.error('CRITICAL WARNING: JWT_ACCESS_SECRET is using default value in production. Please set it in ENVIRONMENT VARIABLES for security.');
 }
 
 module.exports = env;

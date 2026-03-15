@@ -38,10 +38,15 @@ const standingsCache = {
 async function sutazeFetch(url) {
   let res;
   try {
+    // Compatibility: AbortSignal.timeout is Node 17.3+, using fallback
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    
     res = await fetch(url, {
       headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(12000)
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
   } catch (cause) {
     const e = new Error(`Sutaze API connection failed: ${url}`);
     e.status = 502;

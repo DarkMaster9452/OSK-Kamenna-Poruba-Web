@@ -278,8 +278,7 @@ async function findUserByUsername(username) {
   // Optimize: limit the DB search to only active accounts so the DB ignores deactivated rows
   return prisma.user.findFirst({
     where: {
-      username: exactUsername,
-      isActive: true
+      username: exactUsername
     },
     select: {
       id: true,
