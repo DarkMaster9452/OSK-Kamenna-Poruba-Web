@@ -3392,29 +3392,47 @@
                     </div>
                 </div>
 
-                <div class="logo-slider">
-                    <div class="logo-track">
-
-                        <a href="https://spinteq.sk" target="_blank" rel="noopener noreferrer"><img
-                                src="/assets/images/Bez názvu.png" alt="SpinteQ" /></a>
-                        <a href="https://www.kofola.sk" target="_blank" rel="noopener noreferrer"><img
-                                src="/assets/images/kofola.png" alt="Kofola" class="logo-double" /></a>
-                        <a href="https://tomchlad.sk" target="_blank" rel="noopener noreferrer"><img
-                                src="/assets/images/tomchlad-logo-blue.png" alt="Tomchlad" /></a>
-                        <a href="https://mastechnik.sk" target="_blank" rel="noopener noreferrer"><img
-                                src="/assets/images/mas-technik-logo.png" alt="Mas Technik" /></a>
-                        <a href="https://oskkp.sk" target="_blank" rel="noopener noreferrer"><img
-                                src="/assets/images/664dfb89aff21.png" alt="OŠK Kamenná poruba" /></a>
-                        <a href="https://gardenteam.sk" target="_blank" rel="noopener noreferrer"><img
-                                src="/assets/images/logo_RGB.png" alt="Gardenteam" /></a>
-                        <a href="https://timbernabytok.sk" target="_blank" rel="noopener noreferrer"><img
-                                src="/assets/images/stiahnuť.png" alt="TimberNábytok" class="logo-double" /></a>
+                <!-- Header -->
+                <header>
+                    <div class="header-top">
+                        <div class="logo" id="mainLogo" style="cursor:pointer;">
+                            <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="OŠK Kamenná Poruba Logo" class="logo-img">
+                            <div>
+                                <div style="font-size: 14px; letter-spacing: 1px;">OŠK</div>
+                                <div style="font-size: 18px; font-weight: bold;">Kamenná Poruba</div>
+                            </div>
+                        </div>
+                        <nav id="mainNav">
+                            <ul>
+                                <li class="nav-item-has-submenu">
+                                    <a href="#about">O nás <i class="fas fa-chevron-down" style="font-size: 10px;"></i></a>
+                                    <ul class="sub-menu">
+                                        <li><a href="#about">História</a></li>
+                                        <li><a href="/pages/vedenie.html">Vedenie klubu</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="/pages/atim.html">A-tím</a></li>
+                                <li><a href="/pages/akademia.html">Akadémia</a></li>
+                                <li><a href="#matches">Zápasy</a></li>
+                                <li><a href="/pages/galeria.html">Galéria</a></li>
+                                <li><a href="/pages/blog.html">Blog</a></li>
+                                <li><a href="#contact">Kontakt</a></li>
+                                <li id="coachPlayerCardBtn" style="display:none;"><a href="/pages/players_list_coach.html"><i class="fas fa-id-card"></i> Karty hráčov</a></li>
+                                <li id="coachAccountMgmtBtn" style="display:none;"><a href="/pages/account_management.html"><i class="fas fa-users-cog"></i> Správa účtov</a></li>
+                                <li id="coachGroupsBtn" style="display:none;"><a href="/pages/skupiny.html"><i class="fas fa-layer-group"></i> Skupiny</a></li>
+                                <li><a href="#" id="trainingNavLink" style="cursor: pointer; display: none;" onclick="goToTrainings(event)"><i class="fas fa-dumbbell"></i> Tréningy</a></li>
+                                <li><a href="#" id="infoNavLink" style="cursor: pointer; display: none;" onclick="goToImportantInfo(event)"><i class="fas fa-bullhorn"></i> Dôležité info</a></li>
+                                <li class="mobile-login-item"><a href="#" class="login-btn" id="mobileLoginBtnText">Prihlásiť sa</a></li>
+                            </ul>
+                        </nav>
+                        <div class="header-actions">
+                            <a href="#" class="login-btn" id="loginBtnText">Prihlásiť sa</a>
+                            <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Menu" aria-expanded="false">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <!-- Footer -->
-                <footer>
-                    <div class="footer-content">
-                        <div class="footer-section">
+                </header>
                             <h3><i class="fas fa-futbol"></i> OŠK Kamenná Poruba</h3>
                             <div class="social-icons">
                                 <a href="https://www.facebook.com/profile.php?id=61587779259016" title="Facebook"><i
