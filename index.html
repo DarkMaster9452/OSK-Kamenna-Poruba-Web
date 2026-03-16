@@ -14,6 +14,7 @@
         gtag('config', 'G-P152RNBL34');
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         /* Ensure modal arrows are always the same size */
         #galleryModalPrev,
@@ -3234,7 +3235,7 @@
                             553 738</p>
                         <p style="margin-bottom: 20px;"><i class="fas fa-envelope"
                                 style="color: #ffd700; width: 30px;"></i>
-                            <strong>Email:</strong><br>oskkamennaporuba@gmail.com
+                            <strong>Email:</strong><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d4bba7bfbfb5b9b1babab5a4bba6a1b6b594b3b9b5bdb8fab7bbb9">[email&#160;protected]</a>
                         </p>
                     </div>
                 </div>
@@ -3261,6 +3262,8 @@
                         </div>
                         <div id="contactFormMessage" role="status" aria-live="polite"
                             style="display:none; margin-bottom: 14px; padding: 10px; border-radius: 8px;"></div>
+                        <!-- reCAPTCHA – nahraď YOUR_SITE_KEY svojím kľúčom -->
+                        <div class="g-recaptcha" data-sitekey="6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI" style="margin-bottom: 16px;"></div>
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Poslať
                             správu</button>
                     </form>
@@ -3443,7 +3446,7 @@
         </div>
     </footer>
 
-    <script src="/assets/js/trainings.js"></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/assets/js/trainings.js"></script>
     <script>
         function updateHeaderScrollOffset() {
             const header = document.querySelector('header');
@@ -4615,6 +4618,12 @@
 
             if (message.length < 3) {
                 setContactFormMessage('error', 'Správa musí mať aspoň 3 znaky.');
+                return;
+            }
+
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                setContactFormMessage('error', 'Prosím potvrďte, že nie ste robot.');
                 return;
             }
 
