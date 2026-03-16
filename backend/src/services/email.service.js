@@ -1,4 +1,4 @@
-﻿const nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 const env = require('../config/env');
 
 let transporter;
@@ -388,7 +388,7 @@ async function sendSubtrainingAssignedEmails({ training, assignments, assignedBy
   return { sent, skipped: sent > 0 ? null : 'send_failed' };
 }
 
-async function sendContactFormEmail({ name, email, message }) {
+async function sendContactFormEmail({ name, email, phone, message }) {
   const mailer = getTransporter();
   if (!mailer) {
     const error = new Error('SMTP nie je nakonfigurované');
@@ -405,6 +405,7 @@ async function sendContactFormEmail({ name, email, message }) {
 
   const safeName = String(name || '').trim();
   const safeEmail = String(email || '').trim();
+  const safePhone = String(phone || '').trim();
   const safeMessage = String(message || '').trim();
 
   await mailer.sendMail({
@@ -417,6 +418,7 @@ async function sendContactFormEmail({ name, email, message }) {
       '',
       `Meno: ${safeName}`,
       `Email: ${safeEmail}`,
+      `Telefón: ${safePhone}`,
       '',
       'Správa:',
       safeMessage,
@@ -427,6 +429,7 @@ async function sendContactFormEmail({ name, email, message }) {
 }
 
 module.exports = {
+  sendToRecipients,
   sendTrainingCreatedEmails,
   sendTrainingUpdatedEmails,
   sendSubtrainingAssignedEmails,
