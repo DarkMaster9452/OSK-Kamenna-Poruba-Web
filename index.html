@@ -3234,7 +3234,7 @@
                             553 738</p>
                         <p style="margin-bottom: 20px;"><i class="fas fa-envelope"
                                 style="color: #ffd700; width: 30px;"></i>
-                            <strong>Email:</strong><br>oskkamennaporuba@gmail.com
+                            <strong>Email:</strong><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d4bba7bfbfb5b9b1babab5a4bba6a1b6b594b3b9b5bdb8fab7bbb9">[email&#160;protected]</a>
                     </div>
                 </div>
                 <div>
@@ -3438,7 +3438,7 @@
         </div>
     </footer>
 
-    <script src="/assets/js/trainings.js"></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/assets/js/trainings.js"></script>
     <script>
         function updateHeaderScrollOffset() {
             const header = document.querySelector('header');
@@ -4611,6 +4611,12 @@
                 return;
             }
 
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                setContactFormMessage('error', 'Prosím potvrďte, že nie ste robot.');
+                return;
+            }
+
             if (submitButton) {
                 submitButton.disabled = true;
                 submitButton.textContent = 'Odosielam...';
@@ -5228,11 +5234,4 @@
         (function () {
             var btn = document.getElementById('scrollTopBtn');
             window.addEventListener('scroll', function () {
-                btn.style.display = (window.innerWidth <= 768 && window.scrollY > 220) ? 'flex' : 'none';
-            }, { passive: true });
-        })();
-    </script>
-    <script defer src="/_vercel/speed-insights/script.js"></script>
-</body>
-
-</html>
+                btn.style
