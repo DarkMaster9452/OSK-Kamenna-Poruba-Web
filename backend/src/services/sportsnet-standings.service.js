@@ -114,8 +114,8 @@ async function fetchSportsnetStandings({ forceRefresh = false } = {}) {
   }
 
   const currentSeason = getCurrentSeason();
-  console.log(`[standings] Fetching data for season: ${currentSeason}`);
-
+ console.log(`[standings] comp: "${c.name}", seasonName: "${sName}", dateFrom: "${sDateFrom}"`);
+ 
   // 1. Fetch all teams for the club (filter to current season if supported)
   let allTeams = [];
   try {
