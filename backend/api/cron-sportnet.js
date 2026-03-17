@@ -17,7 +17,7 @@ const { fetchSportsnetPlayers } = require('../src/services/sportsnet-players.ser
 const { fetchSportsnetStandings } = require('../src/services/sportsnet-standings.service');
 
 module.exports = async (req, res) => {
-  // Only allow GET / HEAD (Vercel cron always sends GET)
+  // Only allow GET / HEAD (Vercel cron always sends GET)       
   const method = String(req.method || 'GET').toUpperCase();
   if (method !== 'GET' && method !== 'HEAD') {
     return res.status(405).json({ error: 'Method not allowed' });

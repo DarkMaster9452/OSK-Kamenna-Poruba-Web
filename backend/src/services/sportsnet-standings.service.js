@@ -27,7 +27,7 @@ const AGE_CATEGORIES = ['ADULTS', 'U19', 'U17', 'U15', 'U13', 'U11', 'U09'];
 function getCurrentSeason() {
   const now = new Date();
   const year = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
-  return `${year}/${year + 1}`;
+  return `${year}/${String(year + 1).slice(-2)}`;
 }
 
 const standingsCache = {
@@ -73,7 +73,7 @@ function extractArray(data, ...keys) {
 /**
  * Normalize one standing row.
  * Actual API shape (v2, 2025/26):
- *   row.team.name, row.stats.matches.{played,won,lost,draw},
+ *   row.team.name,   row.stats.matches.{played,won,lost,draw},
  *   row.stats.goals.{given,received}, row.stats.points
  */
 function normalizeRow(r, idx) {
