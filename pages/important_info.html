@@ -390,7 +390,7 @@
         header.site-header .sh-submenu li { width: 100%; }
         header.site-header .sh-submenu a { padding: 10px 20px; display: block; width: 100%; font-size: 14px; }
         header.site-header .sh-submenu a::after { display: none; }
-        @media (hover: hover) { header.site-header .sh-submenu-parent:hover .sh-submenu { display: block; } }
+    header.site-header .sh-submenu-parent.sh-hover .sh-submenu { display: block; }
         header.site-header .sh-actions {
             display: flex;
             align-items: center;
@@ -1260,6 +1260,12 @@
                     }
                 }
             } catch(e) {}
+        // Desktop submenu hover (JS-controlled — reliable on touch/hybrid devices)
+        var sp = document.querySelector('header.site-header .sh-submenu-parent');
+        if (sp) {
+            sp.addEventListener('mouseenter', function() { sp.classList.add('sh-hover'); });
+            sp.addEventListener('mouseleave', function() { sp.classList.remove('sh-hover'); });
+        }
         })();
     </script>
 </body>
