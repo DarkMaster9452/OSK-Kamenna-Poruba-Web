@@ -786,11 +786,12 @@ async function setParentChildren(parentId, childIds) {
 
 function playerCategoriesForTrainingCategory(trainingCategory) {
   const map = {
-    pripravky: ['pripravka_u9', 'pripravka_u11'],
-    ziaci: ['ziaci'],
+    dospeli: ['adults_young', 'adults_pro'],
     dorastenci: ['dorastenci'],
-    adults_young: ['adults_young'],
-    adults_pro: ['adults_pro']
+    ziaci_u15: ['ziaci'],
+    ziaci_u13: ['ziaci'],
+    pripravka_u11: ['pripravka_u11'],
+    pripravka_u9: ['pripravka_u9']
   };
 
   return map[trainingCategory] || [];
@@ -798,12 +799,12 @@ function playerCategoriesForTrainingCategory(trainingCategory) {
 
 function trainingCategoriesForPlayerCategory(playerCategory) {
   const map = {
-    pripravka_u9: ['pripravky'],
-    pripravka_u11: ['pripravky'],
-    ziaci: ['ziaci'],
+    pripravka_u9: ['pripravka_u9'],
+    pripravka_u11: ['pripravka_u11'],
+    ziaci: ['ziaci_u15', 'ziaci_u13'],
     dorastenci: ['dorastenci'],
-    adults_young: ['adults_young'],
-    adults_pro: ['adults_pro']
+    adults_young: ['dospeli'],
+    adults_pro: ['dospeli']
   };
 
   return map[playerCategory] || [];

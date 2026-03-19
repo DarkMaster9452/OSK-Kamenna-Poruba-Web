@@ -23,11 +23,12 @@ enum TrainingType {
 }
 
 enum TrainingCategory {
-  pripravky
-  ziaci
+  dospeli
   dorastenci
-  adults_young
-  adults_pro
+  ziaci_u15
+  ziaci_u13
+  pripravka_u11
+  pripravka_u9
 }
 
 enum PlayerCategory {

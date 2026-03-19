@@ -22,7 +22,7 @@ const { sendTrainingCreatedEmails, sendTrainingUpdatedEmails, sendSubtrainingAss
 const router = express.Router();
 
 const TRAINING_TYPES = ['technical', 'tactical', 'physical', 'friendly'];
-const TRAINING_CATEGORIES = ['pripravky', 'ziaci', 'dorastenci', 'adults_young', 'adults_pro'];
+const TRAINING_CATEGORIES = ['dospeli', 'dorastenci', 'ziaci_u15', 'ziaci_u13', 'pripravka_u11', 'pripravka_u9'];
 
 const createTrainingSchema = z.object({
   date: z.string().trim().min(5).max(20),
@@ -232,11 +232,12 @@ function formatTrainingType(trainingType) {
 
 function formatTrainingCategory(trainingCategory) {
   const labels = {
-    pripravky: 'Prípravky',
-    ziaci: 'Žiaci',
-    dorastenci: 'Dorastenci',
-    adults_young: 'Dospelí - Mladí',
-    adults_pro: 'Dospelí - Skúsení'
+    dospeli: 'Dospelí',
+    dorastenci: 'U19 - Starší dorast',
+    ziaci_u15: 'U15 - Starší žiaci',
+    ziaci_u13: 'U13 - Mladší žiaci',
+    pripravka_u11: 'U11 - Prípravka',
+    pripravka_u9: 'U09 - Prípravka'
   };
 
   return labels[trainingCategory] || trainingCategory;
