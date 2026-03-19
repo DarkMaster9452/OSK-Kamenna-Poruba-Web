@@ -664,6 +664,7 @@
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
+            history.pushState({ postModal: true }, '');
         }
 
         function closePostDetail() {
@@ -676,6 +677,13 @@
             modal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = 'auto';
         }
+
+        window.addEventListener('popstate', function(e) {
+            const modal = document.getElementById('postDetailModal');
+            if (modal && modal.classList.contains('open')) {
+                closePostDetail();
+            }
+        });
 
         async function refresh() {
             currentUser = await loadSessionUser();
