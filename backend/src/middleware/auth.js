@@ -61,13 +61,7 @@ async function requireAuth(req, res, next) {
       playerCategory: user.playerCategory || null
     };
 
-    const shouldRefreshToken =
-      Boolean(cookieToken) && (
-        payload.sub !== user.id ||
-        payload.username !== user.username ||
-        payload.role !== user.role ||
-        (payload.playerCategory || null) !== (user.playerCategory || null)
-      );
+    const shouldRefreshToken = Boolean(cookieToken);
 
     if (shouldRefreshToken) {
       const refreshedToken = signAccessToken({
