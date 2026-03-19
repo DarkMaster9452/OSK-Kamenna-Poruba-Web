@@ -473,7 +473,7 @@
         header.site-header .sh-submenu li { width: 100%; }
         header.site-header .sh-submenu a { padding: 10px 20px; display: block; width: 100%; font-size: 14px; }
         header.site-header .sh-submenu a::after { display: none; }
-    header.site-header .sh-submenu-parent.sh-hover .sh-submenu { display: block; }
+    header.site-header .sh-submenu-parent:hover .sh-submenu { display: block; }
         header.site-header .sh-actions {
             display: flex;
             align-items: center;
@@ -524,8 +524,7 @@
             header.site-header .sh-nav ul { width: 100%; flex-direction: column; align-items: stretch; gap: 6px; flex-wrap: nowrap; font-size: 14px; }
             header.site-header .sh-nav li { width: 100%; }
             header.site-header .sh-nav a { display: flex; width: 100%; padding: 10px 6px; }
-            header.site-header .sh-submenu-parent .sh-submenu { position: static; display: none; background: rgba(0,0,0,0.1); box-shadow: none; padding-left: 20px; margin-top: 5px; border-radius: 0; }
-            header.site-header .sh-submenu-parent.sh-open .sh-submenu { display: block; }
+            header.site-header .sh-submenu-parent .sh-submenu { position: static; display: block; background: rgba(0,0,0,0.1); box-shadow: none; padding-left: 20px; margin-top: 5px; border-radius: 0; }
             header.site-header .sh-submenu-parent a i { display: none; }
             header.site-header .sh-mobile-login { display: list-item; }
             header.site-header .sh-actions .sh-login-btn { display: none; }
@@ -1464,14 +1463,6 @@
                         nav.querySelectorAll('.sh-submenu-parent').forEach(function(p) { p.classList.remove('sh-open'); });
                     }
                 });
-                nav.querySelectorAll('.sh-submenu-parent > a').forEach(function(a) {
-                    a.addEventListener('click', function(e) {
-                        if (window.innerWidth <= 768) {
-                            e.preventDefault();
-                            a.closest('.sh-submenu-parent').classList.toggle('sh-open');
-                        }
-                    });
-                });
             }
             try {
                 var stored = localStorage.getItem('currentUser');
@@ -1492,12 +1483,6 @@
                     }
                 }
             } catch(e) {}
-        // Desktop submenu hover (JS-controlled — reliable on touch/hybrid devices)
-        var sp = document.querySelector('header.site-header .sh-submenu-parent');
-        if (sp) {
-            sp.addEventListener('mouseenter', function() { sp.classList.add('sh-hover'); });
-            sp.addEventListener('mouseleave', function() { sp.classList.remove('sh-hover'); });
-        }
         })();
     </script>
 </body>
