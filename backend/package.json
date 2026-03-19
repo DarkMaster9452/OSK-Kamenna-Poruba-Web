@@ -7,7 +7,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "prisma generate && node --watch src/server.js",
-    "start": "prisma generate && node src/server.js",
+    "start": "prisma db push && node src/server.js",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "db:push": "prisma db push",
