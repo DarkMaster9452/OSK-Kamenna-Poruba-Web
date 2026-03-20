@@ -135,10 +135,66 @@ function getSquadDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function fetchJson(url) {
-  const res = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+function getApiKey() {
+  const raw = String(env.sportsnetApiKey || '').trim().replace(/^(ApiKey|Bearer)\s+/i, '').trim();
+  return raw || null;
+}
+
+function authHeaders() {
+  const key = getApiKey();
+  const headers = { Accept: 'application/json' };
+  if (key) headers.Authorization = `ApiKey ${key}`;
+  return headers;
+}
+
+async function fetchJson(url, headers = {}) {
+  const res = await fetch(url, { headers: { Accept: 'application/json', ...headers } });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.json();
+}
+
+/**
+ * Extract a flat array of teams from whatever the API returns.
+ * Handles: { teams: [...] }, { items: [...] }, or a raw array.
+ */
+function extractTeamsList(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload && payload.teams)) return payload.teams;
+  if (Array.isArray(payload && payload.items)) return payload.items;
+  return [];
+}
+
+/**
+ * Try to fetch the teams list via the authenticated org API first (same as
+ * the working matches API), then fall back to the public sutaze API.
+ */
+async function fetchTeamsList() {
+  const orgId = String(env.sportnetOrgId || '').trim();
+  const apiBase = String(env.sportnetApiBase || '').replace(/\/+$/, '');
+
+  // Primary: authenticated org API (mirrors what the matches service uses)
+  if (orgId && apiBase) {
+    const url = `${apiBase}/organizations/${encodeURIComponent(orgId)}/teams?limit=200`;
+    try {
+      const payload = await fetchJson(url, authHeaders());
+      const list = extractTeamsList(payload);
+      if (list.length > 0) {
+        console.log(`[players] org API returned ${list.length} teams`);
+        return { list, squadBase: `${apiBase}/organizations/${encodeURIComponent(orgId)}/teams`, authRequired: true };
+      }
+      console.warn('[players] org API returned 0 teams, falling back to public API');
+    } catch (err) {
+      console.warn('[players] org API teams error:', err.message, '— falling back to public API');
+    }
+  }
+
+  // Fallback: public sutaze API
+  const appSpace = encodeURIComponent(APP_SPACE);
+  const url = `${API_BASE}/public/${appSpace}/teams?limit=200`;
+  const payload = await fetchJson(url); // throws if it fails — handled by caller
+  const list = extractTeamsList(payload);
+  console.log(`[players] public API returned ${list.length} teams for appSpace=${APP_SPACE}`);
+  return { list, squadBase: `${API_BASE}/public/${appSpace}/teams`, authRequired: false };
 }
 
 async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
@@ -160,56 +216,54 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
     }
   }
 
-  const appSpace = encodeURIComponent(APP_SPACE);
-
-  // Step 1: Fetch all teams (public, no auth needed)
-  let teamsPayload;
+  // Step 1: Fetch all teams
+  let teamsResult;
   try {
-    teamsPayload = await fetchJson(`${API_BASE}/public/${appSpace}/teams?limit=200`);
+    teamsResult = await fetchTeamsList();
   } catch (err) {
-    console.error('Sportsnet public API (teams) error:', err.message);
+    console.error('[players] teams fetch failed:', err.message);
     if (cacheState.payload) return { ...cacheState.payload, cache: 'STALE' };
     return { source: 'sportsnet-players.error', fetchedAt: new Date().toISOString(), teams: {}, cache: 'MISS', message: 'Nepodarilo sa načítať tímy zo Sportsnet.' };
   }
 
-  const teamsList = Array.isArray(teamsPayload.teams) ? teamsPayload.teams : [];
+  const { list: teamsList, squadBase, authRequired } = teamsResult;
   console.log(`[players] fetched ${teamsList.length} teams from SportNet. ageCats:`, teamsList.map(t => `${t.displayName || t.name}(${t.ageCategory})`).join(', '));
   const bestByCategory = pickLatestTeams(teamsList);
 
-  // Step 2: Fetch squad for each category in parallel (public, no auth needed)
+  // Step 2: Fetch squad for each category in parallel
   const teams = {};
   const entries = Object.entries(bestByCategory);
+  const hdrs = authRequired ? authHeaders() : {};
 
   await Promise.all(entries.map(async ([category, { team }]) => {
     const date = getSquadDate();
-    const squadUrl = `${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(team._id)}/squad?date=${date}`;
+    const squadUrlDate = `${squadBase}/${encodeURIComponent(team._id)}/squad?date=${date}`;
+    const squadUrlNoDate = `${squadBase}/${encodeURIComponent(team._id)}/squad`;
     let athletes = [];
     let crew = [];
 
     try {
-      const squad = await fetchJson(squadUrl);
+      const squad = await fetchJson(squadUrlDate, hdrs);
       athletes = Array.isArray(squad.athletes) ? squad.athletes : [];
       crew = Array.isArray(squad.crew) ? squad.crew : [];
     } catch (err) {
-      console.warn(`Failed to fetch squad for ${category} (team ${team._id}):`, err.message);
+      console.warn(`[players] squad (with date) failed for ${category} (${team._id}):`, err.message);
     }
 
-    // If today's date returned no athletes, retry without a date parameter.
-    // This handles the case where the club hasn't submitted the current-period
-    // roster yet (e.g. early spring before spring-season registration closes).
+    // Retry without date if no athletes returned
     if (athletes.length === 0) {
-      const squadUrlNoDate = `${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(team._id)}/squad`;
       try {
-        const squad = await fetchJson(squadUrlNoDate);
-        const fallbackAthletes = Array.isArray(squad.athletes) ? squad.athletes : [];
-        if (fallbackAthletes.length > 0) {
-          athletes = fallbackAthletes;
+        const squad = await fetchJson(squadUrlNoDate, hdrs);
+        const fallback = Array.isArray(squad.athletes) ? squad.athletes : [];
+        if (fallback.length > 0) {
+          athletes = fallback;
           crew = Array.isArray(squad.crew) ? squad.crew : crew;
         }
       } catch (err) {
-        console.warn(`Failed to fetch squad (no date) for ${category} (team ${team._id}):`, err.message);
+        console.warn(`[players] squad (no date) failed for ${category} (${team._id}):`, err.message);
       }
     }
+    console.log(`[players] ${category}: ${athletes.length} athletes`);
 
     const mappedAthletes = athletes.map(mapAthlete);
 
