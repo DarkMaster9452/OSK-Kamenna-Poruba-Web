@@ -13,6 +13,12 @@ const cacheState = {
 // Age-category detection from team ageCategory / displayName
 const AGE_CATEGORY_MAP = {
   ADULTS: 'dospeli',
+  SENIORS: 'dospeli',
+  SENIOR: 'dospeli',
+  MEN: 'dospeli',
+  A: 'dospeli',
+  MUZSTVO: 'dospeli',
+  MUZI: 'dospeli',
   U19: 'u19',
   U17: 'u17',
   U15: 'u15',
@@ -25,14 +31,16 @@ function detectTeamCategory(team) {
   const ac = String(team.ageCategory || '').toUpperCase().trim();
   if (AGE_CATEGORY_MAP[ac]) return AGE_CATEGORY_MAP[ac];
 
-  const dn = String(team.displayName || '').toLowerCase();
-  if (dn.includes('dospel') || dn.includes('muž')) return 'dospeli';
-  if (dn.includes('u19') || dn.includes('dorast')) return 'u19';
-  if (dn.includes('u17')) return 'u17';
-  if (dn.includes('u15') || dn.includes('starší žiaci')) return 'u15';
-  if (dn.includes('u13') || dn.includes('mladší žiaci')) return 'u13';
-  if (dn.includes('u11') || dn.includes('prípravka')) return 'u11';
+  const dn = String(team.displayName || team.name || '').toLowerCase();
   if (dn.includes('u09') || dn.includes('u9')) return 'u09';
+  if (dn.includes('u11')) return 'u11';
+  if (dn.includes('u13') || dn.includes('mladší žiaci') || dn.includes('mlad')) return 'u13';
+  if (dn.includes('u15') || dn.includes('starší žiaci') || dn.includes('star')) return 'u15';
+  if (dn.includes('u17')) return 'u17';
+  if (dn.includes('u19') || dn.includes('dorast')) return 'u19';
+  if (dn.includes('dospel') || dn.includes('muž') || dn.includes('muz') || dn.includes('senior') || dn.includes('men') || dn.includes('a-tím') || dn.includes('a tim') || dn.includes(' a ')) return 'dospeli';
+  // Last-resort: if no U-age keyword in the name, assume senior/adults
+  if (!dn.match(/u\d{1,2}/)) return 'dospeli';
   return null;
 }
 
@@ -165,6 +173,7 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
   }
 
   const teamsList = Array.isArray(teamsPayload.teams) ? teamsPayload.teams : [];
+  console.log(`[players] fetched ${teamsList.length} teams from SportNet. ageCats:`, teamsList.map(t => `${t.displayName || t.name}(${t.ageCategory})`).join(', '));
   const bestByCategory = pickLatestTeams(teamsList);
 
   // Step 2: Fetch squad for each category in parallel (public, no auth needed)

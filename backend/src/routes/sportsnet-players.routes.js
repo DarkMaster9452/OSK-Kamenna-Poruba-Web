@@ -29,7 +29,13 @@ router.get('/players/debug', async (req, res) => {
 
   const teamsList = Array.isArray(teamsData.teams) ? teamsData.teams : [];
   await Promise.all(teamsList.map(async (team) => {
-    const entry = { id: team._id, name: team.displayName || team.name, ageCategory: team.ageCategory, season: team.season };
+    const entry = {
+      id: team._id,
+      name: team.displayName || team.name,
+      ageCategory: team.ageCategory,
+      season: team.season,
+      rawKeys: Object.keys(team)
+    };
     // Try with date
     try {
       const r = await fetch(`${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(team._id)}/squad?date=${today}`, { headers: { Accept: 'application/json' } });
