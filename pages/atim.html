@@ -666,7 +666,18 @@
                         `${API_BASE}/sportsnet/players?team=dospeli`,
                         { method: 'GET', headers: { Accept: 'application/json' } }
                     );
-                    const team = payload.teams && payload.teams.dospeli;
+                    let team = payload.teams && payload.teams.dospeli;
+
+                    // If cached data has no players, bust the cache and retry once
+                    if (team && team.count === 0) {
+                        localStorage.removeItem('osk_atim_players');
+                        const fresh = await fetch(`${API_BASE}/sportsnet/players?team=dospeli&refresh=true`, { method: 'GET', headers: { Accept: 'application/json' } });
+                        if (fresh.ok) {
+                            const freshData = await fresh.json();
+                            team = freshData.teams && freshData.teams.dospeli;
+                            if (team) try { localStorage.setItem('osk_atim_players', JSON.stringify({ ts: Date.now(), data: freshData })); } catch (_) {}
+                        }
+                    }
 
                     if (!team || !team.playersByPosition) {
                         rosterEl.innerHTML = '<p style="color:#888;text-align:center;padding:24px 0;">Žiadni hráči neboli nájdení.</p>';

@@ -182,7 +182,23 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
       crew = Array.isArray(squad.crew) ? squad.crew : [];
     } catch (err) {
       console.warn(`Failed to fetch squad for ${category} (team ${team._id}):`, err.message);
-      // Do not fall back to older seasons – always show current season data
+    }
+
+    // If today's date returned no athletes, retry without a date parameter.
+    // This handles the case where the club hasn't submitted the current-period
+    // roster yet (e.g. early spring before spring-season registration closes).
+    if (athletes.length === 0) {
+      const squadUrlNoDate = `${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(team._id)}/squad`;
+      try {
+        const squad = await fetchJson(squadUrlNoDate);
+        const fallbackAthletes = Array.isArray(squad.athletes) ? squad.athletes : [];
+        if (fallbackAthletes.length > 0) {
+          athletes = fallbackAthletes;
+          crew = Array.isArray(squad.crew) ? squad.crew : crew;
+        }
+      } catch (err) {
+        console.warn(`Failed to fetch squad (no date) for ${category} (team ${team._id}):`, err.message);
+      }
     }
 
     const mappedAthletes = athletes.map(mapAthlete);
