@@ -438,6 +438,8 @@
             transition: width 0.3s;
         }
         header.site-header .sh-nav a:hover::after { width: 100%; }
+        header.site-header .sh-nav a.active { color: #ffd700; }
+        header.site-header .sh-nav a.active::after { width: 100%; }
         header.site-header .sh-submenu-parent { position: relative; }
         header.site-header .sh-submenu {
             display: none;
@@ -883,6 +885,21 @@
                 }
             } catch(e) {}
 })();
+    </script>
+    <script>
+        (function () {
+            var path = window.location.pathname;
+            var nav = document.getElementById('shMainNav');
+            if (!nav) return;
+            nav.querySelectorAll('a').forEach(function (a) {
+                var href = a.getAttribute('href');
+                if (!href || href.charAt(0) === '#') return;
+                try {
+                    var linkPath = new URL(a.href, window.location.origin).pathname;
+                    if (linkPath === path) a.classList.add('active');
+                } catch (e) {}
+            });
+        })();
     </script>
 </body>
 
