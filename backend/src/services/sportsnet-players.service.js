@@ -119,18 +119,11 @@ function pickLatestTeams(teamsList) {
 }
 
 /**
- * Build a date string (YYYY-MM-DD) that falls inside the team's season,
- * so the squad endpoint returns the correct roster.
+ * Build a date string (YYYY-MM-DD) for the squad endpoint.
+ * Always use today's date so the API returns the current season's roster.
  */
-function getSquadDate(team) {
-  if (!team.season) return new Date().toISOString().slice(0, 10);
-  const from = new Date(team.season.dateFrom);
-  const to = new Date(team.season.dateTo);
-  const now = new Date();
-  // If today is within the season, use today; otherwise use the season midpoint
-  if (now >= from && now <= to) return now.toISOString().slice(0, 10);
-  const mid = new Date((from.getTime() + to.getTime()) / 2);
-  return mid.toISOString().slice(0, 10);
+function getSquadDate() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 async function fetchJson(url) {
@@ -178,7 +171,7 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
   const entries = Object.entries(bestByCategory);
 
   await Promise.all(entries.map(async ([category, { team }]) => {
-    const date = getSquadDate(team);
+    const date = getSquadDate();
     const squadUrl = `${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(team._id)}/squad?date=${date}`;
     let athletes = [];
     let crew = [];
@@ -187,34 +180,9 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
       const squad = await fetchJson(squadUrl);
       athletes = Array.isArray(squad.athletes) ? squad.athletes : [];
       crew = Array.isArray(squad.crew) ? squad.crew : [];
-    } catch (_) {
-      // If the latest season is empty, try the previous one
-      const fallback = teamsList
-        .filter((t) => detectTeamCategory(t) === category && t._id !== team._id)
-        .sort((a, b) => new Date(b.season?.dateFrom || 0) - new Date(a.season?.dateFrom || 0))[0];
-      if (fallback) {
-        try {
-          const fbDate = getSquadDate(fallback);
-          const fbSquad = await fetchJson(`${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(fallback._id)}/squad?date=${fbDate}`);
-          athletes = Array.isArray(fbSquad.athletes) ? fbSquad.athletes : [];
-          crew = Array.isArray(fbSquad.crew) ? fbSquad.crew : [];
-        } catch (__) { /* empty roster */ }
-      }
-    }
-
-    // If latest season returned 0 athletes, try the previous season automatically
-    if (athletes.length === 0) {
-      const fallback = teamsList
-        .filter((t) => detectTeamCategory(t) === category && t._id !== team._id)
-        .sort((a, b) => new Date(b.season?.dateFrom || 0) - new Date(a.season?.dateFrom || 0))[0];
-      if (fallback) {
-        try {
-          const fbDate = getSquadDate(fallback);
-          const fbSquad = await fetchJson(`${API_BASE}/public/${appSpace}/teams/${encodeURIComponent(fallback._id)}/squad?date=${fbDate}`);
-          athletes = Array.isArray(fbSquad.athletes) ? fbSquad.athletes : [];
-          crew = Array.isArray(fbSquad.crew) ? fbSquad.crew : [];
-        } catch (__) { /* empty roster */ }
-      }
+    } catch (err) {
+      console.warn(`Failed to fetch squad for ${category} (team ${team._id}):`, err.message);
+      // Do not fall back to older seasons – always show current season data
     }
 
     const mappedAthletes = athletes.map(mapAthlete);
