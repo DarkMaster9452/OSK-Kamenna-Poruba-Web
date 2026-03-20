@@ -2,7 +2,8 @@ const env = require('../config/env');
 const { readCache, writeCache } = require('./cache');
 
 const API_BASE = 'https://sutaze.api.sportnet.online/api/v2';
-const APP_SPACE = 'osk-kamenna-poruba.futbalnet.sk';
+// Can be overridden via SPORTNET_APP_SPACE env var if the default slug is wrong
+const APP_SPACE = process.env.SPORTNET_APP_SPACE || 'osk-kamenna-poruba.futbalnet.sk';
 
 const cacheState = {
   expiresAt: 0,
