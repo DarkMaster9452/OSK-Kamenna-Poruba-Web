@@ -507,7 +507,16 @@
             header.site-header .sh-nav.open { display: block; }
             header.site-header .sh-nav ul { width: 100%; flex-direction: column; align-items: stretch; gap: 6px; flex-wrap: nowrap; font-size: 14px; }
             header.site-header .sh-nav li { width: 100%; }
-            header.site-header .sh-nav a { display: flex; width: 100%; padding: 10px 6px; }
+            header.site-header .sh-nav a {
+                display: flex; width: 100%; padding: 10px 6px;
+            }
+
+            header.site-header .sh-nav a::after { display: none; }
+
+            header.site-header .sh-nav a.active {
+                background: rgba(255, 215, 0, 0.15);
+                border-radius: 6px;
+            }
             header.site-header .sh-submenu-parent .sh-submenu { position: static; display: block; background: rgba(0,0,0,0.1); box-shadow: none; padding-left: 20px; margin-top: 5px; border-radius: 0; }
             header.site-header .sh-submenu-parent a i { display: none; }
             header.site-header .sh-mobile-login { display: list-item; }
