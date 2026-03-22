@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(powershell -Command \":*)",
-      "Bash(powershell -Command \"$path = ''c:\\\\Users\\\\stran\\\\Documents\\\\GitHub\\\\O-K-Kamenn-Poruba\\\\pages\\\\timeline_ihriska.html''; $content = Get-Content $path -Raw -Encoding UTF8; $idx = $content.IndexOf\\(''sh-submenu-parent.sh-hover''\\); $chars = $content.Substring\\($idx-6, 6\\); $bytes = [System.Text.Encoding]::UTF8.GetBytes\\($chars\\); $hex = $bytes | ForEach-Object { ''{0:X2}'' -f $_}; Write-Host \\($hex -join '' ''\\)\")",
-      "Bash(powershell -File:*)"
-    ]
-  }
-}
