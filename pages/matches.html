@@ -868,22 +868,36 @@
                 padding: 16px;
             }
 
+            .team-vs, .match-score {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
             .match-card .team-name {
-                font-size: 13px;
-                padding: 6px;
+                font-size: 14px;
+                padding: 10px;
+                background: transparent;
             }
 
             .match-card .vs-text {
-                font-size: 12px;
+                font-size: 16px;
+                margin: 4px 0;
             }
 
             .match-card .score-value {
-                font-size: 22px;
+                font-size: 24px;
+                background: #eee;
+                border-radius: 6px;
+                padding: 4px 12px;
+                display: inline-block;
+                color: #003399;
+                margin: 4px auto;
             }
 
             .match-card .match-score {
                 font-size: 18px;
                 margin: 8px 0;
+                text-align: center;
             }
 
             .match-card .match-details {
@@ -1728,9 +1742,9 @@
             if (match.status === 'finished' || match.status === 'live') {
                 scoreHtml = `
                         <div class="match-score">
-                            <div>${match.homeTeam}</div>
-                            <div class="score-value">${match.homeScore} - ${match.awayScore}</div>
-                            <div>${match.awayTeam}</div>
+                            <div class="team-name">${match.homeTeam}</div>
+                            <div class="score-value">${match.homeScore} : ${match.awayScore}</div>
+                            <div class="team-name">${match.awayTeam}</div>
                         </div>
                     `;
             } else {
