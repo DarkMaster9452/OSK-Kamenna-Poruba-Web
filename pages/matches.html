@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sk">
 
 <head>
@@ -1578,6 +1578,11 @@
 
         // ====== INICIALIZÁCIA ======
         window.addEventListener('load', async function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('tab') === 'finished') {
+                showResults = true;
+            }
+            
             await Promise.all([
                 loadMatchesFromApi(),
                 loadStandingsFromApi()
