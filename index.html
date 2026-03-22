@@ -4891,6 +4891,21 @@
                 const payload = await response.json();
                 let items = Array.isArray(payload?.items) ? payload.items : [];
                 
+                // Sort array to guarantee correct chronological order before slicing
+                if (type === 'finished') {
+                    items.sort((a, b) => {
+                        const dA = new Date((a.date || (a.startsAt ? a.startsAt.slice(0,10) : '')) + 'T' + (a.time || (a.startsAt ? a.startsAt.slice(11,16) : '00:00')));
+                        const dB = new Date((b.date || (b.startsAt ? b.startsAt.slice(0,10) : '')) + 'T' + (b.time || (b.startsAt ? b.startsAt.slice(11,16) : '00:00')));
+                        return dB - dA; // Od najnovšieho k najstaršiemu
+                    });
+                } else if (type === 'upcoming') {
+                    items.sort((a, b) => {
+                        const dA = new Date((a.date || (a.startsAt ? a.startsAt.slice(0,10) : '')) + 'T' + (a.time || (a.startsAt ? a.startsAt.slice(11,16) : '00:00')));
+                        const dB = new Date((b.date || (b.startsAt ? b.startsAt.slice(0,10) : '')) + 'T' + (b.time || (b.startsAt ? b.startsAt.slice(11,16) : '00:00')));
+                        return dA - dB; // Od najbližšieho k najvzdialenejšiemu
+                    });
+                }
+
                 // Vynútime limit 3 zápasov na klientovi (pre istotu, ak by to API ignorovalo)
                 items = items.slice(0, 3);
                 
