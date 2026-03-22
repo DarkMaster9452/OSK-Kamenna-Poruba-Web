@@ -4882,31 +4882,51 @@
             if (!container) return;
             
             try {
-                const endpoint = type === 'upcoming' ? '?upcoming=3' : '?finished=3';
-                const response = await cachedFetch(`${API_BASE}/sportsnet/matches${endpoint}`, {
+                // Načítame IBA všetky zápasy bez orezávajúcich parametrov API pre absolutnú zhodu s matches.html
+                const response = await cachedFetch(`${API_BASE}/sportsnet/matches`, {
                     method: 'GET',
                     headers: { Accept: 'application/json' }
                 });
                 if (!response.ok) throw new Error('fetch failed');
                 const payload = await response.json();
-                let items = Array.isArray(payload?.items) ? payload.items : [];
+                let allItems = Array.isArray(payload?.items) ? payload.items : [];
                 
-                // Sort array to guarantee correct chronological order before slicing
-                if (type === 'finished') {
-                    items.sort((a, b) => {
-                        const dA = new Date((a.date || (a.startsAt ? a.startsAt.slice(0,10) : '')) + 'T' + (a.time || (a.startsAt ? a.startsAt.slice(11,16) : '00:00')));
-                        const dB = new Date((b.date || (b.startsAt ? b.startsAt.slice(0,10) : '')) + 'T' + (b.time || (b.startsAt ? b.startsAt.slice(11,16) : '00:00')));
-                        return dB - dA; // Od najnovšieho k najstaršiemu
-                    });
-                } else if (type === 'upcoming') {
-                    items.sort((a, b) => {
-                        const dA = new Date((a.date || (a.startsAt ? a.startsAt.slice(0,10) : '')) + 'T' + (a.time || (a.startsAt ? a.startsAt.slice(11,16) : '00:00')));
-                        const dB = new Date((b.date || (b.startsAt ? b.startsAt.slice(0,10) : '')) + 'T' + (b.time || (b.startsAt ? b.startsAt.slice(11,16) : '00:00')));
-                        return dA - dB; // Od najbližšieho k najvzdialenejšiemu
-                    });
+                const now = new Date();
+                
+                // Určíme status striktne podľa dnešného dátumu na sekundu presne
+                let items = allItems.map(m => {
+                    const dA = m.date || (m.startsAt ? m.startsAt.slice(0, 10) : '');
+                    const tA = m.time || (m.startsAt ? m.startsAt.slice(11, 16) : '00:00');
+                    const matchDateObj = new Date((dA || '1970-01-01') + 'T' + tA);
+                    
+                    let localStatus = 'upcoming';
+                    const rawStatus = String(m.status || '').toLowerCase();
+                    if (rawStatus.includes('live') || rawStatus === 'inprogress') {
+                        localStatus = 'live';
+                    } else if (matchDateObj < now) {
+                        localStatus = 'finished';
+                    } else {
+                        localStatus = 'upcoming';
+                    }
+                    
+                    return { ...m, matchDateObj, localStatus, dA, tA };
+                });
+                
+                // Vyfiltrujeme tie, ktoré sa zhodujú s kategóriou záložky
+                if (type === 'upcoming') {
+                    items = items.filter(m => m.localStatus === 'upcoming' || m.localStatus === 'live');
+                } else {
+                    items = items.filter(m => m.localStatus === 'finished');
                 }
 
-                // Vynútime limit 3 zápasov na klientovi (pre istotu, ak by to API ignorovalo)
+                // Sort array to guarantee correct chronological order before slicing
+                if (type === 'finished') {
+                    items.sort((a, b) => b.matchDateObj - a.matchDateObj); // Od najnovšieho k najstaršiemu
+                } else if (type === 'upcoming') {
+                    items.sort((a, b) => a.matchDateObj - b.matchDateObj); // Od najbližšieho k najvzdialenejšiemu
+                }
+
+                // Vynútime limit 3 zápasov na klientovi
                 items = items.slice(0, 3);
                 
                 if (items.length === 0) {
@@ -4915,9 +4935,9 @@
                 }
 
                 container.innerHTML = items.map(m => {
-                    const d = m.date || (m.startsAt ? m.startsAt.slice(0, 10) : '');
-                    const t = m.time || (m.startsAt ? m.startsAt.slice(11, 16) : '');
-                    const dateObj = d ? new Date(d + 'T' + (t || '00:00')) : null;
+                    const dateObj = m.matchDateObj;
+                    const d = m.dA || '';
+                    const t = m.tA || '';
                     const formatted = dateObj ? dateObj.toLocaleDateString('sk-SK', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : d;
                     const venue = m.venue || 'Neuvedené';
                     const comp = m.competition || 'Súťaž';
@@ -4936,7 +4956,7 @@
                     }
 
                     return `
-                    <div class="match-card" onclick="goToMatches({preventDefault:function(){}})">
+                    <div class="match-card" onclick="goToMatchesFromHome(event)">
                         <div class="match-competition">${comp}</div>
                         <div class="match-status ${statusClass}" style="${type === 'finished' ? 'background: #f3e5f5; color: #7b1fa2;' : ''}">${statusText}</div>
                         <div class="match-teams">

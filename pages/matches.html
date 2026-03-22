@@ -1378,15 +1378,15 @@
             const competition = item.competition || 'Súťaž';
 
             let status = 'upcoming';
-            if (rawStatus.includes('live')) {
+            const matchDateObj = new Date((dateValue || '1970-01-01') + 'T' + timeValue);
+            const now = new Date();
+
+            if (rawStatus.includes('live') || rawStatus === 'inprogress') {
                 status = 'live';
-            } else if (
-                rawStatus.includes('finish') ||
-                rawStatus.includes('ended') ||
-                rawStatus.includes('full') ||
-                rawStatus.includes('completed')
-            ) {
+            } else if (matchDateObj < now) {
                 status = 'finished';
+            } else {
+                status = 'upcoming';
             }
 
             return {
@@ -2054,5 +2054,6 @@
 </body>
 
 </html>
+
 
 
