@@ -227,8 +227,16 @@ async function fetchSportsnetPlayers({ forceRefresh = false } = {}) {
   cacheState.payload = normalized;
   cacheState.expiresAt = Date.now() + cacheTtl;
 
-  // Fire and forget writing to DB cache
-  writeCache('players', normalized, cacheTtl).catch(console.error);
+  // Only write to DB cache if we actually got some players (prevent caching empty/failed responses)
+  const totalPlayers = Object.values(teams).reduce((sum, t) => sum + (t.count || 0), 0);
+  if (totalPlayers > 0) {
+    writeCache('players', normalized, cacheTtl).catch(console.error);
+  } else {
+    console.warn('[sportsnet-players] Not caching: all teams returned 0 players (possible SportNet API issue)');
+    // Also clear any stale empty cache in DB
+    const { invalidateCache } = require('./cache');
+    invalidateCache('players').catch(() => {});
+  }
 
   return { ...normalized, cache: 'MISS' };
 }

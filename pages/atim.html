@@ -651,21 +651,37 @@
 
                 try {
                     const payload = await cachedFetch(
-                        'osk_atim_players',
+                        'osk_atim_players_v2',
                         `${API_BASE}/sportsnet/players?team=dospeli`,
                         { method: 'GET', headers: { Accept: 'application/json' } }
                     );
                     const team = payload.teams && payload.teams.dospeli;
 
-                    if (!team || !team.playersByPosition) {
+                    if (!team) {
                         rosterEl.innerHTML = '<p style="color:#888;text-align:center;padding:24px 0;">Žiadni hráči neboli nájdení.</p>';
                         crewEl.innerHTML = '<p style="color:#888;">Žiadni členovia realizačného tímu.</p>';
                         return;
                     }
 
+                    // Získaj playersByPosition – buď priamo z API, alebo zostaviť z players[]
+                    let playersByPosition = team.playersByPosition;
+
+                    if (!playersByPosition || Object.keys(playersByPosition).length === 0) {
+                        // Fallback: zostaviť skupiny podľa pozície z flat players[] (rovnaká logika ako akadémia)
+                        playersByPosition = {};
+                        POSITION_ORDER.forEach(pos => { playersByPosition[pos] = []; });
+                        const allPlayers = Array.isArray(team.players) ? team.players : [];
+                        allPlayers.forEach(p => {
+                            const pos = p.position || 'Neznáma';
+                            const bucket = POSITION_ORDER.includes(pos) ? pos : 'Neznáma';
+                            if (!playersByPosition[bucket]) playersByPosition[bucket] = [];
+                            playersByPosition[bucket].push(p);
+                        });
+                    }
+
                     let html = '';
                     POSITION_ORDER.forEach(pos => {
-                        const players = team.playersByPosition[pos];
+                        const players = playersByPosition[pos];
                         if (players && players.length > 0) {
                             html += renderPositionGroup(POSITION_LABELS[pos], players);
                         }
