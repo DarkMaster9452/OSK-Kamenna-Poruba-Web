@@ -4887,7 +4887,10 @@
                 });
                 if (!response.ok) throw new Error('fetch failed');
                 const payload = await response.json();
-                const items = Array.isArray(payload?.items) ? payload.items : [];
+                let items = Array.isArray(payload?.items) ? payload.items : [];
+                
+                // Vynútime limit 3 zápasov na klientovi (pre istotu, ak by to API ignorovalo)
+                items = items.slice(0, 3);
                 
                 if (items.length === 0) {
                     container.innerHTML = `<div style="text-align:center;padding:30px;color:#666;grid-column:1/-1;">Žiadne ${type === 'upcoming' ? 'nadchádzajúce' : 'odohrané'} zápasy.</div>`;
