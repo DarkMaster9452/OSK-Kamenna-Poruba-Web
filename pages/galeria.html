@@ -539,7 +539,7 @@
     <header class="site-header">
         <div class="header-top">
             <a class="sh-logo" href="/index.html">
-                <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="OŠK Kamenná Poruba Logo" class="sh-logo-img">
+                <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="OŠK Kamenná Poruba Logo" class="sh-logo-img" data-cloudinary-id="OŠK Kamenná Poruba Logo">
                 <span>OŠK Kamenná Poruba</span>
             </a>
             <nav class="sh-nav" id="shMainNav">
@@ -573,11 +573,6 @@
         <div class="album-tabs" id="albumTabs">
             <button class="album-tab active" data-album="all">Všetky</button>
             <button class="album-tab" data-album="instagram">Instagram</button>
-            <button class="album-tab" data-album="historia">História</button>
-            <button class="album-tab" data-album="2024-tribuny">2024 Tribúny</button>
-            <button class="album-tab" data-album="2023-pristresok">2023 Prístrešok</button>
-            <button class="album-tab" data-album="2023-siet">2023 Sieť</button>
-            <button class="album-tab" data-album="zapasy">Zápasy / Klub</button>
         </div>
 
         <div class="gallery-grid" id="galleryGrid"></div>
@@ -623,56 +618,65 @@
         }
         const API_BASE = resolveApiBase();
 
-        /* ===== LOCAL ALBUM DATA ===== */
-        const LOCAL_ALBUMS = {
-            historia: [
-                '/assets/images/HISTORIA/100_1314.JPG',
-                '/assets/images/HISTORIA/100_2855.JPG',
-                '/assets/images/HISTORIA/100_2857.JPG',
-                '/assets/images/HISTORIA/dorast.JPG',
-                '/assets/images/HISTORIA/DSC_0227.JPG',
-                '/assets/images/HISTORIA/DSC_0488.JPG',
-                '/assets/images/HISTORIA/img004 upr 2.jpg',
-                '/assets/images/HISTORIA/img005 upr 3.jpg',
-                '/assets/images/HISTORIA/img006 upr 4.jpg',
-                '/assets/images/HISTORIA/img007 upr 5.jpg',
-                '/assets/images/HISTORIA/img008 upr 6.jpg',
-                '/assets/images/HISTORIA/img009 upr 7.jpg',
-                '/assets/images/HISTORIA/img010 upr.jpg',
-                '/assets/images/HISTORIA/img013 upr 1.jpg',
-                '/assets/images/HISTORIA/img016 upr8.jpg',
-                '/assets/images/HISTORIA/img017 upr 9.jpg',
-                '/assets/images/HISTORIA/img018 upr 10.jpg',
-                '/assets/images/HISTORIA/img019 upr.jpg',
-                '/assets/images/HISTORIA/img021.jpg',
-                '/assets/images/HISTORIA/img192.jpg',
-                '/assets/images/HISTORIA/img193.jpg',
-                '/assets/images/HISTORIA/P8270140.JPG',
-                '/assets/images/HISTORIA/Plagat OŠK.jpg',
-                '/assets/images/HISTORIA/Spoločná fotka muži.JPG',
-                '/assets/images/HISTORIA/ST.Ž..jpg'
-            ],
-            '2024-tribuny': [
-                '/assets/images/2024 tribuny/459462f5-9449-4d0b-a77f-a1809ddd4700.jpg',
-                '/assets/images/2024 tribuny/9b614a75-dbfa-44ea-89f4-99932e1d3658.jpg',
-                '/assets/images/2024 tribuny/a74b9d59-9366-4c43-aeeb-3c2be2bb8e90.jpg',
-                '/assets/images/2024 tribuny/f7f854d6-01aa-4544-80ee-8dc4c8d82b89.jpg'
-            ],
-            '2023-pristresok': [],
-            '2023-siet': [],
-            zapasy: [
-                '/assets/images/10750142878023431842.jpg',
-                '/assets/images/2.jpg',
-                '/assets/images/508120564_29838519272462811_2048504803720081817_n.jpg',
-                '/assets/images/508433324_29841234952191243_3332785514084510977_n.jpg',
-                '/assets/images/508538663_29841234848857920_7529913858397432447_n.jpg',
-                '/assets/images/51597284815_c985abef70_b.jpg',
-                '/assets/images/IMG_5259-Enhanced-NR-1024x683.jpg',
-                '/assets/images/memorial-milana-smehyla-pre-favorizovanu-kamennu-porubu-117368.1920x1080t.jpg',
-                '/assets/images/memorial-milana-smehyla-pre-favorizovanu-kamennu-porubu-13661.1920x1080t.jpg',
-                '/assets/images/rozhovor-kamenna-poruba-okusi-prvykrat-v-historii-klubu-krajsku-sutaz-117322.1920x1080t.jpg'
-            ]
+        /* ===== CLOUDINARY ALBUM DATA ===== */
+        // albumKey → array of { src, alt }
+        let CLOUDINARY_ALBUMS = {};
+        let cloudinaryAlbumMeta = []; // [{ key, label }]
+
+        // Labels for known Cloudinary folder names
+        const FOLDER_LABELS = {
+            'HISTORIA': 'História',
+            '2006-2007': '2006 – 2007',
+            '2008': '2008',
+            '2009': '2009',
+            '2010': '2010',
+            '24  striedačky': '2023/2024 Striedačky',
+            '24 striedačky': '2023/2024 Striedačky',
+            '2023 pristresok': '2023 Prístrešok',
+            '2023 Sieť': '2023 Sieť',
+            '2023 Siet': '2023 Sieť',
+            '2024 tribuny': '2024 Tribúny'
         };
+
+        function folderNameToKey(name) {
+            return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        }
+
+        async function loadCloudinaryAlbums() {
+            try {
+                const response = await fetch('/api/cloudinary/timeline');
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const data = await response.json();
+                const folders = Array.isArray(data.folders) ? data.folders : [];
+
+                CLOUDINARY_ALBUMS = {};
+                cloudinaryAlbumMeta = [];
+
+                folders.forEach(function (folder) {
+                    const key = folderNameToKey(folder.folder);
+                    const label = FOLDER_LABELS[folder.folder] || folder.folder;
+                    const items = (folder.images || []).map(function (img) {
+                        return { src: img.url, alt: folder.folder };
+                    });
+                    if (items.length > 0) {
+                        CLOUDINARY_ALBUMS[key] = items;
+                        cloudinaryAlbumMeta.push({ key, label });
+                    }
+                });
+            } catch (e) {
+                console.warn('Cloudinary albums load failed:', e);
+            }
+        }
+
+        function buildAlbumTabs() {
+            var tabsEl = document.getElementById('albumTabs');
+            var staticTabs = '<button class="album-tab active" data-album="all">Všetky</button>' +
+                '<button class="album-tab" data-album="instagram">Instagram</button>';
+            var dynamicTabs = cloudinaryAlbumMeta.map(function (m) {
+                return '<button class="album-tab" data-album="' + m.key + '">' + m.label + '</button>';
+            }).join('');
+            tabsEl.innerHTML = staticTabs + dynamicTabs;
+        }
 
         /* ===== STATE ===== */
         let instagramItems = [];
@@ -683,10 +687,8 @@
         let itemsToShow = [];
 
         /* ===== HELPERS ===== */
-        function makeLocalItem(src, album) {
-            const parts = src.split('/');
-            const name = decodeURIComponent(parts[parts.length - 1]).replace(/\.[^.]+$/, '');
-            return { src, alt: name, album, type: 'local' };
+        function makeCloudinaryItem(item, album) {
+            return { src: item.src, alt: item.alt || album, album, type: 'cloudinary' };
         }
 
         function makeInstagramItem(item) {
@@ -699,11 +701,11 @@
             };
         }
 
-        function getAllLocalItems() {
-            const items = [];
-            Object.keys(LOCAL_ALBUMS).forEach(function (album) {
-                LOCAL_ALBUMS[album].forEach(function (src) {
-                    items.push(makeLocalItem(src, album));
+        function getAllCloudinaryItems() {
+            var items = [];
+            Object.keys(CLOUDINARY_ALBUMS).forEach(function (album) {
+                CLOUDINARY_ALBUMS[album].forEach(function (item) {
+                    items.push(makeCloudinaryItem(item, album));
                 });
             });
             return items;
@@ -716,12 +718,12 @@
             renderedCount = 0;
 
             if (currentAlbum === 'all') {
-                itemsToShow = instagramItems.map(makeInstagramItem).concat(getAllLocalItems());
+                itemsToShow = instagramItems.map(makeInstagramItem).concat(getAllCloudinaryItems());
             } else if (currentAlbum === 'instagram') {
                 itemsToShow = instagramItems.map(makeInstagramItem);
             } else {
-                itemsToShow = (LOCAL_ALBUMS[currentAlbum] || []).map(function (src) {
-                    return makeLocalItem(src, currentAlbum);
+                itemsToShow = (CLOUDINARY_ALBUMS[currentAlbum] || []).map(function (item) {
+                    return makeCloudinaryItem(item, currentAlbum);
                 });
             }
 
@@ -917,7 +919,8 @@
 
         /* ===== INIT ===== */
         (async function () {
-            await loadInstagramFeed();
+            await Promise.all([loadInstagramFeed(), loadCloudinaryAlbums()]);
+            buildAlbumTabs();
             renderGallery();
         })();
     </script>
@@ -978,6 +981,7 @@
             } catch(e) {}
 })();
     </script>
+<script src="/assets/js/cloudinary-assets.js"></script>
 </body>
 
 </html>
