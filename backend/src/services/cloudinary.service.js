@@ -262,7 +262,7 @@ async function debugCloudinaryFolders() {
         debug.steps.push({
           step: 'sub_folders',
           parent: folder.path,
-          error: subErr?.message || String(subErr)
+          error: subErr?.message || subErr?.error?.message || JSON.stringify(subErr)
         });
       }
     }
@@ -286,7 +286,7 @@ async function debugCloudinaryFolders() {
         debug.steps.push({
           step: 'search_api_test',
           folder: testFolder.path,
-          error: searchErr?.message || String(searchErr)
+          error: searchErr?.message || searchErr?.error?.message || JSON.stringify(searchErr)
         });
       }
 
@@ -308,7 +308,7 @@ async function debugCloudinaryFolders() {
         debug.steps.push({
           step: 'search_folder_test',
           folder: testFolder.path,
-          error: searchErr2?.message || String(searchErr2)
+          error: searchErr2?.message || searchErr2?.error?.message || JSON.stringify(searchErr2)
         });
       }
 
@@ -330,14 +330,14 @@ async function debugCloudinaryFolders() {
         debug.steps.push({
           step: 'resources_prefix_test',
           prefix: testFolder.path + '/',
-          error: resErr?.message || String(resErr)
+          error: resErr?.message || resErr?.error?.message || JSON.stringify(resErr)
         });
       }
     }
   } catch (rootErr) {
     debug.steps.push({
       step: 'root_folders',
-      error: rootErr?.message || String(rootErr)
+      error: rootErr?.message || rootErr?.error?.message || JSON.stringify(rootErr)
     });
   }
 
