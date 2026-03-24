@@ -245,6 +245,8 @@ async function debugCloudinaryFolders() {
       folders: rootFolders.map((f) => ({ name: f.name, path: f.path }))
     });
 
+    // Pick the first subfolder to test image fetching
+    let testFolder = null;
     for (const folder of rootFolders) {
       try {
         const subResult = await cloudinary.api.sub_folders(folder.path, { max_results: 500 });
@@ -255,11 +257,80 @@ async function debugCloudinaryFolders() {
           count: subs.length,
           folders: subs.map((f) => ({ name: f.name, path: f.path }))
         });
+        if (subs.length > 0 && !testFolder) testFolder = subs[0];
       } catch (subErr) {
         debug.steps.push({
           step: 'sub_folders',
           parent: folder.path,
           error: subErr?.message || String(subErr)
+        });
+      }
+    }
+
+    // Test: Search API with asset_folder on first subfolder
+    if (testFolder) {
+      try {
+        const searchResult = await cloudinary.search
+          .expression(`asset_folder="${testFolder.path}" AND resource_type:image`)
+          .max_results(5)
+          .execute();
+        debug.steps.push({
+          step: 'search_api_test',
+          folder: testFolder.path,
+          expression: `asset_folder="${testFolder.path}" AND resource_type:image`,
+          totalCount: searchResult.total_count,
+          returnedCount: Array.isArray(searchResult.resources) ? searchResult.resources.length : 0,
+          sampleIds: (searchResult.resources || []).slice(0, 3).map((r) => r.public_id)
+        });
+      } catch (searchErr) {
+        debug.steps.push({
+          step: 'search_api_test',
+          folder: testFolder.path,
+          error: searchErr?.message || String(searchErr)
+        });
+      }
+
+      // Test: also try folder= syntax
+      try {
+        const searchResult2 = await cloudinary.search
+          .expression(`folder="${testFolder.path}" AND resource_type:image`)
+          .max_results(5)
+          .execute();
+        debug.steps.push({
+          step: 'search_folder_test',
+          folder: testFolder.path,
+          expression: `folder="${testFolder.path}" AND resource_type:image`,
+          totalCount: searchResult2.total_count,
+          returnedCount: Array.isArray(searchResult2.resources) ? searchResult2.resources.length : 0,
+          sampleIds: (searchResult2.resources || []).slice(0, 3).map((r) => r.public_id)
+        });
+      } catch (searchErr2) {
+        debug.steps.push({
+          step: 'search_folder_test',
+          folder: testFolder.path,
+          error: searchErr2?.message || String(searchErr2)
+        });
+      }
+
+      // Test: old resources API with prefix
+      try {
+        const resResult = await cloudinary.api.resources({
+          type: 'upload',
+          prefix: testFolder.path + '/',
+          max_results: 5,
+          resource_type: 'image'
+        });
+        debug.steps.push({
+          step: 'resources_prefix_test',
+          prefix: testFolder.path + '/',
+          returnedCount: Array.isArray(resResult.resources) ? resResult.resources.length : 0,
+          sampleIds: (resResult.resources || []).slice(0, 3).map((r) => r.public_id)
+        });
+      } catch (resErr) {
+        debug.steps.push({
+          step: 'resources_prefix_test',
+          prefix: testFolder.path + '/',
+          error: resErr?.message || String(resErr)
         });
       }
     }
