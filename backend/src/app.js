@@ -19,6 +19,7 @@ const sportsnetPlayersRoutes = require('./routes/sportsnet-players.routes');
 const contactRoutes = require('./routes/contact.routes');
 const instagramRoutes = require('./routes/instagram.routes');
 const groupsRoutes = require('./routes/groups.routes');
+const cloudinaryRoutes = require('./routes/cloudinary.routes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -130,6 +131,8 @@ app.use('/api/instagram', instagramRoutes);
 app.use('/instagram', instagramRoutes);
 app.use('/api/groups', groupsRoutes);
 app.use('/groups', groupsRoutes);
+app.use('/api/cloudinary', cloudinaryRoutes);
+app.use('/cloudinary', cloudinaryRoutes);
 
 app.get('/', (req, res) => {
   return res.json({

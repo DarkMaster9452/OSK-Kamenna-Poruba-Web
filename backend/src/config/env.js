@@ -54,7 +54,11 @@ const env = {
   instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
   instagramUserId: process.env.INSTAGRAM_USER_ID || 'me',
   instagramFeedLimit: Number(process.env.INSTAGRAM_FEED_LIMIT || 8),
-  instagramCacheSeconds: Number(process.env.INSTAGRAM_CACHE_SECONDS || 300)
+  instagramCacheSeconds: Number(process.env.INSTAGRAM_CACHE_SECONDS || 300),
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || '',
+  cloudinaryCacheSeconds: Number(process.env.CLOUDINARY_CACHE_SECONDS || 1800)
 };
 
 if (env.nodeEnv === 'production' && env.jwtAccessSecret === 'dev_only_change_me') {

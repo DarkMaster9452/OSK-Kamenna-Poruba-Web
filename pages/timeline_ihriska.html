@@ -571,7 +571,7 @@
     <header class="site-header">
         <div class="header-top">
             <a class="sh-logo" href="/index.html">
-                <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="OŠK Kamenná Poruba Logo" class="sh-logo-img">
+                <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="OŠK Kamenná Poruba Logo" class="sh-logo-img" data-cloudinary-id="OŠK Kamenná Poruba Logo">
                 <span>OŠK Kamenná Poruba</span>
             </a>
             <nav class="sh-nav" id="shMainNav">
@@ -625,7 +625,91 @@
     </div>
 
     <script>
-        const TIMELINE_DATA = [
+        // Text descriptions for each Cloudinary folder (matched by folder name/path)
+        const FOLDER_TEXT_CONFIG = {
+            'HISTORIA': {
+                year: 'Historické',
+                title: 'Historické fotky klubu',
+                points: ['Archívne zábery klubu.']
+            },
+            '2006-2007': {
+                year: '2006 – 2007',
+                title: 'Začiatok výstavby budovy OŠK',
+                points: ['Spustenie výstavby klubovej budovy.', 'Prvé stavebné práce a príprava základov.']
+            },
+            '2008': {
+                year: '2008',
+                title: 'Stavba stien a hrubej stavby',
+                points: ['Rozšírenie stavebných častí objektu.']
+            },
+            '2009': {
+                year: '2009',
+                title: 'Stavba strechy',
+                points: ['Príprava objektu na vnútorné práce.']
+            },
+            '2010': {
+                year: '2010',
+                title: 'Dokončovanie budovy OŠK Kamenná Poruba',
+                points: ['Dokončovanie budovy a posledných detailov.', 'Vznik stabilného klubového zázemia.']
+            },
+            '24  striedačky': {
+                year: '2023/2024',
+                title: 'Nové striedačky',
+                points: ['V priebehu rokov 2023 a 24 sme vybudovali nové striedačky pre hráčov.']
+            },
+            '24 striedačky': {
+                year: '2023/2024',
+                title: 'Nové striedačky',
+                points: ['V priebehu rokov 2023 a 24 sme vybudovali nové striedačky pre hráčov.']
+            },
+            '2023 pristresok': {
+                year: '2023',
+                title: 'Prístrešok a sedenie pre fanúšikov',
+                points: ['V roku 2023 sme vybudovali sedenie pre fanúšikov pri prístrešku a pri šatniach.']
+            },
+            '2023 Sieť': {
+                year: '2023',
+                title: 'Ochranná sieť za bránou',
+                points: ['V roku 2023 sme vybudovali ochrannú sieť za bránou, aby sme zabezpečili bezpečnosť fanúšikov a hráčov počas zápasov.']
+            },
+            '2023 Siet': {
+                year: '2023',
+                title: 'Ochranná sieť za bránou',
+                points: ['V roku 2023 sme vybudovali ochrannú sieť za bránou, aby sme zabezpečili bezpečnosť fanúšikov a hráčov počas zápasov.']
+            },
+            '2024 tribuny': {
+                year: '2024',
+                title: 'Rekonštrukcia tribún',
+                points: ['Úpravy a obnova tribún v športovom areáli.']
+            }
+        };
+
+        function folderToBlockId(path) {
+            return 'block-' + path.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        }
+
+        function mapCloudinaryFolderToBlock(folder) {
+            const config = FOLDER_TEXT_CONFIG[folder.folder] || FOLDER_TEXT_CONFIG[folder.path] || {};
+            return {
+                id: folderToBlockId(folder.path),
+                year: config.year || folder.folder,
+                title: config.title || folder.folder,
+                points: config.points || [],
+                photos: folder.images.map((img) => ({ src: img.url, alt: '' }))
+            };
+        }
+
+        function sortTimelineBlocks(blocks) {
+            const yearOrder = { 'Historické': -1 };
+            return blocks.slice().sort((a, b) => {
+                const aYear = parseInt(a.year) || yearOrder[a.year] || 9999;
+                const bYear = parseInt(b.year) || yearOrder[b.year] || 9999;
+                return aYear - bYear;
+            });
+        }
+
+        // Legacy fallback data (used if API is unavailable)
+        const FALLBACK_TIMELINE_DATA = [
             {
                 id: 'historicke',
                 year: 'Historické',
@@ -862,6 +946,7 @@
         const PREVIEW_PHOTOS_PER_BLOCK = 6;
         const EMPTY_IMAGE_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
         const previewOffsetByBlockId = {};
+        let TIMELINE_DATA = [];
 
         const photoModal = document.getElementById('photoModal');
         const photoModalImage = document.getElementById('photoModalImage');
@@ -874,10 +959,8 @@
         let activeModalPhotoIndex = 0;
         let timelineImageObserver = null;
 
-        const TIMELINE_DATA_WITH_MIN_PHOTOS = TIMELINE_DATA;
-
         function getBlockById(blockId) {
-            return TIMELINE_DATA_WITH_MIN_PHOTOS.find((block) => block.id === blockId);
+            return TIMELINE_DATA.find((block) => block.id === blockId);
         }
 
         function getPreviewSlice(photos, startIndex) {
@@ -895,7 +978,7 @@
         }
 
         function renderTimeline() {
-            timelineContainer.innerHTML = TIMELINE_DATA_WITH_MIN_PHOTOS.map((block) => {
+            timelineContainer.innerHTML = TIMELINE_DATA.map((block) => {
                 const startOffset = Number(previewOffsetByBlockId[block.id] || 0);
                 const previewItems = getPreviewSlice(block.photos, startOffset);
 
@@ -1061,11 +1144,57 @@
             }
         });
 
-        yearNav.innerHTML = TIMELINE_DATA_WITH_MIN_PHOTOS.map((block) => `
-            <a href="#${block.id}">${block.year}</a>
-        `).join('');
+        function renderYearNav() {
+            yearNav.innerHTML = TIMELINE_DATA.map((block) => `
+                <a href="#${block.id}">${block.year}</a>
+            `).join('');
+        }
 
-        renderTimeline();
+        function showTimelineLoading() {
+            timelineContainer.innerHTML = `
+                <div style="text-align:center;padding:48px 16px;color:#666;">
+                    <i class="fas fa-spinner fa-spin" style="font-size:32px;color:#003399;margin-bottom:12px;display:block;"></i>
+                    Načítavam fotografie z Cloudinary...
+                </div>
+            `;
+        }
+
+        function showTimelineError(message) {
+            timelineContainer.innerHTML = `
+                <div style="text-align:center;padding:48px 16px;color:#c0392b;">
+                    <i class="fas fa-exclamation-triangle" style="font-size:32px;margin-bottom:12px;display:block;"></i>
+                    ${message || 'Nepodarilo sa načítať fotografie.'}
+                </div>
+            `;
+        }
+
+        async function loadTimelineFromCloudinary() {
+            showTimelineLoading();
+            try {
+                const response = await fetch('/api/cloudinary/timeline');
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                const data = await response.json();
+
+                if (!data.folders || data.folders.length === 0) {
+                    // Fallback to local data if Cloudinary returned nothing
+                    TIMELINE_DATA = FALLBACK_TIMELINE_DATA;
+                } else {
+                    TIMELINE_DATA = sortTimelineBlocks(
+                        data.folders.map(mapCloudinaryFolderToBlock)
+                    );
+                }
+            } catch (err) {
+                console.warn('Cloudinary load failed, using fallback data:', err);
+                TIMELINE_DATA = FALLBACK_TIMELINE_DATA;
+            }
+
+            renderYearNav();
+            renderTimeline();
+        }
+
+        loadTimelineFromCloudinary();
     </script>
 
     <!-- Scroll to top (mobile) -->
@@ -1123,6 +1252,7 @@
             } catch(e) {}
         })();
     </script>
+<script src="/assets/js/cloudinary-assets.js"></script>
 </body>
 
 </html>
