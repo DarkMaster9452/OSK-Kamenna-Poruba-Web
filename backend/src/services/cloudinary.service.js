@@ -1,5 +1,6 @@
 const cloudinary = require('cloudinary').v2;
 const env = require('../config/env');
+const { readCache, writeCache } = require('./cache');
 
 let configured = false;
 
@@ -22,8 +23,6 @@ function isConfigured() {
   return configured;
 }
 
-const timelineCache = { expiresAt: 0, data: null };
-const assetsCache = { expiresAt: 0, data: null };
 
 function makeUnconfiguredResponse(resource) {
   return {
@@ -144,9 +143,11 @@ async function getTimelineData({ forceRefresh = false } = {}) {
     return { ...makeUnconfiguredResponse('timeline'), folders: [] };
   }
 
-  const now = Date.now();
-  if (!forceRefresh && timelineCache.data && timelineCache.expiresAt > now) {
-    return { ...timelineCache.data, cache: 'HIT' };
+  if (!forceRefresh) {
+    const cached = await readCache('cloudinary_timeline');
+    if (cached) {
+      return { ...cached, cache: 'HIT' };
+    }
   }
 
   try {
@@ -159,14 +160,14 @@ async function getTimelineData({ forceRefresh = false } = {}) {
     };
 
     const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
-    timelineCache.data = normalized;
-    timelineCache.expiresAt = now + ttl;
+    await writeCache('cloudinary_timeline', normalized, ttl);
 
     return { ...normalized, cache: 'MISS' };
   } catch (error) {
     const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
-    if (timelineCache.data) {
-      return { ...timelineCache.data, cache: 'STALE', warning: errorMsg };
+    const staleObj = await readCache('cloudinary_timeline');
+    if (staleObj) {
+      return { ...staleObj, cache: 'STALE', warning: errorMsg };
     }
     const err = new Error('Nepodarilo sa nacitat data z Cloudinary: ' + errorMsg);
     err.status = 502;
@@ -179,9 +180,11 @@ async function getRootAssets({ forceRefresh = false } = {}) {
     return { ...makeUnconfiguredResponse('assets'), assets: [] };
   }
 
-  const now = Date.now();
-  if (!forceRefresh && assetsCache.data && assetsCache.expiresAt > now) {
-    return { ...assetsCache.data, cache: 'HIT' };
+  if (!forceRefresh) {
+    const cached = await readCache('cloudinary_assets');
+    if (cached) {
+      return { ...cached, cache: 'HIT' };
+    }
   }
 
   try {
@@ -211,14 +214,14 @@ async function getRootAssets({ forceRefresh = false } = {}) {
     };
 
     const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
-    assetsCache.data = normalized;
-    assetsCache.expiresAt = now + ttl;
+    await writeCache('cloudinary_assets', normalized, ttl);
 
     return { ...normalized, cache: 'MISS' };
   } catch (error) {
     const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
-    if (assetsCache.data) {
-      return { ...assetsCache.data, cache: 'STALE', warning: errorMsg };
+    const staleObj = await readCache('cloudinary_assets');
+    if (staleObj) {
+      return { ...staleObj, cache: 'STALE', warning: errorMsg };
     }
     const err = new Error('Nepodarilo sa nacitat assety z Cloudinary: ' + errorMsg);
     err.status = 502;
