@@ -621,11 +621,9 @@
         const API_BASE = resolveApiBase();
 
         /* ===== CLOUDINARY ALBUM DATA ===== */
-        // albumKey → array of { src, alt }
         let CLOUDINARY_ALBUMS = {};
-        let cloudinaryAlbumMeta = []; // [{ key, label }]
+        let cloudinaryAlbumMeta = [];
 
-        // Labels for known Cloudinary folder names
         const FOLDER_TEXT_CONFIG = {
             'HISTORIA': { year: 'Historické', title: 'Historické fotky klubu', points: ['Archívne zábery klubu.'] },
             '2005': { year: '2005', title: 'Fotografie z roku 2005', points: [] },
@@ -648,7 +646,7 @@
             '24 striedačky': { year: '2023/2024', title: 'Striedačky', points: ['Nové striedačky pre tímy.'] },
             '2024 tribuny': { year: '2024', title: 'Rekonštrukcia tribún', points: ['Úpravy a obnova tribún v športovom areáli.'] }
         };
-function folderNameToKey(name) {
+        function folderNameToKey(name) {
             return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
         }
 
@@ -664,7 +662,8 @@ function folderNameToKey(name) {
 
                 folders.forEach(function (folder) {
                     const key = folderNameToKey(folder.folder);
-                    const conf = FOLDER_TEXT_CONFIG[folder.folder] || {}; const label = conf.year || folder.folder;
+                    const conf = FOLDER_TEXT_CONFIG[folder.folder] || {};
+                    const label = conf.year || folder.folder;
                     const items = (folder.images || []).map(function (img) {
                         return { src: img.url, alt: folder.folder };
                     });
@@ -679,7 +678,6 @@ function folderNameToKey(name) {
                     const aYear = parseInt(a.label) || yearOrder[a.label] || 9999;
                     const bYear = parseInt(b.label) || yearOrder[b.label] || 9999;
                     return aYear - bYear;
-                });
                 });
             } catch (e) {
                 console.warn('Cloudinary albums load failed:', e);
@@ -946,10 +944,17 @@ function folderNameToKey(name) {
         });
 
         /* ===== INIT ===== */
-        (async function () {
-            await Promise.all([loadInstagramFeed(), loadCloudinaryAlbums()]);
+        (function () {
             buildAlbumTabs();
-            renderGallery();
+            
+            loadInstagramFeed().then(function() {
+                if (currentAlbum === 'instagram') renderGallery();
+            });
+
+            loadCloudinaryAlbums().then(function() {
+                buildAlbumTabs();
+                if (currentAlbum !== 'instagram') renderGallery();
+            });
         })();
     </script>
 
@@ -1007,11 +1012,8 @@ function folderNameToKey(name) {
                     }
                 }
             } catch(e) {}
-})();
+        })();
     </script>
 <script src="/assets/js/cloudinary-assets.js"></script>
 </body>
-
 </html>
-
-
