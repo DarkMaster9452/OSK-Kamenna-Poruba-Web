@@ -626,11 +626,17 @@
 
     <script>
         // Text descriptions for each Cloudinary folder (matched by folder name/path)
+        // Folders without a config entry still appear — using folder name as year & title
         const FOLDER_TEXT_CONFIG = {
             'HISTORIA': {
                 year: 'Historické',
                 title: 'Historické fotky klubu',
                 points: ['Archívne zábery klubu.']
+            },
+            '2005': {
+                year: '2005',
+                title: 'Fotografie z roku 2005',
+                points: []
             },
             '2006-2007': {
                 year: '2006 – 2007',
@@ -652,20 +658,60 @@
                 title: 'Dokončovanie budovy OŠK Kamenná Poruba',
                 points: ['Dokončovanie budovy a posledných detailov.', 'Vznik stabilného klubového zázemia.']
             },
-            '24  striedačky': {
-                year: '2023/2024',
-                title: 'Nové striedačky',
-                points: ['V priebehu rokov 2023 a 24 sme vybudovali nové striedačky pre hráčov.']
+            '2011': {
+                year: '2011',
+                title: 'Fotografie z roku 2011',
+                points: []
             },
-            '24 striedačky': {
-                year: '2023/2024',
-                title: 'Nové striedačky',
-                points: ['V priebehu rokov 2023 a 24 sme vybudovali nové striedačky pre hráčov.']
+            '2012': {
+                year: '2012',
+                title: 'Fotografie z roku 2012',
+                points: []
+            },
+            '2013': {
+                year: '2013',
+                title: 'Fotografie z roku 2013',
+                points: []
+            },
+            '2014': {
+                year: '2014',
+                title: 'Fotografie z roku 2014',
+                points: []
+            },
+            '2015': {
+                year: '2015',
+                title: 'Fotografie z roku 2015',
+                points: []
+            },
+            '2016': {
+                year: '2016',
+                title: 'Fotografie z roku 2016',
+                points: []
+            },
+            '2017': {
+                year: '2017',
+                title: 'Fotografie z roku 2017',
+                points: []
+            },
+            '2018': {
+                year: '2018',
+                title: 'Fotografie z roku 2018',
+                points: []
+            },
+            '2023': {
+                year: '2023',
+                title: 'Fotografie z roku 2023',
+                points: []
             },
             '2023 pristresok': {
                 year: '2023',
                 title: 'Prístrešok a sedenie pre fanúšikov',
                 points: ['V roku 2023 sme vybudovali sedenie pre fanúšikov pri prístrešku a pri šatniach.']
+            },
+            '2023 Sief': {
+                year: '2023',
+                title: 'Ochranná sieť za bránou',
+                points: ['V roku 2023 sme vybudovali ochrannú sieť za bránou, aby sme zabezpečili bezpečnosť fanúšikov a hráčov počas zápasov.']
             },
             '2023 Sieť': {
                 year: '2023',

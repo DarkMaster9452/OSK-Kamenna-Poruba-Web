@@ -51,15 +51,11 @@ async function fetchImagesInFolder(folderPath) {
     const resources = Array.isArray(result.resources) ? result.resources : [];
 
     for (const r of resources) {
-      // Only include direct children (no sub-subfolders)
-      const relativePath = r.public_id.slice(folderPath.length + 1);
-      if (!relativePath.includes('/')) {
-        images.push({
-          url: r.secure_url,
-          publicId: r.public_id,
-          format: r.format || ''
-        });
-      }
+      images.push({
+        url: r.secure_url,
+        publicId: r.public_id,
+        format: r.format || ''
+      });
     }
 
     nextCursor = result.next_cursor || null;
@@ -68,24 +64,52 @@ async function fetchImagesInFolder(folderPath) {
   return images;
 }
 
-async function collectAllFolderBlocks() {
-  const rootResult = await cloudinary.api.root_folders({ max_results: 100 });
-  const rootFolders = Array.isArray(rootResult.folders) ? rootResult.folders : [];
+async function listAllRootFolders() {
+  const folders = [];
+  let nextCursor = null;
 
+  do {
+    const params = { max_results: 500 };
+    if (nextCursor) params.next_cursor = nextCursor;
+    const result = await cloudinary.api.root_folders(params);
+    const batch = Array.isArray(result.folders) ? result.folders : [];
+    folders.push(...batch);
+    nextCursor = result.next_cursor || null;
+  } while (nextCursor);
+
+  return folders;
+}
+
+async function listAllSubFolders(folderPath) {
+  const folders = [];
+  let nextCursor = null;
+
+  do {
+    const params = { max_results: 500 };
+    if (nextCursor) params.next_cursor = nextCursor;
+    const result = await cloudinary.api.sub_folders(folderPath, params);
+    const batch = Array.isArray(result.folders) ? result.folders : [];
+    folders.push(...batch);
+    nextCursor = result.next_cursor || null;
+  } while (nextCursor);
+
+  return folders;
+}
+
+async function collectAllFolderBlocks() {
+  const rootFolders = await listAllRootFolders();
   const blocks = [];
 
   for (const folder of rootFolders) {
-    // Check for subfolders
     let subFolders = [];
     try {
-      const subResult = await cloudinary.api.sub_folders(folder.path, { max_results: 100 });
-      subFolders = Array.isArray(subResult.folders) ? subResult.folders : [];
+      subFolders = await listAllSubFolders(folder.path);
     } catch (_) {
       subFolders = [];
     }
 
     if (subFolders.length > 0) {
-      // Has subfolders: each subfolder becomes a timeline block
+      // Has subfolders: each subfolder is a timeline block
       for (const sub of subFolders) {
         const images = await fetchImagesInFolder(sub.path);
         if (images.length > 0) {
@@ -93,10 +117,15 @@ async function collectAllFolderBlocks() {
         }
       }
 
-      // Also check if root folder itself has direct images
+      // Root folder direct images (if any)
       const rootImages = await fetchImagesInFolder(folder.path);
-      if (rootImages.length > 0) {
-        blocks.push({ folder: folder.name, path: folder.path, images: rootImages });
+      // Filter to only direct children of root folder (not already covered by subfolders)
+      const directRootImages = rootImages.filter((img) => {
+        const rel = img.publicId.slice(folder.path.length + 1);
+        return !rel.includes('/');
+      });
+      if (directRootImages.length > 0) {
+        blocks.push({ folder: folder.name, path: folder.path, images: directRootImages });
       }
     } else {
       // No subfolders: folder itself is a timeline block
@@ -195,4 +224,48 @@ async function getRootAssets({ forceRefresh = false } = {}) {
   }
 }
 
-module.exports = { getTimelineData, getRootAssets, isConfigured };
+async function debugCloudinaryFolders() {
+  if (!isConfigured()) {
+    return { configured: false, message: 'Cloudinary nie je nakonfigurovany.' };
+  }
+
+  const debug = { configured: true, cloudName: env.cloudinaryCloudName, steps: [] };
+
+  try {
+    const rootResult = await cloudinary.api.root_folders({ max_results: 500 });
+    const rootFolders = Array.isArray(rootResult.folders) ? rootResult.folders : [];
+    debug.steps.push({
+      step: 'root_folders',
+      count: rootFolders.length,
+      folders: rootFolders.map((f) => ({ name: f.name, path: f.path }))
+    });
+
+    for (const folder of rootFolders) {
+      try {
+        const subResult = await cloudinary.api.sub_folders(folder.path, { max_results: 500 });
+        const subs = Array.isArray(subResult.folders) ? subResult.folders : [];
+        debug.steps.push({
+          step: 'sub_folders',
+          parent: folder.path,
+          count: subs.length,
+          folders: subs.map((f) => ({ name: f.name, path: f.path }))
+        });
+      } catch (subErr) {
+        debug.steps.push({
+          step: 'sub_folders',
+          parent: folder.path,
+          error: subErr?.message || String(subErr)
+        });
+      }
+    }
+  } catch (rootErr) {
+    debug.steps.push({
+      step: 'root_folders',
+      error: rootErr?.message || String(rootErr)
+    });
+  }
+
+  return debug;
+}
+
+module.exports = { getTimelineData, getRootAssets, isConfigured, debugCloudinaryFolders };
