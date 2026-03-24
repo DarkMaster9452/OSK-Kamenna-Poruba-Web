@@ -39,15 +39,14 @@ async function fetchImagesInFolder(folderPath) {
   let nextCursor = null;
 
   do {
-    const params = {
-      type: 'upload',
-      prefix: folderPath + '/',
-      max_results: 500,
-      resource_type: 'image'
-    };
-    if (nextCursor) params.next_cursor = nextCursor;
+    let search = cloudinary.search
+      .expression(`asset_folder="${folderPath}" AND resource_type:image`)
+      .sort_by('public_id', 'asc')
+      .max_results(500);
 
-    const result = await cloudinary.api.resources(params);
+    if (nextCursor) search = search.next_cursor(nextCursor);
+
+    const result = await search.execute();
     const resources = Array.isArray(result.resources) ? result.resources : [];
 
     for (const r of resources) {
@@ -109,23 +108,18 @@ async function collectAllFolderBlocks() {
     }
 
     if (subFolders.length > 0) {
-      // Has subfolders: each subfolder is a timeline block
-      for (const sub of subFolders) {
-        const images = await fetchImagesInFolder(sub.path);
-        if (images.length > 0) {
-          blocks.push({ folder: sub.name, path: sub.path, images });
-        }
-      }
+      // Fetch all subfolders in parallel for speed
+      const subResults = await Promise.all(
+        subFolders.map(async (sub) => {
+          const images = await fetchImagesInFolder(sub.path);
+          return { folder: sub.name, path: sub.path, images };
+        })
+      );
 
-      // Root folder direct images (if any)
-      const rootImages = await fetchImagesInFolder(folder.path);
-      // Filter to only direct children of root folder (not already covered by subfolders)
-      const directRootImages = rootImages.filter((img) => {
-        const rel = img.publicId.slice(folder.path.length + 1);
-        return !rel.includes('/');
-      });
-      if (directRootImages.length > 0) {
-        blocks.push({ folder: folder.name, path: folder.path, images: directRootImages });
+      for (const result of subResults) {
+        if (result.images.length > 0) {
+          blocks.push(result);
+        }
       }
     } else {
       // No subfolders: folder itself is a timeline block
@@ -184,17 +178,28 @@ async function getRootAssets({ forceRefresh = false } = {}) {
   }
 
   try {
-    const result = await cloudinary.api.resources({
-      type: 'upload',
-      resource_type: 'image',
-      max_results: 500
-    });
+    // Fetch images from root asset folder of the main Cloudinary folder
+    const rootFolders = await listAllRootFolders();
+    const mainFolder = rootFolders.length > 0 ? rootFolders[0].path : '';
 
-    const resources = Array.isArray(result.resources) ? result.resources : [];
+    let resources = [];
+    if (mainFolder) {
+      // Fetch images directly in the main folder (not in subfolders)
+      let nextCursor = null;
+      do {
+        let search = cloudinary.search
+          .expression(`asset_folder="${mainFolder}" AND resource_type:image`)
+          .sort_by('public_id', 'asc')
+          .max_results(500);
+        if (nextCursor) search = search.next_cursor(nextCursor);
+        const result = await search.execute();
+        const batch = Array.isArray(result.resources) ? result.resources : [];
+        resources.push(...batch);
+        nextCursor = result.next_cursor || null;
+      } while (nextCursor);
+    }
 
-    // Root-level assets: no '/' in public_id
     const assets = resources
-      .filter((r) => !r.public_id.includes('/'))
       .map((r) => ({
         url: r.secure_url,
         publicId: r.public_id,
