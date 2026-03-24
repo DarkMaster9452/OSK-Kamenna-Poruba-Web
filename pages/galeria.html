@@ -551,7 +551,6 @@
                     <li><a href="/pages/matches.html">Zápasy</a></li>
                     <li><a href="/pages/galeria.html">Galéria</a></li>
                     <li><a href="/pages/blog.html">Blog</a></li>
-                    <li><a href="/pages/timeline_ihriska.html">Timeline</a></li>
                     <li><a href="/index.html#contact">Kontakt</a></li>
                     <li id="shTrainingNavLink" style="display:none"><a href="/pages/trainings.html"><i class="fas fa-dumbbell"></i> Tréningy</a></li>
                     <li id="shInfoNavLink" style="display:none"><a href="/pages/important_info.html"><i class="fas fa-bullhorn"></i> Dôležité info</a></li>
@@ -571,10 +570,13 @@
         <h1 class="page-title"><i class="fas fa-images"></i> Galéria</h1>
 
         <div class="album-tabs" id="albumTabs">
-            <button class="album-tab active" data-album="all">Všetky</button>
-            <button class="album-tab" data-album="instagram">Instagram</button>
+            <button class="album-tab active" data-album="instagram"><i class="fab fa-instagram"></i> Instagram</button>
         </div>
 
+        <div id="albumInfo" style="display:none; margin-bottom: 24px; background: #fff; border-left: 6px solid #ffd700; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+            <div id="albumTitle" style="font-size: 20px; color: #003399; font-weight: 800; margin-bottom: 8px;"></div>
+            <ul id="albumPoints" style="padding-left: 20px; color: #33405f; line-height: 1.6; margin: 0;"></ul>
+        </div>
         <div class="gallery-grid" id="galleryGrid"></div>
 
         <div class="gallery-actions">
@@ -624,21 +626,29 @@
         let cloudinaryAlbumMeta = []; // [{ key, label }]
 
         // Labels for known Cloudinary folder names
-        const FOLDER_LABELS = {
-            'HISTORIA': 'História',
-            '2006-2007': '2006 – 2007',
-            '2008': '2008',
-            '2009': '2009',
-            '2010': '2010',
-            '24  striedačky': '2023/2024 Striedačky',
-            '24 striedačky': '2023/2024 Striedačky',
-            '2023 pristresok': '2023 Prístrešok',
-            '2023 Sieť': '2023 Sieť',
-            '2023 Siet': '2023 Sieť',
-            '2024 tribuny': '2024 Tribúny'
+        const FOLDER_TEXT_CONFIG = {
+            'HISTORIA': { year: 'Historické', title: 'Historické fotky klubu', points: ['Archívne zábery klubu.'] },
+            '2005': { year: '2005', title: 'Fotografie z roku 2005', points: [] },
+            '2006-2007': { year: '2006 – 2007', title: 'Začiatok výstavby budovy OŠK', points: ['Spustenie výstavby klubovej budovy.', 'Prvé stavebné práce a príprava základov.'] },
+            '2008': { year: '2008', title: 'Stavba stien a hrubej stavby', points: ['Rozšírenie stavebných častí objektu.'] },
+            '2009': { year: '2009', title: 'Stavba strechy', points: ['Príprava objektu na vnútorné práce.'] },
+            '2010': { year: '2010', title: 'Dokončovanie budovy OŠK Kamenná Poruba', points: ['Dokončovanie budovy a posledných detailov.', 'Vznik stabilného klubového zázemia.'] },
+            '2011': { year: '2011', title: 'Fotografie z roku 2011', points: [] },
+            '2012': { year: '2012', title: 'Fotografie z roku 2012', points: [] },
+            '2013': { year: '2013', title: 'Fotografie z roku 2013', points: [] },
+            '2014': { year: '2014', title: 'Fotografie z roku 2014', points: [] },
+            '2015': { year: '2015', title: 'Fotografie z roku 2015', points: [] },
+            '2016': { year: '2016', title: 'Fotografie z roku 2016', points: [] },
+            '2017': { year: '2017', title: 'Fotografie z roku 2017', points: [] },
+            '2018': { year: '2018', title: 'Fotografie z roku 2018', points: [] },
+            '2023': { year: '2023', title: 'Fotografie z roku 2023', points: [] },
+            '2023 pristresok': { year: '2023', title: 'Prístrešok a sedenie pre fanúšikov', points: ['V roku 2023 sme vybudovali sedenie pre fanúšikov pri prístrešku a pri šatniach.'] },
+            '2023 Sieť': { year: '2023', title: 'Ochranná sieť za bránou', points: ['V roku 2023 sme vybudovali ochrannú sieť za bránou.'] },
+            '2023 Siet': { year: '2023', title: 'Ochranná sieť za bránou', points: ['V roku 2023 sme vybudovali ochrannú sieť za bránou.'] },
+            '24 striedačky': { year: '2023/2024', title: 'Striedačky', points: ['Nové striedačky pre tímy.'] },
+            '2024 tribuny': { year: '2024', title: 'Rekonštrukcia tribún', points: ['Úpravy a obnova tribún v športovom areáli.'] }
         };
-
-        function folderNameToKey(name) {
+function folderNameToKey(name) {
             return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
         }
 
@@ -654,14 +664,22 @@
 
                 folders.forEach(function (folder) {
                     const key = folderNameToKey(folder.folder);
-                    const label = FOLDER_LABELS[folder.folder] || folder.folder;
+                    const conf = FOLDER_TEXT_CONFIG[folder.folder] || {}; const label = conf.year || folder.folder;
                     const items = (folder.images || []).map(function (img) {
                         return { src: img.url, alt: folder.folder };
                     });
                     if (items.length > 0) {
                         CLOUDINARY_ALBUMS[key] = items;
-                        cloudinaryAlbumMeta.push({ key, label });
+                        cloudinaryAlbumMeta.push({ key, label, folderRaw: folder.folder, conf });
                     }
+                });
+
+                const yearOrder = { 'Historické': -1 };
+                cloudinaryAlbumMeta.sort((a, b) => {
+                    const aYear = parseInt(a.label) || yearOrder[a.label] || 9999;
+                    const bYear = parseInt(b.label) || yearOrder[b.label] || 9999;
+                    return aYear - bYear;
+                });
                 });
             } catch (e) {
                 console.warn('Cloudinary albums load failed:', e);
@@ -670,8 +688,7 @@
 
         function buildAlbumTabs() {
             var tabsEl = document.getElementById('albumTabs');
-            var staticTabs = '<button class="album-tab active" data-album="all">Všetky</button>' +
-                '<button class="album-tab" data-album="instagram">Instagram</button>';
+            var staticTabs = '<button class="album-tab active" data-album="instagram"><i class="fab fa-instagram"></i> Instagram</button>';
             var dynamicTabs = cloudinaryAlbumMeta.map(function (m) {
                 return '<button class="album-tab" data-album="' + m.key + '">' + m.label + '</button>';
             }).join('');
@@ -680,7 +697,7 @@
 
         /* ===== STATE ===== */
         let instagramItems = [];
-        let currentAlbum = 'all';
+        let currentAlbum = 'instagram';
         let currentImgIdx = 0;
         const PAGE_SIZE = 20;
         let renderedCount = 0;
@@ -715,16 +732,27 @@
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
             grid.innerHTML = '';
+            var infoEl = document.getElementById('albumInfo');
+            var titleEl = document.getElementById('albumTitle');
+            var pointsEl = document.getElementById('albumPoints');
+            infoEl.style.display = 'none';
+            titleEl.innerHTML = '';
+            pointsEl.innerHTML = '';
             renderedCount = 0;
 
-            if (currentAlbum === 'all') {
-                itemsToShow = instagramItems.map(makeInstagramItem).concat(getAllCloudinaryItems());
-            } else if (currentAlbum === 'instagram') {
+            if (currentAlbum === 'instagram') {
                 itemsToShow = instagramItems.map(makeInstagramItem);
             } else {
                 itemsToShow = (CLOUDINARY_ALBUMS[currentAlbum] || []).map(function (item) {
                     return makeCloudinaryItem(item, currentAlbum);
                 });
+                
+                var meta = cloudinaryAlbumMeta.find(m => m.key === currentAlbum);
+                if (meta && meta.conf && (meta.conf.title || meta.conf.points.length)) {
+                    infoEl.style.display = 'block';
+                    titleEl.textContent = meta.conf.title || meta.label;
+                    pointsEl.innerHTML = (meta.conf.points || []).map(p => '<li>' + p + '</li>').join('');
+                }
             }
 
             if (!itemsToShow.length) {
