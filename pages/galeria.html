@@ -650,12 +650,19 @@
             return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
         }
 
-        async function loadCloudinaryAlbums() {
+        async function loadCloudinaryAlbums(forceRefresh) {
+            console.log('[Gallery] Loading Cloudinary albums' + (forceRefresh ? ' (FORCED REFRESH)' : '') + '...');
             try {
-                const response = await fetch('/api/cloudinary/timeline');
+                // Use API_BASE and append refresh parameter if requested
+                const url = new URL(API_BASE + '/cloudinary/timeline', window.location.href);
+                if (forceRefresh) url.searchParams.set('refresh', '1');
+
+                console.log('[Gallery] Fetching from:', url.toString());
+                const response = await fetch(url.toString());
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 const data = await response.json();
                 const folders = Array.isArray(data.folders) ? data.folders : [];
+                console.log(`[Gallery] Received ${folders.length} folders from API (v.${data.fetchedAt || 'unknown'})`);
 
                 CLOUDINARY_ALBUMS = {};
                 cloudinaryAlbumMeta = [];
@@ -667,6 +674,7 @@
                     const items = (folder.images || []).map(function (img) {
                         return { src: img.url, alt: folder.folder };
                     });
+                    
                     if (items.length > 0) {
                         CLOUDINARY_ALBUMS[key] = items;
                         cloudinaryAlbumMeta.push({ key, label, folderRaw: folder.folder, conf });
@@ -679,8 +687,14 @@
                     const bYear = parseInt(b.label) || yearOrder[b.label] || 9999;
                     return aYear - bYear;
                 });
+                
+                if (cloudinaryAlbumMeta.length === 0) {
+                   console.warn('[Gallery] No populated Cloudinary albums found.');
+                } else {
+                   console.log(`[Gallery] Successfully processed ${cloudinaryAlbumMeta.length} albums.`);
+                }
             } catch (e) {
-                console.warn('Cloudinary albums load failed:', e);
+                console.error('[Gallery] Cloudinary albums load failed:', e);
             }
         }
 

@@ -96,45 +96,59 @@ async function listAllSubFolders(folderPath) {
 }
 
 async function collectAllFolderBlocks() {
+  console.log(`[Cloudinary] Starting deep folder scan...`);
   const rootFolders = await listAllRootFolders();
   const blocks = [];
 
-  for (const folder of rootFolders) {
-    let subFolders = [];
-    try {
-      subFolders = await listAllSubFolders(folder.path);
-    } catch (_) {
-      subFolders = [];
+  // Helper for recursive traversal
+  async function processFolder(folderName, folderPath) {
+    console.log(`[Cloudinary] Scanning folder: ${folderPath}`);
+    
+    // 1. Fetch images in THIS folder
+    const allImages = await fetchImagesInFolder(folderPath);
+    
+    // Filter to direct children of this exact folder path (not in subfolders)
+    // Cloudinary 'prefix' search returns EVERYTHING starting with that prefix.
+    const directImages = allImages.filter(img => {
+      const relPath = img.publicId.slice(folderPath.length).replace(/^\/+/, '');
+      return !relPath.includes('/');
+    });
+
+    if (directImages.length > 0) {
+      console.log(`[Cloudinary]   -> Found ${directImages.length} direct images in ${folderPath}`);
+      blocks.push({ 
+        folder: folderName, 
+        path: folderPath, 
+        images: directImages 
+      });
     }
 
-    if (subFolders.length > 0) {
-      // Has subfolders: each subfolder is a timeline block
-      for (const sub of subFolders) {
-        const images = await fetchImagesInFolder(sub.path);
-        if (images.length > 0) {
-          blocks.push({ folder: sub.name, path: sub.path, images });
-        }
+    // 2. Fetch subfolders and recurse
+    try {
+      const subs = await listAllSubFolders(folderPath);
+      for (const sub of subs) {
+        await processFolder(sub.name, sub.path);
       }
-
-      // Root folder direct images (if any)
-      const rootImages = await fetchImagesInFolder(folder.path);
-      // Filter to only direct children of root folder (not already covered by subfolders)
-      const directRootImages = rootImages.filter((img) => {
-        const rel = img.publicId.slice(folder.path.length + 1);
-        return !rel.includes('/');
-      });
-      if (directRootImages.length > 0) {
-        blocks.push({ folder: folder.name, path: folder.path, images: directRootImages });
-      }
-    } else {
-      // No subfolders: folder itself is a timeline block
-      const images = await fetchImagesInFolder(folder.path);
-      if (images.length > 0) {
-        blocks.push({ folder: folder.name, path: folder.path, images });
-      }
+    } catch (err) {
+      console.warn(`[Cloudinary] Could not list subfolders for ${folderPath}:`, err.message);
     }
   }
 
+  // Start with root folders
+  for (const root of rootFolders) {
+    await processFolder(root.name, root.path);
+  }
+
+  // Also check the absolute root for images not in ANY folder
+  try {
+    const rootImages = await fetchImagesInFolder('');
+    const strictlyRoot = rootImages.filter(img => !img.publicId.includes('/'));
+    if (strictlyRoot.length > 0) {
+      blocks.push({ folder: 'Ostatné', path: '', images: strictlyRoot });
+    }
+  } catch (_) {}
+
+  console.log(`[Cloudinary] Scan complete. Found ${blocks.length} blocks.`);
   return blocks;
 }
 
@@ -151,7 +165,9 @@ async function getTimelineData({ forceRefresh = false } = {}) {
   }
 
   try {
+    console.log(`[Cloudinary] Refreshing timeline data from API...`);
     const folders = await collectAllFolderBlocks();
+    console.log(`[Cloudinary] Found ${folders.length} total image blocks/folders`);
 
     const normalized = {
       source: 'cloudinary.timeline',
@@ -159,12 +175,18 @@ async function getTimelineData({ forceRefresh = false } = {}) {
       folders
     };
 
-    const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
-    await writeCache('cloudinary_timeline', normalized, ttl);
+    if (folders.length > 0) {
+      const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
+      await writeCache('cloudinary_timeline', normalized, ttl);
+      console.log(`[Cloudinary] Timeline data written to cache (TTL: ${ttl / 1000}s)`);
+    } else {
+      console.warn(`[Cloudinary] No folders found. Not caching empty result to allow retry.`);
+    }
 
     return { ...normalized, cache: 'MISS' };
   } catch (error) {
     const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
+    console.error(`[Cloudinary] Failed to fetch timeline data: ${errorMsg}`);
     const staleObj = await readCache('cloudinary_timeline');
     if (staleObj) {
       return { ...staleObj, cache: 'STALE', warning: errorMsg };
