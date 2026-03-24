@@ -69,7 +69,7 @@ async function listAllRootFolders() {
   let nextCursor = null;
 
   do {
-    const params = { max_results: 500 };
+    const params = {};
     if (nextCursor) params.next_cursor = nextCursor;
     const result = await cloudinary.api.root_folders(params);
     const batch = Array.isArray(result.folders) ? result.folders : [];
@@ -85,7 +85,7 @@ async function listAllSubFolders(folderPath) {
   let nextCursor = null;
 
   do {
-    const params = { max_results: 500 };
+    const params = {};
     if (nextCursor) params.next_cursor = nextCursor;
     const result = await cloudinary.api.sub_folders(folderPath, params);
     const batch = Array.isArray(result.folders) ? result.folders : [];
@@ -164,10 +164,11 @@ async function getTimelineData({ forceRefresh = false } = {}) {
 
     return { ...normalized, cache: 'MISS' };
   } catch (error) {
+    const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
     if (timelineCache.data) {
-      return { ...timelineCache.data, cache: 'STALE', warning: error?.message };
+      return { ...timelineCache.data, cache: 'STALE', warning: errorMsg };
     }
-    const err = new Error('Nepodarilo sa nacitat data z Cloudinary: ' + (error?.message || 'Neznama chyba'));
+    const err = new Error('Nepodarilo sa nacitat data z Cloudinary: ' + errorMsg);
     err.status = 502;
     throw err;
   }
@@ -215,10 +216,11 @@ async function getRootAssets({ forceRefresh = false } = {}) {
 
     return { ...normalized, cache: 'MISS' };
   } catch (error) {
+    const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
     if (assetsCache.data) {
-      return { ...assetsCache.data, cache: 'STALE', warning: error?.message };
+      return { ...assetsCache.data, cache: 'STALE', warning: errorMsg };
     }
-    const err = new Error('Nepodarilo sa nacitat assety z Cloudinary: ' + (error?.message || 'Neznama chyba'));
+    const err = new Error('Nepodarilo sa nacitat assety z Cloudinary: ' + errorMsg);
     err.status = 502;
     throw err;
   }
@@ -232,7 +234,7 @@ async function debugCloudinaryFolders() {
   const debug = { configured: true, cloudName: env.cloudinaryCloudName, steps: [] };
 
   try {
-    const rootResult = await cloudinary.api.root_folders({ max_results: 500 });
+    const rootResult = await cloudinary.api.root_folders();
     const rootFolders = Array.isArray(rootResult.folders) ? rootResult.folders : [];
     debug.steps.push({
       step: 'root_folders',
@@ -242,7 +244,7 @@ async function debugCloudinaryFolders() {
 
     for (const folder of rootFolders) {
       try {
-        const subResult = await cloudinary.api.sub_folders(folder.path, { max_results: 500 });
+        const subResult = await cloudinary.api.sub_folders(folder.path);
         const subs = Array.isArray(subResult.folders) ? subResult.folders : [];
         debug.steps.push({
           step: 'sub_folders',
@@ -254,14 +256,14 @@ async function debugCloudinaryFolders() {
         debug.steps.push({
           step: 'sub_folders',
           parent: folder.path,
-          error: subErr?.message || String(subErr)
+          error: subErr?.error?.message || subErr?.message || JSON.stringify(subErr)
         });
       }
     }
   } catch (rootErr) {
     debug.steps.push({
       step: 'root_folders',
-      error: rootErr?.message || String(rootErr)
+      error: rootErr?.error?.message || rootErr?.message || JSON.stringify(rootErr)
     });
   }
 
