@@ -229,6 +229,22 @@ async function getRootAssets({ forceRefresh = false } = {}) {
   }
 }
 
+function serializeError(err) {
+  if (!err) return 'null';
+  if (typeof err === 'string') return err;
+  const obj = {};
+  // Copy all own properties
+  for (const key of Object.getOwnPropertyNames(err)) {
+    try { obj[key] = err[key]; } catch (_) { obj[key] = '[unreadable]'; }
+  }
+  // Also check common nested properties
+  if (err.error) {
+    obj._nested_error = typeof err.error === 'object' ? { ...err.error } : err.error;
+  }
+  if (err.http_code) obj._http_code = err.http_code;
+  try { return JSON.stringify(obj); } catch (_) { return String(err); }
+}
+
 async function debugCloudinaryFolders() {
   if (!isConfigured()) {
     return { configured: false, message: 'Cloudinary nie je nakonfigurovany.' };
@@ -262,7 +278,7 @@ async function debugCloudinaryFolders() {
         debug.steps.push({
           step: 'sub_folders',
           parent: folder.path,
-          error: subErr?.message || subErr?.error?.message || JSON.stringify(subErr)
+          error: serializeError(subErr)
         });
       }
     }
@@ -286,7 +302,7 @@ async function debugCloudinaryFolders() {
         debug.steps.push({
           step: 'search_api_test',
           folder: testFolder.path,
-          error: searchErr?.message || searchErr?.error?.message || JSON.stringify(searchErr)
+          error: serializeError(searchErr)
         });
       }
 
@@ -308,7 +324,7 @@ async function debugCloudinaryFolders() {
         debug.steps.push({
           step: 'search_folder_test',
           folder: testFolder.path,
-          error: searchErr2?.message || searchErr2?.error?.message || JSON.stringify(searchErr2)
+          error: serializeError(searchErr2)
         });
       }
 
@@ -330,14 +346,14 @@ async function debugCloudinaryFolders() {
         debug.steps.push({
           step: 'resources_prefix_test',
           prefix: testFolder.path + '/',
-          error: resErr?.message || resErr?.error?.message || JSON.stringify(resErr)
+          error: serializeError(resErr)
         });
       }
     }
   } catch (rootErr) {
     debug.steps.push({
       step: 'root_folders',
-      error: rootErr?.message || rootErr?.error?.message || JSON.stringify(rootErr)
+      error: serializeError(rootErr)
     });
   }
 
