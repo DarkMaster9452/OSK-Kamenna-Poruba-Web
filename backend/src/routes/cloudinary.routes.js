@@ -1,5 +1,5 @@
 const express = require('express');
-const { getTimelineData, getRootAssets, isConfigured } = require('../services/cloudinary.service');
+const { getTimelineData, getRootAssets, isConfigured, debugCloudinaryFolders } = require('../services/cloudinary.service');
 const env = require('../config/env');
 
 const router = express.Router();
@@ -28,6 +28,16 @@ router.get('/assets', async (req, res, next) => {
   try {
     const forceRefresh = req.query.refresh === '1';
     const data = await getRootAssets({ forceRefresh });
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/cloudinary/debug — shows raw folder structure from Cloudinary API
+router.get('/debug', async (req, res, next) => {
+  try {
+    const data = await debugCloudinaryFolders();
     res.json(data);
   } catch (err) {
     next(err);

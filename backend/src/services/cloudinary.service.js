@@ -224,4 +224,48 @@ async function getRootAssets({ forceRefresh = false } = {}) {
   }
 }
 
-module.exports = { getTimelineData, getRootAssets, isConfigured };
+async function debugCloudinaryFolders() {
+  if (!isConfigured()) {
+    return { configured: false, message: 'Cloudinary nie je nakonfigurovany.' };
+  }
+
+  const debug = { configured: true, cloudName: env.cloudinaryCloudName, steps: [] };
+
+  try {
+    const rootResult = await cloudinary.api.root_folders({ max_results: 500 });
+    const rootFolders = Array.isArray(rootResult.folders) ? rootResult.folders : [];
+    debug.steps.push({
+      step: 'root_folders',
+      count: rootFolders.length,
+      folders: rootFolders.map((f) => ({ name: f.name, path: f.path }))
+    });
+
+    for (const folder of rootFolders) {
+      try {
+        const subResult = await cloudinary.api.sub_folders(folder.path, { max_results: 500 });
+        const subs = Array.isArray(subResult.folders) ? subResult.folders : [];
+        debug.steps.push({
+          step: 'sub_folders',
+          parent: folder.path,
+          count: subs.length,
+          folders: subs.map((f) => ({ name: f.name, path: f.path }))
+        });
+      } catch (subErr) {
+        debug.steps.push({
+          step: 'sub_folders',
+          parent: folder.path,
+          error: subErr?.message || String(subErr)
+        });
+      }
+    }
+  } catch (rootErr) {
+    debug.steps.push({
+      step: 'root_folders',
+      error: rootErr?.message || String(rootErr)
+    });
+  }
+
+  return debug;
+}
+
+module.exports = { getTimelineData, getRootAssets, isConfigured, debugCloudinaryFolders };
