@@ -58,6 +58,7 @@ const env = {
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || '',
+  cloudinaryRootFolder: process.env.CLOUDINARY_ROOT_FOLDER || '',
   cloudinaryCacheSeconds: Number(process.env.CLOUDINARY_CACHE_SECONDS || 86400)
 };
 

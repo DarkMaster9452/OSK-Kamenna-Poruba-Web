@@ -96,7 +96,16 @@ async function listAllSubFolders(folderPath) {
 }
 
 async function collectAllFolderBlocks() {
-  const rootFolders = await listAllRootFolders();
+  // If CLOUDINARY_ROOT_FOLDER is set, skip root_folders() and go directly to sub_folders
+  const rootFolderOverride = env.cloudinaryRootFolder;
+
+  let rootFolders;
+  if (rootFolderOverride) {
+    rootFolders = [{ name: rootFolderOverride, path: rootFolderOverride }];
+  } else {
+    rootFolders = await listAllRootFolders();
+  }
+
   const blocks = [];
 
   for (const folder of rootFolders) {
@@ -355,6 +364,26 @@ async function debugCloudinaryFolders() {
       step: 'root_folders',
       error: serializeError(rootErr)
     });
+  }
+
+  // Always test sub_folders on CLOUDINARY_ROOT_FOLDER if set
+  if (env.cloudinaryRootFolder) {
+    try {
+      const directSubs = await cloudinary.api.sub_folders(env.cloudinaryRootFolder, { max_results: 500 });
+      const subs = Array.isArray(directSubs.folders) ? directSubs.folders : [];
+      debug.steps.push({
+        step: 'direct_sub_folders',
+        parent: env.cloudinaryRootFolder,
+        count: subs.length,
+        folders: subs.map((f) => ({ name: f.name, path: f.path }))
+      });
+    } catch (subErr) {
+      debug.steps.push({
+        step: 'direct_sub_folders',
+        parent: env.cloudinaryRootFolder,
+        error: serializeError(subErr)
+      });
+    }
   }
 
   return debug;
