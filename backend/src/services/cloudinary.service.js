@@ -95,23 +95,19 @@ async function listAllSubFolders(folderPath) {
   return folders;
 }
 
-async function fetchAllImagesUnderFolder(rootFolder) {
-  // Single api.resources() call with prefix — much faster than N search calls
+async function fetchImagesByAssetFolder(folderPath) {
   const images = [];
   let nextCursor = null;
 
   do {
-    const params = {
-      type: 'upload',
-      prefix: rootFolder + '/',
-      max_results: 500,
-      resource_type: 'image'
-    };
+    const params = { max_results: 500, resource_type: 'image' };
     if (nextCursor) params.next_cursor = nextCursor;
 
-    const result = await cloudinary.api.resources(params);
+    const result = await cloudinary.api.resources_by_asset_folder(folderPath, params);
     const resources = Array.isArray(result.resources) ? result.resources : [];
-    images.push(...resources);
+    for (const r of resources) {
+      images.push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
+    }
     nextCursor = result.next_cursor || null;
   } while (nextCursor);
 
@@ -121,32 +117,22 @@ async function fetchAllImagesUnderFolder(rootFolder) {
 async function collectAllFolderBlocks() {
   const rootFolderOverride = env.cloudinaryRootFolder;
 
-  // Fast path: one API call for all images, grouped by subfolder
   if (rootFolderOverride) {
-    const allImages = await fetchAllImagesUnderFolder(rootFolderOverride);
-    const grouped = {};
+    // Get subfolders, then fetch images per subfolder in parallel
+    const subs = await listAllSubFolders(rootFolderOverride);
 
-    for (const r of allImages) {
-      // public_id: "OSK Kamenna poruba/2005/img.jpg" → subfolder = "2005"
-      const relativePath = r.public_id.slice(rootFolderOverride.length + 1); // strip "OSK Kamenna poruba/"
-      const slashIdx = relativePath.indexOf('/');
-      if (slashIdx === -1) continue; // image directly in root, skip
-      const subName = relativePath.slice(0, slashIdx);
-      if (!grouped[subName]) grouped[subName] = [];
-      grouped[subName].push({
-        url: r.secure_url,
-        publicId: r.public_id,
-        format: r.format || ''
-      });
-    }
+    const results = await Promise.all(
+      subs.map(async (sub) => {
+        try {
+          const images = await fetchImagesByAssetFolder(sub.path);
+          return { folder: sub.name, path: sub.path, images };
+        } catch (_) {
+          return { folder: sub.name, path: sub.path, images: [] };
+        }
+      })
+    );
 
-    return Object.entries(grouped)
-      .filter(([, images]) => images.length > 0)
-      .map(([folder, images]) => ({
-        folder,
-        path: rootFolderOverride + '/' + folder,
-        images
-      }));
+    return results.filter((r) => r.images.length > 0);
   }
 
   // Slow path (fallback): root_folders + sub_folders + search per folder
@@ -440,24 +426,22 @@ async function debugCloudinaryFolders() {
           });
         }
 
-        // Fallback: try old resources API with prefix
+        // Test resources_by_asset_folder (dynamic folder mode)
         try {
-          const resResult = await cloudinary.api.resources({
-            type: 'upload',
-            prefix: testSub.path + '/',
+          const assetResult = await cloudinary.api.resources_by_asset_folder(testSub.path, {
             max_results: 3,
             resource_type: 'image'
           });
           debug.steps.push({
-            step: 'resources_prefix_in_subfolder',
-            prefix: testSub.path + '/',
-            returnedCount: Array.isArray(resResult.resources) ? resResult.resources.length : 0,
-            sampleIds: (resResult.resources || []).slice(0, 3).map((r) => r.public_id)
+            step: 'resources_by_asset_folder',
+            folder: testSub.path,
+            returnedCount: Array.isArray(assetResult.resources) ? assetResult.resources.length : 0,
+            sampleIds: (assetResult.resources || []).slice(0, 3).map((r) => r.public_id)
           });
         } catch (resErr) {
           debug.steps.push({
-            step: 'resources_prefix_in_subfolder',
-            prefix: testSub.path + '/',
+            step: 'resources_by_asset_folder',
+            folder: testSub.path,
             error: serializeError(resErr)
           });
         }
