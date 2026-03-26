@@ -377,6 +377,53 @@ async function debugCloudinaryFolders() {
         count: subs.length,
         folders: subs.map((f) => ({ name: f.name, path: f.path }))
       });
+
+      // Test image fetching on first subfolder
+      if (subs.length > 0) {
+        const testSub = subs[0];
+        try {
+          const searchResult = await cloudinary.search
+            .expression(`asset_folder="${testSub.path}" AND resource_type:image`)
+            .max_results(3)
+            .execute();
+          debug.steps.push({
+            step: 'search_images_in_subfolder',
+            folder: testSub.path,
+            expression: `asset_folder="${testSub.path}" AND resource_type:image`,
+            totalCount: searchResult.total_count,
+            returnedCount: Array.isArray(searchResult.resources) ? searchResult.resources.length : 0,
+            sampleIds: (searchResult.resources || []).slice(0, 3).map((r) => r.public_id)
+          });
+        } catch (searchErr) {
+          debug.steps.push({
+            step: 'search_images_in_subfolder',
+            folder: testSub.path,
+            error: serializeError(searchErr)
+          });
+        }
+
+        // Fallback: try old resources API with prefix
+        try {
+          const resResult = await cloudinary.api.resources({
+            type: 'upload',
+            prefix: testSub.path + '/',
+            max_results: 3,
+            resource_type: 'image'
+          });
+          debug.steps.push({
+            step: 'resources_prefix_in_subfolder',
+            prefix: testSub.path + '/',
+            returnedCount: Array.isArray(resResult.resources) ? resResult.resources.length : 0,
+            sampleIds: (resResult.resources || []).slice(0, 3).map((r) => r.public_id)
+          });
+        } catch (resErr) {
+          debug.steps.push({
+            step: 'resources_prefix_in_subfolder',
+            prefix: testSub.path + '/',
+            error: serializeError(resErr)
+          });
+        }
+      }
     } catch (subErr) {
       debug.steps.push({
         step: 'direct_sub_folders',
