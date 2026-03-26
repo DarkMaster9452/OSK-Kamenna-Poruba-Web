@@ -95,17 +95,62 @@ async function listAllSubFolders(folderPath) {
   return folders;
 }
 
+async function fetchAllImagesUnderFolder(rootFolder) {
+  // Single api.resources() call with prefix — much faster than N search calls
+  const images = [];
+  let nextCursor = null;
+
+  do {
+    const params = {
+      type: 'upload',
+      prefix: rootFolder + '/',
+      max_results: 500,
+      resource_type: 'image'
+    };
+    if (nextCursor) params.next_cursor = nextCursor;
+
+    const result = await cloudinary.api.resources(params);
+    const resources = Array.isArray(result.resources) ? result.resources : [];
+    images.push(...resources);
+    nextCursor = result.next_cursor || null;
+  } while (nextCursor);
+
+  return images;
+}
+
 async function collectAllFolderBlocks() {
-  // If CLOUDINARY_ROOT_FOLDER is set, skip root_folders() and go directly to sub_folders
   const rootFolderOverride = env.cloudinaryRootFolder;
 
-  let rootFolders;
+  // Fast path: one API call for all images, grouped by subfolder
   if (rootFolderOverride) {
-    rootFolders = [{ name: rootFolderOverride, path: rootFolderOverride }];
-  } else {
-    rootFolders = await listAllRootFolders();
+    const allImages = await fetchAllImagesUnderFolder(rootFolderOverride);
+    const grouped = {};
+
+    for (const r of allImages) {
+      // public_id: "OSK Kamenna poruba/2005/img.jpg" → subfolder = "2005"
+      const relativePath = r.public_id.slice(rootFolderOverride.length + 1); // strip "OSK Kamenna poruba/"
+      const slashIdx = relativePath.indexOf('/');
+      if (slashIdx === -1) continue; // image directly in root, skip
+      const subName = relativePath.slice(0, slashIdx);
+      if (!grouped[subName]) grouped[subName] = [];
+      grouped[subName].push({
+        url: r.secure_url,
+        publicId: r.public_id,
+        format: r.format || ''
+      });
+    }
+
+    return Object.entries(grouped)
+      .filter(([, images]) => images.length > 0)
+      .map(([folder, images]) => ({
+        folder,
+        path: rootFolderOverride + '/' + folder,
+        images
+      }));
   }
 
+  // Slow path (fallback): root_folders + sub_folders + search per folder
+  const rootFolders = await listAllRootFolders();
   const blocks = [];
 
   for (const folder of rootFolders) {
@@ -117,25 +162,18 @@ async function collectAllFolderBlocks() {
     }
 
     if (subFolders.length > 0) {
-      // Fetch all subfolders in parallel for speed
       const subResults = await Promise.all(
         subFolders.map(async (sub) => {
           const images = await fetchImagesInFolder(sub.path);
           return { folder: sub.name, path: sub.path, images };
         })
       );
-
       for (const result of subResults) {
-        if (result.images.length > 0) {
-          blocks.push(result);
-        }
+        if (result.images.length > 0) blocks.push(result);
       }
     } else {
-      // No subfolders: folder itself is a timeline block
       const images = await fetchImagesInFolder(folder.path);
-      if (images.length > 0) {
-        blocks.push({ folder: folder.name, path: folder.path, images });
-      }
+      if (images.length > 0) blocks.push({ folder: folder.name, path: folder.path, images });
     }
   }
 
