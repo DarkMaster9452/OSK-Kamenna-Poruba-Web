@@ -121,12 +121,9 @@ async function collectAllFolderBlocks() {
 
   console.log(`[Cloudinary] Found ${subs.length} subfolders. Fetching images recursively in parallel...`);
 
-  // Recursively collect all images from a folder and its sub-subfolders
-  // All images are grouped under the top-level year folder
-  async function collectAllImages(folderPath) {
+  // Fetch images directly in one folder (no recursion)
+  async function fetchDirectImages(folderPath) {
     const images = [];
-
-    // Fetch images directly in this folder
     let nextCursor = null;
     do {
       const params = { max_results: 500, resource_type: 'image' };
@@ -137,26 +134,48 @@ async function collectAllFolderBlocks() {
       }
       nextCursor = result.next_cursor || null;
     } while (nextCursor);
-
-    // Recurse into sub-subfolders (e.g. 2005/50 rokov OŠK)
-    try {
-      const subResult = await cloudinary.api.sub_folders(folderPath);
-      const deepSubs = Array.isArray(subResult.folders) ? subResult.folders : [];
-      const deepImages = await Promise.all(deepSubs.map((s) => collectAllImages(s.path)));
-      for (const img of deepImages.flat()) images.push(img);
-    } catch (_) {}
-
     return images;
   }
 
-  const results = await Promise.all(
-    subs.map(async (sub) => ({
-      folder: sub.name,
-      path: sub.path,
-      images: await collectAllImages(sub.path)
-    }))
-  );
-  const blocks = results.filter((r) => r.images.length > 0);
+  // For each top-level subfolder (year), create separate blocks per sub-subfolder.
+  // If no sub-subfolders exist, the year itself is one block.
+  async function collectBlocksForFolder(sub) {
+    const blocks = [];
+
+    // Check for sub-subfolders
+    let deepSubs = [];
+    try {
+      const subResult = await cloudinary.api.sub_folders(sub.path);
+      deepSubs = Array.isArray(subResult.folders) ? subResult.folders : [];
+    } catch (_) {}
+
+    if (deepSubs.length === 0) {
+      // No sub-subfolders: year is one block
+      const images = await fetchDirectImages(sub.path);
+      if (images.length > 0) blocks.push({ folder: sub.name, path: sub.path, images });
+    } else {
+      // Has sub-subfolders: each becomes its own block, direct images go into parent block
+      const [directImages, ...subImages] = await Promise.all([
+        fetchDirectImages(sub.path),
+        ...deepSubs.map(async (s) => {
+          const images = await fetchDirectImages(s.path);
+          return { folder: s.name, path: s.path, parentFolder: sub.name, images };
+        })
+      ]);
+
+      if (directImages.length > 0) {
+        blocks.push({ folder: sub.name, path: sub.path, images: directImages });
+      }
+      for (const b of subImages) {
+        if (b.images.length > 0) blocks.push(b);
+      }
+    }
+
+    return blocks;
+  }
+
+  const blockArrays = await Promise.all(subs.map(collectBlocksForFolder));
+  const blocks = blockArrays.flat();
 
   console.log(`[Cloudinary] Scan complete. Found ${blocks.length} blocks.`);
   return blocks;
