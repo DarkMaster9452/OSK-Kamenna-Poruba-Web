@@ -70,17 +70,15 @@ function shouldFallbackWithoutTrainingGroups(error) {
   return shouldFallbackWithoutTrainingGroupId(error) || isMissingTrainingGroupTableError(error);
 }
 
-function isMissingBlogPostImageUrlColumnError(error) {
-  if (!error || error.code !== 'P2022') {
-    return false;
-  }
-
-  const column = String(error.meta?.column || '').toLowerCase();
-  return column.includes('imageurl');
-}
-
 function shouldFallbackWithoutBlogPostImageUrl(error) {
-  return isMissingBlogPostImageUrlColumnError(error);
+  const msg = String(error?.message || '').toLowerCase();
+  return (
+    error?.code === 'P2022' ||
+    error?.code === 'P2009' ||
+    msg.includes('imageurl') ||
+    msg.includes('unknown field') ||
+    msg.includes('does not exist')
+  );
 }
 
 function withNullEmail(items) {
@@ -1408,9 +1406,30 @@ async function findBlogPostById(id) {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
   }
 
-  return prisma.blogPost.findUnique({
-    where: { id }
-  });
+  const include = {
+    createdBy: {
+      select: { username: true }
+    }
+  };
+
+  try {
+    return await prisma.blogPost.findUnique({
+      where: { id },
+      include
+    });
+  } catch (error) {
+    if (!shouldFallbackWithoutBlogPostImageUrl(error)) {
+      throw error;
+    }
+
+    // Fallback: missing imageUrl column
+    const row = await prisma.blogPost.findUnique({
+      where: { id },
+      include
+    });
+
+    return { ...row, imageUrl: null };
+  }
 }
 
 async function deleteBlogPost(id) {
