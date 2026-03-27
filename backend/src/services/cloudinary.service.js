@@ -118,21 +118,42 @@ async function collectAllFolderBlocks() {
   const rootFolderOverride = env.cloudinaryRootFolder;
 
   if (rootFolderOverride) {
-    // Get subfolders, then fetch images per subfolder in parallel
+    // 1 Admin call to get subfolder list
     const subs = await listAllSubFolders(rootFolderOverride);
+    if (subs.length === 0) return [];
 
-    const results = await Promise.all(
-      subs.map(async (sub) => {
-        try {
-          const images = await fetchImagesByAssetFolder(sub.path);
-          return { folder: sub.name, path: sub.path, images };
-        } catch (_) {
-          return { folder: sub.name, path: sub.path, images: [] };
-        }
-      })
-    );
+    // 1 Search API call for ALL subfolders at once — much faster, separate quota
+    const expression = subs.map((s) => `asset_folder="${s.path}"`).join(' OR ');
+    const grouped = {};
+    let nextCursor = null;
 
-    return results.filter((r) => r.images.length > 0);
+    do {
+      let search = cloudinary.search
+        .expression(`(${expression}) AND resource_type:image`)
+        .sort_by('public_id', 'asc')
+        .with_field('asset_folder')
+        .max_results(500);
+      if (nextCursor) search = search.next_cursor(nextCursor);
+
+      const result = await search.execute();
+      const resources = Array.isArray(result.resources) ? result.resources : [];
+
+      for (const r of resources) {
+        const folder = r.asset_folder || '';
+        const subName = folder.startsWith(rootFolderOverride + '/')
+          ? folder.slice(rootFolderOverride.length + 1)
+          : folder;
+        if (!subName) continue;
+        if (!grouped[subName]) grouped[subName] = [];
+        grouped[subName].push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
+      }
+
+      nextCursor = result.next_cursor || null;
+    } while (nextCursor);
+
+    return Object.entries(grouped)
+      .filter(([, images]) => images.length > 0)
+      .map(([folder, images]) => ({ folder, path: rootFolderOverride + '/' + folder, images }));
   }
 
   // Slow path (fallback): root_folders + sub_folders + search per folder
@@ -391,66 +412,35 @@ async function debugCloudinaryFolders() {
   }
 
   // Always test sub_folders on CLOUDINARY_ROOT_FOLDER if set
-  if (env.cloudinaryRootFolder) {
-    try {
-      const directSubs = await cloudinary.api.sub_folders(env.cloudinaryRootFolder, { max_results: 500 });
-      const subs = Array.isArray(directSubs.folders) ? directSubs.folders : [];
-      debug.steps.push({
-        step: 'direct_sub_folders',
-        parent: env.cloudinaryRootFolder,
-        count: subs.length,
-        folders: subs.map((f) => ({ name: f.name, path: f.path }))
-      });
-
-      // Test image fetching on first subfolder
-      if (subs.length > 0) {
-        const testSub = subs[0];
-        try {
-          const searchResult = await cloudinary.search
-            .expression(`asset_folder="${testSub.path}" AND resource_type:image`)
-            .max_results(3)
-            .execute();
-          debug.steps.push({
-            step: 'search_images_in_subfolder',
-            folder: testSub.path,
-            expression: `asset_folder="${testSub.path}" AND resource_type:image`,
-            totalCount: searchResult.total_count,
-            returnedCount: Array.isArray(searchResult.resources) ? searchResult.resources.length : 0,
-            sampleIds: (searchResult.resources || []).slice(0, 3).map((r) => r.public_id)
-          });
-        } catch (searchErr) {
-          debug.steps.push({
-            step: 'search_images_in_subfolder',
-            folder: testSub.path,
-            error: serializeError(searchErr)
-          });
-        }
-
-        // Test resources_by_asset_folder (dynamic folder mode)
-        try {
-          const assetResult = await cloudinary.api.resources_by_asset_folder(testSub.path, {
-            max_results: 3,
-            resource_type: 'image'
-          });
-          debug.steps.push({
-            step: 'resources_by_asset_folder',
-            folder: testSub.path,
-            returnedCount: Array.isArray(assetResult.resources) ? assetResult.resources.length : 0,
-            sampleIds: (assetResult.resources || []).slice(0, 3).map((r) => r.public_id)
-          });
-        } catch (resErr) {
-          debug.steps.push({
-            step: 'resources_by_asset_folder',
-            folder: testSub.path,
-            error: serializeError(resErr)
-          });
-        }
+  // Test: search one image from first subfolder using Search API
+  const firstSub = (() => {
+    for (const s of debug.steps) {
+      if (s.step === 'sub_folders' && Array.isArray(s.folders) && s.folders.length > 0) {
+        return s.folders[0];
       }
-    } catch (subErr) {
+    }
+    return null;
+  })();
+
+  if (firstSub) {
+    try {
+      const searchResult = await cloudinary.search
+        .expression(`asset_folder="${firstSub.path}" AND resource_type:image`)
+        .with_field('asset_folder')
+        .max_results(3)
+        .execute();
       debug.steps.push({
-        step: 'direct_sub_folders',
-        parent: env.cloudinaryRootFolder,
-        error: serializeError(subErr)
+        step: 'search_images_test',
+        folder: firstSub.path,
+        totalCount: searchResult.total_count,
+        returnedCount: Array.isArray(searchResult.resources) ? searchResult.resources.length : 0,
+        sampleUrls: (searchResult.resources || []).slice(0, 2).map((r) => r.secure_url)
+      });
+    } catch (searchErr) {
+      debug.steps.push({
+        step: 'search_images_test',
+        folder: firstSub.path,
+        error: serializeError(searchErr)
       });
     }
   }
