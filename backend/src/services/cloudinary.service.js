@@ -96,57 +96,68 @@ async function listAllSubFolders(folderPath) {
 }
 
 async function collectAllFolderBlocks() {
-  console.log(`[Cloudinary] Starting deep folder scan...`);
-  const rootFolders = await listAllRootFolders();
-  const blocks = [];
+  console.log(`[Cloudinary] Starting folder scan...`);
 
-  // Helper for recursive traversal
-  async function processFolder(folderName, folderPath) {
-    console.log(`[Cloudinary] Scanning folder: ${folderPath}`);
-    
-    // 1. Fetch images in THIS folder
-    const allImages = await fetchImagesInFolder(folderPath);
-    
-    // Filter to direct children of this exact folder path (not in subfolders)
-    // Cloudinary 'prefix' search returns EVERYTHING starting with that prefix.
-    const directImages = allImages.filter(img => {
-      const relPath = img.publicId.slice(folderPath.length).replace(/^\/+/, '');
-      return !relPath.includes('/');
-    });
+  // Determine root folder — env var avoids root_folders() Admin API call
+  const rootFolder = env.cloudinaryRootFolder;
+  let subs = [];
 
-    if (directImages.length > 0) {
-      console.log(`[Cloudinary]   -> Found ${directImages.length} direct images in ${folderPath}`);
-      blocks.push({ 
-        folder: folderName, 
-        path: folderPath, 
-        images: directImages 
-      });
-    }
-
-    // 2. Fetch subfolders and recurse
-    try {
-      const subs = await listAllSubFolders(folderPath);
-      for (const sub of subs) {
-        await processFolder(sub.name, sub.path);
-      }
-    } catch (err) {
-      console.warn(`[Cloudinary] Could not list subfolders for ${folderPath}:`, err.message);
+  if (rootFolder) {
+    // 1 Admin API call: sub_folders of known root
+    subs = await listAllSubFolders(rootFolder);
+  } else {
+    // 2 Admin API calls: root_folders + sub_folders
+    const roots = await listAllRootFolders();
+    for (const root of roots) {
+      const rootSubs = await listAllSubFolders(root.path);
+      subs.push(...rootSubs);
     }
   }
 
-  // Start with root folders
-  for (const root of rootFolders) {
-    await processFolder(root.name, root.path);
+  if (subs.length === 0) {
+    console.warn(`[Cloudinary] No subfolders found.`);
+    return [];
   }
 
-  // Also check the absolute root for images not in ANY folder
-  try {
-    const rootImages = await fetchImagesInFolder('');
-    const strictlyRoot = rootImages.filter(img => !img.publicId.includes('/'));
-    if (strictlyRoot.length > 0) {
-      blocks.push({ folder: 'Ostatné', path: '', images: strictlyRoot });
+  console.log(`[Cloudinary] Found ${subs.length} subfolders. Fetching images via Search API...`);
+
+  // 1 Search API call for ALL subfolders (Search API has separate, higher quota)
+  const expression = subs.map((s) => `asset_folder="${s.path}"`).join(' OR ');
+  const grouped = {};
+  let nextCursor = null;
+
+  do {
+    let search = cloudinary.search
+      .expression(`(${expression}) AND resource_type:image`)
+      .sort_by('public_id', 'asc')
+      .with_field('asset_folder')
+      .max_results(500);
+    if (nextCursor) search = search.next_cursor(nextCursor);
+
+    const result = await search.execute();
+    const resources = Array.isArray(result.resources) ? result.resources : [];
+
+    for (const r of resources) {
+      const folder = r.asset_folder || '';
+      const parentPrefix = rootFolder ? rootFolder + '/' : '';
+      const subName = folder.startsWith(parentPrefix)
+        ? folder.slice(parentPrefix.length)
+        : folder;
+      if (!subName) continue;
+      if (!grouped[subName]) grouped[subName] = [];
+      grouped[subName].push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
     }
-  } catch (_) {}
+
+    nextCursor = result.next_cursor || null;
+  } while (nextCursor);
+
+  const blocks = Object.entries(grouped)
+    .filter(([, images]) => images.length > 0)
+    .map(([folder, images]) => ({
+      folder,
+      path: (rootFolder ? rootFolder + '/' : '') + folder,
+      images
+    }));
 
   console.log(`[Cloudinary] Scan complete. Found ${blocks.length} blocks.`);
   return blocks;
