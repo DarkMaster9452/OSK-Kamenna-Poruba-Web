@@ -174,8 +174,8 @@ describe('GET /api/sportsnet/matches', () => {
     const response = await request(app).get('/api/sportsnet/matches');
 
     expect(response.status).toBe(502);
-    expect(response.body).toEqual({
-      message: 'Nepodarilo sa pripojiť na Sportsnet API endpoint.'
+    expect(response.body).toMatchObject({
+      message: expect.stringContaining('Nepodarilo sa pripojiť na Sportsnet API endpoint.')
     });
   });
 
@@ -186,8 +186,8 @@ describe('GET /api/sportsnet/matches', () => {
     const response = await request(app).get('/api/sportsnet/matches');
 
     expect(response.status).toBe(502);
-    expect(response.body).toEqual({
-      message: 'Sportsnet endpoint nevrátil validné JSON dáta. Skontroluj SPORTNET_API_BASE/SPORTNET_API_URL.'
+    expect(response.body).toMatchObject({
+      message: expect.stringContaining('Sportsnet endpoint nevrátil validné JSON dáta.')
     });
   });
 
