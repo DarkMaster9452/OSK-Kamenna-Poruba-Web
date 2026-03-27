@@ -119,20 +119,22 @@ async function collectAllFolderBlocks() {
     return [];
   }
 
-  console.log(`[Cloudinary] Found ${subs.length} subfolders. Fetching images in parallel via Search API...`);
+  console.log(`[Cloudinary] Found ${subs.length} subfolders. Fetching images in parallel via Admin API...`);
 
-  // Parallel Search API calls — one per subfolder (Search API has separate, higher quota)
-  // Parallel avoids Vercel timeout; Search API avoids Admin API 500/day rate limit
+  // Parallel api.resources() calls — one per subfolder
+  // Parallel avoids Vercel timeout; 24h cache means ≤19 Admin API calls/day total
   async function fetchSubfolderImages(sub) {
     const images = [];
     let nextCursor = null;
     do {
-      let search = cloudinary.search
-        .expression(`asset_folder="${sub.path}" AND resource_type:image`)
-        .sort_by('public_id', 'asc')
-        .max_results(500);
-      if (nextCursor) search = search.next_cursor(nextCursor);
-      const result = await search.execute();
+      const params = {
+        type: 'upload',
+        prefix: sub.path + '/',
+        max_results: 500,
+        resource_type: 'image'
+      };
+      if (nextCursor) params.next_cursor = nextCursor;
+      const result = await cloudinary.api.resources(params);
       for (const r of (result.resources || [])) {
         images.push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
       }
