@@ -127,14 +127,9 @@ async function collectAllFolderBlocks() {
     const images = [];
     let nextCursor = null;
     do {
-      const params = {
-        type: 'upload',
-        prefix: sub.path + '/',
-        max_results: 500,
-        resource_type: 'image'
-      };
+      const params = { max_results: 500, resource_type: 'image' };
       if (nextCursor) params.next_cursor = nextCursor;
-      const result = await cloudinary.api.resources(params);
+      const result = await cloudinary.api.resources_by_asset_folder(sub.path, params);
       for (const r of (result.resources || [])) {
         images.push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
       }
