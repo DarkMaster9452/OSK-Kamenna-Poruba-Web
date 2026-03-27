@@ -216,9 +216,8 @@ async function getRootAssets({ forceRefresh = false } = {}) {
 
     const resources = Array.isArray(result.resources) ? result.resources : [];
 
-    // Root-level assets: no '/' in public_id
+    // All assets returned - map will handle basename matching
     const assets = resources
-      .filter((r) => !r.public_id.includes('/'))
       .map((r) => ({
         url: r.secure_url,
         publicId: r.public_id,

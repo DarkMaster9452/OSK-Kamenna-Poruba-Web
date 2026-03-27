@@ -63,6 +63,15 @@
             // Also strip extension from base
             var baseNoExt = base.replace(/\.[^.]+$/, '');
             if (baseNoExt !== base) map[baseNoExt] = url;
+
+            // Also add basename if there's a folder (to support subfolders returned by backend)
+            if (base.indexOf('/') !== -1) {
+                var basename = base.split('/').pop();
+                if (!map[basename]) map[basename] = url;
+                
+                var basenameNoExt = basename.replace(/\.[^.]+$/, '');
+                if (basenameNoExt !== basename && !map[basenameNoExt]) map[basenameNoExt] = url;
+            }
         });
 
         return map;
@@ -95,7 +104,7 @@
             if (!url) return;
             // Preserve existing gradient wrappers if present
             var existing = el.style.backgroundImage || '';
-            var gradientMatch = existing.match(/^(linear-gradient\([^)]+\)|radial-gradient\([^)]+\)),\s*/);
+            var gradientMatch = existing.match(/^((?:linear|radial)-gradient\s*\((?:\([^)]*\)|[^)])+\))/i);
             if (gradientMatch) {
                 el.style.backgroundImage = gradientMatch[1] + ', url("' + url + '")';
             } else {
