@@ -119,45 +119,30 @@ async function collectAllFolderBlocks() {
     return [];
   }
 
-  console.log(`[Cloudinary] Found ${subs.length} subfolders. Fetching images via Search API...`);
+  console.log(`[Cloudinary] Found ${subs.length} subfolders. Fetching images in parallel via Search API...`);
 
-  // 1 Search API call for ALL subfolders (Search API has separate, higher quota)
-  const expression = subs.map((s) => `asset_folder="${s.path}"`).join(' OR ');
-  const grouped = {};
-  let nextCursor = null;
+  // Parallel Search API calls — one per subfolder (Search API has separate, higher quota)
+  // Parallel avoids Vercel timeout; Search API avoids Admin API 500/day rate limit
+  async function fetchSubfolderImages(sub) {
+    const images = [];
+    let nextCursor = null;
+    do {
+      let search = cloudinary.search
+        .expression(`asset_folder="${sub.path}" AND resource_type:image`)
+        .sort_by('public_id', 'asc')
+        .max_results(500);
+      if (nextCursor) search = search.next_cursor(nextCursor);
+      const result = await search.execute();
+      for (const r of (result.resources || [])) {
+        images.push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
+      }
+      nextCursor = result.next_cursor || null;
+    } while (nextCursor);
+    return { folder: sub.name, path: sub.path, images };
+  }
 
-  do {
-    let search = cloudinary.search
-      .expression(`(${expression}) AND resource_type:image`)
-      .sort_by('public_id', 'asc')
-      .with_field('asset_folder')
-      .max_results(500);
-    if (nextCursor) search = search.next_cursor(nextCursor);
-
-    const result = await search.execute();
-    const resources = Array.isArray(result.resources) ? result.resources : [];
-
-    for (const r of resources) {
-      const folder = r.asset_folder || '';
-      const parentPrefix = rootFolder ? rootFolder + '/' : '';
-      const subName = folder.startsWith(parentPrefix)
-        ? folder.slice(parentPrefix.length)
-        : folder;
-      if (!subName) continue;
-      if (!grouped[subName]) grouped[subName] = [];
-      grouped[subName].push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
-    }
-
-    nextCursor = result.next_cursor || null;
-  } while (nextCursor);
-
-  const blocks = Object.entries(grouped)
-    .filter(([, images]) => images.length > 0)
-    .map(([folder, images]) => ({
-      folder,
-      path: (rootFolder ? rootFolder + '/' : '') + folder,
-      images
-    }));
+  const results = await Promise.all(subs.map(fetchSubfolderImages));
+  const blocks = results.filter((r) => r.images.length > 0);
 
   console.log(`[Cloudinary] Scan complete. Found ${blocks.length} blocks.`);
   return blocks;
