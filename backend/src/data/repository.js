@@ -70,6 +70,19 @@ function shouldFallbackWithoutTrainingGroups(error) {
   return shouldFallbackWithoutTrainingGroupId(error) || isMissingTrainingGroupTableError(error);
 }
 
+function isMissingBlogPostImageUrlColumnError(error) {
+  if (!error || error.code !== 'P2022') {
+    return false;
+  }
+
+  const column = String(error.meta?.column || '').toLowerCase();
+  return column.includes('imageurl');
+}
+
+function shouldFallbackWithoutBlogPostImageUrl(error) {
+  return isMissingBlogPostImageUrlColumnError(error);
+}
+
 function withNullEmail(items) {
   return items.map((item) => ({
     ...item,
@@ -1310,21 +1323,40 @@ async function listBlogPosts() {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
   }
 
-  return prisma.blogPost.findMany({
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      title: true,
-      content: true,
-      imageUrl: true,
-      published: true,
-      createdAt: true,
-      updatedAt: true,
-      createdBy: {
-        select: { username: true }
-      }
+  const select = {
+    id: true,
+    title: true,
+    content: true,
+    imageUrl: true,
+    published: true,
+    createdAt: true,
+    updatedAt: true,
+    createdBy: {
+      select: { username: true }
     }
-  });
+  };
+
+  try {
+    return await prisma.blogPost.findMany({
+      orderBy: { createdAt: 'desc' },
+      select
+    });
+  } catch (error) {
+    if (!shouldFallbackWithoutBlogPostImageUrl(error)) {
+      throw error;
+    }
+
+    // Fallback: missing imageUrl column
+    const fallbackSelect = { ...select };
+    delete fallbackSelect.imageUrl;
+
+    const rows = await prisma.blogPost.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: fallbackSelect
+    });
+
+    return rows.map(r => ({ ...r, imageUrl: null }));
+  }
 }
 
 async function createBlogPost(input, createdById) {
@@ -1332,20 +1364,43 @@ async function createBlogPost(input, createdById) {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
   }
 
-  return prisma.blogPost.create({
-    data: {
-      title: input.title,
-      content: input.content,
-      imageUrl: input.imageUrl || null,
-      published: input.published ?? true,
-      createdById
-    },
-    include: {
-      createdBy: {
-        select: { username: true }
+  try {
+    return await prisma.blogPost.create({
+      data: {
+        title: input.title,
+        content: input.content,
+        imageUrl: input.imageUrl || null,
+        published: input.published ?? true,
+        createdById
+      },
+      include: {
+        createdBy: {
+          select: { username: true }
+        }
       }
+    });
+  } catch (error) {
+    if (!shouldFallbackWithoutBlogPostImageUrl(error)) {
+      throw error;
     }
-  });
+
+    // Fallback: missing imageUrl column
+    const row = await prisma.blogPost.create({
+      data: {
+        title: input.title,
+        content: input.content,
+        published: input.published ?? true,
+        createdById
+      },
+      include: {
+        createdBy: {
+          select: { username: true }
+        }
+      }
+    });
+
+    return { ...row, imageUrl: null };
+  }
 }
 
 async function findBlogPostById(id) {
