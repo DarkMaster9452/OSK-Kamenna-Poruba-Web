@@ -252,17 +252,17 @@
         }
 
         /* Header & Navigation */
-        header {
+        /* ── Site-wide navigation header ── */
+        header.site-header {
             background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
             color: white;
             padding: 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-
-        .header-top {
+        header.site-header .header-top {
             display: flex;
             justify-content: flex-start;
             align-items: center;
@@ -271,8 +271,7 @@
             max-width: 1400px;
             margin: 0 auto;
         }
-
-        .logo {
+        header.site-header .sh-logo {
             font-size: 18px;
             font-weight: bold;
             display: flex;
@@ -280,58 +279,47 @@
             gap: 15px;
             margin-right: 24px;
             flex-shrink: 0;
+            color: white;
+            text-decoration: none;
         }
-
-        .logo-img {
+        header.site-header .sh-logo-img {
             width: 72px;
             height: 72px;
             object-fit: contain;
             border-radius: 50%;
             background: white;
             padding: 3px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
             display: block;
         }
 
-        .logo i {
-            color: #ffd700;
-        }
-
-        nav {
+        header.site-header .sh-nav {
             flex: 1;
             min-width: 0;
         }
-
-        nav ul {
+        header.site-header .sh-nav ul {
             list-style: none;
             display: flex;
             gap: 12px 24px;
+            flex-wrap: nowrap;
             align-items: center;
             justify-content: flex-end;
-            flex-wrap: wrap;
+            margin: 0;
+            padding: 0;
         }
-
-        nav li {
-            flex-shrink: 0;
-        }
-
-        nav a {
+        header.site-header .sh-nav li { flex-shrink: 0; }
+        header.site-header .sh-nav a {
             color: white;
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s;
             position: relative;
-            margin-right: 0;
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
-
-        nav a:hover {
-            color: #ffd700;
-        }
-
-        nav a::after {
+        header.site-header .sh-nav a:hover { color: #ffd700; }
+        header.site-header .sh-nav a::after {
             content: '';
             position: absolute;
             bottom: -5px;
@@ -341,11 +329,7 @@
             background: #ffd700;
             transition: width 0.3s;
         }
-
-        nav a:hover::after {
-            width: 100%;
-        }
-
+        header.site-header .sh-nav a:hover::after { width: 100%; }
         .nav-dot {
             width: 10px;
             height: 10px;
@@ -357,138 +341,34 @@
             justify-content: center;
             box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
         }
-
-        .login-btn {
-            background: #ffd700;
-            color: #003399;
-            text-decoration: none;
-            padding: 8px 20px;
-            border-radius: 5px;
-            transition: background 0.3s;
-            font-weight: bold;
-            display: inline-block;
-            max-width: none;
-            overflow: visible;
-            text-overflow: clip;
-            white-space: normal;
-            word-break: break-word;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .login-btn:hover {
-            background: #ffed4e;
-            color: #003399;
-        }
-
-        /* Submenu styles */
-        .nav-item-has-submenu {
-            position: relative;
-        }
-
-        .sub-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: #003399;
-            min-width: 180px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            list-style: none;
-            padding: 10px 0;
-            z-index: 1000;
-            border-radius: 0 0 8px 8px;
-        }
-
-        .sub-menu li {
-            width: 100%;
-        }
-
-        .sub-menu a {
-            padding: 10px 20px;
-            display: block;
-            width: 100%;
-            font-size: 14px;
-        }
-
-        .sub-menu a::after {
-            display: none;
-        }
-
-        .nav-item-has-submenu:hover .sub-menu {
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            .nav-item-has-submenu .sub-menu {
-                position: static;
-                display: block;
-                background: rgba(0, 0, 0, 0.1);
-                box-shadow: none;
-                padding-left: 20px;
-                margin-top: 5px;
-                border-radius: 0;
-            }
-
-            .nav-item-has-submenu a i {
-                display: none;
-            }
-        }
-
-        .header-actions {
+        header.site-header .sh-actions {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-left: auto;
             flex-shrink: 0;
         }
-
-        #loginBtnText {
-            max-width: 200px;
+        header.site-header .sh-login-btn {
+            background: #ffd700;
+            color: #003399;
+            text-decoration: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            transition: background 0.3s;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 200px;
         }
-
-        @media (min-width: 769px) {
-            header.role-heavy-nav .header-top {
-                padding: 18px 24px;
-                gap: 16px;
-                align-items: center;
-            }
-
-            header.role-heavy-nav nav ul {
-                gap: 12px 16px;
-                flex-wrap: wrap;
-            }
-
-            header.role-heavy-nav nav a {
-                font-size: 15px;
-                padding: 4px 0;
-            }
-
-            header.role-heavy-nav .header-actions {
-                align-self: center;
-            }
-
-            header.role-heavy-nav #loginBtnText {
-                max-width: 180px;
-            }
-        }
-
-        .mobile-login-item {
-            display: none;
-        }
-
-        .mobile-home-item {
-            display: none;
-        }
-
-        .mobile-menu-toggle {
+        header.site-header .sh-login-btn:hover { background: #ffed4e; color: #003399; }
+        header.site-header .sh-mobile-login { display: none; }
+        header.site-header .sh-mobile-toggle {
             display: none;
             width: 42px;
             height: 42px;
-            border: 1px solid rgba(255, 255, 255, 0.35);
+            border: 1px solid rgba(255,255,255,0.35);
             border-radius: 6px;
             background: transparent;
             color: #fff;
@@ -497,23 +377,26 @@
             justify-content: center;
             cursor: pointer;
         }
-
-        @media (max-width: 1024px) {
-            nav ul {
-                gap: 12px 14px;
-                flex-wrap: wrap;
-                justify-content: flex-end;
-                width: 100%;
+        @media (max-width: 768px) {
+            header.site-header .header-top { padding: 12px 14px; gap: 10px; position: relative; }
+            header.site-header .sh-logo > span { display: none; }
+            header.site-header .sh-logo-img { width: 52px; height: 52px; padding: 2px; }
+            header.site-header .sh-mobile-toggle { display: inline-flex; }
+            header.site-header .sh-nav {
+                display: none;
+                position: absolute;
+                left: 0; right: 0; top: 100%;
+                background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+                padding: 10px 14px 14px;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.22);
+                z-index: 1100;
             }
-
-            nav li {
-                min-width: 0;
-                flex-shrink: 1;
-            }
-
-            .login-btn {
-                max-width: 100%;
-            }
+            header.site-header .sh-nav.open { display: block; }
+            header.site-header .sh-nav ul { width: 100%; flex-direction: column; align-items: stretch; gap: 6px; flex-wrap: nowrap; font-size: 14px; }
+            header.site-header .sh-nav li { width: 100%; }
+            header.site-header .sh-nav a { display: flex; width: 100%; padding: 10px 6px; }
+            header.site-header .sh-mobile-login { display: list-item; }
+            header.site-header .sh-actions .sh-login-btn { display: none; }
         }
 
         /* Hero Section */
@@ -623,7 +506,7 @@
         #about,
         #ateam,
         #academy,
-        #achievements,
+
         #matches,
         #gallery,
         #parking,
@@ -761,89 +644,6 @@
             text-align: center;
         }
 
-        #achievements {
-            margin-top: 34px;
-        }
-
-        .achievements-wrap {
-            margin: 34px auto 0;
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 18px;
-        }
-
-        .achievements-cta {
-            margin-top: 10px;
-            background: #f8fbff;
-            border: 2px solid #ffd700;
-            border-left: 6px solid #003399;
-            border-radius: 10px;
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .achievements-cta-text {
-            color: #24304d;
-            font-weight: 700;
-        }
-
-        .achievements-cta-text i {
-            color: #003399;
-            margin-right: 6px;
-        }
-
-        .achievements-card {
-            background: #fff;
-            border: 1px solid rgba(0, 51, 153, 0.1);
-            border-radius: 10px;
-            padding: 22px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .achievements-subtitle {
-            font-size: 20px;
-            color: #003399;
-            font-weight: 800;
-            margin-bottom: 12px;
-        }
-
-        .achievements-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: grid;
-            gap: 10px;
-        }
-
-        .achievements-list li {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            line-height: 1.6;
-            color: #2a3553;
-        }
-
-        .achievements-list i {
-            color: #ffd700;
-            margin-top: 3px;
-        }
-
-        .achievement-highlight {
-            border-left: 5px solid #ffd700;
-            background: #f8fbff;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-        }
-
-        .achievement-highlight strong {
-            color: #003399;
-            display: block;
-            margin-bottom: 4px;
-        }
 
         .milestones-timeline {
             margin-top: 8px;
@@ -2457,84 +2257,6 @@
         @media (max-width: 768px),
         (max-width: 1024px) and (max-height: 560px) {
 
-            .header-top {
-                padding: 12px 14px;
-                gap: 10px;
-                position: relative;
-            }
-
-            .logo {
-                gap: 0;
-            }
-
-            .logo>div {
-                display: none;
-            }
-
-            .logo-img {
-                width: 52px;
-                height: 52px;
-                padding: 2px;
-            }
-
-            .mobile-menu-toggle {
-                display: inline-flex;
-            }
-
-            .mobile-home-item {
-                display: list-item;
-            }
-
-            .header-actions .login-btn {
-                display: inline-block;
-                max-width: none;
-                padding: 8px 12px;
-                font-size: 13px;
-            }
-
-            nav {
-                display: none;
-                position: absolute;
-                left: 0;
-                right: 0;
-                top: 100%;
-                background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
-                padding: 10px 14px 14px;
-                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
-                z-index: 1100;
-            }
-
-            nav.open {
-                display: block;
-            }
-
-            nav ul {
-                width: 100%;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 6px;
-                flex-wrap: nowrap;
-                font-size: 14px;
-            }
-
-            nav li {
-                width: 100%;
-            }
-
-            .mobile-login-item {
-                display: none;
-            }
-
-            nav a {
-                display: flex;
-                width: 100%;
-                padding: 10px 6px;
-            }
-
-            .mobile-login-item .login-btn {
-                display: none;
-            }
-
             /* Player category filter buttons stacked on mobile */
             #players .category-filter {
                 display: flex;
@@ -2568,13 +2290,6 @@
                 padding: 18px;
             }
 
-            .achievements-wrap {
-                grid-template-columns: 1fr;
-            }
-
-            .achievements-card {
-                padding: 16px;
-            }
 
             .hero h1 {
                 font-size: 36px;
@@ -2967,19 +2682,15 @@
 
 <body>
     <!-- Header -->
-    <header>
+    <header class="site-header">
         <div class="header-top">
-            <div class="logo" id="mainLogo" style="cursor:pointer;">
-                <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="OŠK Kamenná Poruba Logo" class="logo-img"
-                    data-cloudinary-id="OŠK Kamenná Poruba Logo">
-                <div>
-                    <div style="font-size: 14px; letter-spacing: 1px;">OŠK</div>
-                    <div style="font-size: 18px; font-weight: bold;">Kamenná Poruba</div>
-                </div>
-            </div>
-            <nav id="mainNav">
+            <a class="sh-logo" href="/index.html">
+                <img src="/assets/images/OŠK Kamenná Poruba Logo.png" alt="OŠK Kamenná Poruba Logo" class="sh-logo-img" data-cloudinary-id="OŠK Kamenná Poruba Logo">
+                <span>OŠK Kamenná Poruba</span>
+            </a>
+            <nav class="sh-nav" id="shMainNav">
                 <ul>
-                    <li class="mobile-home-item"><a href="/index.html">Domov</a></li>
+                    <li><a href="/index.html"><i class="fas fa-home"></i> Domov</a></li>
                     <li><a href="/pages/vedenie.html">Vedenie klubu</a></li>
                     <li><a href="/pages/atim.html">A-tím</a></li>
                     <li><a href="/pages/akademia.html">Akadémia</a></li>
@@ -2987,22 +2698,16 @@
                     <li><a href="/pages/galeria.html">Galéria</a></li>
                     <li><a href="/pages/blog.html">Blog</a></li>
                     <li><a href="#contact">Kontakt</a></li>
-
-                    <li id="coachAccountMgmtBtn" style="display:none;"><a href="/pages/account_management.html"><i
-                                class="fas fa-users-cog"></i> Správa účtov</a></li>
-
-                    <li><a href="#" id="trainingNavLink" style="cursor: pointer; display: none;"
-                            onclick="goToTrainings(event)"><i class="fas fa-dumbbell"></i> Tréningy</a></li>
-                    <li><a href="#" id="infoNavLink" style="cursor: pointer; display: none;"
-                            onclick="goToImportantInfo(event)"><i class="fas fa-bullhorn"></i> Dôležité info</a></li>
-                    <li class="mobile-login-item"><a href="#" class="login-btn" id="mobileLoginBtnText">Prihlásiť sa</a>
-                    </li>
+                    <li id="coachAccountMgmtBtn" style="display:none;"><a href="/pages/account_management.html"><i class="fas fa-users-cog"></i> Správa účtov</a></li>
+                    <li id="coachGroupsBtn" style="display:none;"><a href="/pages/skupiny.html"><i class="fas fa-layer-group"></i> Skupiny</a></li>
+                    <li id="shTrainingNavLink" style="display:none"><a href="#" onclick="goToTrainings(event)"><i class="fas fa-dumbbell"></i> Tréningy</a></li>
+                    <li id="shInfoNavLink" style="display:none"><a href="#" onclick="goToImportantInfo(event)" id="infoNavLink"><i class="fas fa-bullhorn"></i> Dôležité info</a></li>
+                    <li class="sh-mobile-login"><a href="#" class="sh-login-btn" id="shMobileLoginBtn">Prihlásiť sa</a></li>
                 </ul>
             </nav>
-            <div class="header-actions">
-                <a href="#" class="login-btn" id="loginBtnText">Prihlásiť sa</a>
-                <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Menu"
-                    aria-expanded="false">
+            <div class="sh-actions">
+                <a href="#" class="sh-login-btn" id="shLoginBtn">Prihlásiť sa</a>
+                <button id="shMobileToggle" class="sh-mobile-toggle" type="button" aria-label="Menu" aria-expanded="false">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -3130,15 +2835,6 @@
             </div>
         </section>
 
-        <section id="achievements">
-            <h2><i class="fas fa-trophy"></i> Úspechy klubu</h2>
-            <div class="achievements-cta">
-                <div class="achievements-cta-text"><i class="fas fa-images"></i> Chceš vidieť kompletnú fototimeline
-                    výstavby? Otvor ju tu:</div>
-                <a href="/pages/timeline_ihriska.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i>
-                    Otvoriť timeline</a>
-            </div>
-        </section>
         <!-- Gallery Section -->
         <section id="gallery">
             <h2><i class="fas fa-images"></i> Galéria</h2>
@@ -3563,21 +3259,8 @@
         window.showCoachPlayerCardButton = showCoachPlayerCardButton;
         // Scroll to main section when logo is clicked
         document.addEventListener('DOMContentLoaded', function () {
-            var logo = document.getElementById('mainLogo');
-            if (logo) {
-                logo.addEventListener('click', function () {
-                    const isMobileView = window.matchMedia('(max-width: 900px)').matches;
-                    if (isMobileView) {
-                        window.location.href = '/index.html';
-                        return;
-                    }
-
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            }
-
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mainNav = document.getElementById('mainNav');
+            const mobileMenuToggle = document.getElementById('shMobileToggle');
+            const mainNav = document.getElementById('shMainNav');
 
             function closeMobileMenu() {
                 if (!mainNav || !mobileMenuToggle) return;
@@ -3587,7 +3270,7 @@
 
             if (mobileMenuToggle && mainNav) {
                 mobileMenuToggle.addEventListener('click', function (event) {
-                    event.preventDefault();
+                    event.stopPropagation();
                     const open = mainNav.classList.toggle('open');
                     mobileMenuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
                 });
@@ -3604,7 +3287,7 @@
                     const target = event.target;
                     if (!(target instanceof Element)) return;
 
-                    if (target.closest('#mobileMenuToggle') || target.closest('#mainNav')) {
+                    if (target.closest('#shMobileToggle') || target.closest('#shMainNav')) {
                         return;
                     }
 
@@ -3618,7 +3301,7 @@
                     updateHeaderScrollOffset();
                 });
 
-                // Zatvorí menu ak sa zascrolluje nadol 
+                // Zatvorí menu ak sa zascrolluje nadol
                 let lastScrollY = window.scrollY;
                 window.addEventListener('scroll', function () {
                     const currentScrollY = window.scrollY;
@@ -3640,12 +3323,12 @@
                 }
             }
 
-            const loginBtn = document.getElementById('loginBtnText');
+            const loginBtn = document.getElementById('shLoginBtn');
             if (loginBtn) {
                 loginBtn.onclick = handleAuthButtonClick;
             }
 
-            const mobileLoginBtn = document.getElementById('mobileLoginBtnText');
+            const mobileLoginBtn = document.getElementById('shMobileLoginBtn');
             if (mobileLoginBtn) {
                 mobileLoginBtn.onclick = handleAuthButtonClick;
             }
@@ -4295,30 +3978,28 @@
 
         // Update login button text
         function updateLoginButtonText() {
-            const loginBtn = document.getElementById('loginBtnText');
-            const mobileLoginBtn = document.getElementById('mobileLoginBtnText');
-            const trainingNavLink = document.getElementById('trainingNavLink');
-            const infoNavLink = document.getElementById('infoNavLink');
+            const loginBtn = document.getElementById('shLoginBtn');
+            const mobileLoginBtn = document.getElementById('shMobileLoginBtn');
+            const trainingNavLink = document.getElementById('shTrainingNavLink');
+            const infoNavLink = document.getElementById('shInfoNavLink');
             if (currentUser.isLoggedIn) {
                 const fullUsername = currentUser.username || '';
-                loginBtn.textContent = formatNavbarUsername(fullUsername);
-                loginBtn.title = fullUsername;
+                if (loginBtn) { loginBtn.textContent = formatNavbarUsername(fullUsername); loginBtn.title = fullUsername; }
                 if (mobileLoginBtn) {
                     mobileLoginBtn.textContent = formatNavbarUsername(fullUsername);
                     mobileLoginBtn.title = fullUsername;
                 }
                 const isBlogger = currentUser.role === 'blogger';
-                trainingNavLink.style.display = isBlogger ? 'none' : 'block';
-                infoNavLink.style.display = isBlogger ? 'none' : 'block';
+                if (trainingNavLink) trainingNavLink.style.display = isBlogger ? 'none' : '';
+                if (infoNavLink) infoNavLink.style.display = isBlogger ? 'none' : '';
             } else {
-                loginBtn.textContent = 'Prihlásiť sa';
-                loginBtn.title = '';
+                if (loginBtn) { loginBtn.textContent = 'Prihlásiť sa'; loginBtn.title = ''; }
                 if (mobileLoginBtn) {
                     mobileLoginBtn.textContent = 'Prihlásiť sa';
                     mobileLoginBtn.title = '';
                 }
-                trainingNavLink.style.display = 'none';
-                infoNavLink.style.display = 'none';
+                if (trainingNavLink) trainingNavLink.style.display = 'none';
+                if (infoNavLink) infoNavLink.style.display = 'none';
             }
             applyRoleNavbarMode();
             updateImportantInfoNavBadge().catch(() => { });
