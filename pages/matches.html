@@ -543,23 +543,28 @@
             gap: 8px;
             flex-wrap: wrap;
             margin-bottom: 24px;
+            justify-content: center;
         }
 
         .category-tab {
-            padding: 8px 18px;
+            padding: 10px 20px;
             border: 2px solid #003399;
-            background: white;
+            border-radius: 25px;
+            background: #fff;
             color: #003399;
-            font-weight: bold;
-            font-size: 13px;
+            font-weight: 600;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
-        .category-tab:hover,
+        .category-tab:hover {
+            background: #e6eeff;
+        }
+
         .category-tab.active {
             background: #003399;
-            color: white;
+            color: #fff;
         }
 
         .match-competition {
@@ -861,60 +866,59 @@
 
             .matches-grid {
                 grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .match-card {
-                padding: 16px;
-            }
-
-            .team-vs, .match-score {
-                grid-template-columns: 1fr;
                 gap: 8px;
             }
 
+            .match-card {
+                padding: 10px 12px;
+            }
+            .team-vs, .match-score {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+
             .match-card .team-name {
-                font-size: 14px;
-                padding: 10px;
+                font-size: 13px;
+                padding: 5px 8px;
                 background: transparent;
             }
 
             .match-card .vs-text {
-                font-size: 16px;
-                margin: 4px 0;
+                font-size: 14px;
+                margin: 2px 0;
             }
 
             .match-card .score-value {
-                font-size: 24px;
+                font-size: 22px;
                 background: #eee;
                 border-radius: 6px;
-                padding: 4px 12px;
+                padding: 2px 10px;
                 display: inline-block;
                 color: #003399;
-                margin: 4px auto;
+                margin: 2px auto;
             }
 
             .match-card .match-score {
-                font-size: 18px;
-                margin: 8px 0;
+                font-size: 16px;
+                margin: 4px 0;
                 text-align: center;
             }
 
             .match-card .match-details {
-                font-size: 12px;
-                margin: 8px 0;
+                font-size: 11px;
+                margin: 4px 0;
             }
 
             .match-card .match-date,
             .match-card .match-location {
-                padding: 5px;
-                margin: 4px 0;
+                padding: 3px 5px;
+                margin: 2px 0;
             }
 
             .match-card .view-details-btn {
-                padding: 8px;
-                font-size: 13px;
-                margin-top: 6px;
+                padding: 6px;
+                font-size: 12px;
+                margin-top: 4px;
             }
 
             .matches-section-header {
@@ -969,13 +973,18 @@
             }
 
             .category-tabs {
-                gap: 5px;
+                gap: 6px;
                 margin-bottom: 14px;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
             }
 
             .category-tab {
-                padding: 6px 12px;
+                padding: 10px 8px;
                 font-size: 12px;
+                min-height: 44px;
+                text-align: center;
+                white-space: nowrap;
             }
 
             header {
