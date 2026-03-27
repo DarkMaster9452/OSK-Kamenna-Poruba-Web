@@ -68,23 +68,26 @@
         }
 
         .logo-track img {
-            height: 85px;
+            height: 70px;
+            max-width: 180px;
             margin: 0;
             vertical-align: middle;
             transition: transform 0.3s ease;
             flex: 0 0 auto;
+            object-fit: contain;
         }
 
         .logo-track img:hover {
-            transform: scale(1.2);
+            transform: scale(1.1);
         }
 
         .logo-track img.logo-double {
-            transform: scale(2);
+            height: 70px;
+            max-width: 180px;
         }
 
         .logo-track img.logo-double:hover {
-            transform: scale(2.2);
+            transform: scale(1.1);
         }
 
         @keyframes scroll {
@@ -116,15 +119,17 @@
             }
 
             .logo-track img {
-                height: 56px;
+                height: 50px;
+                max-width: 140px;
             }
 
             .logo-track img.logo-double {
-                transform: scale(1.45);
+                height: 50px;
+                max-width: 140px;
             }
 
             .logo-track img.logo-double:hover {
-                transform: scale(1.6);
+                transform: scale(1.1);
             }
         }
 
