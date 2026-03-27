@@ -208,11 +208,11 @@ async function getRootAssets({ forceRefresh = false } = {}) {
   }
 
   try {
-    const result = await cloudinary.api.resources({
-      type: 'upload',
-      resource_type: 'image',
-      max_results: 500
-    });
+    // Use Search API to find images regardless of folder depth
+    const result = await cloudinary.search
+      .expression('resource_type:image')
+      .max_results(500)
+      .execute();
 
     const resources = Array.isArray(result.resources) ? result.resources : [];
 

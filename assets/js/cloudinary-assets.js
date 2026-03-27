@@ -43,35 +43,47 @@
         return publicId.replace(/_[a-z0-9]{6}$/i, '');
     }
 
+    function normalizeKey(str) {
+        return (str || '').toLowerCase().trim()
+            .replace(/\s+/g, '_');
+    }
+
     function buildMap(assets) {
         var map = {};
 
         assets.forEach(function (a) {
-            var id = a.publicId.toLowerCase();
+            if (!a.publicId || !a.url) return;
             var url = a.url;
+            var id = a.publicId.toLowerCase();
+            var normId = normalizeKey(a.publicId);
 
-            // Full publicId
+            // 1. Full publicId variants
             map[id] = url;
+            if (normId !== id) map[normId] = url;
 
-            // Full filename (with extension)
-            if (a.filename) map[a.filename.toLowerCase()] = url;
-
-            // Stripped suffix (base name)
-            var base = stripCloudinarySuffix(a.publicId).toLowerCase();
-            if (base !== id) map[base] = url;
-
-            // Also strip extension from base
-            var baseNoExt = base.replace(/\.[^.]+$/, '');
-            if (baseNoExt !== base) map[baseNoExt] = url;
-
-            // Also add basename if there's a folder (to support subfolders returned by backend)
-            if (base.indexOf('/') !== -1) {
-                var basename = base.split('/').pop();
-                if (!map[basename]) map[basename] = url;
-                
-                var basenameNoExt = basename.replace(/\.[^.]+$/, '');
-                if (basenameNoExt !== basename && !map[basenameNoExt]) map[basenameNoExt] = url;
+            // 2. Filename (with extension)
+            if (a.filename) {
+                var f = a.filename.toLowerCase();
+                map[f] = url;
+                var normF = normalizeKey(a.filename);
+                if (normF !== f) map[normF] = url;
             }
+
+            // 3. Basename (no extension, no folder)
+            var baseParts = a.publicId.split('/');
+            var basename = baseParts[baseParts.length - 1];
+            var baseLow = basename.toLowerCase();
+            var baseNoExt = baseLow.replace(/\.[^.]+$/, '');
+            var baseNorm = normalizeKey(baseNoExt);
+
+            map[baseLow] = url;
+            map[baseNoExt] = url;
+            map[baseNorm] = url;
+
+            // Handle suffix stripping for legacy matching
+            var baseStripped = stripCloudinarySuffix(a.publicId).toLowerCase();
+            var baseStrippedNoExt = baseStripped.replace(/\.[^.]+$/, '').split('/').pop();
+            map[baseStrippedNoExt] = url;
         });
 
         return map;
@@ -84,7 +96,8 @@
 
         // Update all elements with data-cloudinary-id (for <img>, <div>, <section>, <a>)
         document.querySelectorAll('[data-cloudinary-id]').forEach(function (el) {
-            var id = (el.getAttribute('data-cloudinary-id') || '').toLowerCase();
+            var rawId = el.getAttribute('data-cloudinary-id') || '';
+            var id = normalizeKey(rawId);
             if (!id) return;
             var url = map[id] || map[id.replace(/\.[^.]+$/, '')] || null;
             if (!url) return;
@@ -98,7 +111,8 @@
 
         // Support CSS background images via data-cloudinary-bg attribute
         document.querySelectorAll('[data-cloudinary-bg]').forEach(function (el) {
-            var id = (el.getAttribute('data-cloudinary-bg') || '').toLowerCase();
+            var rawId = el.getAttribute('data-cloudinary-bg') || '';
+            var id = normalizeKey(rawId);
             if (!id) return;
             var url = map[id] || map[id.replace(/\.[^.]+$/, '')] || null;
             if (!url) return;
@@ -120,6 +134,17 @@
         });
     }
 
+    function resolveApiBase() {
+        var host = window.location.hostname;
+        if (host === 'localhost' || host === '127.0.0.1') {
+            return 'http://localhost:4000/api';
+        }
+        var configured = localStorage.getItem('OSK_API_BASE');
+        if (configured) return (configured.trim().replace(/\/+$/, '') + '/api').replace(/\/api\/api$/, '/api');
+        
+        return '/api';
+    }
+
     async function loadAndApply() {
         // Check cache first
         var cached = getCache();
@@ -129,11 +154,12 @@
         }
 
         try {
-            var response = await fetch('/api/cloudinary/assets');
+            var apiBase = resolveApiBase();
+            var response = await fetch(apiBase + '/cloudinary/assets');
             if (!response.ok) return;
             var data = await response.json();
             var assets = Array.isArray(data.assets) ? data.assets : [];
-            if (assets.length) {
+            if (assets && assets.length) {
                 setCache(assets);
                 applyAssets(assets);
             }
