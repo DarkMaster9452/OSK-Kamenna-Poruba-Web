@@ -691,7 +691,10 @@
                     const key = folderNameToKey((folder.parentFolder || '') + '-' + folder.folder);
                     const conf = FOLDER_TEXT_CONFIG[folder.folder] || {};
                     const parentLabel = folder.parentFolder || '';
-                    const selfLabel = conf.year || folder.folder;
+                    // If folder name differs from year, combine year + title to avoid duplicates
+                    const selfLabel = conf.year && conf.title && folder.folder !== conf.year
+                        ? conf.year + ' – ' + conf.title
+                        : (conf.year || folder.folder);
                     const label = parentLabel ? parentLabel + ' – ' + folder.folder : selfLabel;
                     const items = (folder.images || []).map(function (img) {
                         return { src: img.url, alt: folder.folder };
