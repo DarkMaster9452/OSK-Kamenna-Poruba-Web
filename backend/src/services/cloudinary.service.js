@@ -119,26 +119,43 @@ async function collectAllFolderBlocks() {
     return [];
   }
 
-  console.log(`[Cloudinary] Found ${subs.length} subfolders. Fetching images in parallel via Admin API...`);
+  console.log(`[Cloudinary] Found ${subs.length} subfolders. Fetching images recursively in parallel...`);
 
-  // Parallel api.resources() calls — one per subfolder
-  // Parallel avoids Vercel timeout; 24h cache means ≤19 Admin API calls/day total
-  async function fetchSubfolderImages(sub) {
+  // Recursively collect all images from a folder and its sub-subfolders
+  // All images are grouped under the top-level year folder
+  async function collectAllImages(folderPath) {
     const images = [];
+
+    // Fetch images directly in this folder
     let nextCursor = null;
     do {
       const params = { max_results: 500, resource_type: 'image' };
       if (nextCursor) params.next_cursor = nextCursor;
-      const result = await cloudinary.api.resources_by_asset_folder(sub.path, params);
+      const result = await cloudinary.api.resources_by_asset_folder(folderPath, params);
       for (const r of (result.resources || [])) {
         images.push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
       }
       nextCursor = result.next_cursor || null;
     } while (nextCursor);
-    return { folder: sub.name, path: sub.path, images };
+
+    // Recurse into sub-subfolders (e.g. 2005/50 rokov OŠK)
+    try {
+      const subResult = await cloudinary.api.sub_folders(folderPath);
+      const deepSubs = Array.isArray(subResult.folders) ? subResult.folders : [];
+      const deepImages = await Promise.all(deepSubs.map((s) => collectAllImages(s.path)));
+      for (const img of deepImages.flat()) images.push(img);
+    } catch (_) {}
+
+    return images;
   }
 
-  const results = await Promise.all(subs.map(fetchSubfolderImages));
+  const results = await Promise.all(
+    subs.map(async (sub) => ({
+      folder: sub.name,
+      path: sub.path,
+      images: await collectAllImages(sub.path)
+    }))
+  );
   const blocks = results.filter((r) => r.images.length > 0);
 
   console.log(`[Cloudinary] Scan complete. Found ${blocks.length} blocks.`);
