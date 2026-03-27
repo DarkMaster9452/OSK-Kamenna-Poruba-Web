@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const { z } = require('zod');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { validateBody } = require('../middleware/validate');
@@ -15,7 +15,8 @@ const router = express.Router();
 const createBlogPostSchema = z.object({
   title: z.string().min(3).max(200),
   content: z.string().min(3).max(20000),
-  published: z.boolean().optional().default(true)
+  published: z.boolean().optional().default(true),
+  imageUrl: z.string().url().max(2000).nullable().optional()
 });
 
 async function writeAuditSafe(payload) {
@@ -35,6 +36,7 @@ router.get('/', async (req, res) => {
         id: row.id,
         title: row.title,
         content: row.content,
+        imageUrl: row.imageUrl || null,
         published: row.published,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
@@ -59,6 +61,7 @@ router.get('/manage', requireAuth, requireRole('blogger', 'admin'), async (req, 
       id: row.id,
       title: row.title,
       content: row.content,
+      imageUrl: row.imageUrl || null,
       published: row.published,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -79,6 +82,7 @@ router.post('/', requireAuth, requireRole('blogger', 'admin'), validateBody(crea
       id: row.id,
       title: row.title,
       content: row.content,
+      imageUrl: row.imageUrl || null,
       published: row.published,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,

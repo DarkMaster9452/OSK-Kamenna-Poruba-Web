@@ -1,6 +1,13 @@
 const express = require('express');
-const { getTimelineData, getRootAssets, isConfigured, debugCloudinaryFolders } = require('../services/cloudinary.service');
+const { getTimelineData, getRootAssets, isConfigured, debugCloudinaryFolders, uploadImageToStream } = require('../services/cloudinary.service');
+const { requireAuth, requireRole } = require('../middleware/auth');
+const multer = require('multer');
 const env = require('../config/env');
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 const router = express.Router();
 
@@ -39,6 +46,26 @@ router.get('/debug', async (req, res, next) => {
   try {
     const data = await debugCloudinaryFolders();
     res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/cloudinary/upload — restricted to admins/coaches/bloggers
+router.post('/upload', requireAuth, requireRole('admin', 'coach', 'blogger'), upload.single('image'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Žiadny súbor nebol nahraný.' });
+    }
+
+    const folder = req.query.folder || 'blog';
+    const result = await uploadImageToStream(req.file.buffer, folder);
+
+    res.json({
+      url: result.secure_url,
+      publicId: result.public_id,
+      format: result.format
+    });
   } catch (err) {
     next(err);
   }

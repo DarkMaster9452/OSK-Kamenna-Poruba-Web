@@ -434,6 +434,16 @@
             color: #ffffff;
         }
 
+        .post-detail-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
         .muted {
             color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
@@ -494,6 +504,10 @@
             <div class="form-grid">
                 <input id="postTitle" placeholder="Nadpis príspevku" maxlength="200" />
                 <textarea id="postContent" placeholder="Obsah príspevku"></textarea>
+                <div style="margin: 8px 0;">
+                    <label style="display:block;margin-bottom:6px;font-size:14px;color:#ffd700;font-weight:bold;"><i class="fas fa-image"></i> Priložiť fotku (max. 5MB):</label>
+                    <input type="file" id="postImage" accept="image/*" style="padding: 6px; font-size: 13px;" />
+                </div>
                 <label class="checkbox-inline"><input id="postPublished" type="checkbox" checked /> Publikovať
                     ihneď</label>
                 <div>
@@ -523,6 +537,7 @@
                 </button>
             </div>
             <div id="postDetailMeta" class="meta"></div>
+            <img id="postDetailImage" class="post-detail-image" alt="Obrázok k príspevku" />
             <div id="postDetailContent" class="modal-content"></div>
         </div>
     </div>
@@ -662,6 +677,17 @@
 
             title.textContent = post.title || 'Bez názvu';
             meta.textContent = `Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}`;
+            
+            const img = document.getElementById('postDetailImage');
+            if (img) {
+                if (post.imageUrl) {
+                    img.src = post.imageUrl;
+                    img.style.display = 'block';
+                } else {
+                    img.style.display = 'none';
+                }
+            }
+
             content.textContent = String(post.content || '');
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
@@ -711,10 +737,15 @@
         }
 
         async function createPost() {
-            const title = document.getElementById('postTitle').value.trim();
-            const content = document.getElementById('postContent').value.trim();
-            const published = document.getElementById('postPublished').checked;
+            const titleInput = document.getElementById('postTitle');
+            const contentInput = document.getElementById('postContent');
+            const fileInput = document.getElementById('postImage');
+            const publishedInput = document.getElementById('postPublished');
             const message = document.getElementById('composerMessage');
+
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+            const published = publishedInput.checked;
 
             if (!title || !content) {
                 message.textContent = 'Nadpis aj obsah sú povinné.';
@@ -722,7 +753,35 @@
             }
 
             try {
+                message.textContent = 'Pripravujem...';
                 const csrfToken = await ensureCsrfToken();
+                let imageUrl = null;
+
+                // Handle image upload if selected
+                if (fileInput.files && fileInput.files[0]) {
+                    message.textContent = 'Nahrávam fotku...';
+                    const formData = new FormData();
+                    formData.append('image', fileInput.files[0]);
+
+                    const uploadResponse = await fetch(`${API_BASE}/cloudinary/upload`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'x-csrf-token': csrfToken
+                        },
+                        body: formData
+                    });
+
+                    if (!uploadResponse.ok) {
+                        const errData = await uploadResponse.json().catch(() => ({}));
+                        throw new Error(errData.message || 'Nepodarilo sa nahrať fotku.');
+                    }
+
+                    const uploadData = await uploadResponse.json();
+                    imageUrl = uploadData.url;
+                }
+
+                message.textContent = 'Ukladám príspevok...';
                 const response = await fetch(`${API_BASE}/blog`, {
                     method: 'POST',
                     credentials: 'include',
@@ -730,16 +789,17 @@
                         'Content-Type': 'application/json',
                         'x-csrf-token': csrfToken
                     },
-                    body: JSON.stringify({ title, content, published })
+                    body: JSON.stringify({ title, content, published, imageUrl })
                 });
 
                 const payload = await response.json().catch(() => ({}));
                 if (!response.ok) throw new Error(payload.message || 'Nepodarilo sa vytvoriť blog príspevok.');
 
                 message.textContent = 'Príspevok bol vytvorený.';
-                document.getElementById('postTitle').value = '';
-                document.getElementById('postContent').value = '';
-                document.getElementById('postPublished').checked = true;
+                titleInput.value = '';
+                contentInput.value = '';
+                fileInput.value = '';
+                publishedInput.checked = true;
                 await refresh();
             } catch (error) {
                 message.textContent = error.message || 'Nepodarilo sa vytvoriť blog príspevok.';

@@ -111,6 +111,7 @@ model BlogPost {
   title     String
   content   String
   published Boolean  @default(true)
+  imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

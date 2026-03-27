@@ -292,4 +292,31 @@ async function debugCloudinaryFolders() {
   return debug;
 }
 
-module.exports = { getTimelineData, getRootAssets, isConfigured, debugCloudinaryFolders };
+async function uploadImageToStream(fileBuffer, folder = 'blog') {
+  ensureConfigured();
+  if (!configured) {
+    throw new Error('Cloudinary nie je nakonfigurovaný.');
+  }
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: `${env.cloudinaryRootFolder}/${folder}`,
+        resource_type: 'image'
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    uploadStream.end(fileBuffer);
+  });
+}
+
+module.exports = {
+  getTimelineData,
+  getRootAssets,
+  isConfigured,
+  debugCloudinaryFolders,
+  uploadImageToStream
+};

@@ -1312,7 +1312,14 @@ async function listBlogPosts() {
 
   return prisma.blogPost.findMany({
     orderBy: { createdAt: 'desc' },
-    include: {
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      imageUrl: true,
+      published: true,
+      createdAt: true,
+      updatedAt: true,
       createdBy: {
         select: { username: true }
       }
@@ -1329,6 +1336,7 @@ async function createBlogPost(input, createdById) {
     data: {
       title: input.title,
       content: input.content,
+      imageUrl: input.imageUrl || null,
       published: input.published ?? true,
       createdById
     },
