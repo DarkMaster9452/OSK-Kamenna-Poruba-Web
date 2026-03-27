@@ -2230,10 +2230,19 @@
 
         .footer-section ul {
             list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
 
         .footer-section ul li {
-            margin-bottom: 10px;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .footer-section ul {
+                grid-template-columns: 1fr;
+            }
         }
 
         .footer-section a {
@@ -3229,10 +3238,12 @@
             <div class="footer-section">
                 <h3>Rýchle odkazy</h3>
                 <ul>
+                    <li><a href="/pages/vedenie.html">Vedenie klubu</a></li>
                     <li><a href="/pages/atim.html">A-tím</a></li>
                     <li><a href="/pages/akademia.html">Akadémia</a></li>
                     <li><a href="/pages/matches.html">Zápasy</a></li>
-                    <li><a href="#gallery">Galéria</a></li>
+                    <li><a href="/pages/galeria.html">Galéria</a></li>
+                    <li><a href="/pages/blog.html">Blog</a></li>
                     <li><a href="#contact">Kontakt</a></li>
                 </ul>
             </div>
