@@ -752,6 +752,8 @@
             pointsEl.innerHTML = '';
             renderedCount = 0;
 
+            document.getElementById('statusText').hidden = currentAlbum !== 'instagram';
+
             if (currentAlbum === 'instagram') {
                 itemsToShow = instagramItems.map(makeInstagramItem);
             } else {
