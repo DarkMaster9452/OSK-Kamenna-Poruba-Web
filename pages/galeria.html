@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sk">
 
 <head>
@@ -120,25 +120,7 @@
             color: #ffd700;
         }
 
-        .album-tab--sub {
-            padding: 6px 14px;
-            font-size: 0.85rem;
-            border-color: #6680bb;
-            color: #334499;
-            background: #f0f4ff;
-            margin-left: 8px;
-        }
 
-        .album-tab--sub::before {
-            content: '↳ ';
-            opacity: 0.6;
-        }
-
-        .album-tab--sub.active {
-            background: #334499;
-            color: #ffd700;
-            border-color: #334499;
-        }
 
         /* Gallery Grid */
         .gallery-grid {
@@ -649,9 +631,9 @@
         let cloudinaryAlbumMeta = [];
 
         const FOLDER_TEXT_CONFIG = {
-            'HISTORIA': { year: 'Historické', title: 'Historické', points: ['Archívne zábery klubu.'] },
+            'HISTORIA': { year: 'Historické', points: ['Archívne zábery klubu.'] },
             '2005': { year: '2005', title: 'Fotografie z roku 2005', points: [] },
-            '2006-2007': { year: '2006 – 2007', title: '2006 – 2007', points: [] },
+            '2006-2007': { year: '2006 – 2007',points: [] },
             '2008': { year: '2008', title: 'Fotografie z roku 2008', points: [] },
             '2009': { year: '2009', title: 'Fotografie z roku 2009', points: [] },
             '2010': { year: '2010', title: 'Fotografie z roku 2010', points: [] },
@@ -691,12 +673,8 @@
                 folders.forEach(function (folder) {
                     const key = folderNameToKey((folder.parentFolder || '') + '-' + folder.folder);
                     const conf = FOLDER_TEXT_CONFIG[folder.folder] || {};
-                    const parentLabel = folder.parentFolder || '';
-                    // If folder name differs from year, combine year + title to avoid duplicates
-                    const selfLabel = conf.year && conf.title && folder.folder !== conf.year
-                        ? conf.year + ' – ' + conf.title
-                        : (conf.year || folder.folder);
-                    const label = parentLabel ? parentLabel + ' – ' + folder.folder : selfLabel;
+                    // Always show just the year or historical label — no parent prefix
+                    const label = conf.year || folder.folder;
                     const items = (folder.images || []).map(function (img) {
                         return { src: img.url, alt: folder.folder };
                     });
@@ -711,15 +689,12 @@
                     }
                 });
 
-                // Sort: by year, sub-subfolders grouped after their parent
+                // Sort: Historické first, then by year ascending
                 const yearOrder = { 'Historické': -1 };
                 cloudinaryAlbumMeta.sort((a, b) => {
-                    const aY = parseInt(a.sortKey) || yearOrder[a.sortKey] || 9999;
-                    const bY = parseInt(b.sortKey) || yearOrder[b.sortKey] || 9999;
+                    const aY = parseInt(a.sortKey) || yearOrder[a.label] || 9999;
+                    const bY = parseInt(b.sortKey) || yearOrder[b.label] || 9999;
                     if (aY !== bY) return aY - bY;
-                    // Same parent: parent block first, then sub-subfolders
-                    if (!a.parentFolder && b.parentFolder) return -1;
-                    if (a.parentFolder && !b.parentFolder) return 1;
                     return a.label.localeCompare(b.label);
                 });
                 
@@ -737,8 +712,7 @@
             var tabsEl = document.getElementById('albumTabs');
             var staticTabs = '<button class="album-tab active" data-album="instagram"><i class="fab fa-instagram"></i> Instagram</button>';
             var dynamicTabs = cloudinaryAlbumMeta.map(function (m) {
-                const cls = m.parentFolder ? 'album-tab album-tab--sub' : 'album-tab';
-                return '<button class="' + cls + '" data-album="' + m.key + '">' + m.label + '</button>';
+                return '<button class="album-tab" data-album="' + m.key + '">' + m.label + '</button>';
             }).join('');
             tabsEl.innerHTML = staticTabs + dynamicTabs;
         }
