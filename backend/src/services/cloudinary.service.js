@@ -30,8 +30,13 @@ function isConfigured() {
  */
 function addAutoTransform(url) {
   if (!url) return url;
-  // Insert f_auto,q_auto after /upload/ (before version or public_id)
   return url.replace('/image/upload/', '/image/upload/f_auto,q_auto/');
+}
+
+const NON_IMAGE_FORMATS = new Set(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar']);
+
+function isDisplayableImage(resource) {
+  return !NON_IMAGE_FORMATS.has((resource.format || '').toLowerCase());
 }
 
 
@@ -139,7 +144,9 @@ async function collectAllFolderBlocks() {
       if (nextCursor) params.next_cursor = nextCursor;
       const result = await cloudinary.api.resources_by_asset_folder(sub.path, params);
       for (const r of (result.resources || [])) {
-        images.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
+        if (isDisplayableImage(r)) {
+          images.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
+        }
       }
       nextCursor = result.next_cursor || null;
     } while (nextCursor);
@@ -156,7 +163,9 @@ async function collectAllFolderBlocks() {
             if (cursor) p.next_cursor = cursor;
             const res = await cloudinary.api.resources_by_asset_folder(ss.path, p);
             for (const r of (res.resources || [])) {
-              subImages.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
+              if (isDisplayableImage(r)) {
+                subImages.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
+              }
             }
             cursor = res.next_cursor || null;
           } while (cursor);
