@@ -630,7 +630,10 @@
         let CLOUDINARY_ALBUMS = {};
         let cloudinaryAlbumMeta = [];
 
+        const FOLDER_BLACKLIST = ['blog', 'Sponzori'];
+
         const FOLDER_TEXT_CONFIG = {
+            'História': { year: 'Historické', points: ['Archívne zábery klubu.'] },
             'HISTORIA': { year: 'Historické', points: ['Archívne zábery klubu.'] },
             '2005': { year: '2005', title: 'Fotografie z roku 2005', points: [] },
             '2006-2007': { year: '2006 – 2007',points: [] },
@@ -647,7 +650,9 @@
             '2018': { year: '2018', title: 'Fotografie z roku 2018', points: [] },
             '2023': { year: '2023', title: 'Fotografie z roku 2023', points: [] },
             '2024': { year: '2024', title: 'Fotografie z roku 2024', points: [] },
-            '2025': { year: '2025', title: 'Fotografie z roku 2025', points: [] }
+            '2025': { year: '2025', title: 'Fotografie z roku 2025', points: [] },
+            'VÝSTAVBA MULTIFUNKČNÉHO IHRISKA': { year: 'Výstavba ihriska', title: 'Výstavba multifunkčného ihriska', points: [] },
+            'VÝSTAVBA ŠATNÍ': { year: 'Výstavba šatní', title: 'Výstavba šatní', points: [] }
         };
         function folderNameToKey(name) {
             return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -671,6 +676,11 @@
                 cloudinaryAlbumMeta = [];
 
                 folders.forEach(function (folder) {
+                    // Skip blacklisted folders (blog, Sponzori)
+                    const folderName = folder.folder || '';
+                    const parentName = folder.parentFolder || '';
+                    if (FOLDER_BLACKLIST.some(b => b.toLowerCase() === folderName.toLowerCase() || b.toLowerCase() === parentName.toLowerCase())) return;
+
                     const items = (folder.images || []).map(function (img) {
                         return { src: img.url, alt: folder.folder };
                     });
