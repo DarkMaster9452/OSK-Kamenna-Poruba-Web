@@ -23,6 +23,17 @@ function isConfigured() {
   return configured;
 }
 
+/**
+ * Add f_auto,q_auto transformation to a Cloudinary secure_url.
+ * This ensures images are delivered in a browser-friendly format (WebP/AVIF)
+ * and handles originals in HEIC, TIFF, BMP etc. that browsers can't display.
+ */
+function addAutoTransform(url) {
+  if (!url) return url;
+  // Insert f_auto,q_auto after /upload/ (before version or public_id)
+  return url.replace('/image/upload/', '/image/upload/f_auto,q_auto/');
+}
+
 
 function makeUnconfiguredResponse(resource) {
   return {
@@ -96,21 +107,13 @@ async function listAllSubFolders(folderPath) {
 }
 
 async function collectAllFolderBlocks() {
-  console.log(`[Cloudinary] Starting folder scan...`);
-
-  // Determine root folder — env var avoids root_folders() Admin API call
   const rootFolder = env.cloudinaryRootFolder;
   let subs = [];
 
-  console.log(`[Cloudinary] rootFolder="${rootFolder}" (truthy=${!!rootFolder})`);
-
   if (rootFolder) {
-    console.log(`[Cloudinary] Listing sub_folders of rootFolder: "${rootFolder}"`);
     subs = await listAllSubFolders(rootFolder);
-    console.log(`[Cloudinary] sub_folders returned ${subs.length} items: ${subs.map(s => s.name).join(', ')}`);
   } else {
     const roots = await listAllRootFolders();
-    console.log(`[Cloudinary] root_folders returned ${roots.length} items: ${roots.map(r => r.name).join(', ')}`);
     for (const root of roots) {
       const rootSubs = await listAllSubFolders(root.path);
       subs.push(...rootSubs);
@@ -126,8 +129,6 @@ async function collectAllFolderBlocks() {
     return [];
   }
 
-  console.log(`[Cloudinary] Found ${subs.length} folders after filtering. Fetching images...`);
-
   // For each folder, fetch its direct images AND images from sub-subfolders
   async function fetchFolderWithSubfolders(sub) {
     // 1. Fetch direct images in this folder
@@ -138,7 +139,7 @@ async function collectAllFolderBlocks() {
       if (nextCursor) params.next_cursor = nextCursor;
       const result = await cloudinary.api.resources_by_asset_folder(sub.path, params);
       for (const r of (result.resources || [])) {
-        images.push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
+        images.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
       }
       nextCursor = result.next_cursor || null;
     } while (nextCursor);
@@ -155,7 +156,7 @@ async function collectAllFolderBlocks() {
             if (cursor) p.next_cursor = cursor;
             const res = await cloudinary.api.resources_by_asset_folder(ss.path, p);
             for (const r of (res.resources || [])) {
-              subImages.push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
+              subImages.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
             }
             cursor = res.next_cursor || null;
           } while (cursor);
@@ -173,10 +174,7 @@ async function collectAllFolderBlocks() {
   }
 
   const results = await Promise.all(subs.map(fetchFolderWithSubfolders));
-  const blocks = results.filter((r) => r.images.length > 0);
-
-  console.log(`[Cloudinary] Scan complete. Found ${blocks.length} blocks.`);
-  return blocks;
+  return results.filter((r) => r.images.length > 0);
 }
 
 async function getTimelineData({ forceRefresh = false } = {}) {
@@ -192,9 +190,7 @@ async function getTimelineData({ forceRefresh = false } = {}) {
   }
 
   try {
-    console.log(`[Cloudinary] Refreshing timeline data from API...`);
     const folders = await collectAllFolderBlocks();
-    console.log(`[Cloudinary] Found ${folders.length} total image blocks/folders`);
 
     const normalized = {
       source: 'cloudinary.timeline',
@@ -205,9 +201,8 @@ async function getTimelineData({ forceRefresh = false } = {}) {
     if (folders.length > 0) {
       const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
       await writeCache('cloudinary_timeline', normalized, ttl);
-      console.log(`[Cloudinary] Timeline data written to cache (TTL: ${ttl / 1000}s)`);
     } else {
-      console.warn(`[Cloudinary] No folders found. Not caching empty result to allow retry.`);
+      console.warn(`[Cloudinary] No folders found — not caching empty result.`);
     }
 
     return { ...normalized, cache: 'MISS' };
