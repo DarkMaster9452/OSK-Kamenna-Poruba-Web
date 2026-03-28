@@ -3542,10 +3542,7 @@
             const totalCount = instagramFeedItems.length;
             const remaining = totalCount - instagramRenderedCount;
 
-            statusNode.hidden = totalCount === 0;
-            if (totalCount > 0) {
-                statusNode.textContent = `Instagram: zobrazené ${instagramRenderedCount} z ${totalCount} príspevkov.`;
-            }
+            statusNode.hidden = true;
 
             if (remaining > 0) {
                 loadMoreBtn.hidden = false;
