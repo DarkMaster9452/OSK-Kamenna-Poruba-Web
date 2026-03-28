@@ -106,13 +106,13 @@ async function collectAllFolderBlocks() {
     // 1 Admin API call: sub_folders of known root
     subs = await listAllSubFolders(rootFolder);
   } else {
-    // 2 Admin API calls: root_folders + sub_folders
-    const roots = await listAllRootFolders();
-    for (const root of roots) {
-      const rootSubs = await listAllSubFolders(root.path);
-      subs.push(...rootSubs);
-    }
+    // Use root folders directly — prefix-based fetch includes all sub-folder images
+    subs = await listAllRootFolders();
   }
+
+  // Filter out folders that should not appear in the gallery
+  const FOLDER_BLACKLIST = ['blog', 'sponzori'];
+  subs = subs.filter((s) => !FOLDER_BLACKLIST.includes(s.name.toLowerCase()));
 
   if (subs.length === 0) {
     console.warn(`[Cloudinary] No subfolders found.`);
