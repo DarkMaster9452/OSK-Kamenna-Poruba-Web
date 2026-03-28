@@ -1677,9 +1677,11 @@
 
         .gallery-actions {
             margin-top: 24px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
             width: 100%;
-            clear: both;
         }
 
         .gallery-load-more-btn {
@@ -1697,7 +1699,7 @@
         }
 
         .instagram-status {
-            margin: 8px 0 0;
+            margin: 0;
             color: #3f4f77;
             font-size: 14px;
         }
@@ -2935,10 +2937,10 @@
             </div>
 
             <div class="gallery-actions">
+                <p class="instagram-status" id="instagramGalleryStatus" hidden></p>
                 <button type="button" class="gallery-load-more-btn" id="instagramLoadMoreBtn" hidden>
                     Načítať viac
                 </button>
-                <p class="instagram-status" id="instagramGalleryStatus" hidden></p>
             </div>
 
             <!-- Modal for zoomed image -->
