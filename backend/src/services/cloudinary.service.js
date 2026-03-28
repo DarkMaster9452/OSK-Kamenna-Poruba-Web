@@ -102,17 +102,39 @@ async function collectAllFolderBlocks() {
   const rootFolder = env.cloudinaryRootFolder;
   let subs = [];
 
+  const FOLDER_BLACKLIST = ['blog', 'sponzori'];
+
   if (rootFolder) {
     // 1 Admin API call: sub_folders of known root
-    subs = await listAllSubFolders(rootFolder);
+    const allSubs = await listAllSubFolders(rootFolder);
+    // Check each subfolder for sub-subfolders and flatten
+    for (const sub of allSubs) {
+      if (FOLDER_BLACKLIST.includes(sub.name.toLowerCase())) continue;
+      const subSubs = await listAllSubFolders(sub.path);
+      if (subSubs.length > 0) {
+        // Has sub-subfolders: tag each with parentFolder for frontend merging
+        for (const ss of subSubs) {
+          subs.push({ ...ss, parentFolder: sub.name });
+        }
+      } else {
+        subs.push(sub);
+      }
+    }
   } else {
-    // Use root folders directly — prefix-based fetch includes all sub-folder images
-    subs = await listAllRootFolders();
+    // 2 Admin API calls: root_folders + sub_folders
+    const roots = await listAllRootFolders();
+    for (const root of roots) {
+      if (FOLDER_BLACKLIST.includes(root.name.toLowerCase())) continue;
+      const rootSubs = await listAllSubFolders(root.path);
+      if (rootSubs.length > 0) {
+        for (const rs of rootSubs) {
+          subs.push({ ...rs, parentFolder: root.name });
+        }
+      } else {
+        subs.push(root);
+      }
+    }
   }
-
-  // Filter out folders that should not appear in the gallery
-  const FOLDER_BLACKLIST = ['blog', 'sponzori'];
-  subs = subs.filter((s) => !FOLDER_BLACKLIST.includes(s.name.toLowerCase()));
 
   if (subs.length === 0) {
     console.warn(`[Cloudinary] No subfolders found.`);
@@ -140,7 +162,7 @@ async function collectAllFolderBlocks() {
       }
       nextCursor = result.next_cursor || null;
     } while (nextCursor);
-    return { folder: sub.name, path: sub.path, images };
+    return { folder: sub.name, path: sub.path, images, parentFolder: sub.parentFolder || null };
   }
 
   const results = await Promise.all(subs.map(fetchSubfolderImages));
