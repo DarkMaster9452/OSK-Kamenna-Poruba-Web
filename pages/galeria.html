@@ -676,52 +676,51 @@
                 cloudinaryAlbumMeta = [];
 
                 folders.forEach(function (folder) {
-                    // Skip blacklisted folders (blog, Sponzori)
                     const folderName = folder.folder || '';
-                    const parentName = folder.parentFolder || '';
-                    if (FOLDER_BLACKLIST.some(b => b.toLowerCase() === folderName.toLowerCase() || b.toLowerCase() === parentName.toLowerCase())) return;
+                    const folderPath = folder.path || folderName;
+
+                    // Detect parent from path: e.g. "OSK/2023/pristresok" → parent "2023"
+                    // or "2023/pristresok" → parent "2023"
+                    const pathParts = folderPath.split('/');
+                    var parentName = null;
+                    if (pathParts.length >= 2) {
+                        parentName = pathParts[pathParts.length - 2];
+                    }
+
+                    // Skip blacklisted folders (by folder name or parent name)
+                    if (FOLDER_BLACKLIST.some(function(b) {
+                        return b.toLowerCase() === folderName.toLowerCase() ||
+                               (parentName && b.toLowerCase() === parentName.toLowerCase());
+                    })) return;
 
                     const items = (folder.images || []).map(function (img) {
-                        return { src: img.url, alt: folder.folder };
+                        return { src: img.url, alt: folderName };
                     });
                     if (!items.length) return;
 
-                    if (folder.parentFolder) {
-                        // Sub-folder: merge images into the parent year album
-                        const parentKey = folderNameToKey('-' + folder.parentFolder);
-                        if (CLOUDINARY_ALBUMS[parentKey]) {
-                            // Parent already exists — just append images
-                            CLOUDINARY_ALBUMS[parentKey] = CLOUDINARY_ALBUMS[parentKey].concat(items);
-                        } else {
-                            // Parent not yet created — create it now
-                            const parentConf = FOLDER_TEXT_CONFIG[folder.parentFolder] || {};
-                            const parentLabel = parentConf.year || folder.parentFolder;
-                            CLOUDINARY_ALBUMS[parentKey] = items;
-                            cloudinaryAlbumMeta.push({
-                                key: parentKey,
-                                label: parentLabel,
-                                folderRaw: folder.parentFolder,
-                                conf: parentConf,
-                                parentFolder: null,
-                                sortKey: folder.parentFolder
-                            });
-                        }
+                    // Determine effective album name: use parent if it exists in FOLDER_TEXT_CONFIG
+                    var albumName = folderName;
+                    if (parentName && FOLDER_TEXT_CONFIG[parentName]) {
+                        albumName = parentName;
+                    }
+
+                    const key = folderNameToKey('-' + albumName);
+                    const conf = FOLDER_TEXT_CONFIG[albumName] || {};
+                    const label = conf.year || albumName;
+
+                    if (CLOUDINARY_ALBUMS[key]) {
+                        // Album already exists — append images
+                        CLOUDINARY_ALBUMS[key] = CLOUDINARY_ALBUMS[key].concat(items);
                     } else {
-                        // Top-level folder: create its own album (if not already created by a sub-folder above)
-                        const key = folderNameToKey('-' + folder.folder);
-                        const conf = FOLDER_TEXT_CONFIG[folder.folder] || {};
-                        const label = conf.year || folder.folder;
-                        if (CLOUDINARY_ALBUMS[key]) {
-                            // Already created via sub-folder logic — append
-                            CLOUDINARY_ALBUMS[key] = CLOUDINARY_ALBUMS[key].concat(items);
-                        } else {
-                            CLOUDINARY_ALBUMS[key] = items;
-                            cloudinaryAlbumMeta.push({
-                                key, label, folderRaw: folder.folder, conf,
-                                parentFolder: null,
-                                sortKey: folder.folder
-                            });
-                        }
+                        CLOUDINARY_ALBUMS[key] = items;
+                        cloudinaryAlbumMeta.push({
+                            key: key,
+                            label: label,
+                            folderRaw: albumName,
+                            conf: conf,
+                            parentFolder: null,
+                            sortKey: albumName
+                        });
                     }
                 });
 
