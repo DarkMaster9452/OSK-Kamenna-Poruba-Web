@@ -102,20 +102,26 @@ async function collectAllFolderBlocks() {
   const rootFolder = env.cloudinaryRootFolder;
   let subs = [];
 
+  console.log(`[Cloudinary] rootFolder="${rootFolder}" (type=${typeof rootFolder}, truthy=${!!rootFolder})`);
+
   if (rootFolder) {
     // 1 Admin API call: sub_folders of known root
+    console.log(`[Cloudinary] Listing sub_folders of rootFolder: "${rootFolder}"`);
     subs = await listAllSubFolders(rootFolder);
+    console.log(`[Cloudinary] sub_folders returned ${subs.length} items: ${subs.map(s => s.name).join(', ')}`);
   } else {
     // 2 Admin API calls: root_folders + sub_folders
     const roots = await listAllRootFolders();
+    console.log(`[Cloudinary] root_folders returned ${roots.length} items: ${roots.map(r => r.name).join(', ')}`);
     for (const root of roots) {
       const rootSubs = await listAllSubFolders(root.path);
+      console.log(`[Cloudinary] sub_folders("${root.path}") returned ${rootSubs.length} items`);
       subs.push(...rootSubs);
     }
   }
 
   if (subs.length === 0) {
-    console.warn(`[Cloudinary] No subfolders found.`);
+    console.warn(`[Cloudinary] No subfolders found. Total subs: ${subs.length}`);
     return [];
   }
 
