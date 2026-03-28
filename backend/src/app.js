@@ -53,6 +53,10 @@ function isOriginAllowed(origin, allowedOrigins) {
   });
 }
 
+// Ignore favicon requests (backend is API-only)
+app.get('/favicon.ico', (_req, res) => res.status(204).end());
+app.get('/favicon.png', (_req, res) => res.status(204).end());
+
 app.use(helmet());
 app.use(
   cors({
