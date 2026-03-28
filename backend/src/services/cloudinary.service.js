@@ -23,6 +23,22 @@ function isConfigured() {
   return configured;
 }
 
+/**
+ * Add f_auto,q_auto transformation to a Cloudinary secure_url.
+ * This ensures images are delivered in a browser-friendly format (WebP/AVIF)
+ * and handles originals in HEIC, TIFF, BMP etc. that browsers can't display.
+ */
+function addAutoTransform(url) {
+  if (!url) return url;
+  return url.replace('/image/upload/', '/image/upload/f_auto,q_auto/');
+}
+
+const NON_IMAGE_FORMATS = new Set(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar']);
+
+function isDisplayableImage(resource) {
+  return !NON_IMAGE_FORMATS.has((resource.format || '').toLowerCase());
+}
+
 
 function makeUnconfiguredResponse(resource) {
   return {
@@ -96,17 +112,15 @@ async function listAllSubFolders(folderPath) {
 }
 
 async function collectAllFolderBlocks() {
-  console.log(`[Cloudinary] Starting folder scan...`);
-
-  // Determine root folder — env var avoids root_folders() Admin API call
   const rootFolder = env.cloudinaryRootFolder;
   let subs = [];
 
+  console.log(`[Cloudinary] rootFolder="${rootFolder}" (truthy=${!!rootFolder})`);
+
   if (rootFolder) {
-    // 1 Admin API call: sub_folders of known root
+    console.log(`[Cloudinary] Listing sub_folders of rootFolder: "${rootFolder}"`);
     subs = await listAllSubFolders(rootFolder);
   } else {
-    // 2 Admin API calls: root_folders + sub_folders
     const roots = await listAllRootFolders();
     for (const root of roots) {
       const rootSubs = await listAllSubFolders(root.path);
@@ -114,36 +128,67 @@ async function collectAllFolderBlocks() {
     }
   }
 
+  // Filter out folders that should not appear in the gallery
+  const FOLDER_BLACKLIST = ['blog', 'sponzori'];
+  subs = subs.filter((s) => !FOLDER_BLACKLIST.includes(s.name.toLowerCase()));
+
   if (subs.length === 0) {
     console.warn(`[Cloudinary] No subfolders found.`);
     return [];
   }
 
-  console.log(`[Cloudinary] Found ${subs.length} subfolders. Fetching images in parallel via Admin API...`);
+  console.log(`[Cloudinary] Found ${subs.length} folders after filtering. Fetching images...`);
 
-  // Parallel api.resources() calls — one per subfolder
-  // Parallel avoids Vercel timeout; 24h cache means ≤19 Admin API calls/day total
-  async function fetchSubfolderImages(sub) {
+
+  // For each folder, fetch its direct images AND images from sub-subfolders
+  async function fetchFolderWithSubfolders(sub) {
+    // 1. Fetch direct images in this folder
     const images = [];
     let nextCursor = null;
     do {
-      const params = {
-        type: 'upload',
-        prefix: sub.path + '/',
-        max_results: 500,
-        resource_type: 'image'
-      };
+      const params = { max_results: 500, resource_type: 'image' };
       if (nextCursor) params.next_cursor = nextCursor;
-      const result = await cloudinary.api.resources(params);
+      const result = await cloudinary.api.resources_by_asset_folder(sub.path, params);
       for (const r of (result.resources || [])) {
-        images.push({ url: r.secure_url, publicId: r.public_id, format: r.format || '' });
+        if (isDisplayableImage(r)) {
+          images.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
+        }
       }
       nextCursor = result.next_cursor || null;
     } while (nextCursor);
+
+    // 2. Check for sub-subfolders and fetch their images too
+    try {
+      const subSubs = await listAllSubFolders(sub.path);
+      if (subSubs.length > 0) {
+        const subResults = await Promise.all(subSubs.map(async (ss) => {
+          const subImages = [];
+          let cursor = null;
+          do {
+            const p = { max_results: 500, resource_type: 'image' };
+            if (cursor) p.next_cursor = cursor;
+            const res = await cloudinary.api.resources_by_asset_folder(ss.path, p);
+            for (const r of (res.resources || [])) {
+              if (isDisplayableImage(r)) {
+                subImages.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
+              }
+            }
+            cursor = res.next_cursor || null;
+          } while (cursor);
+          return subImages;
+        }));
+        for (const subImgs of subResults) {
+          images.push(...subImgs);
+        }
+      }
+    } catch (e) {
+      console.warn(`[Cloudinary] Failed to list sub-subfolders of "${sub.path}": ${e.message}`);
+    }
+
     return { folder: sub.name, path: sub.path, images };
   }
 
-  const results = await Promise.all(subs.map(fetchSubfolderImages));
+  const results = await Promise.all(subs.map(fetchFolderWithSubfolders));
   const blocks = results.filter((r) => r.images.length > 0);
 
   console.log(`[Cloudinary] Scan complete. Found ${blocks.length} blocks.`);
@@ -163,9 +208,7 @@ async function getTimelineData({ forceRefresh = false } = {}) {
   }
 
   try {
-    console.log(`[Cloudinary] Refreshing timeline data from API...`);
     const folders = await collectAllFolderBlocks();
-    console.log(`[Cloudinary] Found ${folders.length} total image blocks/folders`);
 
     const normalized = {
       source: 'cloudinary.timeline',
@@ -176,9 +219,8 @@ async function getTimelineData({ forceRefresh = false } = {}) {
     if (folders.length > 0) {
       const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
       await writeCache('cloudinary_timeline', normalized, ttl);
-      console.log(`[Cloudinary] Timeline data written to cache (TTL: ${ttl / 1000}s)`);
     } else {
-      console.warn(`[Cloudinary] No folders found. Not caching empty result to allow retry.`);
+      console.warn(`[Cloudinary] No folders found — not caching empty result.`);
     }
 
     return { ...normalized, cache: 'MISS' };
