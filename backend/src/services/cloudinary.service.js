@@ -115,7 +115,10 @@ async function collectAllFolderBlocks() {
   const rootFolder = env.cloudinaryRootFolder;
   let subs = [];
 
+  console.log(`[Cloudinary] rootFolder="${rootFolder}" (truthy=${!!rootFolder})`);
+
   if (rootFolder) {
+    console.log(`[Cloudinary] Listing sub_folders of rootFolder: "${rootFolder}"`);
     subs = await listAllSubFolders(rootFolder);
   } else {
     const roots = await listAllRootFolders();
@@ -133,6 +136,9 @@ async function collectAllFolderBlocks() {
     console.warn(`[Cloudinary] No subfolders found.`);
     return [];
   }
+
+  console.log(`[Cloudinary] Found ${subs.length} folders after filtering. Fetching images...`);
+
 
   // For each folder, fetch its direct images AND images from sub-subfolders
   async function fetchFolderWithSubfolders(sub) {
@@ -183,7 +189,10 @@ async function collectAllFolderBlocks() {
   }
 
   const results = await Promise.all(subs.map(fetchFolderWithSubfolders));
-  return results.filter((r) => r.images.length > 0);
+  const blocks = results.filter((r) => r.images.length > 0);
+
+  console.log(`[Cloudinary] Scan complete. Found ${blocks.length} blocks.`);
+  return blocks;
 }
 
 async function getTimelineData({ forceRefresh = false } = {}) {
