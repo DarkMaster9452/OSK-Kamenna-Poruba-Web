@@ -6,7 +6,10 @@
       "Read(//c/Users/stran/Documents/GitHub/OSK-Kamenna-Poruba-Web/**)",
       "Bash(done)",
       "Bash(python3 process_pages.py)",
-      "Bash(python3 cleanup_pages.py)"
+      "Bash(python3 cleanup_pages.py)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
