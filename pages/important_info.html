@@ -15,315 +15,289 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-    * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #f4f4f4;
-        color: #333;
-        min-height: 100vh;
-        margin: 0;
-        overflow-x: hidden;
-    }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 40px;
+            background: rgba(0, 0, 0, 0.25);
+            border-bottom: 3px solid #ffd700;
+        }
 
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 28px 20px 40px;
-    }
+        .header h1 {
+            color: #ffd700;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
 
-    .page-title {
-        font-size: 26px;
-        color: #003399;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin: 0 0 28px;
-    }
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffd700;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-    .user-badge {
-        margin-bottom: 16px;
-        font-size: 14px;
-        color: #666;
-        font-weight: 600;
-    }
+        .container {
+            max-width: 1200px;
+            margin: 32px auto;
+            padding: 0 20px 30px;
+        }
 
-    .coach-panel {
-        display: none;
-        background: #fff;
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        padding: 24px;
-        margin-bottom: 28px;
-    }
+        .user-badge {
+            margin-bottom: 20px;
+            color: #ffd700;
+            font-weight: bold;
+        }
 
-    .coach-panel h2 {
-        margin: 0 0 18px;
-        color: #003399;
-        font-size: 20px;
-    }
+        .coach-panel {
+            display: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 28px;
+        }
 
-    .coach-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
+        .coach-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
 
-    .box {
-        background: #f8f9fc;
-        border: 1px solid #e0e7f3;
-        border-radius: 10px;
-        padding: 18px;
-    }
+        .box {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            padding: 14px;
+        }
 
-    .box h3 {
-        margin: 0 0 14px;
-        color: #003399;
-        font-size: 16px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+        .box h3 {
+            margin: 0 0 12px;
+            color: #ffd700;
+            font-size: 18px;
+        }
 
-    .form-group {
-        margin-bottom: 12px;
-    }
+        .form-group {
+            margin-bottom: 10px;
+        }
 
-    .form-group label {
-        display: block;
-        color: #333;
-        font-weight: 600;
-        margin-bottom: 6px;
-        font-size: 13px;
-    }
+        .form-group label {
+            display: block;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
 
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        width: 100%;
-        box-sizing: border-box;
-        border: 1px solid #dde3f0;
-        border-radius: 8px;
-        padding: 10px 12px;
-        font-size: 14px;
-        color: #333;
-        background: #fff;
-        font-family: inherit;
-    }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ffd700;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 14px;
+            color: #003399;
+            background: #fff;
+        }
 
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-        border-color: #003399;
-        outline: none;
-    }
+        .btn {
+            background: #ffd700;
+            color: #003399;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-    .btn {
-        background: #003399;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 18px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 14px;
-        font-family: inherit;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: background 0.2s;
-    }
-    .btn:hover { background: #0041c2; }
+        .events-list {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 16px;
+        }
 
-    /* Events list */
-    .events-list {
-        background: #fff;
-        border-radius: 12px;
-        padding: 22px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
+        .events-list h2 {
+            margin: 0 0 12px;
+            color: #ffd700;
+            font-size: 22px;
+        }
 
-    .events-list h2 {
-        margin: 0 0 14px;
-        color: #003399;
-        font-size: 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
+        .events-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
 
-    .events-actions {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 14px;
-    }
+        .events-seen-status {
+            font-size: 12px;
+            color: #d6dcf5;
+            font-weight: 700;
+        }
 
-    .events-seen-status {
-        font-size: 12px;
-        color: #666;
-        font-weight: 600;
-    }
+        .event-type {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 99px;
+            padding: 2px 8px;
+            margin-bottom: 8px;
+        }
 
-    /* Event type badge */
-    .event-type {
-        display: inline-block;
-        font-size: 11px;
-        font-weight: bold;
-        background: #f0f4ff;
-        color: #003399;
-        border: 1px solid #c8d6ff;
-        border-radius: 99px;
-        padding: 2px 8px;
-        margin-bottom: 8px;
-    }
-    .event-type.notice {
-        background: #fffbea;
-        border-color: #ffd700;
-        color: #8a6800;
-    }
-    .event-type.poll {
-        background: #eef6ff;
-        border-color: #90c8ff;
-        color: #1a6cb8;
-    }
+        .event-type.notice {
+            background: rgba(255, 215, 0, 0.22);
+            border-color: rgba(255, 215, 0, 0.7);
+            color: #ffd700;
+        }
 
-    /* Individual event items */
-    .item {
-        background: #f8f9fc;
-        border: 1px solid #e0e7f3;
-        border-radius: 10px;
-        padding: 14px 16px;
-        margin-bottom: 10px;
-    }
-    .item:last-child { margin-bottom: 0; }
-    .item.notice { border-color: #ffe599; background: #fffdf0; }
-    .item.notice-important {
-        border: 2px solid #ffd700;
-        background: linear-gradient(135deg, #fffbe6 0%, #fff8d6 100%);
-        box-shadow: 0 0 0 3px rgba(255,215,0,0.15);
-    }
-    .item.poll { border-color: #b8d8ff; background: #f5faff; }
+        .event-type.poll {
+            background: rgba(90, 170, 255, 0.22);
+            border-color: rgba(132, 198, 255, 0.75);
+            color: #a8d7ff;
+        }
 
-    .meta {
-        font-size: 12px;
-        color: #888;
-        margin-bottom: 6px;
-    }
+        .item {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
 
-    .title {
-        font-size: 16px;
-        font-weight: bold;
-        margin-bottom: 6px;
-        color: #003399;
-    }
+        .item.notice {
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
 
-    .badge {
-        display: inline-block;
-        font-size: 11px;
-        font-weight: bold;
-        background: #ffd700;
-        color: #003399;
-        padding: 2px 8px;
-        border-radius: 99px;
-        margin-left: 8px;
-    }
+        .item.notice-important {
+            border: 2px solid #ffd700;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.18) 0%, rgba(0, 0, 0, 0.2) 100%);
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+        }
 
-    /* Poll */
-    .poll-options {
-        display: grid;
-        gap: 8px;
-        margin: 10px 0;
-    }
-    .poll-option-btn {
-        width: 100%;
-        text-align: left;
-        background: #fff;
-        color: #333;
-        border: 1px solid #dde3f0;
-        border-radius: 8px;
-        padding: 10px 12px;
-        cursor: pointer;
-        font-size: 14px;
-        font-family: inherit;
-        transition: border-color 0.2s;
-    }
-    .poll-option-btn:hover { border-color: #003399; }
-    .poll-option-btn.selected {
-        border-color: #003399;
-        background: #eef3ff;
-        color: #003399;
-        font-weight: bold;
-    }
-    .result-row {
-        display: flex;
-        justify-content: space-between;
-        font-size: 13px;
-        margin-top: 4px;
-        color: #555;
-    }
+        .item.poll {
+            border: 1px solid rgba(132, 198, 255, 0.45);
+            background: rgba(18, 46, 94, 0.35);
+        }
 
-    .empty {
-        color: #888;
-        text-align: center;
-        padding: 20px 8px;
-        font-size: 15px;
-    }
+        .item:last-child {
+            margin-bottom: 0;
+        }
 
-    /* Action buttons on items */
-    .delete-btn {
-        background: #ffeaea;
-        color: #e74c3c;
-        border: 1px solid #f5c6c6;
-        border-radius: 6px;
-        padding: 6px 10px;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: bold;
-        margin-top: 8px;
-        font-family: inherit;
-        transition: background 0.2s;
-    }
-    .delete-btn:hover { background: #e74c3c; color: #fff; }
+        .meta {
+            font-size: 12px;
+            color: #cdd8ff;
+            margin-bottom: 8px;
+        }
 
-    .seen-btn {
-        border-radius: 999px;
-        border: 1px solid #dde3f0;
-        background: #fff;
-        color: #666;
-        padding: 6px 16px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: inherit;
-        transition: border-color 0.2s, color 0.2s;
-    }
-    .seen-btn:hover { border-color: #003399; color: #003399; }
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #ffd700;
+        }
 
-    /* btn-back (not currently used but keep for safety) */
-    .btn-back {
-        background: rgba(255,255,255,0.1);
-        color: #ffd700;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+        .badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: bold;
+            background: #ffd700;
+            color: #003399;
+            padding: 2px 8px;
+            border-radius: 99px;
+            margin-left: 8px;
+        }
 
-    @media (max-width: 900px) {
-        .coach-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 600px) {
-        .container { padding: 20px 14px 32px; }
-        .page-title { font-size: 20px; }
-        .events-list { padding: 16px; }
-        .coach-panel { padding: 16px; }
-    }
-</style>
+        .poll-options {
+            display: grid;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .poll-option-btn {
+            width: 100%;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 6px;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .poll-option-btn.selected {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .empty {
+            color: #d6dcf5;
+            text-align: center;
+            padding: 16px 8px;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 7px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .seen-btn {
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border 0.2s, color 0.2s;
+        }
+
+        .seen-btn:hover {
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        @media (max-width: 900px) {
+            .coach-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
 
@@ -381,12 +355,15 @@
     <script src="/assets/js/header.js"></script>
     <div id="site-header-root"></div>
 
+    <div class="header">
+        <h1><i class="fas fa-bullhorn"></i> Dôležité informácie</h1>
+    </div>
+
     <div class="container">
-        <h1 class="page-title"><i class="fas fa-bullhorn"></i> Dôležité informácie</h1>
         <div class="user-badge" id="userBadge"></div>
 
         <div class="coach-panel" id="coachPanel">
-            <h2 style="margin-top:0;">Trénerská správa oznamov</h2>
+            <h2 style="margin-top:0;color:#ffd700;">Trénerská správa oznamov</h2>
             <div class="coach-grid">
                 <div class="box">
                     <h3><i class="fas fa-bullhorn"></i> Nové oznámenie</h3>
@@ -1057,3 +1034,5 @@
 </body>
 
 </html>
+
+
