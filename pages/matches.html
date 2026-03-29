@@ -313,7 +313,7 @@
         }
 
         .standings-title {
-            text-align: left; 
+            text-align: center; 
             color: #003399; 
             margin: 40px 0 24px; 
             font-size: 30px; 
@@ -323,13 +323,14 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            justify-content: center;
         }
 
         /* Standings category tabs */
         .standings-tabs {
             display: flex;
             flex-wrap: wrap;
-            justify-content: flex-start;
+            justify-content: center;
             gap: 8px;
             margin-bottom: 28px;
         }
@@ -837,21 +838,22 @@
             const container = document.getElementById('sportsnetInfo');
             if (!container) return;
 
-            const fetchedText = SPORTSNET_INFO.fetchedAt
-                ? new Date(SPORTSNET_INFO.fetchedAt).toLocaleString('sk-SK')
-                : 'neuvedené';
+            const fetchedAt = SPORTSNET_INFO.fetchedAt || Date.now();
+            const fetchedText = new Date(fetchedAt).toLocaleString('sk-SK');
+            
+            // Cache TTL is 4 hours
+            const nextUpdateAt = fetchedAt + (4 * 60 * 60 * 1000);
+            const nextUpdateText = new Date(nextUpdateAt).toLocaleString('sk-SK');
 
             container.innerHTML = `
                 <div class="sportsnet-info-header">
                     <i class="fas fa-satellite-dish"></i>
-                    Sportsnet API
-                    <span class="sportsnet-chip">${SPORTSNET_INFO.status}</span>
+                    Informácie o prepojení (Sportsnet API)
                 </div>
                 <div class="sportsnet-info-grid">
-                    <div><strong>Zdroj:</strong> ${SPORTSNET_INFO.source || 'neuvedené'}</div>
-                    <div><strong>Počet zápasov:</strong> ${SPORTSNET_INFO.count ?? 0}</div>
-                    <div><strong>Cache:</strong> ${SPORTSNET_INFO.cache || 'neuvedené'}</div>
-                    <div><strong>Načítané:</strong> ${fetchedText}</div>
+                    <div><strong>Stav API:</strong> <span class="sportsnet-chip" style="background:#2ecc71; color:white; margin:0; display:inline-block; vertical-align:middle;">${SPORTSNET_INFO.status}</span></div>
+                    <div><strong>Posledná aktualizácia:</strong> ${fetchedText}</div>
+                    <div><strong>Nasledujúca aktualizácia:</strong> ${nextUpdateText}</div>
                 </div>
             `;
         }
