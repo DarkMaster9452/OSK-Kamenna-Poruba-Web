@@ -189,6 +189,101 @@
         .view-details-btn:hover {
             background: linear-gradient(135deg, #1a5ccc 0%, #003399 100%);
         }
+
+        /* Sportsnet Info Tab Styles */
+        .sportsnet-info {
+            background: rgba(0, 51, 153, 0.04);
+            border: 1px solid rgba(0, 51, 153, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 30px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .sportsnet-info-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #003399;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sportsnet-chip {
+            background: #ffd700;
+            color: #003399;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .sportsnet-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .sportsnet-info-grid strong {
+            color: #1a1a1a;
+            margin-right: 4px;
+        }
+
+        /* Category Tabs Styles */
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .category-tab {
+            background: white;
+            border: 1px solid #dcdde1;
+            color: #57606f;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .category-tab:hover {
+            border-color: #003399;
+            color: #003399;
+            background: rgba(0, 51, 153, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .category-tab.active {
+            background: #003399;
+            border-color: #003399;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 51, 153, 0.2);
+        }
+
+        #matchStatusTabs .category-tab {
+            padding: 8px 18px;
+            font-size: 14px;
+        }
+
+        #standingsTabs .category-tab {
+            padding: 6px 14px;
+            font-size: 13px;
+        }
+
+        #categoryTabs.category-tabs {
+            margin-top: 10px;
+        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -204,7 +299,7 @@
         <div id="sportsnetInfo" class="sportsnet-info"></div>
 
         <!-- Filtre podla statusu -->
-        <div class="category-tabs" id="matchStatusTabs" style="justify-content: center; margin-bottom: 20px;">
+        <div class="category-tabs" id="matchStatusTabs">
             <button class="category-tab active" data-match-type="upcoming" onclick="setMatchType('upcoming')">Nadchádzajúce</button>
             <button class="category-tab" data-match-type="finished" onclick="setMatchType('finished')">Odohrané</button>
         </div>
@@ -220,7 +315,7 @@
             <h2 style="text-align: center; color: #003399; margin-bottom: 24px; font-size: 32px; margin-top: 40px;">
                 <i class="fas fa-ranking-star"></i> Tabuľka súťaže
             </h2>
-            <div class="category-tabs" id="standingsTabs" style="justify-content: center; margin-bottom: 20px;">
+            <div class="category-tabs" id="standingsTabs">
                 <button class="category-tab active" data-cat="dospeli">Dospelí</button>
                 <button class="category-tab" data-cat="dorast">Dorast</button>
                 <button class="category-tab" data-cat="ziaci">Žiaci</button>
