@@ -512,8 +512,10 @@
                     <li><a href="/pages/galeria.html">Galéria</a></li>
                     <li><a href="/pages/blog.html">Blog</a></li>
                     <li><a href="/index.html#contact">Kontakt</a></li>
-                    <li id="shTrainingNavLink" style="display:none"><a href="/pages/trainings.html"><i class="fas fa-dumbbell"></i> Tréningy</a></li>
-                    <li id="shInfoNavLink" style="display:none"><a href="/pages/important_info.html"><i class="fas fa-bullhorn"></i> Dôležité info</a></li>
+                    <li id="coachAccountMgmtBtn" style="display:none;"><a href="/pages/account_management.html"><i class="fas fa-users-cog"></i> Správa účtov</a></li>
+                    <li id="coachGroupsBtn" style="display:none;"><a href="/pages/skupiny.html"><i class="fas fa-layer-group"></i> Skupiny</a></li>
+                    <li id="shTrainingNavLink" style="display:none"><a href="#" onclick="goToTrainings(event)"><i class="fas fa-dumbbell"></i> Tréningy</a></li>
+                    <li id="shInfoNavLink" style="display:none"><a href="#" onclick="goToImportantInfo(event)" id="infoNavLink"><i class="fas fa-bullhorn"></i> Dôležité info</a></li>
                     <li class="sh-mobile-login"><a href="/index.html" class="sh-login-btn" id="shMobileLoginBtn">Prihlásiť sa</a></li>
                 </ul>
             </nav>
@@ -859,9 +861,15 @@
                         if (trainLink) trainLink.style.display = '';
                         if (infoLink) infoLink.style.display = '';
                     }
+                    if (user.role === 'admin') {
+                        var mgmtBtn = document.getElementById('coachAccountMgmtBtn');
+                        if (mgmtBtn) mgmtBtn.style.display = '';
+                    }
                 }
             } catch(e) {}
 })();
+        function goToTrainings(e) { e.preventDefault(); window.location.href = '/pages/trainings.html'; }
+        function goToImportantInfo(e) { e.preventDefault(); window.location.href = '/pages/important_info.html'; }
     </script>
 <script src="/assets/js/cloudinary-assets.js"></script>
 </body>
