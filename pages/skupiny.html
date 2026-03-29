@@ -95,6 +95,167 @@
             color: #fff;
             transform: translateY(-1px);
         }
+
+        .muted { color: #666; font-size: 14px; }
+        
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .form-row label {
+            width: 140px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-row input[type="text"] {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .search-input {
+            width: 250px !important;
+            margin-bottom: 10px;
+        }
+
+        .player-checklist {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fdfdfd;
+            flex: 1;
+        }
+
+        .player-check-item {
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .player-check-item:last-child { border-bottom: none; }
+        .player-check-item:hover { background: #f9f9f9; }
+        .player-check-item input { cursor: pointer; }
+        .player-check-item label { width: auto; font-weight: normal; cursor: pointer; }
+
+        .msg { padding: 12px; border-radius: 8px; margin-bottom: 20px; display: none; font-weight: bold; }
+        .msg.error { display: block; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .msg.success { display: block; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+        .group-card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fafafa;
+        }
+
+        .group-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .group-card-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #003399;
+        }
+
+        .group-card-meta {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .group-card-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .member-tag {
+            background: #eef2ff;
+            color: #4338ca;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Mobile UI Improvements */
+        @media (max-width: 768px) {
+            main {
+                margin: 12px auto;
+                padding: 0 10px 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+
+            .card {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .card h3 {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .player-check-item {
+                padding: 10px;
+            }
+
+            .group-card {
+                padding: 15px;
+            }
+
+            .group-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .group-card-title {
+                font-size: 18px;
+            }
+
+            .group-card-meta {
+                font-size: 11px;
+            }
+
+            .member-tag {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>

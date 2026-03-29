@@ -342,6 +342,120 @@
         .btn-unknown:hover {
             opacity: 0.85;
         }
+
+        /* Mobile UI Improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+                justify-content: center;
+            }
+
+            .header-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .user-info {
+                width: 100%;
+                justify-content: center;
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .coach-form {
+                padding: 20px 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-create {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .training-card {
+                padding: 15px;
+            }
+
+            .training-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .profile-card {
+                padding: 15px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .button-group {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+            .btn-yes, .btn-no, .btn-unknown {
+                padding: 10px 5px;
+                font-size: 12px;
+                text-align: center;
+                justify-content: center;
+            }
+
+            .subtraining-row {
+                grid-template-columns: 1fr !important;
+                background: rgba(255,255,255,0.05);
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid rgba(255,215,0,0.2);
+            }
+
+            .assignment-item {
+                grid-template-columns: 1fr !important;
+                gap: 4px !important;
+            }
+        }
+
+        .subtraining-row {
+            display: grid;
+            grid-template-columns: 1.3fr 1.1fr 1.1fr 0.8fr auto;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .assignment-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            align-items: center;
+            background: rgba(255,255,255,0.08);
+            padding: 8px 10px;
+            border-radius: 6px;
+        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -1238,21 +1352,20 @@
                     const endParts = splitTime(group && group.endTime ? group.endTime : '', '18', '00');
                     const row = document.createElement('div');
                     row.className = 'subtraining-row';
-                    row.style.display = 'grid';
-                    row.style.gridTemplateColumns = '1.3fr 1.1fr 1.1fr 0.8fr auto';
-                    row.style.gap = '8px';
                     row.innerHTML = `
                         <input class="sub-name" type="text" placeholder="Názov podtréningu" value="${escapeHtml(group && group.name ? group.name : '')}" style="padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">
                         <div style="display:flex;gap:6px;align-items:center;">
+                            <span style="font-size:11px;color:#ffd700;min-width:35px;">Od:</span>
                             <select class="sub-start-hour" style="flex:1;padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">${hourOptionsHtml}</select>
                             <select class="sub-start-minute" style="flex:1;padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">${minuteOptionsHtml}</select>
                         </div>
                         <div style="display:flex;gap:6px;align-items:center;">
+                            <span style="font-size:11px;color:#ffd700;min-width:35px;">Do:</span>
                             <select class="sub-end-hour" style="flex:1;padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">${hourOptionsHtml}</select>
                             <select class="sub-end-minute" style="flex:1;padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">${minuteOptionsHtml}</select>
                         </div>
-                        <input class="sub-max" type="number" min="1" max="200" value="${group && group.maxPlayers ? Number(group.maxPlayers) : ''}" placeholder="Max hráčov" style="padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">
-                        <button type="button" class="remove-sub-row" style="padding:8px 10px;border:none;border-radius:6px;background:#e74c3c;color:#fff;cursor:pointer;">X</button>
+                        <input class="sub-max" type="number" min="1" max="200" value="${group && group.maxPlayers ? Number(group.maxPlayers) : ''}" placeholder="Kapacita" style="padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">
+                        <button type="button" class="remove-sub-row" style="padding:8px 10px;border:none;border-radius:6px;background:#e74c3c;color:#fff;cursor:pointer;width:100%;"><i class="fas fa-trash"></i> Zmazať</button>
                     `;
 
                     const startHourSelect = row.querySelector('.sub-start-hour');
@@ -1314,8 +1427,8 @@
                         }).join('');
 
                         return `
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center;">
-                                <div style="padding:8px 10px;background:rgba(255,255,255,0.08);border-radius:6px;">${escapeHtml(entry.playerUsername)}</div>
+                            <div class="assignment-item">
+                                <div style="font-weight:bold;color:#ffd700;">${escapeHtml(entry.playerUsername)}</div>
                                 <select data-player="${escapeHtml(entry.playerUsername)}" class="assignment-select" style="padding:9px;border-radius:6px;border:1px solid #ffd700;background:#fff;color:#111;">${optionsHtml}</select>
                             </div>
                         `;
