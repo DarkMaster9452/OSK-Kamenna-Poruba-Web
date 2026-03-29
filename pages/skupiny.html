@@ -18,228 +18,75 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f9f9f9;
+            background: #f4f4f4;
             color: #333;
         }
 
-        .hero {
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 80px 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-image: linear-gradient(rgba(0, 51, 153, 0.8), rgba(0, 51, 153, 0.8)), url('https://res.cloudinary.com/dcb77v7p0/image/upload/v1740237748/f92ae0fd-8557-4b57-9db6-728b1ca375ba_ncmmup.jpg');
-        }
-
-        .hero h1 {
-            font-size: 42px;
-            margin-bottom: 10px;
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .hero p {
-            font-size: 18px;
-            max-width: 600px;
-            opacity: 0.9;
-        }
-
         main {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px 60px;
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 0 16px 24px;
         }
 
-        h2, h3 {
+        .page-title {
+            margin: 0 0 24px;
+            font-size: 30px;
             color: #003399;
-            margin-bottom: 25px;
-            display: inline-block;
-            border-bottom: 3px solid #ffd700;
-            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .card {
             background: #fff;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            margin-bottom: 30px;
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .form-row {
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
 
-        .form-row label {
-            display: block;
-            font-weight: bold;
+        .card h3 {
+            margin: 0 0 16px;
             color: #003399;
-            margin-bottom: 8px;
-        }
-
-        input[type="text"], .search-input {
-            width: 100%;
-            padding: 12px 18px;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            border-color: #ffd700;
-            outline: none;
-        }
-
-        .player-checklist {
-            max-height: 250px;
-            overflow-y: auto;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 10px;
-            background: #fcfcfc;
-        }
-
-        .player-check-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #f5f5f5;
-        }
-
-        .player-check-item:last-child {
-            border-bottom: none;
-        }
-
-        .player-check-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .player-check-item label {
-            cursor: pointer;
-            font-size: 15px;
         }
 
         .btn {
-            padding: 12px 28px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 30px; /* Fully rounded */
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 15px;
+            gap: 8px;
+            font-size: 14px;
             transition: all 0.3s;
-            text-decoration: none;
         }
 
         .btn-primary {
-            background: #ffd700;
-            color: #003399;
+            background: #003399;
+            color: #fff;
         }
 
         .btn-primary:hover:not(:disabled) {
-            background: #ffed4e;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            background: #002277;
         }
 
         .btn-primary:disabled {
-            background: #eee;
-            color: #999;
+            opacity: 0.5;
             cursor: not-allowed;
         }
 
         .btn-danger {
-            background: #fff;
-            color: #e74c3c;
-            border: 2px solid #e74c3c;
-            padding: 8px 18px;
-            font-size: 14px;
+            background: #e74c3c;
+            color: #fff;
+            padding: 6px 12px;
+            font-size: 13px;
         }
 
         .btn-danger:hover {
-            background: #e74c3c;
-            color: #fff;
-            transform: translateY(-1px);
+            background: #c0392b;
         }
-
-        .group-card {
-            background: #f8faff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-left: 5px solid #003399;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        }
-
-        .group-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .group-card-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #003399;
-        }
-
-        .group-card-meta {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .group-card-members {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .member-tag {
-            background: #fff;
-            color: #003399;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            border: 1px solid #00339922;
-            font-weight: 600;
-        }
-
-        .msg {
-            padding: 12px 18px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .msg.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .msg.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .muted { color: #888; }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -248,12 +95,9 @@
     <script src="/assets/js/header.js"></script>
     <div id="site-header-root"></div>
 
-    <header class="hero">
-        <h1>Skupiny hráčov</h1>
-        <p>Vytvárajte a spravujte tréningové skupiny hráčov pre efektívnejšie plánovanie tréningového procesu.</p>
-    </header>
-
     <main>
+        <h1 class="page-title"><i class="fas fa-layer-group"></i> Skupiny hráčov</h1>
+
         <div id="authGate" class="card" style="text-align:center;">
             <p class="muted">Overujem prihlásenie…</p>
         </div>
