@@ -172,7 +172,6 @@
             '  <div class="header-top">',
             '    <a class="sh-logo" href="/index.html">',
             '      <img src="/assets/images/OŠKKP_logo.png" alt="OŠK Kamenná Poruba Logo" class="sh-logo-img">',
-            '      <span>OŠK Kamenná Poruba</span>',
             '    </a>',
             '    <nav class="sh-nav" id="shMainNav">',
             '      <ul>',
