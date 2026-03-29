@@ -337,23 +337,30 @@
 
         .standings-tab {
             padding: 8px 18px;
-            border: 2px solid #003399;
-            border-radius: 25px;
+            border: 1px solid #dcdde1;
+            border-radius: 20px;
             background: #fff;
-            color: #003399;
+            color: #57606f;
             font-weight: 600;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .standings-tab:hover {
-            background: #e6eeff;
+            border-color: #003399;
+            color: #003399;
+            background: rgba(0, 51, 153, 0.05);
         }
 
         .standings-tab.active {
             background: #003399;
             color: #fff;
+            border-color: #003399;
+            box-shadow: 0 4px 10px rgba(0, 51, 153, 0.2);
         }
 
         /* ===== STANDINGS / LEAGUE TABLE ===== */
@@ -704,7 +711,8 @@
             align-items: center;
             gap: 8px;
             transition: all 0.3s;
-            margin-left: auto;
+            position: absolute;
+            right: 0;
             box-shadow: 0 2px 8px rgba(0,51,153,0.2);
         }
 
@@ -714,10 +722,9 @@
             box-shadow: 0 4px 12px rgba(0,51,153,0.3);
         }
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 991px) {
             .btn-standings-jump {
-                padding: 6px 12px;
-                font-size: 11px;
+                position: static;
                 margin-left: 0;
             }
         }
@@ -746,7 +753,7 @@
         <div id="sportsnetInfo" class="sportsnet-info"></div>
 
         <!-- Filtre podla statusu -->
-        <div class="category-tabs" id="matchStatusTabs">
+        <div class="category-tabs" id="matchStatusTabs" style="position: relative;">
             <button class="category-tab active" data-match-type="upcoming" onclick="setMatchType('upcoming')">Nadchádzajúce</button>
             <button class="category-tab" data-match-type="finished" onclick="setMatchType('finished')">Odohrané</button>
             <button class="btn-standings-jump" onclick="document.getElementById('standingsContainer').scrollIntoView({behavior:'smooth'})" title="Prejsť na tabuľku">

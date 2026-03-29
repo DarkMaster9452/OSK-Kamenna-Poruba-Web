@@ -842,13 +842,13 @@
 
         /* Category Filter Buttons */
         .category-filter {
-            padding: 12px 24px;
+            padding: 8px 20px;
             background: white;
-            border: 2px solid #ddd;
-            border-radius: 0;
+            border: 1px solid #dcdde1;
+            border-radius: 20px;
             cursor: pointer;
-            font-weight: bold;
-            color: #333;
+            font-weight: 600;
+            color: #57606f;
             transition: all 0.3s;
             display: inline-flex;
             align-items: center;
@@ -857,7 +857,7 @@
         }
 
         .category-filter:hover {
-            background: #f5f5f5;
+            background: rgba(0, 51, 153, 0.05);
             border-color: #003399;
             color: #003399;
         }
@@ -866,7 +866,7 @@
             background: #003399;
             color: white;
             border-color: #003399;
-            box-shadow: 0 4px 12px rgba(0, 51, 153, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 51, 153, 0.2);
         }
 
         /* Player Stats Item */
@@ -2324,35 +2324,16 @@
 
             /* ===== STANDINGS TABS (homepage) ===== */
             .standings-tabs {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 8px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
                 justify-content: center;
-                margin-bottom: 20px;
+                margin-bottom: 25px;
             }
 
-            .standings-tab {
-                padding: 8px 18px;
-                border: 2px solid #003399;
-                background: white;
-                color: #003399;
-                font-weight: bold;
-                font-size: 13px;
-                cursor: pointer;
-                transition: all 0.2s;
-                border-radius: 0;
-                text-align: center;
-            }
-
-            .standings-tab:hover,
-            .standings-tab.active {
-                background: #003399;
-                color: white;
-            }
-
-            @media (max-width: 480px) {
+            @media (max-width: 768px) {
                 .standings-tabs {
-                    grid-template-columns: repeat(2, 1fr);
+                    gap: 8px;
                 }
             }
 
@@ -2652,8 +2633,7 @@
                     <i class="fas fa-calendar-check"></i> ZÁPASY
                 </h2>
 
-                <div class="standings-tabs" id="matchesHomeTabs"
-                    style="margin-bottom: 40px; display: flex; justify-content: center; gap: 10px;">
+                <div class="standings-tabs" id="matchesHomeTabs">
                     <button class="standings-tab active" data-match-type="upcoming">Nadchádzajúce</button>
                     <button class="standings-tab" data-match-type="finished">Odohrané</button>
                 </div>
