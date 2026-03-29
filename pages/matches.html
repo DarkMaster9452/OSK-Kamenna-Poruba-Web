@@ -690,6 +690,37 @@
             color: #666;
         }
 
+        .btn-standings-jump {
+            background: #003399;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(0,51,153,0.2);
+        }
+
+        .btn-standings-jump:hover {
+            background: #002266;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,51,153,0.3);
+        }
+
+        @media screen and (max-width: 768px) {
+            .btn-standings-jump {
+                padding: 6px 12px;
+                font-size: 11px;
+                margin-left: 0;
+            }
+        }
+
         @media screen and (max-width: 480px) {
             h1, .standings-title {
                 font-size: 24px !important;
@@ -717,6 +748,9 @@
         <div class="category-tabs" id="matchStatusTabs">
             <button class="category-tab active" data-match-type="upcoming" onclick="setMatchType('upcoming')">Nadchádzajúce</button>
             <button class="category-tab" data-match-type="finished" onclick="setMatchType('finished')">Odohrané</button>
+            <button class="btn-standings-jump" onclick="document.getElementById('standingsContainer').scrollIntoView({behavior:'smooth'})" title="Prejsť na tabuľku">
+                <i class="fas fa-table"></i> Tabuľka
+            </button>
         </div>
 
         <!-- Filtre podla kategorie -->
@@ -996,7 +1030,7 @@
                 const goals = `${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}`;
 
                 return `
-                    <tr>
+                    <tr style="${own ? 'background: #f0f5ff;' : ''}">
                         <td class="standings-rank-cell">
                             <div style="display:flex;align-items:center;padding-left:8px;">${rankCell}</div>
                         </td>
@@ -1023,7 +1057,7 @@
             return `
                 <div class="standings-group">
                     <div class="standings-group-header"><i class="fas fa-table-cells"></i> ${title}</div>
-                    <div class="table-wrap">
+                    <div class="table-wrap" style="border:none; border-radius:10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                         <table class="standings-table">
                             <thead>
                                 <tr>
