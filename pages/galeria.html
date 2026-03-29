@@ -243,6 +243,100 @@
             .modal-arrow.prev { left: 10px; }
             .modal-arrow.next { right: 10px; }
         }
+
+        /* Folder Cards */
+        .folder-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .folder-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #eee;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+            border-color: #ffd700;
+        }
+
+        .folder-card i {
+            font-size: 50px;
+            color: #ffd700;
+            transition: transform 0.3s ease;
+        }
+
+        .folder-card:hover i {
+            transform: scale(1.1);
+        }
+
+        .folder-card-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #003399;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .folder-card-count {
+            font-size: 13px;
+            color: #888;
+            background: #f8f9fa;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* Back Button */
+        .gallery-back-container {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-back-gallery {
+            background: #fff;
+            border: 2px solid #003399;
+            color: #003399;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-back-gallery:hover {
+            background: #003399;
+            color: #fff;
+        }
+
+        .current-path {
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -258,10 +352,21 @@
             <button class="album-tab active" data-album="instagram"><i class="fab fa-instagram"></i> Instagram</button>
         </div>
 
+        <div id="galleryBackNav" class="gallery-back-container" style="display:none;">
+            <button class="btn-back-gallery" id="backToAlbumsBtn">
+                <i class="fas fa-arrow-left"></i> Späť na albumy
+            </button>
+            <div class="current-path">
+                <i class="fas fa-folder-open" style="color:#ffd700;"></i>
+                <span id="currentEventName"></span>
+            </div>
+        </div>
+
         <div id="albumInfo" style="display:none; margin-bottom: 24px; background: #fff; border-left: 6px solid #ffd700; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
             <div id="albumTitle" style="font-size: 20px; color: #003399; font-weight: 800; margin-bottom: 8px;"></div>
             <ul id="albumPoints" style="padding-left: 20px; color: #33405f; line-height: 1.6; margin: 0;"></ul>
         </div>
+        <div id="folderGrid" class="folder-list" style="display:none;"></div>
         <div class="gallery-grid" id="galleryGrid"></div>
 
         <div class="gallery-actions">
@@ -358,49 +463,54 @@
                     const folderName = folder.folder || '';
                     const folderPath = folder.path || folderName;
 
-                    // Detect parent from path: e.g. "OSK/2023/pristresok" → parent "2023"
-                    // or "2023/pristresok" → parent "2023"
                     const pathParts = folderPath.split('/');
                     var parentName = null;
                     if (pathParts.length >= 2) {
                         parentName = pathParts[pathParts.length - 2];
                     }
 
-                    // Skip blacklisted folders (by folder name or parent name)
+                    // Skip blacklisted folders
                     if (FOLDER_BLACKLIST.some(function(b) {
                         return b.toLowerCase() === folderName.toLowerCase() ||
                                (parentName && b.toLowerCase() === parentName.toLowerCase());
                     })) return;
 
-                    const items = (folder.images || []).map(function (img) {
+                    const images = (folder.images || []).map(function (img) {
                         return { src: img.url, alt: folderName };
                     });
-                    if (!items.length) return;
+                    if (!images.length) return;
 
-                    // Determine effective album name: use parent if it exists in FOLDER_TEXT_CONFIG
-                    var albumName = folderName;
+                    // Determine primary category (Year or Special folder)
+                    var primaryCategoryName = folderName;
+                    var isDirectSubfolder = false;
                     if (parentName && FOLDER_TEXT_CONFIG[parentName]) {
-                        albumName = parentName;
+                        primaryCategoryName = parentName;
+                        isDirectSubfolder = true;
                     }
 
-                    const key = folderNameToKey('-' + albumName);
-                    const conf = FOLDER_TEXT_CONFIG[albumName] || {};
-                    const label = conf.year || albumName;
+                    const key = folderNameToKey('-' + primaryCategoryName);
+                    const conf = FOLDER_TEXT_CONFIG[primaryCategoryName] || {};
+                    const label = conf.year || primaryCategoryName;
 
-                    if (CLOUDINARY_ALBUMS[key]) {
-                        // Album already exists — append images
-                        CLOUDINARY_ALBUMS[key] = CLOUDINARY_ALBUMS[key].concat(items);
-                    } else {
-                        CLOUDINARY_ALBUMS[key] = items;
+                    if (!CLOUDINARY_ALBUMS[key]) {
+                        CLOUDINARY_ALBUMS[key] = {
+                            label: label,
+                            conf: conf,
+                            subfolders: []
+                        };
                         cloudinaryAlbumMeta.push({
                             key: key,
                             label: label,
-                            folderRaw: albumName,
-                            conf: conf,
-                            parentFolder: null,
-                            sortKey: albumName
+                            sortKey: primaryCategoryName
                         });
                     }
+
+                    // Add this folder as a subfolder to the primary category
+                    CLOUDINARY_ALBUMS[key].subfolders.push({
+                        name: folderName,
+                        path: folderPath,
+                        images: images
+                    });
                 });
 
                 // Sort: Historické first, then by year ascending
@@ -434,6 +544,7 @@
         /* ===== STATE ===== */
         let instagramItems = [];
         let currentAlbum = 'instagram';
+        let currentSubfolderIndex = null;
         let currentImgIdx = 0;
         const PAGE_SIZE = 20;
         let renderedCount = 0;
@@ -467,10 +578,16 @@
         /* ===== RENDER ===== */
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
+            const folderGrid = document.getElementById('folderGrid');
+            const backNav = document.getElementById('galleryBackNav');
+            const infoEl = document.getElementById('albumInfo');
+            const titleEl = document.getElementById('albumTitle');
+            const pointsEl = document.getElementById('albumPoints');
+            
             grid.innerHTML = '';
-            var infoEl = document.getElementById('albumInfo');
-            var titleEl = document.getElementById('albumTitle');
-            var pointsEl = document.getElementById('albumPoints');
+            folderGrid.innerHTML = '';
+            folderGrid.style.display = 'none';
+            backNav.style.display = 'none';
             infoEl.style.display = 'none';
             titleEl.innerHTML = '';
             pointsEl.innerHTML = '';
@@ -481,15 +598,36 @@
             if (currentAlbum === 'instagram') {
                 itemsToShow = instagramItems.map(makeInstagramItem);
             } else {
-                itemsToShow = (CLOUDINARY_ALBUMS[currentAlbum] || []).map(function (item) {
-                    return makeCloudinaryItem(item, currentAlbum);
-                });
+                const albumData = CLOUDINARY_ALBUMS[currentAlbum];
+                if (!albumData) return;
+
+                // If no subfolder selected and multiple subfolders exist, show folder list
+                if (currentSubfolderIndex === null && albumData.subfolders.length > 1) {
+                    renderFolderList(albumData.subfolders);
+                    document.getElementById('loadMoreBtn').hidden = true;
+                    return;
+                }
+
+                // Either a specific subfolder is selected, OR there's only one subfolder
+                const subIndex = currentSubfolderIndex !== null ? currentSubfolderIndex : 0;
+                const subfolder = albumData.subfolders[subIndex];
                 
-                var meta = cloudinaryAlbumMeta.find(m => m.key === currentAlbum);
-                if (meta && meta.conf && (meta.conf.title || (meta.conf.points && meta.conf.points.length))) {
+                if (subfolder) {
+                    itemsToShow = subfolder.images.map(img => makeCloudinaryItem(img, currentAlbum));
+                    
+                    // Show back button if we're in a specific subfolder of a category with multiple subfolders
+                    if (albumData.subfolders.length > 1) {
+                        backNav.style.display = 'flex';
+                        document.getElementById('currentEventName').textContent = subfolder.name;
+                    }
+                } else {
+                    itemsToShow = [];
+                }
+
+                if (albumData.conf && (albumData.conf.title || (albumData.conf.points && albumData.conf.points.length))) {
                     infoEl.style.display = 'block';
-                    titleEl.textContent = meta.conf.title || meta.label;
-                    pointsEl.innerHTML = (meta.conf.points || []).map(p => '<li>' + p + '</li>').join('');
+                    titleEl.textContent = albumData.conf.title || albumData.label;
+                    pointsEl.innerHTML = (albumData.conf.points || []).map(p => '<li>' + p + '</li>').join('');
                 }
             }
 
@@ -500,6 +638,27 @@
             }
 
             renderNextBatch();
+        }
+
+        function renderFolderList(subfolders) {
+            const folderGrid = document.getElementById('folderGrid');
+            folderGrid.style.display = 'grid';
+            
+            subfolders.forEach((sub, index) => {
+                const card = document.createElement('div');
+                card.className = 'folder-card';
+                card.innerHTML = `
+                    <i class="fas fa-folder"></i>
+                    <h4 class="folder-card-name">${sub.name}</h4>
+                    <span class="folder-card-count">${sub.images.length} fotiek</span>
+                `;
+                card.onclick = () => {
+                    currentSubfolderIndex = index;
+                    renderGallery();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                folderGrid.appendChild(card);
+            });
         }
 
         function renderNextBatch() {
@@ -613,14 +772,21 @@
             }
         }
 
-        /* ===== TABS ===== */
+        /* ===== TABS & NAVIGATION ===== */
         document.getElementById('albumTabs').addEventListener('click', function (e) {
             var tab = e.target.closest('.album-tab');
             if (!tab) return;
             document.querySelectorAll('.album-tab').forEach(function (t) { t.classList.remove('active'); });
             tab.classList.add('active');
             currentAlbum = tab.dataset.album;
+            currentSubfolderIndex = null; // Reset subfolder view
             renderGallery();
+        });
+
+        document.getElementById('backToAlbumsBtn').addEventListener('click', function() {
+            currentSubfolderIndex = null;
+            renderGallery();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         /* ===== LOAD MORE ===== */
