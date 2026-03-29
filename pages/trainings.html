@@ -35,10 +35,11 @@
             align-items: center;
             max-width: 1400px;
             margin: 0 auto 40px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
+            padding: 20px 30px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
             border-bottom: 3px solid #ffd700;
+            backdrop-filter: blur(10px);
         }
 
         .header h1 {
@@ -55,44 +56,51 @@
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 10px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             font-size: 14px;
         }
 
         .btn-back {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .btn-back:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(-5px);
         }
 
         .btn-logout {
             background: #e74c3c;
             color: white;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
         }
 
         .btn-logout:hover {
-            background: #c0392b;
+            background: #f15b4b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 215, 0, 0.2);
-            padding: 10px 20px;
-            border-radius: 5px;
+            gap: 12px;
+            background: rgba(255, 215, 0, 0.15);
+            padding: 8px 18px;
+            border-radius: 30px;
             color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.3);
             font-weight: bold;
         }
 
@@ -122,9 +130,10 @@
         .coach-form {
             background: rgba(255, 255, 255, 0.05);
             padding: 30px;
-            border-radius: 10px;
+            border-radius: 15px;
             border: 2px solid #ffd700;
             margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .coach-form h3 {
@@ -154,19 +163,19 @@
         }
 
         .form-group input {
-            padding: 10px;
+            padding: 10px 15px;
             border: 1px solid #ffd700;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.12);
             color: white;
             font-family: inherit;
             font-size: 14px;
         }
 
         .form-group textarea {
-            padding: 10px;
+            padding: 12px 15px;
             border: 2px solid #ffd700;
-            border-radius: 5px;
+            border-radius: 8px;
             background: #fff;
             color: #003399;
             font-family: inherit;
@@ -178,9 +187,9 @@
         }
 
         .form-group select {
-            padding: 10px;
+            padding: 10px 15px;
             border: 2px solid #ffd700;
-            border-radius: 5px;
+            border-radius: 8px;
             background: #fff;
             color: #003399;
             font-family: inherit;
@@ -201,18 +210,19 @@
         }
 
         .btn-create {
-            padding: 12px 24px;
+            padding: 12px 28px;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 15px;
             background: #ffd700;
             color: #003399;
             transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
         }
 
         .btn-create:hover:not(:disabled) {
@@ -225,19 +235,20 @@
         }
 
         .btn-toggle-trainings {
-            padding: 10px 20px;
+            padding: 10px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 14px;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.2);
             color: #fff;
             transition: all 0.3s;
             margin-top: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .btn-toggle-trainings:hover {
@@ -245,14 +256,14 @@
         }
 
         .btn-action {
-            padding: 8px 14px;
+            padding: 8px 18px;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             font-size: 13px;
             transition: all 0.3s;
         }
@@ -282,7 +293,7 @@
         .btn-unknown {
             padding: 8px 16px;
             border: 2px solid transparent;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             font-size: 13px;

@@ -39,10 +39,11 @@
 
         .card {
             background: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .card h3 {
@@ -51,25 +52,29 @@
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            transition: all 0.3s;
+            justify-content: center;
+            gap: 10px;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-primary {
-            background: #003399;
-            color: #fff;
+            background: #ffd700;
+            color: #003399;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
         }
 
         .btn-primary:hover:not(:disabled) {
-            background: #002277;
+            background: #ffed4e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.35);
         }
 
         .btn-primary:disabled {
@@ -78,14 +83,17 @@
         }
 
         .btn-danger {
-            background: #e74c3c;
-            color: #fff;
-            padding: 6px 12px;
-            font-size: 13px;
+            background: #fff;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            padding: 8px 18px;
+            font-size: 14px;
         }
 
         .btn-danger:hover {
-            background: #c0392b;
+            background: #e74c3c;
+            color: #fff;
+            transform: translateY(-1px);
         }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
