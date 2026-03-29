@@ -356,6 +356,13 @@
         }
 
         /* ===== STANDINGS / LEAGUE TABLE ===== */
+        /* table-wrap for horizontal scroll */
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
+
         .standings-section {
             margin-bottom: 32px;
         }
@@ -520,8 +527,8 @@
         @media (max-width: 768px) {
             .standings-table th,
             .standings-table td {
-                padding: 8px 8px;
-                font-size: 12px;
+                padding: 8px 4px;
+                font-size: 11px;
             }
 
             .standings-team-abbr {
@@ -1006,22 +1013,24 @@
             return `
                 <div class="standings-group">
                     <div class="standings-group-header"><i class="fas fa-table-cells"></i> ${title}</div>
-                    <table class="standings-table">
-                        <thead>
-                            <tr>
-                                <th class="standings-rank-cell">#</th>
-                                <th>Tím</th>
-                                <th class="center" title="Odohrané zápasy">OZ</th>
-                                <th class="center" title="Výhry">V</th>
-                                <th class="center" title="Remízy">R</th>
-                                <th class="center" title="Prehry">P</th>
-                                <th class="center" title="Góly">Góly</th>
-                                <th class="center" title="Rozdiel gólov">+/-</th>
-                                <th class="center" title="Body">B</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
+                    <div class="table-wrap">
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th class="standings-rank-cell">#</th>
+                                    <th>Tím</th>
+                                    <th class="center" title="Odohrané zápasy">OZ</th>
+                                    <th class="center" title="Výhry">V</th>
+                                    <th class="center" title="Remízy">R</th>
+                                    <th class="center" title="Prehry">P</th>
+                                    <th class="center" title="Góly">Góly</th>
+                                    <th class="center" title="Rozdiel gólov">+/-</th>
+                                    <th class="center" title="Body">B</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
                     ${legend}
                 </div>`;
         }
