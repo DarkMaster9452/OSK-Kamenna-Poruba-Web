@@ -199,6 +199,138 @@
             color: #003399;
             outline: none;
         }
+
+        .btn-create {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            background: #ffd700;
+            color: #003399;
+            transition: all 0.3s;
+        }
+
+        .btn-create:hover:not(:disabled) {
+            background: #e6c200;
+        }
+
+        .btn-create:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-toggle-trainings {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transition: all 0.3s;
+            margin-top: 16px;
+        }
+
+        .btn-toggle-trainings:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-action {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            filter: brightness(0.88);
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+            filter: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-yes,
+        .btn-no,
+        .btn-unknown {
+            padding: 8px 16px;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: all 0.3s;
+            opacity: 0.55;
+        }
+
+        .btn-yes {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            border-color: #2ecc71;
+        }
+
+        .btn-yes.active {
+            background: #2ecc71;
+            color: white;
+            opacity: 1;
+        }
+
+        .btn-no {
+            background: rgba(231, 76, 60, 0.15);
+            color: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        .btn-no.active {
+            background: #e74c3c;
+            color: white;
+            opacity: 1;
+        }
+
+        .btn-unknown {
+            background: rgba(149, 165, 166, 0.15);
+            color: #95a5a6;
+            border-color: #95a5a6;
+        }
+
+        .btn-unknown.active {
+            background: #95a5a6;
+            color: white;
+            opacity: 1;
+        }
+
+        .btn-yes:hover,
+        .btn-no:hover,
+        .btn-unknown:hover {
+            opacity: 0.85;
+        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
