@@ -147,6 +147,15 @@
             font-size: 16px;
         }
 
+        /* Standardize standings table across pages */
+        .standings-table th.center, .standings-table td.center {
+            text-align: center;
+            width: 34px !important;
+        }
+        .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
+            min-width: 48px !important;
+        }
+
         .table-wrap {
             overflow-x: auto;
             border: 1px solid #e6ebf3;
@@ -197,7 +206,8 @@
             }
 
             .page-title {
-                font-size: 22px;
+                font-size: 20px;
+                white-space: nowrap;
             }
 
             main {
@@ -520,14 +530,14 @@
 
                     return `
                         <tr style="${rowStyle}">
-                            <td>${index + 1}.</td>
+                            <td class="center">${index + 1}.</td>
                             <td>${row.team?.name || 'Neznámy tím'}</td>
-                            <td>${matches.played || 0}</td>
-                            <td>${matches.won || 0}</td>
-                            <td>${matches.draw || 0}</td>
-                            <td>${matches.lost || 0}</td>
-                            <td>${goals.given || 0}:${goals.received || 0}</td>
-                            <td><strong>${points}</strong></td>
+                            <td class="center">${matches.played || 0}</td>
+                            <td class="center">${matches.won || 0}</td>
+                            <td class="center">${matches.draw || 0}</td>
+                            <td class="center">${matches.lost || 0}</td>
+                            <td class="center">${goals.given || 0}:${goals.received || 0}</td>
+                            <td class="center"><strong>${points}</strong></td>
                         </tr>
                     `;
                 }).join('');
@@ -535,17 +545,17 @@
                 tableDiv.innerHTML = `
                     <h4 style="color:#003399; margin-bottom: 12px; border-left:4px solid #ffd700; padding-left:8px;">${categoryTitle || data.name}</h4>
                     <div class="table-wrap">
-                        <table>
+                        <table class="standings-table">
                             <thead>
                                 <tr>
-                                    <th style="width:50px;">Por.</th>
+                                    <th class="center">Por.</th>
                                     <th>Tím</th>
-                                    <th style="width:50px;" title="Zápasy">Z</th>
-                                    <th style="width:50px;" title="Výhry">V</th>
-                                    <th style="width:50px;" title="Remízy">R</th>
-                                    <th style="width:50px;" title="Prehry">P</th>
-                                    <th style="width:70px;" title="Skóre">Skóre</th>
-                                    <th style="width:50px;" title="Body">B</th>
+                                    <th class="center" title="Zápasy">Z</th>
+                                    <th class="center" title="Výhry">V</th>
+                                    <th class="center" title="Remízy">R</th>
+                                    <th class="center" title="Prehry">P</th>
+                                    <th class="center" title="Skóre">Skóre</th>
+                                    <th class="center" title="Body">B</th>
                                 </tr>
                             </thead>
                             <tbody>

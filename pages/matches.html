@@ -408,6 +408,11 @@
         .standings-table th.center,
         .standings-table td.center {
             text-align: center;
+            width: 34px !important; /* Even tighter for narrow columns */
+        }
+
+        .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
+            min-width: 48px !important; /* Skore needs bit more but tighter */
         }
 
         .standings-table tbody tr {
@@ -539,6 +544,11 @@
 
             .standings-tabs {
                 gap: 6px;
+            }
+
+            h1, .page-title {
+                font-size: 20px;
+                white-space: nowrap;
             }
 
             .standings-tab {

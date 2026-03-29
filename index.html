@@ -1243,6 +1243,15 @@
             font-size: 15px;
         }
 
+        .standings-table th.center, .standings-table td.center {
+            text-align: center;
+            width: 34px; /* Even tighter for narrow columns */
+        }
+
+        .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
+            min-width: 48px; /* Skore needs bit more but tighter */
+        }
+
         .standings-diff-pos {
             color: #1a7a1a;
             font-weight: 600;
@@ -1288,8 +1297,13 @@
 
             .standings-table th,
             .standings-table td {
-                padding: 8px 4px;
+                padding: 8px 3px; /* Even tighter padding */
                 font-size: 11px;
+            }
+
+            .section-title {
+                font-size: 20px !important; /* Smaller on mobile to fit one line */
+                white-space: nowrap; /* Force one line */
             }
 
             .standings-team-abbr {
@@ -2635,7 +2649,7 @@
         <section id="matches"
             style="background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); padding: 80px 20px;">
             <div style="max-width: 1400px; margin: 0 auto;">
-                <h2 style="color: #003399; margin-bottom: 24px; font-size: 36px;">
+                <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
                     <i class="fas fa-calendar-check"></i> ZÁPASY
                 </h2>
 
@@ -2676,7 +2690,7 @@
         <!-- League Standings Section -->
         <section id="standings" style="background: #fff; padding: 60px 20px;">
             <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 style="color: #003399; margin-bottom: 24px; font-size: 36px;">
+                <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
                     <i class="fas fa-ranking-star"></i> TABUĽKA SÚŤAŽE
                 </h2>
                 <div class="standings-tabs" id="standingsTabs">
@@ -2702,8 +2716,8 @@
         <!-- Public Announcements Section -->
         <section id="publicAnnouncements" style="display:none; padding: 40px 20px 0;">
             <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 style="text-align:center; color:#003399; margin-bottom:24px; font-size:28px;">
-                    <i class="fas fa-bullhorn"></i> Oznamy a udalosti
+                <h2 class="section-title" style="color:#003399; margin-bottom:24px; font-size:28px; display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-bullhorn"></i> OZNAMY A UDALOSTI
                 </h2>
                 <div id="publicAnnouncementsList"
                     style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px;"></div>
@@ -2712,7 +2726,9 @@
 
         <!-- About Section -->
    <section id="about">
-    <h2><i class="fas fa-info-circle"></i> O našom klube</h2>
+    <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
+        <i class="fas fa-info-circle"></i> O NAŠOM KLUBE
+    </h2>
     <div class="about-history">
         <div class="about-milestones">
             <span class="about-milestone"><i class="fas fa-flag"></i> 1955 - vznik hnutia</span>
@@ -2749,7 +2765,9 @@
         <!-- Gallery Section -->
         <section id="gallery">
             <div class="gallery-actions"></div>
-            <h2><i class="fas fa-images"></i> Galéria</h2>
+            <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-images"></i> GALÉRIA
+            </h2>
             <div class="gallery-grid" id="galleryGrid">
                 <p class="instagram-status" id="instagramGalleryStatus" hidden></p>
             </div>
@@ -2786,7 +2804,9 @@
         </section>
 
         <section id="parking" style="margin-top: 40px;">
-            <h2><i class="fas fa-car"></i> Mapa parkovania</h2>
+            <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-car"></i> MAPA PARKOVANIA
+            </h2>
             <div class="club-extra-card">
                 <div class="parking-notice">
                     <div class="parking-notice-title">
@@ -2812,7 +2832,9 @@
 
         <!-- Contact Section -->
         <section id="contact" style="margin-top: 40px;">
-            <h2><i class="fas fa-envelope"></i> Kontaktujte nás</h2>
+            <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-envelope"></i> KONTAKTUJTE NÁS
+            </h2>
             <div class="contact-grid">
                 <div>
                     <h3 style="margin-bottom: 20px; color: #1a1a2e;">Kontaktné informácie</h3>
