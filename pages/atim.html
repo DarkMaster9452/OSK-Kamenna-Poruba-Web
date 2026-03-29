@@ -251,6 +251,58 @@
             font-weight: 600;
         }
 
+        /* Squad Table refinements - to fix "crowded" look */
+        .squad-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        .squad-table thead tr {
+            background: #f5f7fa;
+            border-bottom: 2px solid #eee;
+        }
+
+        .squad-table th {
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 13px;
+            color: #888;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .squad-table td {
+            padding: 14px;
+            font-size: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+
+        .squad-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        .squad-table i {
+            margin-right: 4px;
+            color: #003399;
+        }
+
+        .squad-num {
+            font-weight: bold;
+            color: #666;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .squad-table th, .squad-table td {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+        }
+
         .standings-group {
             margin-bottom: 24px;
         }
@@ -365,32 +417,31 @@
                 const rows = players.map(p => {
                     const s = p.stats || {};
                     return `
-                <tr>
-                    <td>${p.number || '—'}</td>
-                    <td>${p.captain ? 'ⓒ ' : ''}${p.name}</td>
-                    <td>${s.matches ?? '—'}</td>
-                    <td>${s.goals ?? '—'}</td>
-                    <td>${s.minutes ?? '—'}</td>
-                    <td>${s.yellowCards ?? '—'}</td>
-                    <td>${s.redCards ?? '—'}</td>
-                </tr>
-            `;
+                    <tr>
+                        <td class="squad-num">${p.number || '—'}</td>
+                        <td style="font-weight:700; color:#003399;">${p.captain ? 'ⓒ ' : ''}${p.name}</td>
+                        <td style="text-align:center;">${s.matches ?? '—'}</td>
+                        <td style="text-align:center;">${s.goals ?? '—'}</td>
+                        <td style="text-align:center;">${s.minutes ?? '—'}</td>
+                        <td style="text-align:center;">${s.yellowCards ?? '—'}</td>
+                        <td style="text-align:center;">${s.redCards ?? '—'}</td>
+                    </tr>`;
                 }).join('');
 
                 return `
                 <div class="group">
                     <h4>${label}</h4>
                     <div class="table-wrap">
-                        <table>
+                        <table class="squad-table">
                             <thead>
                                 <tr>
-                                    <th style="width:50px;">#</th>
+                                    <th style="width:60px; text-align:center;">#</th>
                                     <th>Meno hráča</th>
-                                    <th style="width:70px;"><i class="fas fa-futbol" title="Zápasy"></i> Záp.</th>
-                                    <th style="width:60px;"><i class="fas fa-futbol" title="Góly"></i> Góly</th>
-                                    <th style="width:70px;"><i class="far fa-clock" title="Minúty"></i> Min.</th>
-                                    <th style="width:50px;"><span title="Žlté karty" style="color:#e8b500;">&#9632;</span></th>
-                                    <th style="width:50px;"><span title="Červené karty" style="color:#d00;">&#9632;</span></th>
+                                    <th style="width:90px;"><i class="fas fa-running" title="Zápasy"></i> Záp.</th>
+                                    <th style="width:80px;"><i class="fas fa-futbol" title="Góly"></i> Góly</th>
+                                    <th style="width:100px;"><i class="far fa-clock" title="Minúty"></i> Min.</th>
+                                    <th style="width:60px; text-align:center;"><span title="Žlté karty" style="color:#e8b500; font-size:18px;">&#9632;</span></th>
+                                    <th style="width:60px; text-align:center;"><span title="Červené karty" style="color:#d00; font-size:18px;">&#9632;</span></th>
                                 </tr>
                             </thead>
                             <tbody>${rows}</tbody>
