@@ -312,26 +312,26 @@
         const FOLDER_BLACKLIST = ['blog', 'Sponzori'];
 
         const FOLDER_TEXT_CONFIG = {
-            'História': { year: 'Historické', points: ['Archívne zábery klubu.'] },
-            'HISTORIA': { year: 'Historické', points: ['Archívne zábery klubu.'] },
-            '2005': { year: '2005', title: 'Fotografie z roku 2005', points: [] },
-            '2006-2007': { year: '2006 – 2007',points: [] },
-            '2008': { year: '2008', title: 'Fotografie z roku 2008', points: [] },
-            '2009': { year: '2009', title: 'Fotografie z roku 2009', points: [] },
-            '2010': { year: '2010', title: 'Fotografie z roku 2010', points: [] },
-            '2011': { year: '2011', title: 'Fotografie z roku 2011', points: [] },
-            '2012': { year: '2012', title: 'Fotografie z roku 2012', points: [] },
-            '2013': { year: '2013', title: 'Fotografie z roku 2013', points: [] },
-            '2014': { year: '2014', title: 'Fotografie z roku 2014', points: [] },
-            '2015': { year: '2015', title: 'Fotografie z roku 2015', points: [] },
-            '2016': { year: '2016', title: 'Fotografie z roku 2016', points: [] },
-            '2017': { year: '2017', title: 'Fotografie z roku 2017', points: [] },
-            '2018': { year: '2018', title: 'Fotografie z roku 2018', points: [] },
-            '2023': { year: '2023', title: 'Fotografie z roku 2023', points: [] },
-            '2024': { year: '2024', title: 'Fotografie z roku 2024', points: [] },
-            '2025': { year: '2025', title: 'Fotografie z roku 2025', points: [] },
-            'VÝSTAVBA MULTIFUNKČNÉHO IHRISKA': { year: 'Výstavba ihriska', title: 'Výstavba multifunkčného ihriska', points: [] },
-            'VÝSTAVBA ŠATNÍ': { year: 'Výstavba šatní', title: 'Výstavba šatní', points: [] }
+            'História': { year: 'Historické' },
+            'HISTORIA': { year: 'Historické' },
+            '2005': { year: '2005' },
+            '2006-2007': { year: '2006 – 2007' },
+            '2008': { year: '2008' },
+            '2009': { year: '2009' },
+            '2010': { year: '2010' },
+            '2011': { year: '2011' },
+            '2012': { year: '2012' },
+            '2013': { year: '2013' },
+            '2014': { year: '2014' },
+            '2015': { year: '2015' },
+            '2016': { year: '2016' },
+            '2017': { year: '2017' },
+            '2018': { year: '2018' },
+            '2023': { year: '2023' },
+            '2024': { year: '2024' },
+            '2025': { year: '2025' },
+            'VÝSTAVBA MULTIFUNKČNÉHO IHRISKA': { year: 'Výstavba ihriska' },
+            'VÝSTAVBA ŠATNÍ': { year: 'Výstavba šatní' }
         };
         function folderNameToKey(name) {
             return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -486,7 +486,7 @@
                 });
                 
                 var meta = cloudinaryAlbumMeta.find(m => m.key === currentAlbum);
-                if (meta && meta.conf && (meta.conf.title || meta.conf.points.length)) {
+                if (meta && meta.conf && (meta.conf.title || (meta.conf.points && meta.conf.points.length))) {
                     infoEl.style.display = 'block';
                     titleEl.textContent = meta.conf.title || meta.label;
                     pointsEl.innerHTML = (meta.conf.points || []).map(p => '<li>' + p + '</li>').join('');
