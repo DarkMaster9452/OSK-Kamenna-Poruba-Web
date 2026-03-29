@@ -823,6 +823,10 @@
                 if (raw) {
                     const cached = JSON.parse(raw);
                     if (cached && cached.ts && (Date.now() - cached.ts < CACHE_TTL)) {
+                        // Preserved timestamp from when it was actually fetched
+                        if (cached.data && typeof cached.data === 'object' && !Array.isArray(cached.data)) {
+                            cached.data._fetchedAt = cached.ts;
+                        }
                         return cached.data;
                     }
                 }
@@ -830,7 +834,11 @@
             const response = await fetch(url, options);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
-            try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
+            const ts = Date.now();
+            if (data && typeof data === 'object' && !Array.isArray(data)) {
+                data._fetchedAt = ts;
+            }
+            try { localStorage.setItem(cacheKey, JSON.stringify({ ts, data })); } catch (_) { }
             return data;
         }
 
@@ -838,11 +846,12 @@
             const container = document.getElementById('sportsnetInfo');
             if (!container) return;
 
-            const fetchedAt = SPORTSNET_INFO.fetchedAt || Date.now();
-            const fetchedText = new Date(fetchedAt).toLocaleString('sk-SK');
+            const fetchedAtRaw = SPORTSNET_INFO.fetchedAt || Date.now();
+            const fetchedDate = new Date(fetchedAtRaw);
+            const fetchedText = fetchedDate.toLocaleString('sk-SK');
             
             // Cache TTL is 4 hours
-            const nextUpdateAt = fetchedAt + (4 * 60 * 60 * 1000);
+            const nextUpdateAt = fetchedDate.getTime() + (4 * 60 * 60 * 1000);
             const nextUpdateText = new Date(nextUpdateAt).toLocaleString('sk-SK');
 
             container.innerHTML = `
@@ -955,7 +964,7 @@
                 SPORTSNET_INFO = {
                     status: 'OK',
                     source: payload?.source || 'sportsnet.online',
-                    fetchedAt: payload?.fetchedAt || new Date().toISOString(),
+                    fetchedAt: payload?._fetchedAt || payload?.fetchedAt || new Date().toISOString(),
                     count: items.length,
                     cache: payload?.cache || 'MISS'
                 };
