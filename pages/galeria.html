@@ -460,10 +460,10 @@
                 cloudinaryAlbumMeta = [];
 
                 folders.forEach(function (folder) {
-                    const folderName = folder.folder || '';
-                    const folderPath = folder.path || folderName;
-
-                    const pathParts = folderPath.split('/');
+                    const fullPath = folder.path || folder.folder || '';
+                    const pathParts = fullPath.split('/');
+                    const leafName = pathParts[pathParts.length - 1] || 'Ostatné';
+                    
                     var parentName = null;
                     if (pathParts.length >= 2) {
                         parentName = pathParts[pathParts.length - 2];
@@ -471,21 +471,19 @@
 
                     // Skip blacklisted folders
                     if (FOLDER_BLACKLIST.some(function(b) {
-                        return b.toLowerCase() === folderName.toLowerCase() ||
+                        return b.toLowerCase() === leafName.toLowerCase() ||
                                (parentName && b.toLowerCase() === parentName.toLowerCase());
                     })) return;
 
                     const images = (folder.images || []).map(function (img) {
-                        return { src: img.url, alt: folderName };
+                        return { src: img.url, alt: leafName };
                     });
                     if (!images.length) return;
 
                     // Determine primary category (Year or Special folder)
-                    var primaryCategoryName = folderName;
-                    var isDirectSubfolder = false;
+                    var primaryCategoryName = leafName;
                     if (parentName && FOLDER_TEXT_CONFIG[parentName]) {
                         primaryCategoryName = parentName;
-                        isDirectSubfolder = true;
                     }
 
                     const key = folderNameToKey('-' + primaryCategoryName);
@@ -506,9 +504,11 @@
                     }
 
                     // Add this folder as a subfolder to the primary category
+                    // We only add it as a subfolder if its name is different from the primary category name
+                    // OR if there are other subfolders.
                     CLOUDINARY_ALBUMS[key].subfolders.push({
-                        name: folderName,
-                        path: folderPath,
+                        name: leafName,
+                        path: fullPath,
                         images: images
                     });
                 });
@@ -520,6 +520,13 @@
                     const bY = parseInt(b.sortKey) || yearOrder[b.label] || 9999;
                     if (aY !== bY) return aY - bY;
                     return a.label.localeCompare(b.label);
+                });
+
+                // Sort subfolders alphabetically within each category
+                Object.values(CLOUDINARY_ALBUMS).forEach(album => {
+                    if (album.subfolders) {
+                        album.subfolders.sort((a, b) => a.name.localeCompare(b.name));
+                    }
                 });
                 
                 if (cloudinaryAlbumMeta.length === 0) {
@@ -601,21 +608,30 @@
                 const albumData = CLOUDINARY_ALBUMS[currentAlbum];
                 if (!albumData) return;
 
-                // If no subfolder selected and multiple subfolders exist, show folder list
-                if (currentSubfolderIndex === null && albumData.subfolders.length > 1) {
-                    renderFolderList(albumData.subfolders);
-                    document.getElementById('loadMoreBtn').hidden = true;
-                    return;
+                // If no subfolder selected and we have subfolders
+                if (currentSubfolderIndex === null && albumData.subfolders.length > 0) {
+                    // Decide whether to show folder list or jump straight to images
+                    // Strategy: if there's only 1 subfolder AND its name is basically the same as the category, jump straight.
+                    const firstSub = albumData.subfolders[0];
+                    const isRedundant = albumData.subfolders.length === 1 && 
+                                      (firstSub.name.toLowerCase() === albumData.label.toLowerCase() || 
+                                       firstSub.name.toLowerCase() === currentAlbum.replace(/^-/, ''));
+
+                    if (!isRedundant) {
+                        renderFolderList(albumData.subfolders);
+                        document.getElementById('loadMoreBtn').hidden = true;
+                        return;
+                    }
                 }
 
-                // Either a specific subfolder is selected, OR there's only one subfolder
+                // Either a specific subfolder is selected, OR there's a redundant single folder
                 const subIndex = currentSubfolderIndex !== null ? currentSubfolderIndex : 0;
                 const subfolder = albumData.subfolders[subIndex];
                 
                 if (subfolder) {
                     itemsToShow = subfolder.images.map(img => makeCloudinaryItem(img, currentAlbum));
                     
-                    // Show back button if we're in a specific subfolder of a category with multiple subfolders
+                    // Show back button if multiple subfolders existed originally
                     if (albumData.subfolders.length > 1) {
                         backNav.style.display = 'flex';
                         document.getElementById('currentEventName').textContent = subfolder.name;
