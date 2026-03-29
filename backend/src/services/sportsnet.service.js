@@ -127,6 +127,9 @@ function mapMatch(item, index) {
   const homeTeamName = homeTeamObj.name || item.homeTeamName || item.home || 'Domáci';
   const awayTeamName = awayTeamObj.name || item.awayTeamName || item.away || 'Hostia';
 
+  const homeLogo = homeTeamObj.logo_public_url || homeTeamObj.logo || null;
+  const awayLogo = awayTeamObj.logo_public_url || awayTeamObj.logo || null;
+
   // Score array maps to teams array by index, NOT by home/away
   let scoreHome = null;
   let scoreAway = null;
@@ -146,7 +149,6 @@ function mapMatch(item, index) {
     if (rawStatus.includes('live')) status = 'live';
     else if (rawStatus.includes('finish') || rawStatus.includes('ended') || rawStatus.includes('completed')) status = 'finished';
     else if (item.startDate && new Date(item.startDate) < new Date()) {
-      // Match date has passed but was never closed in SportNet — treat as past
       status = 'finished';
     }
   }
@@ -162,8 +164,6 @@ function mapMatch(item, index) {
   const matchId = String(item._id || item.id || item.matchId || `sportsnet-${index}`);
   const isRealId = !matchId.startsWith('sportsnet-');
 
-  // Build the direct link to the video recording section on SportNet
-  // URL format: https://sportnet.sme.sk/futbalnet/z/{appSpace}/zapas/{matchId}/videozaznam/
   let videoUrl = null;
   if (isRealId && competitionAppSpace) {
     videoUrl = `https://sportnet.sme.sk/futbalnet/z/${encodeURIComponent(competitionAppSpace)}/zapas/${encodeURIComponent(matchId)}/videozaznam/`;
@@ -171,6 +171,24 @@ function mapMatch(item, index) {
 
   const detailUrl = item.detailUrl
     || (isRealId ? `https://sportnet.sme.sk/futbalnet/zapas/${encodeURIComponent(matchId)}/` : null);
+
+  // Map events (goals)
+  const events = (item.events || []).map(ev => {
+    let icon = '⚽';
+    if (ev.type === 'yellow-card') icon = '🟨';
+    if (ev.type === 'red-card') icon = '🟥';
+    
+    const playerObj = ev.player || {};
+    const playerName = [playerObj.name, playerObj.surname].filter(Boolean).join(' ') || 'Neznámy hráč';
+    
+    return {
+      type: ev.type,
+      minute: ev.minute,
+      player: playerName,
+      team: ev.teamIdx === homeTeamIdx ? 'home' : 'away',
+      icon
+    };
+  });
 
   return {
     id: matchId,
@@ -180,6 +198,8 @@ function mapMatch(item, index) {
     status,
     homeTeam: homeTeamName,
     awayTeam: awayTeamName,
+    homeLogo,
+    awayLogo,
     scoreHome,
     scoreAway,
     venue,
@@ -187,6 +207,7 @@ function mapMatch(item, index) {
     competition,
     detailUrl,
     videoUrl,
+    events,
     raw: item
   };
 }
@@ -255,23 +276,33 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
   }
 
   const now = Date.now();
+  const cacheTtlSet = Math.max(0, env.sportsnetCacheSeconds || 0) * 1000;
 
-  // 1) Fast in-memory cache (same container, same process)
+  // 1) Helper: Check if we should ignore cache due to "10 min after match" rule
+  const shouldIgnoreCacheForRefresh = (payload) => {
+    if (!payload || !Array.isArray(payload.items)) return false;
+    return payload.items.some(m => {
+      if (!m.startsAt || m.status === 'finished') return false;
+      const startTime = new Date(m.startsAt).getTime();
+      const tenMinsAfterMatch = startTime + (115 * 60 * 1000); // ~90m match + 15m break + 10m buffer
+      // If we are past the 10-min-after mark and the match is still not 'finished' in our cache
+      return now > tenMinsAfterMatch && (now - tenMinsAfterMatch < 15 * 60 * 1000); 
+    });
+  };
+
+  // 2) Fast in-memory cache
   if (!forceRefresh && cacheState.payload && cacheState.expiresAt > now) {
-    return {
-      ...cacheState.payload,
-      cache: 'HIT'
-    };
+    if (!shouldIgnoreCacheForRefresh(cacheState.payload)) {
+      return { ...cacheState.payload, cache: 'HIT' };
+    }
   }
 
-  // 2) Persistent DB cache (survives serverless cold starts)
+  // 3) Persistent DB cache
   if (!forceRefresh) {
     const dbCached = await readCache('matches');
-    if (dbCached) {
-      // Warm the in-memory cache too
-      const cacheTtl = Math.max(0, env.sportsnetCacheSeconds || 0) * 1000;
+    if (dbCached && !shouldIgnoreCacheForRefresh(dbCached)) {
       cacheState.payload = dbCached;
-      cacheState.expiresAt = now + cacheTtl;
+      cacheState.expiresAt = now + cacheTtlSet;
       return { ...dbCached, cache: 'HIT' };
     }
   }

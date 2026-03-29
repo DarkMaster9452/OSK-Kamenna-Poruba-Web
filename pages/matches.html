@@ -171,7 +171,27 @@
         .score-value {
             text-align: center;
             color: #ffd700;
-            font-size: 22px;
+            font-size: 24px;
+            background: #003399;
+            padding: 4px 10px;
+            border-radius: 6px;
+            min-width: 60px;
+            box-shadow: 0 2px 6px rgba(0,51,153,0.2);
+        }
+
+        .team-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+
+        .team-logo-small {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            vertical-align: middle;
+            margin-right: 8px;
         }
 
         .match-details {
@@ -921,6 +941,8 @@
                 time: timeValue,
                 homeTeam: item.homeTeam || 'Domáci',
                 awayTeam: item.awayTeam || 'Hostia',
+                homeLogo: item.homeLogo || null,
+                awayLogo: item.awayLogo || null,
                 homeScore: item.scoreHome ?? null,
                 awayScore: item.scoreAway ?? null,
                 status,
@@ -929,6 +951,7 @@
                 competition,
                 category: detectCategory(competition),
                 detailUrl: item.detailUrl || null,
+                videoUrl: item.videoUrl || null,
                 homeFormation: '-',
                 awayFormation: '-',
                 referee: 'Neuvedené',
@@ -939,7 +962,7 @@
                     firstHalf: null,
                     secondHalf: null
                 },
-                events: []
+                events: Array.isArray(item.events) ? item.events : []
             };
         }
 
@@ -1252,22 +1275,25 @@
                 year: 'numeric'
             });
 
+            const hLogo = match.homeLogo ? `<img src="${match.homeLogo}" class="team-logo" alt="${match.homeTeam}">` : `<div class="team-logo" style="background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">LOGO</div>`;
+            const aLogo = match.awayLogo ? `<img src="${match.awayLogo}" class="team-logo" alt="${match.awayTeam}">` : `<div class="team-logo" style="background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">LOGO</div>`;
+
             let scoreHtml = '';
             if (match.status === 'finished' || match.status === 'live') {
                 scoreHtml = `
                         <div class="match-score">
-                            <div class="team-name">${match.homeTeam}</div>
+                            <div style="text-align: center;">${hLogo}<div class="team-name">${match.homeTeam}</div></div>
                             <div class="score-value">${match.homeScore} : ${match.awayScore}</div>
-                            <div class="team-name">${match.awayTeam}</div>
+                            <div style="text-align: center;">${aLogo}<div class="team-name">${match.awayTeam}</div></div>
                         </div>
                     `;
             } else {
                 scoreHtml = `
                         <div class="match-teams">
                             <div class="team-vs">
-                                <div class="team-name">${match.homeTeam}</div>
+                                <div style="text-align: center;">${hLogo}<div class="team-name">${match.homeTeam}</div></div>
                                 <div class="vs-text">VS</div>
-                                <div class="team-name">${match.awayTeam}</div>
+                                <div style="text-align: center;">${aLogo}<div class="team-name">${match.awayTeam}</div></div>
                             </div>
                         </div>
                     `;
@@ -1357,17 +1383,50 @@
                 year: 'numeric'
             });
 
+            const hLogo = match.homeLogo ? `<img src="${match.homeLogo}" style="width:80px;height:80px;object-fit:contain;" alt="${match.homeTeam}">` : '';
+            const aLogo = match.awayLogo ? `<img src="${match.awayLogo}" style="width:80px;height:80px;object-fit:contain;" alt="${match.awayTeam}">` : '';
+
             let scoreSection = '';
             if (match.status === 'finished' || match.status === 'live') {
                 scoreSection = `
-                    <div class="match-score">
+                    <div class="match-score" style="display: flex; justify-content: center; gap: 20px; font-size: 42px;">
                         <div style="text-align: right;">${match.homeScore}</div>
-                        <div style="text-align: center;">-</div>
+                        <div style="text-align: center;">:</div>
                         <div style="text-align: left;">${match.awayScore}</div>
                     </div>
                 `;
             } else {
-                scoreSection = `<div style="text-align: center; color: #999; padding: 20px;">Zápas sa ešte neodohral</div>`;
+                scoreSection = `<div style="text-align: center; color: #999; padding: 20px; font-weight: bold; font-size: 24px;">VS</div>`;
+            }
+
+            let eventsHtml = '';
+            const goals = (match.events || []).filter(e => e.type === 'goal' || e.type === 'goal-own' || e.type === 'penalty');
+            if (goals.length > 0) {
+                eventsHtml = `
+                    <div class="events-section" style="margin-top: 25px; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+                        <div class="events-title" style="margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; color: #003399; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold;">
+                            <i class="fas fa-futbol"></i> Strelci gólov
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                            <div class="home-goals" style="text-align: right; border-right: 1px solid #eee; padding-right: 20px;">
+                                ${goals.filter(e => e.team === 'home').map(e => `
+                                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 8px;">
+                                        <div style="font-size: 14px;"><strong>${e.player}</strong> <span style="color: #666; font-size: 12px;">${e.minute}'</span></div>
+                                        <div style="color: #003399;">${e.icon || '⚽'}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="away-goals">
+                                ${goals.filter(e => e.team === 'away').map(e => `
+                                    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 8px;">
+                                        <div style="color: #003399;">${e.icon || '⚽'}</div>
+                                        <div style="font-size: 14px;"><strong>${e.player}</strong> <span style="color: #666; font-size: 12px;">${e.minute}'</span></div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
 
             let statsHtml = '';
@@ -1450,60 +1509,38 @@
                 `;
             }
 
-            let eventsHtml = '';
-            if (match.events.length > 0) {
-                eventsHtml = `
-                    <div class="events-section">
-                        <div class="events-title"><i class="fas fa-flag-checkered"></i> Udalosti v zápase</div>
-                        ${match.events.map(event => `
-                            <div class="event-item">
-                                <div class="event-icon">${event.icon}</div>
-                                <div class="event-content">
-                                    <div class="event-player">${event.player}</div>
-                                    <div class="event-type">${event.type === 'goal' ? 'Gól' : 'Žlutá karta'} - ${event.minute}. minúta</div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
             return `
                 <div class="match-detail-header">
-                    <div class="match-competition">${match.competition}</div>
-                    <h2 style="margin-bottom: 10px;">${match.homeTeam} vs ${match.awayTeam}</h2>
-                    <div class="detail-teams">
-                        <div class="detail-team">
-                            <div class="detail-team-name">${match.homeTeam}</div>
+                    <div class="match-competition" style="text-align: center; font-weight: bold; background: #003399; color: white; padding: 5px; border-radius: 4px; margin-bottom: 20px;">${match.competition}</div>
+                    <div class="detail-teams" style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 30px;">
+                        <div class="detail-team" style="flex: 1; text-align: center;">
+                            ${hLogo}
+                            <div class="detail-team-name" style="font-weight: bold; margin-top: 10px; color: #003399;">${match.homeTeam}</div>
                         </div>
-                        <div style="display: flex; flex-direction: row; align-items: center; gap: 8px;">
-                            <div class="detail-score">${match.homeScore ?? '-'}</div>
-                            <div class="detail-score" style="color: #333; font-size: 32px;">:</div>
-                            <div class="detail-score">${match.awayScore ?? '-'}</div>
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                            ${scoreSection}
                         </div>
-                        <div class="detail-team">
-                            <div class="detail-team-name">${match.awayTeam}</div>
+                        <div class="detail-team" style="flex: 1; text-align: center;">
+                            ${aLogo}
+                            <div class="detail-team-name" style="font-weight: bold; margin-top: 10px; color: #003399;">${match.awayTeam}</div>
                         </div>
                     </div>
                 </div>
 
-                <div style="background: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
-                    <div><strong>📅 ${formattedDate}</strong></div>
-                    <div><strong>🕐 ${match.time}</strong></div>
-                    <div><strong>📍 ${match.location}</strong></div>
-                    <div style="font-size: 13px; color: #666; margin-top: 8px;">
-                        Adresa: ${match.address}<br>
-                        Rozhodca: ${match.referee}
-                    </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; border: 1px solid #eee; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div><i class="fas fa-calendar" style="color:#ffd700"></i><br>${formattedDate}</div>
+                    <div><i class="fas fa-clock" style="color:#ffd700"></i><br>${match.time}</div>
+                    <div><i class="fas fa-map-marker-alt" style="color:#ffd700"></i><br>${match.location}</div>
                 </div>
+
+                ${eventsHtml}
 
                 ${statsHtml}
-                ${eventsHtml}
 
                 ${generateSportnetVideoSection(match)}
 
-                <div class="formation">
-                    <div class="formation-title"><i class="fas fa-sitemap"></i> Zostavenie: ${match.homeFormation} vs ${match.awayFormation}</div>
+                <div class="formation" style="margin-top: 25px; text-align: center; font-size: 13px; color: #666; border-top: 1px solid #eee; padding-top: 15px;">
+                    <div class="formation-title"><i class="fas fa-info-circle"></i> Rozhodca: ${match.referee || 'Neuvedené'}</div>
                 </div>
             `;
         }
