@@ -494,8 +494,19 @@
         .about-milestones {
             margin: 16px 0 18px;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
+        }
+
+        @media (max-width: 600px) {
+            .about-milestones {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+            .about-milestone {
+                justify-content: center;
+                text-align: center;
+            }
         }
 
         .about-milestone {
@@ -2716,6 +2727,7 @@
     <div class="about-history">
         <div class="about-milestones">
             <span class="about-milestone"><i class="fas fa-flag"></i> 1955 - vznik hnutia</span>
+            <span class="about-milestone"><i class="fas fa-shield-alt"></i> 1977 - TJ ŠM</span>
             <span class="about-milestone"><i class="fas fa-futbol"></i> 1980 - ihrisko Dub</span>
             <span class="about-milestone"><i class="fas fa-signature"></i> 2003 - názov OŠK</span>
         </div>
