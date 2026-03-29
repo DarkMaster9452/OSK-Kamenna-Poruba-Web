@@ -608,36 +608,29 @@
                 const albumData = CLOUDINARY_ALBUMS[currentAlbum];
                 if (!albumData) return;
 
-                // If no subfolder selected and we have subfolders
-                if (currentSubfolderIndex === null && albumData.subfolders.length > 0) {
-                    // Decide whether to show folder list or jump straight to images
-                    // Strategy: if there's only 1 subfolder AND its name is basically the same as the category, jump straight.
-                    const firstSub = albumData.subfolders[0];
-                    const isRedundant = albumData.subfolders.length === 1 && 
-                                      (firstSub.name.toLowerCase() === albumData.label.toLowerCase() || 
-                                       firstSub.name.toLowerCase() === currentAlbum.replace(/^-/, ''));
+                const isHistory = albumData.label === 'Historické';
 
-                    if (!isRedundant) {
-                        renderFolderList(albumData.subfolders);
-                        document.getElementById('loadMoreBtn').hidden = true;
-                        return;
-                    }
+                // Strategy: Only show folder list if there are COMPETING subfolders (>= 2)
+                // AND it's not the History category (where we want to see everything at once)
+                if (currentSubfolderIndex === null && albumData.subfolders.length > 1 && !isHistory) {
+                    renderFolderList(albumData.subfolders);
+                    document.getElementById('loadMoreBtn').hidden = true;
+                    return;
                 }
 
-                // Either a specific subfolder is selected, OR there's a redundant single folder
-                const subIndex = currentSubfolderIndex !== null ? currentSubfolderIndex : 0;
-                const subfolder = albumData.subfolders[subIndex];
-                
-                if (subfolder) {
+                // Either a specific subfolder is selected, OR we are showing the combined view
+                if (currentSubfolderIndex !== null) {
+                    const subfolder = albumData.subfolders[currentSubfolderIndex];
                     itemsToShow = subfolder.images.map(img => makeCloudinaryItem(img, currentAlbum));
                     
-                    // Show back button if multiple subfolders existed originally
-                    if (albumData.subfolders.length > 1) {
-                        backNav.style.display = 'flex';
-                        document.getElementById('currentEventName').textContent = subfolder.name;
-                    }
+                    backNav.style.display = 'flex';
+                    document.getElementById('currentEventName').textContent = subfolder.name;
                 } else {
+                    // Show combined photos from ALL subfolders in this category
                     itemsToShow = [];
+                    albumData.subfolders.forEach(sub => {
+                        itemsToShow = itemsToShow.concat(sub.images.map(img => makeCloudinaryItem(img, currentAlbum)));
+                    });
                 }
 
                 if (albumData.conf && (albumData.conf.title || (albumData.conf.points && albumData.conf.points.length))) {
