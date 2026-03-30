@@ -13,8 +13,18 @@
 	],
 	"rewrites": [
 		{
+			"source": "/api/cron-sportnet",
+			"destination": "/api/cron-sportnet.js"
+		},
+		{
 			"source": "/api/:path*",
-			"destination": "/api/proxy?path=:path*"
+			"destination": "/api/[...all].js"
+		}
+	],
+	"crons": [
+		{
+			"path": "/api/cron-sportnet",
+			"schedule": "*/10 * * * *"
 		}
 	]
 }

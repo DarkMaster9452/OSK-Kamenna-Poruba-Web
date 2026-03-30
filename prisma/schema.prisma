@@ -1,0 +1,282 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  coach
+  player
+  parent
+  blogger
+}
+
+enum TrainingType {
+  technical
+  tactical
+  physical
+  friendly
+}
+
+enum TrainingCategory {
+  dospeli
+  dorastenci
+  ziaci_u15
+  ziaci_u13
+  pripravka_u11
+  pripravka_u9
+}
+
+enum PlayerCategory {
+  pripravka_u9
+  pripravka_u11
+  ziaci
+  dorastenci
+  adults_young
+  adults_pro
+}
+
+enum TargetGroup {
+  all
+  players
+  parents
+  coaches
+  admins
+}
+
+enum AttendanceStatus {
+  yes
+  no
+  unknown
+}
+
+enum AuditEntityType {
+  auth
+  user
+  training
+  attendance
+  announcement
+  poll
+  blog_post
+  player_group
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  role         Role
+  playerCategory PlayerCategory?
+  shirtNumber  Int?
+  passwordHash String
+  lastPasswordChangeAt DateTime?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  trainingsCreated     Training[]     @relation("TrainingsCreatedBy")
+  announcementsCreated Announcement[] @relation("AnnouncementsCreatedBy")
+  pollsCreated         Poll[]         @relation("PollsCreatedBy")
+  blogPostsCreated     BlogPost[]     @relation("BlogPostsCreatedBy")
+  pollVotes            PollVote[]     @relation("PollVotesByUser")
+  attendanceUpdates    TrainingAttendance[] @relation("AttendanceUpdatedBy")
+  auditLogs            AuditLog[]     @relation("AuditActor")
+  parentChildren       ParentChild[]  @relation("ParentChildren")
+  childParents         ParentChild[]  @relation("ChildParents")
+  playerGroupsCreated  PlayerGroup[]  @relation("PlayerGroupsCreatedBy")
+
+  @@map("All Accs")
+}
+
+model ParentChild {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  parentId String
+  parent   User @relation("ParentChildren", fields: [parentId], references: [id], onDelete: Cascade)
+
+  childId String
+  child   User @relation("ChildParents", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+  @@index([parentId])
+  @@index([childId])
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  published Boolean  @default(true)
+  imageUrl  String?
+  tags      String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdById String
+  createdBy   User @relation("BlogPostsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([createdAt])
+}
+
+model Training {
+  id        String           @id @default(cuid())
+  date      String
+  time      String
+  type      TrainingType
+  duration  Int
+  category  TrainingCategory
+  note      String?
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+
+  createdById String
+  createdBy   User @relation("TrainingsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  attendances TrainingAttendance[]
+
+  groups TrainingGroup[]
+
+  @@index([createdAt])
+}
+
+model TrainingGroup {
+  id        String   @id @default(cuid())
+  name      String
+  location  String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  trainingId String
+  training   Training @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+
+  attendances TrainingAttendance[] @relation("GroupAttendances")
+
+  @@index([trainingId])
+}
+
+model TrainingAttendance {
+  id           String           @id @default(cuid())
+  playerUsername String
+  status       AttendanceStatus @default(unknown)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  trainingId String
+  training   Training @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+
+  trainingGroupId String?
+  trainingGroup   TrainingGroup? @relation("GroupAttendances", fields: [trainingGroupId], references: [id], onDelete: SetNull)
+
+  updatedById String?
+  updatedBy   User? @relation("AttendanceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([trainingId, playerUsername])
+  @@index([trainingId])
+  @@index([trainingGroupId])
+  @@index([playerUsername])
+}
+
+model Announcement {
+  id        String      @id @default(cuid())
+  title     String
+  message   String
+  target    TargetGroup
+  playerCategory PlayerCategory?
+  important Boolean     @default(false)
+  isPublic  Boolean     @default(false)
+  imageUrl  String?
+  createdAt DateTime    @default(now())
+
+  createdById String
+  createdBy   User @relation("AnnouncementsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([createdAt])
+}
+
+model Poll {
+  id        String      @id @default(cuid())
+  question  String
+  options   String[]
+  target    TargetGroup
+  playerCategory PlayerCategory?
+  active    Boolean     @default(true)
+  closesAt  DateTime?
+  closedAt  DateTime?
+  createdAt DateTime    @default(now())
+
+  createdById String
+  createdBy   User @relation("PollsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  votes PollVote[]
+
+  @@index([createdAt])
+}
+
+model PollVote {
+  id        String   @id @default(cuid())
+  optionIdx Int
+  createdAt DateTime @default(now())
+
+  pollId String
+  poll   Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User @relation("PollVotesByUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId])
+  @@index([pollId])
+  @@index([userId])
+}
+
+model AuditLog {
+  id         String          @id @default(cuid())
+  action     String
+  entityType AuditEntityType
+  entityId   String?
+  details    Json?
+  createdAt  DateTime        @default(now())
+
+  actorUserId String?
+  actorUser   User? @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([entityType])
+}
+
+model PlayerGroup {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  createdById String
+  createdBy   User @relation("PlayerGroupsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  members PlayerGroupMember[]
+
+  @@index([createdAt])
+}
+
+model PlayerGroupMember {
+  id        String   @id @default(cuid())
+  playerUsername String
+  createdAt DateTime @default(now())
+
+  groupId String
+  group   PlayerGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, playerUsername])
+  @@index([groupId])
+  @@index([playerUsername])
+}
+
+model SportnetCache {
+  key       String   @id
+  payload   Json
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+}
