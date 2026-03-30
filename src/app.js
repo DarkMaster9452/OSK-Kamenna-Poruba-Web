@@ -88,14 +88,38 @@ const apiRateLimiter = rateLimit({
 app.use('/api', apiRateLimiter);
 app.use('/', apiRateLimiter);
 
-app.get('/api/csrf-token', (_req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send('{"csrfToken":""}');
-});
-app.get('/csrf-token', (_req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send('{"csrfToken":""}');
-});
+function generateCsrfToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function handleCsrfTokenRequest(req, res) {
+  const token = generateCsrfToken();
+  res.cookie('_csrf', token, {
+    httpOnly: false,
+    secure: env.cookieSecure || env.nodeEnv === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 1000 * 60 * 60 * 2
+  });
+  res.json({ csrfToken: token });
+}
+
+app.get('/api/csrf-token', handleCsrfTokenRequest);
+app.get('/csrf-token', handleCsrfTokenRequest);
+
+function csrfValidation(req, res, next) {
+  if (!env.csrfProtection) return next();
+  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+  if (safeMethods.includes(req.method)) return next();
+  const headerToken = req.headers['x-csrf-token'] || '';
+  const cookieToken = req.cookies && req.cookies['_csrf'] || '';
+  if (!headerToken || !cookieToken || headerToken !== cookieToken) {
+    return res.status(403).json({ message: 'Neplatný CSRF token. Obnovte stránku a skúste znova.' });
+  }
+  return next();
+}
+
+app.use(csrfValidation);
 
 app.use('/api/health', healthRoutes);
 app.use('/health', healthRoutes);

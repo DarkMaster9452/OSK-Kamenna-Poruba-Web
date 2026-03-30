@@ -62,7 +62,7 @@ const env = {
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || 'dev_only_change_me',
   jwtAccessExpires: process.env.JWT_ACCESS_EXPIRES || '15m',
   cookieName: process.env.COOKIE_NAME || 'osk_session',
-  cookieSecure: String(process.env.COOKIE_SECURE || 'false') === 'true',
+  cookieSecure: String(process.env.COOKIE_SECURE || (nodeEnvRaw === 'production' ? 'true' : 'false')) === 'true',
   cookieSameSite: process.env.COOKIE_SAME_SITE || 'lax',
   cookieDomain: process.env.COOKIE_DOMAIN || '',
   cookieMaxAgeMs: Number(process.env.COOKIE_MAX_AGE_MS || (1000 * 60 * 60 * 24 * 30)),
