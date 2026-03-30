@@ -81,14 +81,31 @@ const apiRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 200,
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: (req) => req.path === '/csrf-token' || req.path === '/api/csrf-token'
 });
 
 app.use('/api', apiRateLimiter);
 app.use('/', apiRateLimiter);
 
-app.get('/api/csrf-token', (_req, res) => res.json({ csrfToken: '' }));
-app.get('/csrf-token', (_req, res) => res.json({ csrfToken: '' }));
+app.get('/api/csrf-token', (_req, res) => {
+  try {
+    res.setHeader('Content-Type', 'application/json');
+    res.send('{"csrfToken":""}');
+  } catch (err) {
+    console.error('CSRF endpoint error:', err);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+app.get('/csrf-token', (_req, res) => {
+  try {
+    res.setHeader('Content-Type', 'application/json');
+    res.send('{"csrfToken":""}');
+  } catch (err) {
+    console.error('CSRF endpoint error:', err);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
 
 app.use('/api/health', healthRoutes);
 app.use('/health', healthRoutes);
