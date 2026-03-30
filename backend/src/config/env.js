@@ -27,6 +27,12 @@ const additionalOrigins = (process.env.ALLOWED_DOMAINS || '')
   .filter(Boolean)
   .map((o) => o.startsWith('https://') ? o : `https://${o}`);
 
+// Hardcoded fallback domains for production
+const fallbackDomains = nodeEnvRaw === 'production' 
+  ? ['https://osskp.sk'] 
+  : [];
+const allOrigins = [...baseOrigins, ...additionalOrigins, ...fallbackDomains];
+
 const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
 if (vercelUrl && !baseOrigins.includes(vercelUrl)) {
   baseOrigins.push(vercelUrl);
@@ -36,7 +42,7 @@ const env = {
   nodeEnv: nodeEnvRaw,
   port: Number(process.env.PORT || 4000),
   trustProxy: process.env.TRUST_PROXY || (String(process.env.NODE_ENV || 'development') === 'production' ? '1' : 'false'),
-  frontendOrigins: [...baseOrigins, ...additionalOrigins],
+  frontendOrigins: allOrigins,
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || 'dev_only_change_me',
   jwtAccessExpires: process.env.JWT_ACCESS_EXPIRES || '15m',
   cookieName: process.env.COOKIE_NAME || 'osk_session',

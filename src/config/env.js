@@ -49,6 +49,11 @@ additionalDomains.forEach(domain => {
   }
 });
 
+// Hardcoded fallback for production domains
+if (nodeEnvRaw === 'production' && !frontendOrigins.includes('https://osskp.sk')) {
+  frontendOrigins.push('https://osskp.sk');
+}
+
 const env = {
   nodeEnv: nodeEnvRaw,
   port: Number(process.env.PORT || 4000),
