@@ -29,7 +29,7 @@ const additionalOrigins = (process.env.ALLOWED_DOMAINS || '')
 
 // Hardcoded fallback domains for production
 const fallbackDomains = nodeEnvRaw === 'production' 
-  ? ['https://osskp.sk'] 
+  ? ['https://oskkp.sk'] 
   : [];
 const allOrigins = [...baseOrigins, ...additionalOrigins, ...fallbackDomains];
 
