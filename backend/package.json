@@ -5,8 +5,8 @@
   "description": "Backend API for OŠK Kamenná Poruba",
   "main": "src/server.js",
   "scripts": {
-    "postinstall": "prisma generate",
-    "dev": "prisma generate && node --watch src/server.js",
+    "postinstall": "npx prisma generate",
+    "dev": "npx prisma generate && node --watch src/server.js",
     "start": "prisma db push && node src/server.js",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
