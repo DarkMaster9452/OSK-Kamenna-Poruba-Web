@@ -1,7 +1,7 @@
 {
   "scripts": {
     "postinstall": "prisma generate || true",
-    "build": "prisma generate || true && mkdir -p public && cp -r index.html pages assets public/"
+    "build": "npx prisma generate && mkdir -p public && cp -r index.html pages assets public/"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
