@@ -4,7 +4,6 @@ const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
-const csrf = require('csurf');
 const env = require('./config/env');
 const healthRoutes = require('./routes/health.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -76,7 +75,6 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json({ limit: '1mb' }));
-app.use(csrf({ cookie: true }));
 
 const apiRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -88,25 +86,6 @@ const apiRateLimiter = rateLimit({
 app.use('/api', apiRateLimiter);
 app.use('/', apiRateLimiter);
 
-app.get('/api/csrf-token', (req, res) => {
-  try {
-    res.json({ csrfToken: req.csrfToken() });
-  } catch (err) {
-    console.error('CSRF error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get('/csrf-token', (req, res) => {
-  try {
-    res.json({ csrfToken: req.csrfToken() });
-  } catch (err) {
-    console.error('CSRF error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// csurf middleware zabezpečuje CSRF ochranu
 app.use('/api/health', healthRoutes);
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
