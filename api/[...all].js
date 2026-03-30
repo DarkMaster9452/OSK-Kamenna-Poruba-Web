@@ -6,7 +6,7 @@ try {
     app = require('express')();
     app.get('/api/csrf-token', (_req, res) => res.json({ csrfToken: '' }));
     app.get('/csrf-token', (_req, res) => res.json({ csrfToken: '' }));
-    app.get('*', (_req, res) => res.status(500).json({ error: 'Server initialization failed' }));
+    app.all('*', (_req, res) => res.status(500).json({ error: 'Server initialization failed', details: err.message }));
 }
 
 try {

@@ -2,7 +2,7 @@ const env = require('../config/env');
 const { readCache, writeCache } = require('./cache');
 
 const API_BASE = 'https://sutaze.api.sportnet.online/api/v2';
-const APP_SPACE = 'osk-kamenna-poruba.futbalnet.sk';
+const APP_SPACE = env.sportnetAppSpace || 'osk-kamenna-poruba.futbalnet.sk';
 
 const cacheState = {
   expiresAt: 0,

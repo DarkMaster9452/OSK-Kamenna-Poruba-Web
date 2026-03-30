@@ -45,4 +45,22 @@ router.get('/matches', async (req, res, next) => {
   }
 });
 
+router.get('/cron', async (req, res, next) => {
+  try {
+    const results = await Promise.all([
+      fetchSportsnetMatches({ forceRefresh: true }),
+      fetchSportsnetStandings({ forceRefresh: true })
+    ]);
+    return res.json({
+      status: 'ok',
+      message: 'Cache updated via cron',
+      matches: results[0].count,
+      standings: results[1].standings.length,
+      fetchedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 module.exports = router;

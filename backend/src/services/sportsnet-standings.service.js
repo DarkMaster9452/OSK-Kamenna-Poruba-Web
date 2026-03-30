@@ -18,7 +18,7 @@ const env = require('../config/env');
 const { readCache, writeCache } = require('./cache');
 
 const SUTAZE_BASE = 'https://sutaze.api.sportnet.online/api/v2';
-const APP_SPACE   = 'osk-kamenna-poruba.futbalnet.sk';
+const APP_SPACE = env.sportnetAppSpace || 'osk-kamenna-poruba.futbalnet.sk';
 
 // Age categories to fetch, in display order
 const AGE_CATEGORIES = ['ADULTS', 'U19', 'U17', 'U15', 'U13', 'U11', 'U09'];
