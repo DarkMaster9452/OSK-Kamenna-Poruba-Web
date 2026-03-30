@@ -86,6 +86,9 @@ const apiRateLimiter = rateLimit({
 app.use('/api', apiRateLimiter);
 app.use('/', apiRateLimiter);
 
+app.get('/api/csrf-token', (_req, res) => res.json({ csrfToken: '' }));
+app.get('/csrf-token', (_req, res) => res.json({ csrfToken: '' }));
+
 app.use('/api/health', healthRoutes);
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);

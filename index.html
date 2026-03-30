@@ -3215,11 +3215,7 @@
                     }
 
                     const payload = await response.json();
-                    if (!payload || !payload.csrfToken) {
-                        throw new Error('CSRF token nebol v odpovedi servera.');
-                    }
-
-                    return payload.csrfToken;
+                    return payload && payload.csrfToken !== undefined ? payload.csrfToken : '';
                 } catch (error) {
                     lastError = error;
                     if (attempt < 3) {
