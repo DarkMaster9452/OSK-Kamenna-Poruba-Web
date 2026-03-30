@@ -154,7 +154,11 @@ function mapMatch(item, index) {
   }
 
   const round = (item.round && item.round.name) || item.round || item.matchday || null;
-  const competition = (item.competition && item.competition.name) || item.competitionName || null;
+  let competition = (item.competition && item.competition.name) || item.competitionName || null;
+  // Fix for "undefined" or "null" strings appearing in UI
+  if (competition === 'undefined' || competition === 'null' || !competition) {
+    competition = 'Súťaž';
+  }
   const competitionAppSpace = (item.competition && item.competition.appSpace) || null;
   const venue = (item.sportGround && (item.sportGround.name || item.sportGround.city)) || item.venue || item.stadium || null;
 
@@ -181,11 +185,18 @@ function mapMatch(item, index) {
     const playerObj = ev.player || {};
     const playerName = [playerObj.name, playerObj.surname].filter(Boolean).join(' ') || 'Neznámy hráč';
     
+    let team = ev.teamIdx === homeTeamIdx ? 'home' : 'away';
+    // Fallback if teamIdx is missing: try to match by team ID if available or just use teamIdx
+    if (ev.teamId) {
+      if (homeTeamObj.id === ev.teamId || homeTeamObj._id === ev.teamId) team = 'home';
+      else if (awayTeamObj.id === ev.teamId || awayTeamObj._id === ev.teamId) team = 'away';
+    }
+
     return {
       type: ev.type,
       minute: ev.minute,
       player: playerName,
-      team: ev.teamIdx === homeTeamIdx ? 'home' : 'away',
+      team,
       icon
     };
   });

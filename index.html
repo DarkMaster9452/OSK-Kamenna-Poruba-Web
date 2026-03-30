@@ -1049,8 +1049,7 @@
             gap: 15px;
             flex-wrap: nowrap;
         }
-
-        .match-card .team-name {
+            .match-card .team-name {
             font-weight: 700;
             font-size: 15px;
             color: #003399;
@@ -1060,18 +1059,17 @@
         .score-value {
             text-align: center;
             color: #ffd700;
-            font-size: 22px;
+            font-size: 32px;
             background: #003399;
-            padding: 6px 12px;
-            border-radius: 8px;
-            min-width: 80px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            min-width: 100px;
             font-weight: 800;
-            box-shadow: 0 3px 8px rgba(0, 51, 153, 0.2);
-            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0, 51, 153, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            white-space: nowrap;
         }
 
         .vs-text {
@@ -1109,6 +1107,104 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
             font-weight: 600;
+        }
+
+        .match-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            align-self: flex-start;
+        }
+
+        .match-status.upcoming {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .match-status.finished {
+            background: #f1f2f6;
+            color: #57606f;
+        }
+
+        .match-status.live {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* Modern Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 51, 153, 0.4);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 15px;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            border-radius: 24px;
+            overflow-y: auto;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 51, 153, 0.1);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: #003399;
+            color: white;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10002;
+            transition: all 0.2s;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0, 51, 153, 0.3);
+        }
+
+        .modal-close:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: #ffd700;
+            color: #003399;
+        }
+
+        .match-detail-content {
+            padding: 40px 30px;
         }
 
         .buffet-notice {
@@ -2766,7 +2862,7 @@
                         </div>
                         <div class="form-group">
                             <label for="contactPhone">Telefónne číslo</label>
-                            <input type="tel" id="contactPhone" name="phone" placeholder="Váš telefón" required>
+                            <input type="tel" id="contactPhone" name="phone" placeholder="Vaše telefón" required>
                         </div>
                         <div class="form-group">
                             <label for="contactMessage">Správa</label>
@@ -2811,9 +2907,9 @@
     <!-- Login Modal -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
+            <div class="modal-close" onclick="closeLoginModal()"><i class="fas fa-times"></i></div>
             <div class="modal-header">
                 <h2>Prihlásenie do systému</h2>
-                <button class="close-btn" onclick="closeLoginModal()"><i class="fas fa-times"></i></button>
             </div>
             <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="on" method="post">
                 <div class="form-group">
@@ -2852,9 +2948,9 @@
     <!-- Logout Modal -->
     <div id="logoutModal" class="modal">
         <div class="modal-content">
+            <div class="modal-close" onclick="closeLogoutModal()"><i class="fas fa-times"></i></div>
             <div class="modal-header">
                 <h2>Odhlásenie</h2>
-                <button class="close-btn" onclick="closeLogoutModal()"><i class="fas fa-times"></i></button>
             </div>
             <div style="margin: 20px 0; text-align: center;">
                 <p>Ste prihlásený ako <b id="logoutUserName"></b>.</p>
@@ -2873,9 +2969,9 @@
     <!-- Change Password Modal -->
     <div id="changePasswordModal" class="modal">
         <div class="modal-content" style="max-width:420px;">
+            <div class="modal-close" onclick="closeChangePasswordModal()"><i class="fas fa-times"></i></div>
             <div class="modal-header">
                 <h2 style="font-size:26px;">Zmena hesla</h2>
-                <button class="close-btn" onclick="closeChangePasswordModal()"><i class="fas fa-times"></i></button>
             </div>
             <div style="margin: 20px 0; text-align: left; font-size:16px;">
                 <div style="margin-bottom: 12px;">
@@ -4371,7 +4467,12 @@
                         localStatus = 'upcoming';
                     }
 
-                    return { ...m, matchDateObj, localStatus, dA, tA };
+                    let competition = String(m.competition || '');
+                    if (!competition || competition === 'undefined' || competition === 'null') {
+                        competition = 'Súťaž';
+                    }
+
+                    return { ...m, matchDateObj, localStatus, dA, tA, competition };
                 });
 
                 // Vyfiltrujeme tie, ktoré sa zhodujú s kategóriou záložky
@@ -4385,7 +4486,7 @@
                 if (type === 'finished') {
                     items.sort((a, b) => b.matchDateObj - a.matchDateObj); // Od najnovšieho k najstaršiemu
                 } else if (type === 'upcoming') {
-                    items.sort((a, b) => a.matchDateObj - b.matchDateObj); // Od najbližšieho k najvzdialenejšiemu
+                    items.sort((a, b) => a.matchDateObj - b.matchDateObj); // Od najbližšieho k najbližšiemu
                 }
 
                 // Vynútime limit 4 zápasov na klientovi
@@ -4402,7 +4503,7 @@
                     const t = m.tA || '';
                     const formatted = dateObj ? dateObj.toLocaleDateString('sk-SK', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : d;
                     const venue = m.venue || 'Neuvedené';
-                    const comp = m.competition || 'Súťaž';
+                    const comp = m.competition;
                     const catLabel = getMatchCategoryLabel(comp);
 
                     const statusClass = type === 'upcoming' ? 'upcoming' : 'finished';

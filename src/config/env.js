@@ -40,6 +40,7 @@ const env = {
   smtpFromEmail: process.env.SMTP_FROM_EMAIL || '',
   smtpFromName: process.env.SMTP_FROM_NAME || 'OŠK Kamenná Poruba',
   contactFormToEmail: process.env.CONTACT_FORM_TO_EMAIL || '',
+  sportnetAppSpace: process.env.SPORTNET_APP_SPACE || 'osk-kamenna-poruba.futbalnet.sk',
   sportnetApiBase: process.env.SPORTNET_API_BASE || process.env.SPORTSNET_API_BASE || '',
   sportnetOrgId: process.env.SPORTNET_ORG_ID || process.env.SPORTSNET_ORG_ID || '',
   sportnetMatchesPath: process.env.SPORTNET_MATCHES_PATH || process.env.SPORTSNET_MATCHES_PATH || '/organizations/{orgId}/matches',

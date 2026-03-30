@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "postinstall": "prisma generate",
+    "build": "prisma generate"
+  },
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "bcryptjs": "^2.4.3",

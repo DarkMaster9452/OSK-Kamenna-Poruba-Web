@@ -633,10 +633,16 @@
                     });
                 }
 
-                if (albumData.conf && (albumData.conf.title || (albumData.conf.points && albumData.conf.points.length))) {
+                // Only show album info if it adds extra context (explicit title or bullet points)
+                const conf = albumData.conf || {};
+                const hasTitle = !!conf.title;
+                const hasPoints = !!(conf.points && conf.points.length);
+                
+                if (hasTitle || hasPoints) {
                     infoEl.style.display = 'block';
-                    titleEl.textContent = albumData.conf.title || albumData.label;
-                    pointsEl.innerHTML = (albumData.conf.points || []).map(p => '<li>' + p + '</li>').join('');
+                    titleEl.textContent = conf.title || '';
+                    titleEl.style.display = hasTitle ? 'block' : 'none';
+                    pointsEl.innerHTML = (conf.points || []).map(p => '<li>' + p + '</li>').join('');
                 }
             }
 
