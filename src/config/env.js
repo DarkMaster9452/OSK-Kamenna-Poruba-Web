@@ -50,8 +50,8 @@ additionalDomains.forEach(domain => {
 });
 
 // Hardcoded fallback for production domains
-if (nodeEnvRaw === 'production' && !frontendOrigins.includes('https://osskp.sk')) {
-  frontendOrigins.push('https://osskp.sk');
+if (nodeEnvRaw === 'production' && !frontendOrigins.includes('https://oskkp.sk')) {
+  frontendOrigins.push('https://oskkp.sk');
 }
 
 const env = {
