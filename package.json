@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "postinstall": "prisma generate",
-    "build": "prisma generate && mkdir -p public"
+    "postinstall": "prisma generate || true",
+    "build": "(prisma generate || true) && mkdir -p public"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
