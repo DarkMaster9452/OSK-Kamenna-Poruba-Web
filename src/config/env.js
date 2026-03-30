@@ -25,6 +25,13 @@ const frontendOrigins = allowedOriginsCsv
   .map(o => o.trim())
   .filter(Boolean);
 
+// Additional domains from ALLOWED_DOMAINS env var (comma-separated, with or without https://)
+const additionalDomains = (process.env.ALLOWED_DOMAINS || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean)
+  .map(o => o.startsWith('https://') ? o : `https://${o}`);
+
 // Inject VERCEL_URL if missing
 if (vercelUrl && !frontendOrigins.includes(vercelUrl)) {
   frontendOrigins.push(vercelUrl);
@@ -34,6 +41,13 @@ if (vercelUrl && !frontendOrigins.includes(vercelUrl)) {
 if (nodeEnvRaw === 'production' && !frontendOrigins.includes('https://*.vercel.app')) {
   frontendOrigins.push('https://*.vercel.app');
 }
+
+// Add additional domains
+additionalDomains.forEach(domain => {
+  if (!frontendOrigins.includes(domain)) {
+    frontendOrigins.push(domain);
+  }
+});
 
 const env = {
   nodeEnv: nodeEnvRaw,

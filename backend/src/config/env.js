@@ -15,14 +15,28 @@ const frontendOriginRaw = process.env.FRONTEND_ORIGIN || defaultFrontendOrigin;
 const frontendOriginsNormalized = frontendOriginRaw.includes('YOUR_VERCEL_DOMAIN')
   ? 'https://*.vercel.app,http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501'
   : frontendOriginRaw;
+
+const baseOrigins = frontendOriginsNormalized
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const additionalOrigins = (process.env.ALLOWED_DOMAINS || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean)
+  .map((o) => o.startsWith('https://') ? o : `https://${o}`);
+
+const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
+if (vercelUrl && !baseOrigins.includes(vercelUrl)) {
+  baseOrigins.push(vercelUrl);
+}
+
 const env = {
   nodeEnv: nodeEnvRaw,
   port: Number(process.env.PORT || 4000),
   trustProxy: process.env.TRUST_PROXY || (String(process.env.NODE_ENV || 'development') === 'production' ? '1' : 'false'),
-  frontendOrigins: frontendOriginsNormalized
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean),
+  frontendOrigins: [...baseOrigins, ...additionalOrigins],
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || 'dev_only_change_me',
   jwtAccessExpires: process.env.JWT_ACCESS_EXPIRES || '15m',
   cookieName: process.env.COOKIE_NAME || 'osk_session',
