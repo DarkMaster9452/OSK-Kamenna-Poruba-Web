@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "postinstall": "node node_modules/prisma/build/index.js generate --schema=prisma/schema.prisma"
+    "postinstall": "prisma generate",
+    "build": "prisma generate && mkdir -p public"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

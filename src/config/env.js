@@ -8,21 +8,38 @@ const _seasonStartYear = _now.getMonth() >= 6 ? _now.getFullYear() : _now.getFul
 const _currentSeason = `${_seasonStartYear}/${_seasonStartYear + 1}`;
 
 const nodeEnvRaw = String(process.env.NODE_ENV || 'development');
-const defaultFrontendOrigin = nodeEnvRaw === 'production'
-  ? 'https://*.vercel.app'
-  : 'http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501';
-const frontendOriginRaw = process.env.FRONTEND_ORIGIN || defaultFrontendOrigin;
-const frontendOriginsNormalized = frontendOriginRaw.includes('YOUR_VERCEL_DOMAIN')
-  ? 'https://*.vercel.app,http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501'
-  : frontendOriginRaw;
+
+// List of allowed origins - can be a comma-separated string in FRONTEND_ORIGIN
+const allowedOriginsCsv = process.env.FRONTEND_ORIGIN || (
+  nodeEnvRaw === 'production'
+    ? 'https://*.vercel.app'
+    : 'http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501'
+);
+
+// If Vercel sets VERCEL_URL, we automatically add it for seamless deployment
+const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
+
+// Split and clean the list
+const frontendOrigins = allowedOriginsCsv
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
+// Inject VERCEL_URL if missing
+if (vercelUrl && !frontendOrigins.includes(vercelUrl)) {
+  frontendOrigins.push(vercelUrl);
+}
+
+// Always ensure wildcard for vercel.app in production
+if (nodeEnvRaw === 'production' && !frontendOrigins.includes('https://*.vercel.app')) {
+  frontendOrigins.push('https://*.vercel.app');
+}
+
 const env = {
   nodeEnv: nodeEnvRaw,
   port: Number(process.env.PORT || 4000),
-  trustProxy: process.env.TRUST_PROXY || (String(process.env.NODE_ENV || 'development') === 'production' ? '1' : 'false'),
-  frontendOrigins: frontendOriginsNormalized
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean),
+  trustProxy: process.env.TRUST_PROXY || (nodeEnvRaw === 'production' ? '1' : 'false'),
+  frontendOrigins,
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || 'dev_only_change_me',
   jwtAccessExpires: process.env.JWT_ACCESS_EXPIRES || '15m',
   cookieName: process.env.COOKIE_NAME || 'osk_session',

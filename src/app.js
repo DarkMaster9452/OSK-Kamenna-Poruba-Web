@@ -69,7 +69,8 @@ app.use(
         return callback(null, true);
       }
 
-      return callback(new Error('CORS: origin not allowed'));
+      console.warn(`[CORS Error] Origin "${origin}" is not allowed. Whitelist: ${env.frontendOrigins.join(', ')}`);
+      return callback(new Error(`CORS: origin "${origin}" not allowed`));
     },
     credentials: true
   })
