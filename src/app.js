@@ -89,22 +89,12 @@ app.use('/api', apiRateLimiter);
 app.use('/', apiRateLimiter);
 
 app.get('/api/csrf-token', (_req, res) => {
-  try {
-    res.setHeader('Content-Type', 'application/json');
-    res.send('{"csrfToken":""}');
-  } catch (err) {
-    console.error('CSRF endpoint error:', err);
-    res.status(500).json({ error: 'Internal error' });
-  }
+  res.setHeader('Content-Type', 'application/json');
+  res.send('{"csrfToken":""}');
 });
 app.get('/csrf-token', (_req, res) => {
-  try {
-    res.setHeader('Content-Type', 'application/json');
-    res.send('{"csrfToken":""}');
-  } catch (err) {
-    console.error('CSRF endpoint error:', err);
-    res.status(500).json({ error: 'Internal error' });
-  }
+  res.setHeader('Content-Type', 'application/json');
+  res.send('{"csrfToken":""}');
 });
 
 app.use('/api/health', healthRoutes);

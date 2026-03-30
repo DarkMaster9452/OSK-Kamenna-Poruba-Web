@@ -1,12 +1,19 @@
-const app = require('../src/app');
-const prisma = require('../src/data/db');
-
-// Vercel Cold Start Optimization:
-// Fire a background ping immediately when the serverless function module is evaluated.
-// By the time the actual HTTP request hits the Express router, the DB connection
-// is already established (or in progress), saving ~1000-2000ms.
+let app;
 try {
+    app = require('../src/app');
+} catch (err) {
+    console.error('Failed to load app:', err);
+    app = require('express')();
+    app.get('/api/csrf-token', (_req, res) => res.json({ csrfToken: '' }));
+    app.get('/csrf-token', (_req, res) => res.json({ csrfToken: '' }));
+    app.get('*', (_req, res) => res.status(500).json({ error: 'Server initialization failed' }));
+}
+
+try {
+    const prisma = require('../src/data/db');
     prisma.$queryRaw`SELECT 1`.catch(() => {});
-} catch (err) {}
+} catch (err) {
+    console.warn('Prisma initialization skipped:', err.message);
+}
 
 module.exports = app;
