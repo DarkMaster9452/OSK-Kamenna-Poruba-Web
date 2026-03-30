@@ -1438,8 +1438,8 @@
         }
 
         .match-card .match-details {
-            font-size: 13px;
-            color: #666;
+            font-size: 13px;    
+            color: #222;
             margin: 15px 0;
         }
 
@@ -2446,7 +2446,7 @@
 
             .match-details {
                 font-size: 13px;
-                color: #666;
+                color: #222;
                 margin: 12px 0;
             }
 
@@ -4478,8 +4478,8 @@
                     items.sort((a, b) => a.matchDateObj - b.matchDateObj); // Od najbližšieho k najvzdialenejšiemu
                 }
 
-                // Vynútime limit 3 zápasov na klientovi
-                items = items.slice(0, 3);
+                // Vynútime limit 4 zápasov na klientovi
+                items = items.slice(0, 4);
 
                 if (items.length === 0) {
                     container.innerHTML = `<div style="text-align:center;padding:30px;color:#666;grid-column:1/-1;">Žiadne ${type === 'upcoming' ? 'nadchádzajúce' : 'odohrané'} zápasy.</div>`;
@@ -4522,6 +4522,9 @@
                             </div>
                         </div>
                         <div class="match-details">
+                            <div style="color: #003399; font-weight: bold; margin-bottom: 8px;">
+                                <i class="fas fa-users"></i> ${catLabel}
+                            </div>
                             <div class="match-date">
                                 <i class="fas fa-calendar"></i> ${formatted}
                                 <br>
@@ -4529,9 +4532,6 @@
                             </div>
                             <div class="match-location">
                                 <i class="fas fa-map-marker-alt"></i> ${venue}
-                            </div>
-                            <div style="font-size: 12px; margin-top: 8px;">
-                                <i class="fas fa-users"></i> ${catLabel}
                             </div>
                         </div>
                     </div>`;

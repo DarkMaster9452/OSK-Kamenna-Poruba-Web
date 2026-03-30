@@ -17,7 +17,7 @@
   "crons": [
     {
       "path": "/api/cron-sportnet",
-      "schedule": "0 4 * * *"
+      "schedule": "*/10 * * * *"
     }
   ]
 }

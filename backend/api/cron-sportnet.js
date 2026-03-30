@@ -1,10 +1,11 @@
 /**
- * Vercel Cron endpoint – pre-fetches all SportNet data every 4 hours.
+ * Vercel Cron endpoint – pre-fetches all SportNet data every 10 minutes.
  *
- * Scheduled in vercel.json:  "schedule": "0 */4 * * *"
+ * Scheduled in vercel.json:  "schedule": "*/10 * * * *"
  *
- * This ensures the file cache is always warm so visitors never have to wait
- * for a live SportNet API call.
+ * This ensures match scores are updated shortly after matches end and
+ * the cache is always warm so visitors never have to wait for a live
+ * SportNet API call.
  *
  * Security: pass the CRON_SECRET env var in Vercel. Vercel automatically sends
  * it in the Authorization header when triggering cron jobs. You can also call

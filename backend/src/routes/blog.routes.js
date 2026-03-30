@@ -16,7 +16,8 @@ const createBlogPostSchema = z.object({
   title: z.string().min(3).max(200),
   content: z.string().min(3).max(20000),
   published: z.boolean().optional().default(true),
-  imageUrl: z.string().url().max(2000).nullable().optional()
+  imageUrl: z.string().url().max(2000).nullable().optional(),
+  tags: z.array(z.string()).optional()
 });
 
 async function writeAuditSafe(payload) {
@@ -37,6 +38,7 @@ router.get('/', async (req, res) => {
         title: row.title,
         content: row.content,
         imageUrl: row.imageUrl || null,
+        tags: row.tags || [],
         published: row.published,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
@@ -62,6 +64,7 @@ router.get('/manage', requireAuth, requireRole('blogger', 'admin'), async (req, 
       title: row.title,
       content: row.content,
       imageUrl: row.imageUrl || null,
+      tags: row.tags || [],
       published: row.published,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -83,6 +86,7 @@ router.post('/', requireAuth, requireRole('blogger', 'admin'), validateBody(crea
       title: row.title,
       content: row.content,
       imageUrl: row.imageUrl || null,
+      tags: row.tags || [],
       published: row.published,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,

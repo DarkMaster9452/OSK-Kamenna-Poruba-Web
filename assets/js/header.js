@@ -194,6 +194,7 @@
             '        <li><a href="/pages/atim.html">A-tím</a></li>',
             '        <li><a href="/pages/akademia.html">Akadémia</a></li>',
             '        <li><a href="/pages/matches.html">Zápasy</a></li>',
+            '        <li><a href="/pages/tabulka.html">Tabuľka</a></li>',
             '        <li><a href="/pages/galeria.html">Galéria</a></li>',
             '        <li><a href="/pages/blog.html">Blog</a></li>',
             '        <li><a href="' + contactHref + '">Kontakt</a></li>',

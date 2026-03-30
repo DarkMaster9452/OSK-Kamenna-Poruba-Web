@@ -76,6 +76,7 @@ function shouldFallbackWithoutBlogPostImageUrl(error) {
     error?.code === 'P2022' ||
     error?.code === 'P2009' ||
     msg.includes('imageurl') ||
+    msg.includes('tags') ||
     msg.includes('unknown field') ||
     msg.includes('does not exist')
   );
@@ -1326,6 +1327,7 @@ async function listBlogPosts() {
     title: true,
     content: true,
     imageUrl: true,
+    tags: true,
     published: true,
     createdAt: true,
     updatedAt: true,
@@ -1344,16 +1346,17 @@ async function listBlogPosts() {
       throw error;
     }
 
-    // Fallback: missing imageUrl column
+    // Fallback: missing imageUrl or tags column
     const fallbackSelect = { ...select };
     delete fallbackSelect.imageUrl;
+    delete fallbackSelect.tags;
 
     const rows = await prisma.blogPost.findMany({
       orderBy: { createdAt: 'desc' },
       select: fallbackSelect
     });
 
-    return rows.map(r => ({ ...r, imageUrl: null }));
+    return rows.map(r => ({ ...r, imageUrl: null, tags: [] }));
   }
 }
 
@@ -1368,6 +1371,7 @@ async function createBlogPost(input, createdById) {
         title: input.title,
         content: input.content,
         imageUrl: input.imageUrl || null,
+        tags: input.tags || [],
         published: input.published ?? true,
         createdById
       },
@@ -1382,7 +1386,7 @@ async function createBlogPost(input, createdById) {
       throw error;
     }
 
-    // Fallback: missing imageUrl column
+    // Fallback: missing imageUrl or tags column
     const row = await prisma.blogPost.create({
       data: {
         title: input.title,
@@ -1397,7 +1401,7 @@ async function createBlogPost(input, createdById) {
       }
     });
 
-    return { ...row, imageUrl: null };
+    return { ...row, imageUrl: null, tags: [] };
   }
 }
 

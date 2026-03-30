@@ -22,8 +22,8 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
-            color: #fff;
+            background: #f4f4f4;
+            color: #333;
             min-height: 100vh;
             padding: 0;
         }
@@ -40,16 +40,15 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 28px;
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 10px;
-            padding: 18px 24px;
         }
 
         .topbar h1 {
             margin: 0;
-            color: #ffd700;
-            font-size: 28px;
+            color: #003399;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .btn {
@@ -61,32 +60,43 @@
         }
 
         .btn-back {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
+            background: #f4f4f4;
+            color: #333;
+            border: 1px solid #ddd;
         }
 
         .btn-primary {
-            background: #ffd700;
-            color: #003399;
+            background: #003399;
+            color: #fff;
         }
 
         .btn-danger {
+            background: #fff;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .btn-danger:hover {
             background: #e74c3c;
             color: #fff;
         }
 
         .card {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
             padding: 24px 28px;
             margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
         .card h2 {
-            margin: 0 0 12px;
-            color: #ffd700;
+            margin: 0 0 15px;
+            color: #003399;
             font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .form-grid {
@@ -96,12 +106,13 @@
         }
 
         input:not([type="checkbox"]),
-        textarea {
+        textarea,
+        select {
             width: 100%;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            border: 1px solid #ccc;
+            background: #fff;
+            color: #333;
             padding: 10px;
             font-family: inherit;
         }
@@ -116,61 +127,73 @@
             align-items: center;
             gap: 10px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.95);
+            color: #333;
             user-select: none;
         }
 
         .checkbox-inline input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            accent-color: #ffd700;
+            accent-color: #003399;
             cursor: pointer;
             flex: 0 0 auto;
             margin: 0;
         }
 
         .post {
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background: #fff;
             padding: 20px 24px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             cursor: pointer;
-            transition: background 0.2s, transform 0.15s;
+            transition: box-shadow 0.2s, transform 0.15s;
         }
 
         .post:hover {
-            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
             transform: translateY(-2px);
+            border-color: #003399;
         }
 
         .post h3 {
             margin: 0 0 10px;
-            color: #ffd700;
+            color: #003399;
+            font-size: 22px;
         }
 
         .meta {
-            color: rgba(255, 255, 255, 0.8);
+            color: #666;
             font-size: 13px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .content {
             white-space: pre-wrap;
-            line-height: 1.5;
+            line-height: 1.6;
+            color: #333;
         }
 
         .excerpt {
-            color: rgba(255, 255, 255, 0.92);
+            color: #444;
             line-height: 1.6;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             white-space: pre-wrap;
         }
 
         .btn-ghost {
-            background: rgba(255, 255, 255, 0.15);
+            background: #fff;
+            color: #003399;
+            border: 1px solid #003399;
+        }
+
+        .btn-ghost:hover {
+            background: #003399;
             color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.35);
         }
 
         .modal {
@@ -194,22 +217,22 @@
             max-height: 90vh;
             overflow: auto;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            background: linear-gradient(160deg, #0b2b73 0%, #0f3a96 100%);
-            padding: 18px;
+            background: #fdfdfd;
+            padding: 24px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
 
         .modal-card h3 {
-            margin: 0 0 8px;
-            color: #ffd700;
+            margin: 0 0 10px;
+            color: #003399;
             font-size: 26px;
         }
 
         .modal-content {
-            margin-top: 12px;
+            margin-top: 15px;
             white-space: pre-wrap;
             line-height: 1.7;
-            color: #ffffff;
+            color: #333;
         }
 
         .post-detail-image {
@@ -218,12 +241,13 @@
             object-fit: contain;
             border-radius: 8px;
             margin-bottom: 20px;
-            background: rgba(0, 0, 0, 0.2);
+            background: #eee;
             display: none;
+            border: 1px solid #ddd;
         }
 
         .muted {
-            color: rgba(255, 255, 255, 0.8);
+            color: #777;
             font-size: 14px;
         }
 
@@ -233,6 +257,50 @@
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        .tag-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 5px;
+        }
+
+        .tag-tab {
+            padding: 8px 18px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .tag-tab:hover {
+            border-color: #003399;
+            color: #003399;
+            background: rgba(0, 51, 153, 0.05);
+        }
+
+        .tag-tab.active {
+            background: #003399;
+            color: #fff;
+            border-color: #003399;
+            box-shadow: 0 4px 10px rgba(0, 51, 153, 0.2);
+        }
+
+        .post-tag {
+            background: #eee;
+            color: #555;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
         }
 
         #composerCard {
@@ -256,8 +324,18 @@
                 <input id="postTitle" placeholder="Nadpis príspevku" maxlength="200" />
                 <textarea id="postContent" placeholder="Obsah príspevku"></textarea>
                 <div style="margin: 8px 0;">
-                    <label style="display:block;margin-bottom:6px;font-size:14px;color:#ffd700;font-weight:bold;"><i class="fas fa-image"></i> Priložiť fotku (max. 5MB):</label>
+                    <label style="display:block;margin-bottom:6px;font-size:14px;color:#003399;font-weight:bold;"><i class="fas fa-image"></i> Priložiť fotku (max. 5MB):</label>
                     <input type="file" id="postImage" accept="image/*" style="padding: 6px; font-size: 13px;" />
+                </div>
+                <div style="margin: 8px 0;">
+                    <label style="display:block;margin-bottom:6px;font-size:14px;color:#003399;font-weight:bold;"><i class="fas fa-tag"></i> Kategória:</label>
+                    <select id="postTag" style="padding: 6px; font-size: 13px;">
+                        <option value="Novinky">Novinky</option>
+                        <option value="Zápasy">Zápasy</option>
+                        <option value="Rozhovory">Rozhovory</option>
+                        <option value="Mládež">Mládež</option>
+                        <option value="Ostatné">Ostatné</option>
+                    </select>
                 </div>
                 <label class="checkbox-inline"><input id="postPublished" type="checkbox" checked /> Publikovať
                     ihneď</label>
@@ -275,7 +353,8 @@
                 <h2 style="margin:0;"><i class="fas fa-newspaper"></i> Príspevky</h2>
                 <div id="blogRoleInfo" class="muted"></div>
             </div>
-            <div id="postsContainer" style="margin-top: 12px;"></div>
+            <div id="tagFilters" class="tag-tabs" style="margin-top: 20px;"></div>
+            <div id="postsContainer"></div>
         </div>
     </div>
 
@@ -313,6 +392,32 @@
         let csrfTokenCache = null;
         let currentUser = null;
         let manageItems = [];
+        let currentTagFilter = 'Všetky';
+
+        function renderTagFilters(posts) {
+            const container = document.getElementById('tagFilters');
+            if (!container) return;
+
+            const tags = new Set(['Všetky']);
+            posts.forEach(p => {
+                if (p.tags && p.tags.length > 0) {
+                    p.tags.forEach(t => tags.add(t));
+                }
+            });
+
+            container.innerHTML = Array.from(tags).map(tag => `
+                <div class="tag-tab ${currentTagFilter === tag ? 'active' : ''}" onclick="filterByTag('${escapeHtml(tag)}')">
+                    ${escapeHtml(tag)}
+                </div>
+            `).join('');
+        }
+
+        function filterByTag(tag) {
+            currentTagFilter = tag;
+            const orderedPosts = window.__blogPostsById ? Array.from(window.__blogPostsById.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : [];
+            renderTagFilters(orderedPosts);
+            renderPosts(orderedPosts);
+        }
 
         async function ensureCsrfToken() {
             if (csrfTokenCache) return csrfTokenCache;
@@ -387,22 +492,29 @@
             return currentUser.role === 'blogger' && post.createdBy === currentUser.username;
         }
 
-        function renderPosts(posts) {
+        function renderPosts(orderedPosts) {
             const container = document.getElementById('postsContainer');
+            
+            let posts = orderedPosts;
+            if (currentTagFilter !== 'Všetky') {
+                posts = orderedPosts.filter(p => p.tags && p.tags.includes(currentTagFilter));
+            }
+
             if (!posts.length) {
-                container.innerHTML = '<div class="muted">Zatiaľ nie sú žiadne publikované blog príspevky.</div>';
+                container.innerHTML = '<div class="muted" style="margin-top: 12px;">Zatiaľ nie sú žiadne príspevky pre tento filter.</div>';
                 return;
             }
 
             container.innerHTML = posts.map((post) => {
                 const canDelete = canManagePost(post);
+                const tagHtml = (post.tags && post.tags.length > 0) ? `<div class="post-tag">${escapeHtml(post.tags[0])}</div>` : '';
                 return `
                     <article class="post" onclick="openPostDetail('${post.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPostDetail('${post.id}')">
                         <div class="row">
                             <h3>${escapeHtml(post.title)}</h3>
                             ${canDelete ? `<button class="btn btn-danger" onclick="event.stopPropagation();deletePost('${post.id}')"><i class="fas fa-trash"></i> Odstrániť</button>` : ''}
                         </div>
-                        <div class="meta">Autor: ${post.createdBy} • ${formatDate(post.createdAt)}</div>
+                        <div class="meta">${tagHtml} Autor: ${post.createdBy} • ${formatDate(post.createdAt)}</div>
                         <div class="excerpt">${escapeHtml(buildExcerpt(post.content))}</div>
                         <div class="btn btn-ghost" style="pointer-events:none;display:inline-flex;align-items:center;gap:6px;margin-top:6px;">
                             <i class="fas fa-book-open"></i> Čítať celý článok
@@ -427,7 +539,9 @@
             }
 
             title.textContent = post.title || 'Bez názvu';
-            meta.textContent = `Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}`;
+            meta.innerHTML = post.tags && post.tags.length > 0 ? 
+                `<div class="post-tag">${escapeHtml(post.tags[0])}</div> Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}` :
+                `Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}`;
             
             const img = document.getElementById('postDetailImage');
             if (img) {
@@ -484,6 +598,7 @@
             manageItems.forEach((item) => byId.set(item.id, item));
             const orderedPosts = Array.from(byId.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             window.__blogPostsById = new Map(orderedPosts.map((post) => [post.id, post]));
+            renderTagFilters(orderedPosts);
             renderPosts(orderedPosts);
         }
 
@@ -491,11 +606,13 @@
             const titleInput = document.getElementById('postTitle');
             const contentInput = document.getElementById('postContent');
             const fileInput = document.getElementById('postImage');
+            const tagInput = document.getElementById('postTag');
             const publishedInput = document.getElementById('postPublished');
             const message = document.getElementById('composerMessage');
 
             const title = titleInput.value.trim();
             const content = contentInput.value.trim();
+            const tags = tagInput ? [tagInput.value] : [];
             const published = publishedInput.checked;
 
             if (!title || !content) {
@@ -540,7 +657,7 @@
                         'Content-Type': 'application/json',
                         'x-csrf-token': csrfToken
                     },
-                    body: JSON.stringify({ title, content, published, imageUrl })
+                    body: JSON.stringify({ title, content, published, imageUrl, tags })
                 });
 
                 const payload = await response.json().catch(() => ({}));

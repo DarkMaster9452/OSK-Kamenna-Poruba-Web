@@ -49,7 +49,7 @@
         .matches-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 22px;
+            gap: 14px;
             margin-bottom: 30px;
         }
 
@@ -68,20 +68,18 @@
 
         .match-card {
             background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-            transition: transform 0.3s, box-shadow 0.3s;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.09);
+            transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
-            border-left: 6px solid #ffd700;
+            border-left: 5px solid #ffd700;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
         }
 
         .match-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
 
         .match-competition {
@@ -146,11 +144,12 @@
 
         .team-name {
             font-weight: bold;
-            font-size: 15px;
+            font-size: 13px;
             color: #003399;
-            padding: 10px;
+            padding: 6px 8px;
             background: #f0f0f0;
-            border-radius: 8px;
+            border-radius: 0;
+            line-height: 1.3;
         }
 
         .vs-text {
@@ -159,18 +158,25 @@
             font-size: 14px;
         }
 
-
+        .match-score {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 8px;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
 
         .score-value {
             text-align: center;
             color: #ffd700;
-            font-size: 20px;
+            font-size: 24px;
             background: #003399;
             padding: 4px 10px;
             border-radius: 6px;
-            min-width: 50px;
+            min-width: 60px;
             box-shadow: 0 2px 6px rgba(0,51,153,0.2);
-            font-weight: bold;
         }
 
         .team-logo {
@@ -189,9 +195,9 @@
         }
 
         .match-details {
-            font-size: 13px;
+            font-size: 12px;
             color: #222;
-            margin: 15px 0;
+            margin: 7px 0;
         }
 
         .match-details i {
@@ -201,16 +207,34 @@
 
         .match-location {
             background: #f9f9f9;
-            padding: 8px;
-            border-radius: 8px;
-            margin: 8px 0;
+            padding: 5px 8px;
+            border-radius: 0;
+            margin: 4px 0;
         }
 
         .match-date {
             background: #f9f9f9;
-            padding: 8px;
-            border-radius: 8px;
-            margin: 8px 0;
+            padding: 5px 8px;
+            border-radius: 0;
+            margin: 4px 0;
+        }
+
+        .view-details-btn {
+            width: 100%;
+            padding: 7px;
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: white;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: background 0.3s;
+            margin-top: 8px;
+        }
+
+        .view-details-btn:hover {
+            background: linear-gradient(135deg, #1a5ccc 0%, #003399 100%);
         }
 
         /* Sportsnet Info Tab Styles */
@@ -598,27 +622,20 @@
         .modal-close {
             position: absolute;
             right: 15px;
-            top: 15px;
-            width: 36px;
-            height: 36px;
-            background: #f0f0f0;
-            color: #555;
-            font-size: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            top: 10px;
+            color: #003399;
+            font-size: 32px;
+            font-weight: bold;
             cursor: pointer;
             border: none;
+            background: none;
             z-index: 10001;
-            transition: all 0.2s;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: transform 0.2s, color 0.2s;
         }
 
         .modal-close:hover {
-            color: #c62828;
-            background: #e0e0e0;
-            transform: scale(1.05);
+            color: #ffd700;
+            transform: scale(1.1);
         }
 
         .events-section {
@@ -751,28 +768,27 @@
 
     <!-- Main Content -->
     <div class="container">
-        <h1 class="page-title"><i class="fas fa-calendar"></i> Zápasy</h1>
+        <h1 class="page-title"><i class="fas fa-table"></i> Tabuľka</h1>
 
-        <!-- Filtre podla statusu -->
-        <div class="category-tabs" id="matchStatusTabs" style="position: relative;">
-            <button class="category-tab active" data-match-type="upcoming" onclick="setMatchType('upcoming')">Nadchádzajúce</button>
-            <button class="category-tab" data-match-type="finished" onclick="setMatchType('finished')">Odohrané</button>
-        </div>
 
-        <!-- Filtre podla kategorie -->
-        <div class="category-tabs" id="categoryTabs"></div>
 
-        <!-- Matches List -->
-        <div id="matchesContainer" class="matches-grid"></div>
-    </div>
-
-    <!-- Match Detail Modal -->
-    <div id="matchModal" class="modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeMatchModal()"><i class="fas fa-times"></i></button>
-            <div id="matchDetailContent"></div>
+        <div id="standingsContainer" style="margin-top: 20px;">
+            <h2 class="standings-title">
+                <i class="fas fa-ranking-star"></i> Tabuľka súťaže
+            </h2>
+            <div class="standings-tabs" id="standingsTabs">
+                <button class="standings-tab active" data-cat="dospeli">Dospelí</button>
+                <button class="standings-tab" data-cat="dorast">Dorast</button>
+                <button class="standings-tab" data-cat="ziaci">Žiaci</button>
+                <button class="standings-tab" data-cat="pripravka">Prípravka</button>
+            </div>
+            <div id="standingsSectionContainer">
+                <div style="text-align:center;padding:40px;color:#666;">Načítavam tabuľku...</div>
+            </div>
         </div>
     </div>
+
+
 
     <script>
         // ====== GLOBÁLNE PREMENNÉ ======
@@ -1164,24 +1180,12 @@
 
         // ====== INICIALIZÁCIA ======
         window.addEventListener('load', async function () {
-            const params = new URLSearchParams(window.location.search);
-            const tabParam = params.get('tab');
-            if (tabParam === 'finished' || tabParam === 'upcoming') {
-                activeMatchType = tabParam;
-            }
-            
-            // Predbežne nastavíme CSS aktivitu pre match status tab
-            const activeBtn = document.querySelector(`#matchStatusTabs .category-tab[data-match-type="${activeMatchType}"]`);
-            if (activeBtn) {
-                document.querySelectorAll('#matchStatusTabs .category-tab').forEach(b => b.classList.remove('active'));
-                activeBtn.classList.add('active');
-            }
+            initStandingsTabs();
 
             await Promise.all([
-                loadMatchesFromApi()
+                loadStandingsFromApi()
             ]);
-            renderCategoryTabs();
-            renderMatches();
+            renderStandings();
         });
 
         function renderCategoryTabs() {
@@ -1204,6 +1208,7 @@
             activeCategory = cat;
             renderCategoryTabs();
             renderMatches();
+            renderStandings();
         }
 
         function setMatchType(type) {
@@ -1268,34 +1273,42 @@
 
             const homeSrc = match.homeLogo || getClubLogo(match.homeTeam);
             const awaySrc = match.awayLogo || getClubLogo(match.awayTeam);
-            const hLogo = homeSrc ? `<img src="${homeSrc}" class="team-logo" alt="${match.homeTeam}">` : '';
-            const aLogo = awaySrc ? `<img src="${awaySrc}" class="team-logo" alt="${match.awayTeam}">` : '';
+            const hLogo = homeSrc ? `<img src="${homeSrc}" class="team-logo" alt="${match.homeTeam}">` : `<div class="team-logo" style="background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">LOGO</div>`;
+            const aLogo = awaySrc ? `<img src="${awaySrc}" class="team-logo" alt="${match.awayTeam}">` : `<div class="team-logo" style="background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">LOGO</div>`;
 
             let scoreHtml = '';
             if (match.status === 'finished' || match.status === 'live') {
-                scoreHtml = `<div class="score-value">${match.homeScore} : ${match.awayScore}</div>`;
+                scoreHtml = `
+                        <div class="match-score">
+                            <div style="text-align: center;">${hLogo}<div class="team-name">${match.homeTeam}</div></div>
+                            <div class="score-value">${match.homeScore} : ${match.awayScore}</div>
+                            <div style="text-align: center;">${aLogo}<div class="team-name">${match.awayTeam}</div></div>
+                        </div>
+                    `;
             } else {
-                scoreHtml = `<div class="vs-text">VS</div>`;
+                scoreHtml = `
+                        <div class="match-teams">
+                            <div class="team-vs">
+                                <div style="text-align: center;">${hLogo}<div class="team-name">${match.homeTeam}</div></div>
+                                <div class="vs-text">VS</div>
+                                <div style="text-align: center;">${aLogo}<div class="team-name">${match.awayTeam}</div></div>
+                            </div>
+                        </div>
+                    `;
             }
 
             const statusClass = match.status;
             const statusText = {
                 'upcoming': 'NADCHÁDZAJÚCI',
-                'finished': 'ODOHRANÝ',
+                'finished': 'SKONČENÝ',
                 'live': 'NAŽIVO'
             }[match.status];
 
             return `
                 <div class="match-card" onclick="openMatchModal('${match.id}')">
                     <div class="match-competition">${match.competition}</div>
-                    <div class="match-status ${statusClass}" style="${match.status === 'finished' ? 'background: #f3e5f5; color: #7b1fa2;' : ''}">${statusText}</div>
-                    <div class="match-teams" style="margin: 10px 0;">
-                        <div class="team-vs">
-                            <div style="text-align: center;">${hLogo}<div class="team-name">${match.homeTeam}</div></div>
-                            ${scoreHtml}
-                            <div style="text-align: center;">${aLogo}<div class="team-name">${match.awayTeam}</div></div>
-                        </div>
-                    </div>
+                    <div class="match-status ${statusClass}">${statusText}</div>
+                    ${scoreHtml}
                     <div class="match-details">
                         <div style="color: #003399; font-weight: bold; margin-bottom: 8px;">
                             <i class="fas fa-users"></i> ${CATEGORY_LABELS[match.category] || match.category}
@@ -1309,6 +1322,9 @@
                             <i class="fas fa-map-marker-alt"></i> ${match.location}
                         </div>
                     </div>
+                    <button class="view-details-btn">
+                        <i class="fas fa-info-circle"></i> Detaily zápasu
+                    </button>
                 </div>
             `;
         }

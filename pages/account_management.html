@@ -448,6 +448,18 @@
         </div>
 
         <div class="card">
+            <h3><i class="fas fa-satellite-dish"></i> Sportnet API</h3>
+            <p style="margin:0 0 12px;font-size:14px;color:#444;">Manuálne spustenie aktualizácie dát zo Sportnet (zápasy, hráči, tabuľky).</p>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <button id="sportnetRefreshBtn" class="btn btn-primary" type="button" onclick="triggerSportnetRefresh()">
+                    <i class="fas fa-sync-alt"></i> Aktualizovať Sportnet dáta
+                </button>
+                <span id="sportnetRefreshStatus" style="font-size:13px;"></span>
+            </div>
+            <div id="sportnetRefreshMessage" style="margin-top:8px;"></div>
+        </div>
+
+        <div class="card">
             <h3>Zoznam účtov</h3>
             <div id="listMessage"></div>
             <div class="list-toolbar">
@@ -1235,6 +1247,44 @@
             statusFilterSelect.value = '';
             renderUsers();
         });
+
+        async function triggerSportnetRefresh() {
+            const btn = document.getElementById('sportnetRefreshBtn');
+            const status = document.getElementById('sportnetRefreshStatus');
+            const msg = document.getElementById('sportnetRefreshMessage');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Aktualizujem...';
+            status.textContent = '';
+            msg.className = '';
+            msg.textContent = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/sportsnet/matches?refresh=true`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { Accept: 'application/json' }
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const matchData = await res.json();
+
+                // Also refresh standings and players
+                await Promise.allSettled([
+                    fetch(`${API_BASE}/sportsnet/standings?refresh=true`, { credentials: 'include', headers: { Accept: 'application/json' } }),
+                    fetch(`${API_BASE}/sportsnet/players?refresh=true`, { credentials: 'include', headers: { Accept: 'application/json' } })
+                ]);
+
+                const count = matchData.count || (matchData.items ? matchData.items.length : 0);
+                const fetchedAt = new Date(matchData.fetchedAt || Date.now()).toLocaleString('sk-SK');
+                msg.className = 'success';
+                msg.textContent = `Sportnet dáta boli aktualizované. Zápasov: ${count}. Čas: ${fetchedAt}`;
+            } catch (err) {
+                msg.className = 'error';
+                msg.textContent = 'Aktualizácia zlyhala: ' + (err.message || 'Neznáma chyba');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Aktualizovať Sportnet dáta';
+            }
+        }
 
         (async function init() {
             const ok = await ensureAdminAccess();

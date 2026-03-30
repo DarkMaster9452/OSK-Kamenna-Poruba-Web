@@ -112,6 +112,7 @@ model BlogPost {
   content   String
   published Boolean  @default(true)
   imageUrl  String?
+  tags      String[] @default([])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
