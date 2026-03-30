@@ -137,12 +137,11 @@
             margin: 8px 0;
         }
 
-        .team-vs {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 10px;
-            align-items: center;
-        }
+            .team-vs {
+                flex-direction: row;
+                flex-wrap: nowrap;
+                gap: 8px;
+            }
 
         .team-name {
             font-weight: bold;
@@ -1408,26 +1407,37 @@
 
             return `
                 <div class="match-card" onclick="openMatchModal('${match.id}')">
-                    <div class="match-competition">${match.competition}</div>
-                    <div class="match-status ${statusClass}" style="${match.status === 'finished' ? 'background: #f3e5f5; color: #7b1fa2;' : ''}">${statusText}</div>
-                    <div class="match-teams" style="margin: 10px 0;">
+                    <div class="match-competition">${match.competitionName}</div>
+                    <div class="match-status ${statusClass}">${statusText}</div>
+                    
+                    <div class="match-teams">
                         <div class="team-vs">
-                            <div style="text-align: center;">${hLogo}<div class="team-name">${match.homeTeam}</div></div>
-                            ${scoreHtml}
-                            <div style="text-align: center;">${aLogo}<div class="team-name">${match.awayTeam}</div></div>
+                            <div style="text-align: center;">
+                                ${hLogo || '<div class="team-logo-placeholder"></div>'}
+                                <div class="team-name">${match.homeTeam}</div>
+                            </div>
+                            <div class="match-score">
+                                ${scoreHtml}
+                            </div>
+                            <div style="text-align: center;">
+                                ${aLogo || '<div class="team-logo-placeholder"></div>'}
+                                <div class="team-name">${match.awayTeam}</div>
+                            </div>
                         </div>
                     </div>
+
                     <div class="match-details">
-                        <div style="color: #003399; font-weight: bold; margin-bottom: 8px;">
+                        <div class="match-detail-row" style="color: #003399; font-weight: 700; margin-bottom: 4px;">
                             <i class="fas fa-users"></i> ${CATEGORY_LABELS[match.category] || match.category}
                         </div>
-                        <div class="match-date">
+                        <div class="match-detail-row">
                             <i class="fas fa-calendar"></i> ${formattedDate}
-                            <br>
-                            <i class="fas fa-clock"></i> ${match.time}
                         </div>
-                        <div class="match-location">
-                            <i class="fas fa-map-marker-alt"></i> ${match.location}
+                        <div class="match-detail-row">
+                            <i class="fas fa-clock"></i> ${match.time || '–'}
+                        </div>
+                        <div class="match-detail-row">
+                            <i class="fas fa-map-marker-alt"></i> ${match.venue || match.location || 'Miesto neurčené'}
                         </div>
                     </div>
                 </div>
