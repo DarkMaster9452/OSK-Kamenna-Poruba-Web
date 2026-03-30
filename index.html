@@ -654,17 +654,12 @@
             color: #666;
         }
 
-        /* Standings table (index.html) */
         .idx-standings-group {
             background: white;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
             margin-bottom: 20px;
             overflow: hidden;
-        }
-
-        .idx-standings-scroll {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
         }
 
         .idx-standings-header {
@@ -677,17 +672,17 @@
             letter-spacing: 1px;
         }
 
-        .idx-standings-table {
+        .standings-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .idx-standings-table thead tr {
+        .standings-table thead tr {
             background: #f5f7fa;
             border-bottom: 2px solid #eee;
         }
 
-        .idx-standings-table th {
+        .standings-table th {
             padding: 9px 12px;
             font-size: 11px;
             color: #888;
@@ -696,40 +691,34 @@
             letter-spacing: 0.5px;
         }
 
-        .idx-standings-table th.c,
-        .idx-standings-table td.c {
+        .standings-table th.center,
+        .standings-table td.center {
             text-align: center;
         }
 
-        .idx-standings-table th:first-child,
-        .idx-standings-table td:first-child {
-            text-align: left;
-            padding-left: 16px;
-        }
-
-        .idx-standings-table tbody tr {
+        .standings-table tbody tr {
             border-bottom: 1px solid #f0f0f0;
             transition: background 0.2s;
         }
 
-        .idx-standings-table tbody tr:hover {
+        .standings-table tbody tr:hover {
             background: #f8f9ff;
         }
 
-        .idx-standings-table tbody tr:last-child {
+        .standings-table tbody tr:last-child {
             border-bottom: none;
         }
 
-        .idx-standings-table td {
+        .standings-table td {
             padding: 11px 12px;
             font-size: 14px;
         }
 
-        .idx-rank-qualifier {
+        .standings-rank-qualifier {
             background: #003399;
             color: white;
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -738,15 +727,21 @@
             font-size: 13px;
         }
 
-        .idx-team-cell {
+        .standings-rank {
+            font-weight: 700;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .standings-team-cell {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .idx-team-abbr {
-            width: 28px;
-            height: 28px;
+        .standings-team-abbr {
+            width: 30px;
+            height: 30px;
             background: #003399;
             color: white;
             border-radius: 50%;
@@ -758,28 +753,33 @@
             flex-shrink: 0;
         }
 
-        .idx-team-abbr.own {
+        .standings-team-abbr.own-team {
             background: #ffd700;
             color: #003399;
         }
 
-        .idx-team-name.own {
+        .standings-team-name {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .standings-team-name.own-team {
             color: #003399;
             font-weight: 700;
         }
 
-        .idx-pts {
+        .standings-points {
             font-weight: 700;
             color: #003399;
             font-size: 15px;
         }
 
-        .idx-diff-pos {
+        .standings-diff-pos {
             color: #1a7a1a;
             font-weight: 600;
         }
 
-        .idx-diff-neg {
+        .standings-diff-neg {
             color: #b71c1c;
             font-weight: 600;
         }
@@ -2408,16 +2408,6 @@
                 overflow: hidden;
             }
 
-            .standings-group-header {
-                background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
-                color: white;
-                padding: 13px 18px;
-                font-size: 14px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
             .standings-table {
                 width: 100%;
                 border-collapse: collapse;
@@ -2430,113 +2420,44 @@
                 border-bottom: 2px solid #eee;
             }
 
-            .standings-table th {
-                padding: 8px 10px;
-                text-align: left;
+            .standings-table th,
+            .standings-table td {
+                padding: 8px 4px;
                 font-size: 11px;
-                color: #888;
-                font-weight: 700;
-                text-transform: uppercase;
             }
 
             .standings-table th.center,
             .standings-table td.center {
                 text-align: center;
-            }
-
-            .standings-table tbody tr {
-                border-bottom: 1px solid #f0f0f0;
-                transition: background 0.2s;
-            }
-
-            .standings-table tbody tr:hover {
-                background: #f8f9ff;
-            }
-
-            .standings-table tbody tr:last-child {
-                border-bottom: none;
-            }
-
-            .standings-table td {
-                padding: 10px 10px;
-                font-size: 13px;
-            }
-
-            .standings-rank-cell {
-                width: 44px;
-            }
-
-            .standings-rank {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 700;
-                color: #555;
-                font-size: 14px;
+                width: 30px !important;
             }
 
             .standings-rank-qualifier {
-                background: #003399;
-                color: white;
-                width: 24px;
-                height: 24px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 700;
-                border-radius: 4px;
-                font-size: 12px;
-            }
-
-            .standings-team-cell {
-                display: flex;
-                align-items: center;
-                gap: 8px;
+                width: 22px;
+                height: 22px;
+                font-size: 11px;
             }
 
             .standings-team-abbr {
-                width: 28px;
-                height: 28px;
-                background: #003399;
-                color: white;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 700;
-                font-size: 10px;
-                flex-shrink: 0;
+                width: 24px;
+                height: 24px;
+                font-size: 9px;
             }
 
-            .standings-team-abbr.own-team {
-                background: #ffd700;
-                color: #003399;
+            .standings-team-cell {
+                gap: 6px;
             }
 
             .standings-team-name {
-                font-weight: 600;
-                color: #1a1a1a;
-            }
-
-            .standings-team-name.own-team {
-                color: #003399;
-                font-weight: 700;
+                font-size: 11px;
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             .standings-points {
-                font-weight: 700;
-                color: #003399;
-                font-size: 14px;
-            }
-
-            .standings-diff-pos {
-                color: #1a7a1a;
-                font-weight: 600;
-            }
-
-            .standings-diff-neg {
-                color: #b71c1c;
-                font-weight: 600;
+                font-size: 12px;
             }
 
             .standings-legend {
@@ -4214,6 +4135,33 @@
         let ALL_STANDINGS_GROUPS = [];
         let ACTIVE_STANDINGS_CAT = 'dospeli';
 
+        // Club logo registry - maps normalized team name to logo URL
+        const CLUB_LOGOS = {};
+
+        function normalizeTeamName(name) {
+            return String(name || '').toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
+        function registerClubLogo(name, logoUrl) {
+            if (!name || !logoUrl) return;
+            CLUB_LOGOS[normalizeTeamName(name)] = logoUrl;
+        }
+
+        function getClubLogo(name) {
+            return CLUB_LOGOS[normalizeTeamName(name)] || null;
+        }
+
+        function buildClubLogoImg(name, size) {
+            size = size || 30;
+            const logo = getClubLogo(name);
+            if (logo) {
+                return `<img src="${logo}" alt="${name}" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:50%;background:#fff;flex-shrink:0;">`;
+            }
+            const abbr = String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+            const own = idxIsOwnTeam(name);
+            return `<div class="standings-team-abbr${own ? ' own-team' : ''}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;">${abbr}</div>`;
+        }
+
         function idxIsOwnTeam(name) {
             const l = String(name || '').toLowerCase();
             return IDX_OWN_TEAM.some(p => l.includes(p));
@@ -4228,6 +4176,78 @@
             return 'dospeli';
         }
 
+        function renderStandingGroup(group) {
+            const teams = group.results || [];
+            const QUALIFY = 2; // Fixed qualify count aligned with common leagues
+            const title = group.part && group.part !== group.competition
+                ? `${group.competition} – ${group.part}`
+                : group.competition;
+
+            const rows = teams.map((team, idx) => {
+                const rank = team.rank ?? idx + 1;
+                const name = team.teamName || team.name || 'Tím';
+                const diff = (team.goalsFor || 0) - (team.goalsAgainst || 0);
+                const diffStr = diff > 0 ? `+${diff}` : String(diff);
+                const diffCls = diff > 0 ? 'standings-diff-pos' : (diff < 0 ? 'standings-diff-neg' : '');
+                const own = idxIsOwnTeam(name);
+                const qual = rank <= QUALIFY && teams.length > QUALIFY;
+                
+                const rankCell = qual
+                    ? `<span class="standings-rank-qualifier">${rank}</span>`
+                    : `<span class="standings-rank">${rank}.</span>`;
+                
+                return `
+                    <tr style="${own ? 'background: #f0f5ff;' : ''}">
+                        <td class="standings-rank-cell">
+                            <div style="display:flex;align-items:center;padding-left:8px;">${rankCell}</div>
+                        </td>
+                        <td>
+                            <div class="standings-team-cell">
+                                ${buildClubLogoImg(name, 30)}
+                                <span class="standings-team-name${own ? ' own-team' : ''}">${name}</span>
+                            </div>
+                        </td>
+                        <td class="center">${team.played ?? 0}</td>
+                        <td class="center">${team.won ?? 0}</td>
+                        <td class="center">${team.drawn ?? 0}</td>
+                        <td class="center">${team.lost ?? 0}</td>
+                        <td class="center">${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}</td>
+                        <td class="center"><span class="${diffCls}">${diffStr}</span></td>
+                        <td class="center"><span class="standings-points">${team.points ?? 0}</span></td>
+                    </tr>`;
+            }).join('');
+
+            const legend = QUALIFY > 0 && teams.length > QUALIFY
+                ? `<div class="standings-legend"><div class="standings-legend-dot"></div> Postup do ďalšej fázy</div>`
+                : '';
+
+            return `
+                <div class="standings-group">
+                    <div class="standings-group-header" style="background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%); color: white; padding: 13px 18px; font-size: 14px; font-weight: 700; text-transform: uppercase;">
+                        <i class="fas fa-table-cells"></i> ${title}
+                    </div>
+                    <div class="table-wrap" style="overflow-x: auto;">
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th class="standings-rank-cell" style="padding-left: 16px;">#</th>
+                                    <th>Tím</th>
+                                    <th class="center" title="Odohrané zápasy">OZ</th>
+                                    <th class="center" title="Výhry">V</th>
+                                    <th class="center" title="Remízy">R</th>
+                                    <th class="center" title="Prehry">P</th>
+                                    <th class="center" title="Góly">Góly</th>
+                                    <th class="center" title="Rozdiel gólov">+/-</th>
+                                    <th class="center" title="Body">B</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                    ${legend}
+                </div>`;
+        }
+
         function renderStandingsForCategory(category) {
             const container = document.getElementById('standingsSectionContainer');
             if (!container) return;
@@ -4239,74 +4259,7 @@
                 return;
             }
 
-            const QUALIFY = 2;
-            container.innerHTML = filtered.map(group => {
-                const teams = group.results || [];
-                const title = group.part && group.part !== group.competition
-                    ? `${group.competition} – ${group.part}`
-                    : group.competition;
-
-                const rows = teams.map((team, idx) => {
-                    const rank = team.rank ?? idx + 1;
-                    const name = team.teamName || team.name || 'Tím';
-                    const diff = (team.goalsFor || 0) - (team.goalsAgainst || 0);
-                    const diffStr = diff > 0 ? `+${diff}` : String(diff);
-                    const diffCls = diff > 0 ? 'standings-diff-pos' : (diff < 0 ? 'standings-diff-neg' : '');
-                    const own = idxIsOwnTeam(name);
-                    const qual = rank <= QUALIFY && teams.length > QUALIFY;
-                    const abbr = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
-                    const rankCell = qual
-                        ? `<span class="standings-rank-qualifier">${rank}</span>`
-                        : `<span class="standings-rank">${rank}.</span>`;
-                    return `
-                        <tr>
-                            <td class="standings-rank-cell">
-                                <div style="display:flex;align-items:center;padding-left:8px;">${rankCell}</div>
-                            </td>
-                            <td>
-                                <div class="standings-team-cell">
-                                    <div class="standings-team-abbr${own ? ' own-team' : ''}">${abbr}</div>
-                                    <span class="standings-team-name${own ? ' own-team' : ''}">${name}</span>
-                                </div>
-                            </td>
-                            <td class="center">${team.played ?? 0}</td>
-                            <td class="center">${team.won ?? 0}</td>
-                            <td class="center">${team.drawn ?? 0}</td>
-                            <td class="center">${team.lost ?? 0}</td>
-                            <td class="center">${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}</td>
-                            <td class="center"><span class="${diffCls}">${diffStr}</span></td>
-                            <td class="center"><span class="standings-points">${team.points ?? 0}</span></td>
-                        </tr>`;
-                }).join('');
-
-                const legend = QUALIFY > 0 && teams.length > QUALIFY
-                    ? `<div class="standings-legend"><div class="standings-legend-dot"></div> Postup do ďalšej fázy</div>`
-                    : '';
-
-                return `
-                    <div class="standings-group">
-                        <div class="standings-group-header"><i class="fas fa-table-cells"></i> ${title}</div>
-                        <div class="table-wrap">
-                            <table class="standings-table">
-                                <thead>
-                                    <tr>
-                                        <th class="standings-rank-cell">#</th>
-                                        <th>Tím</th>
-                                        <th class="center" title="Odohrané zápasy">OZ</th>
-                                        <th class="center" title="Výhry">V</th>
-                                        <th class="center" title="Remízy">R</th>
-                                        <th class="center" title="Prehry">P</th>
-                                        <th class="center" title="Góly">Góly</th>
-                                        <th class="center" title="Rozdiel gólov">+/-</th>
-                                        <th class="center" title="Body">B</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${rows}</tbody>
-                            </table>
-                        </div>
-                        ${legend}
-                    </div>`;
-            }).join('');
+            container.innerHTML = filtered.map(group => renderStandingGroup(group)).join('');
         }
 
         function initStandingsTabs() {
@@ -4378,6 +4331,12 @@
                 if (!response.ok) throw new Error('fetch failed');
                 const payload = await response.json();
                 let allItems = Array.isArray(payload?.items) ? payload.items : [];
+
+                // Register all logos found in matches for standings table use
+                allItems.forEach(m => {
+                    if (m.homeTeam && m.homeLogo) registerClubLogo(m.homeTeam, m.homeLogo);
+                    if (m.awayTeam && m.awayLogo) registerClubLogo(m.awayTeam, m.awayLogo);
+                });
 
                 const now = new Date();
 
