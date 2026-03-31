@@ -22,6 +22,30 @@
             color: #333;
         }
 
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            background: #f4f4f4;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #003399;
+            gap: 20px;
+        }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 51, 153, 0.1);
+            border-top-color: #003399;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         main {
             max-width: 900px;
             margin: 24px auto;
@@ -204,8 +228,63 @@
             font-size: 13px;
             font-weight: 500;
         }
+    </style>
+</head>
 
-        
+<body>
+    <div id="page-loader">
+        <div class="loader-spinner"></div>
+        <div style="font-weight: bold; font-size: 18px;">OŠK Kamenná Poruba</div>
+        <div style="font-size: 14px; opacity: 0.8;">Pripravujeme skupiny...</div>
+    </div>
+    
+    <div id="site-header-root"></div>
+
+    <main id="mainContent" style="display: none;">
+        <h1 class="page-title"><i class="fas fa-users"></i> Správa skupín hráčov</h1>
+
+        <div class="card">
+            <h3><i class="fas fa-plus-circle"></i> Vytvoriť novú skupinu</h3>
+            <div id="createMsg" class="msg"></div>
+
+            <div class="form-row">
+                <label for="groupName">Názov skupiny:</label>
+                <input type="text" id="groupName" placeholder="napr. Mladší žiaci A">
+            </div>
+
+            <div class="form-row">
+                <label>Hráči:</label>
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <input type="text" id="playerSearch" class="search-input" placeholder="Hľadať hráča...">
+                    <div id="playerChecklist" class="player-checklist">
+                        <span class="muted">Načítavam hráčov...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button id="createGroupBtn" class="btn btn-primary" disabled>
+                    <i class="fas fa-save"></i> Vytvoriť skupinu
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-list"></i> Existujúce skupiny</h3>
+            <div id="groupsList">
+                <span class="muted">Načítavam skupiny...</span>
+            </div>
+        </div>
+    </main>
+
+    <div id="authGate" style="text-align: center; margin-top: 100px; padding: 20px;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 40px; color: #003399;"></i>
+        <p style="margin-top: 15px; font-weight: bold;">Overujem prístup...</p>
+    </div>
+
+    <script src="/assets/js/header.js"></script>
+    <script>
+        function resolveApiBase() {
             var raw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
             var configured = String(raw || '').trim();
             if (configured) {
@@ -438,21 +517,28 @@
 
         /* ===== INIT ===== */
         (async function () {
-            await ensureCsrfToken().catch(function () { });
-            var user = await fetchSession();
-            var gate = document.getElementById('authGate');
-            var main = document.getElementById('mainContent');
+            try {
+                await ensureCsrfToken().catch(function () { });
+                var user = await fetchSession();
+                var gate = document.getElementById('authGate');
+                var main = document.getElementById('mainContent');
+                var loader = document.getElementById('page-loader');
 
-            if (!user || (user.role !== 'coach' && user.role !== 'admin')) {
-                gate.innerHTML = '<p style="color:#e74c3c;font-weight:bold;">Prístup je povolený len trénerom a administrátorom.</p>';
-                return;
+                if (!user || (user.role !== 'coach' && user.role !== 'admin')) {
+                    gate.innerHTML = '<p style="color:#e74c3c;font-weight:bold;">Prístup je povolený len trénerom a administrátorom.</p>';
+                    if (loader) loader.style.display = 'none';
+                    return;
+                }
+
+                gate.style.display = 'none';
+                main.style.display = 'block';
+                document.getElementById('createGroupBtn').disabled = false;
+
+                await Promise.all([loadPlayers(), loadGroups()]);
+            } finally {
+                var loader = document.getElementById('page-loader');
+                if (loader) loader.style.display = 'none';
             }
-
-            gate.style.display = 'none';
-            main.style.display = '';
-            document.getElementById('createGroupBtn').disabled = false;
-
-            await Promise.all([loadPlayers(), loadGroups()]);
         })();
     </script>
 
@@ -470,9 +556,8 @@
         })();
     </script>
 
-<script src="/assets/js/cloudinary-assets.js"></script>
-
-    
+    <script src="/_vercel/speed-insights/script.js" defer></script>
+    <script src="/assets/js/cloudinary-assets.js"></script>
 </body>
 
 </html>
