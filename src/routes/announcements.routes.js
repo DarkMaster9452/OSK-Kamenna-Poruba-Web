@@ -60,16 +60,20 @@ router.get('/', requireAuth, async (req, res, next) => {
   }
 });
 
-router.get('/public', async (req, res) => {
-  const rows = await listPublicAnnouncements();
-  const items = rows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    message: row.message,
-    imageUrl: row.imageUrl || null,
-    createdAt: row.createdAt
-  }));
-  return res.json({ items });
+router.get('/public', async (req, res, next) => {
+  try {
+    const rows = await listPublicAnnouncements();
+    const items = rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      message: row.message,
+      imageUrl: row.imageUrl || null,
+      createdAt: row.createdAt
+    }));
+    return res.json({ items });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(createAnnouncementSchema), async (req, res, next) => {

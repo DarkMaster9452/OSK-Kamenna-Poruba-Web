@@ -780,26 +780,41 @@
             window.location.href = '/index.html';
         }
 
+        function readCsrfCookie() {
+            const match = document.cookie.match(/(^|;\s*)_csrf=([^;]*)/);
+            return match ? decodeURIComponent(match[2]) : '';
+        }
+
+        function invalidateCsrfToken() {
+            csrfTokenCache = null;
+        }
+
         async function ensureCsrfToken() {
             if (csrfTokenCache) {
                 return csrfTokenCache;
             }
 
-            const response = await fetch(`${API_BASE}/csrf-token`, {
-                method: 'GET',
-                credentials: 'include'
-            });
+            try {
+                csrfTokenCache = await (async () => {
+                    const response = await fetch(`${API_BASE}/csrf-token`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
 
-            if (!response.ok) {
-                if (response.status === 401) {
-                    redirectToLoginWithMessage('Relácia vypršala. Prihláste sa znova.');
-                    throw new Error('Neautorizované (HTTP 401)');
-                }
-                throw new Error('Nepodarilo sa načítať CSRF token.');
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            redirectToLoginWithMessage('Relácia vypršala. Prihláste sa znova.');
+                            throw new Error('Neautorizované (HTTP 401)');
+                        }
+                        throw new Error('Nepodarilo sa načítať CSRF token.');
+                    }
+
+                    const payload = await response.json();
+                    return payload.csrfToken;
+                })();
+            } catch (_) {
+                csrfTokenCache = readCsrfCookie();
             }
-
-            const payload = await response.json();
-            csrfTokenCache = payload.csrfToken;
             return csrfTokenCache;
         }
 

@@ -269,11 +269,25 @@
         var API_BASE = resolveApiBase();
         var csrfTokenCache = null;
 
+        function readCsrfCookie() {
+            var match = document.cookie.match(/(^|;\s*)_csrf=([^;]*)/);
+            return match ? decodeURIComponent(match[2]) : '';
+        }
+
+        function invalidateCsrfToken() {
+            csrfTokenCache = null;
+        }
+
         async function ensureCsrfToken() {
             if (csrfTokenCache) return csrfTokenCache;
-            var res = await fetch(API_BASE + '/csrf-token', { method: 'GET', credentials: 'include' });
-            var data = await res.json();
-            csrfTokenCache = data.csrfToken;
+
+            try {
+                var res = await fetch(API_BASE + '/csrf-token', { method: 'GET', credentials: 'include' });
+                var data = await res.json();
+                csrfTokenCache = data.csrfToken;
+            } catch (_) {
+                csrfTokenCache = readCsrfCookie();
+            }
             return csrfTokenCache;
         }
 

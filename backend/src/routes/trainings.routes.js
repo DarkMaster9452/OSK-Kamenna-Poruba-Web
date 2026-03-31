@@ -552,6 +552,7 @@ router.post('/:id/attendance', requireAuth, validateBody(attendanceSchema), asyn
     return res.status(403).json({ message: 'Nemáte oprávnenie na túto akciu.' });
   }
   try {
+    const training = await findTrainingById(req.params.id);
     if (!training) {
       return res.status(404).json({ message: 'Tréning neexistuje.' });
     }

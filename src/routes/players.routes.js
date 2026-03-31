@@ -12,28 +12,32 @@ function toFullName(username) {
     .join(' ');
 }
 
-router.get('/', async (req, res) => {
-  const rows = await listActivePlayers();
+router.get('/', async (req, res, next) => {
+  try {
+    const rows = await listActivePlayers();
 
-  const items = rows.map((row) => ({
-    id: row.id,
-    username: row.username,
-    fullName: toFullName(row.username),
-    category: row.playerCategory,
-    position: '--',
-    shirtNumber: row.shirtNumber ?? '--',
-    dateOfBirth: '--',
-    stats: {
-      matches: 0,
-      minutes: 0,
-      goals: 0,
-      yellowCards: 0,
-      secondYellow: 0,
-      redCards: 0
-    }
-  }));
+    const items = rows.map((row) => ({
+      id: row.id,
+      username: row.username,
+      fullName: toFullName(row.username),
+      category: row.playerCategory,
+      position: '--',
+      shirtNumber: row.shirtNumber ?? '--',
+      dateOfBirth: '--',
+      stats: {
+        matches: 0,
+        minutes: 0,
+        goals: 0,
+        yellowCards: 0,
+        secondYellow: 0,
+        redCards: 0
+      }
+    }));
 
-  return res.json({ items });
+    return res.json({ items });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 module.exports = router;

@@ -3352,12 +3352,25 @@
             throw lastError || new Error('Nepodarilo sa načítať CSRF token.');
         }
 
+        function readCsrfCookie() {
+            const match = document.cookie.match(/(^|;\s*)_csrf=([^;]*)/);
+            return match ? decodeURIComponent(match[2]) : '';
+        }
+
+        function invalidateCsrfToken() {
+            csrfTokenCache = null;
+        }
+
         async function ensureCsrfToken() {
             if (csrfTokenCache) {
                 return csrfTokenCache;
             }
 
-            csrfTokenCache = await fetchCsrfTokenWithRetry();
+            try {
+                csrfTokenCache = await fetchCsrfTokenWithRetry();
+            } catch (_) {
+                csrfTokenCache = readCsrfCookie();
+            }
             return csrfTokenCache;
         }
 

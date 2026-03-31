@@ -709,12 +709,26 @@
             }
         }
 
+        function readCsrfCookie() {
+            const match = document.cookie.match(/(^|;\s*)_csrf=([^;]*)/);
+            return match ? decodeURIComponent(match[2]) : '';
+        }
+
+        function invalidateCsrfToken() {
+            csrfToken = null;
+        }
+
         async function ensureCsrfToken() {
             if (csrfToken) return csrfToken;
-            const res = await fetch(`${API_BASE}/csrf-token`, { credentials: 'include' });
-            if (!res.ok) throw new Error('Nepodarilo sa získať CSRF token.');
-            const data = await res.json();
-            csrfToken = data.csrfToken;
+
+            try {
+                const res = await fetch(`${API_BASE}/csrf-token`, { credentials: 'include' });
+                if (!res.ok) throw new Error('Nepodarilo sa získať CSRF token.');
+                const data = await res.json();
+                csrfToken = data.csrfToken;
+            } catch (_) {
+                csrfToken = readCsrfCookie();
+            }
             return csrfToken;
         }
 
