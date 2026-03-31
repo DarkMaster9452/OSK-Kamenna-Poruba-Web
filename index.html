@@ -2320,6 +2320,88 @@
             color: #003399;
             background: #f4f8ff;
         }
+
+        /* Footer */
+        footer {
+            background: #003399;
+            color: white;
+            padding: 60px 20px 40px;
+            margin-top: 60px;
+            border-top: 5px solid #ffd700;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h3 {
+            color: #ffd700;
+            margin-bottom: 25px;
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: #ffd700;
+            padding-left: 5px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icons a {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .social-icons a:hover {
+            background: #ffd700;
+            color: #003399;
+            transform: translateY(-5px) scale(1.1);
+            border-color: #ffd700;
+        }
+
+        .footer-bottom {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -4090,11 +4172,9 @@
             const container = document.getElementById('standingsSectionContainer');
             if (!container) return;
             try {
-                const res = await cachedFetch(`${API_BASE}/sportsnet/standings`, {
+                const payload = await cachedFetch(`${API_BASE}/sportsnet/standings`, {
                     headers: { Accept: 'application/json' }
                 });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const payload = await res.json();
                 const standing = document.getElementById('standings');
                 const groups = Array.isArray(payload.standings) ? payload.standings : [];
 
@@ -4132,13 +4212,10 @@
             if (!container) return;
 
             try {
-                // Načítame IBA všetky zápasy bez orezávajúcich parametrov API pre absolutnú zhodu s matches.html
-                const response = await cachedFetch(`${API_BASE}/sportsnet/matches`, {
+                const payload = await cachedFetch(`${API_BASE}/sportsnet/matches`, {
                     method: 'GET',
                     headers: { Accept: 'application/json' }
                 });
-                if (!response.ok) throw new Error('fetch failed');
-                const payload = await response.json();
                 let allItems = Array.isArray(payload?.items) ? payload.items : [];
 
                 // Register all logos found in matches for standings table use
