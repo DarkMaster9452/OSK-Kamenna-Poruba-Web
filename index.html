@@ -1178,11 +1178,23 @@
             gap: 15px;
             flex-wrap: nowrap;
         }
-            .match-card .team-name {
+
+        .team-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            background: #fff;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .match-card .team-name {
             font-weight: 700;
             font-size: 15px;
             color: #003399;
             margin-top: 8px;
+            word-break: break-all;
         }
 
         .score-value {
@@ -1660,24 +1672,34 @@
             .team-vs {
                 flex-direction: row;
                 flex-wrap: nowrap;
-                gap: 8px;
+                gap: 5px;
             }
 
             .match-card .team-name {
-                font-size: 14px;
-                padding: 10px;
+                font-size: 11px;
+                padding: 4px;
                 background: transparent;
+                margin-top: 4px;
+                max-width: 80px;
+                line-height: 1.1;
+            }
+
+            .team-logo {
+                width: 44px;
+                height: 44px;
+                padding: 3px;
             }
 
             .vs-text {
-                font-size: 16px;
-                margin: 4px 0;
+                font-size: 14px;
+                margin: 0;
             }
 
             .score-value {
                 font-size: 18px;
-                margin: 4px 0;
-                min-width: 50px;
+                margin: 0;
+                min-width: 44px;
+                padding: 4px 8px;
             }
 
             .match-card .match-details {

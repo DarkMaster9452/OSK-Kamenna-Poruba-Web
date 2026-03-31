@@ -370,13 +370,32 @@
 
         @media (max-width: 640px) {
             .detail-main-display {
-                grid-template-columns: 1fr;
-                gap: 30px;
+                grid-template-columns: 1fr 70px 1fr;
+                gap: 5px;
+                margin: 20px 0;
             }
-            .detail-score-box { order: -1; }
-            .detail-score-value { font-size: 48px; }
+            .detail-score-box { 
+                order: 0; 
+                gap: 4px;
+            }
+            .detail-score-value { font-size: 28px; }
+            .detail-status-pill { font-size: 8px; padding: 2px 8px; }
             .detail-info-strip { grid-template-columns: 1fr; }
-            .detail-team-name { font-size: 18px; }
+            .detail-team-name { font-size: 13px; line-height: 1.1; }
+            .detail-team-logo-wrap { width: 50px; height: 50px; }
+            .detail-team-logo-wrap img { width: 34px; height: 34px; }
+            .detail-vs-label { font-size: 20px; }
+            
+            /* Align events better on mobile */
+            .events-grid {
+                gap: 15px;
+            }
+            .event-row {
+                font-size: 12px;
+                gap: 5px;
+            }
+            .event-player { font-size: 12px; }
+            .event-time { font-size: 10px; }
         }
 
         @keyframes pulse {
