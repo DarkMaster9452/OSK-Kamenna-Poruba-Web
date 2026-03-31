@@ -23,23 +23,33 @@
             overflow-x: hidden;
         }
 
-        h1, .page-title {
-            margin: 0 0 8px;
+        /* Unified Heading Styles */
+        h1, h3, .page-title, .section-title {
             font-size: 30px;
+            margin-bottom: 24px;
             color: #003399;
-            display: flex;
+            display: flex !important;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        h3 {
+            border-bottom: 3px solid #ffd700;
+            padding-bottom: 10px;
+            display: inline-flex !important;
+            margin-top: 20px;
         }
 
         @media (max-width: 768px) {
-            h1, .page-title {
+            h1, h3, .page-title, .section-title {
                 font-size: 26px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, .page-title {
+            h1, h3, .page-title, .section-title {
                 font-size: 24px !important;
             }
         }
@@ -52,53 +62,37 @@
 
         .card {
             background: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .card h3 {
-            margin: 0 0 12px;
-            color: #003399;
-        }
-
-        .group {
-            margin-bottom: 16px;
-        }
-
-        .group:last-child {
-            margin-bottom: 0;
-        }
-
-        .group h4 {
-            margin: 0 0 8px;
-            color: #003399;
-            letter-spacing: 0.3px;
-            font-size: 16px;
-            border-left: 4px solid #ffd700;
-            padding-left: 8px;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            border: 1px solid #eee;
         }
 
         .table-wrap {
+            background: white;
+            border-radius: 12px;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             border: 1px solid #e6ebf3;
-            border-radius: 8px;
+            margin-bottom: 10px;
         }
 
-        .standings-table {
+        /* Standings & Squad Tables */
+        .standings-table, .squad-table {
             width: 100%;
             border-collapse: collapse;
             background: #fff;
+            table-layout: auto;
         }
 
-        .standings-table thead tr {
-            background: #f5f7fa;
-            border-bottom: 2px solid #eee;
+        .standings-table thead tr, .squad-table thead tr {
+            background: #f8fbff;
+            border-bottom: 2px solid #eef4ff;
         }
 
-        .standings-table th {
-            padding: 9px 12px;
+        .standings-table th, .squad-table th {
+            padding: 12px 15px;
             text-align: left;
             font-size: 11px;
             color: #888;
@@ -107,64 +101,33 @@
             letter-spacing: 0.5px;
         }
 
-        .standings-table th.center,
-        .standings-table td.center {
-            text-align: center;
-            width: 34px !important; /* Even tighter for narrow columns */
-        }
-
-        .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
-            min-width: 48px !important; /* Skore needs bit more but tighter */
-        }
-
-        .standings-table tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.2s;
-        }
-
-        .standings-table tbody tr:hover {
-            background: #f8f9ff;
-        }
-
-        .standings-table tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        .standings-table td {
-            padding: 11px 12px;
+        .standings-table td, .squad-table td {
+            padding: 14px 15px;
+            border-bottom: 1px solid #f0f4f8;
             font-size: 14px;
+            color: #333;
+        }
+
+        .standings-table tr:hover, .squad-table tr:hover {
+            background: #f9fbff;
         }
 
         .standings-rank-cell {
-            width: 44px;
+            width: 50px;
+            font-weight: 800;
+            color: #003399;
         }
 
-        .standings-rank {
-            font-weight: 700;
-            color: #555;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .standings-rank-qualifier {
-            background: #003399;
-            color: white;
-            width: 26px;
-            height: 26px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            border-radius: 4px;
-            font-size: 13px;
+        .standings-table th.center, .standings-table td.center,
+        .squad-table th.center, .squad-table td.center {
+            text-align: center;
+            width: 34px !important;
         }
 
         .standings-team-cell {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .standings-team-abbr {
@@ -186,94 +149,57 @@
             color: #003399;
         }
 
-        .standings-team-name {
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .standings-team-name.own-team {
-            color: #003399;
-            font-weight: 700;
-        }
-
         .standings-points {
-            font-weight: 700;
+            font-weight: 800;
             color: #003399;
-            font-size: 15px;
+            background: #f4f8ff;
         }
 
-        .standings-diff-pos {
-            color: #1a7a1a;
-            font-weight: 600;
-        }
-
-        .standings-diff-neg {
-            color: #a71a1a;
-            font-weight: 600;
-        }
-
-        /* Squad Table refinements - to fix "crowded" look */
-        .squad-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-        }
-
-        .squad-table thead tr {
-            background: #f5f7fa;
-            border-bottom: 2px solid #eee;
-        }
-
-        .squad-table th {
-            padding: 12px 14px;
-            text-align: left;
-            font-size: 13px;
-            color: #888;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-
-        .squad-table td {
-            padding: 14px;
-            font-size: 15px;
-            border-bottom: 1px solid #f0f0f0;
-            color: #333;
-        }
-
-        .squad-table tbody tr:hover {
-            background: #f8f9ff;
-        }
-
-        .squad-table i {
-            margin-right: 4px;
-            color: #003399;
-        }
-
-        .squad-num {
-            font-weight: bold;
-            color: #666;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 20px;
-                white-space: nowrap;
+        /* Mobile specific fixes (no scroll) */
+        @media (max-width: 480px) {
+            .table-wrap {
+                overflow-x: hidden;
+                border-radius: 8px;
             }
+
+            .standings-table th, .standings-table td,
             .squad-table th, .squad-table td {
-                padding: 10px 8px;
-                font-size: 13px;
-            }
-            .standings-table th, .standings-table td {
-                padding: 8px 4px;
+                padding: 8px 3px !important;
                 font-size: 11px;
             }
-        }
 
-        .standings-group {
-            margin-bottom: 24px;
+            .standings-team-name, .player-name {
+                max-width: 100px !important;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .standings-rank-cell, .squad-num {
+                width: 28px !important;
+            }
+
+            /* Hide less important Columns */
+            /* Standings: hide V, R, P (4,5,6) */
+            .standings-table th:nth-child(4), .standings-table td:nth-child(4),
+            .standings-table th:nth-child(5), .standings-table td:nth-child(5),
+            .standings-table th:nth-child(6), .standings-table td:nth-child(6),
+            .standings-table th:nth-child(8), .standings-table td:nth-child(8) {
+                display: none;
+            }
+
+            /* Squad: hide Minutes, Yellow/Red cards (5,6,7) */
+            .squad-table th:nth-child(5), .squad-table td:nth-child(5),
+            .squad-table th:nth-child(6), .squad-table td:nth-child(6),
+            .squad-table th:nth-child(7), .squad-table td:nth-child(7) {
+                display: none;
+            }
+
+            .standings-team-abbr {
+                width: 24px;
+                height: 24px;
+                font-size: 8px;
+            }
         }
 
         .standings-group-header {
@@ -285,7 +211,6 @@
             align-items: center;
             gap: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .standings-legend {

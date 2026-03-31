@@ -23,24 +23,43 @@
             overflow-x: hidden;
         }
 
-        h1, .page-title {
-            margin: 0 0 16px;
+        /* Unified Heading Styles */
+        h1, .page-title, .standings-title, .section-title {
             font-size: 30px;
+            margin-bottom: 24px;
             color: #003399;
-            display: flex;
+            display: flex !important;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-weight: 800;
+            line-height: 1.2;
         }
 
-        @media screen and (max-width: 768px) {
-            h1, .page-title {
+        h3 {
+            font-size: 24px;
+            color: #003399;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #ffd700;
+            padding-bottom: 8px;
+            display: inline-flex !important;
+        }
+
+        @media (max-width: 768px) {
+            h1, .page-title, .standings-title, .section-title {
                 font-size: 26px !important;
+            }
+            h3 {
+                font-size: 22px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, .page-title {
+            h1, .page-title, .standings-title, .section-title {
                 font-size: 24px !important;
+                justify-content: center;
+            }
+            h3 {
+                font-size: 20px !important;
             }
         }
 
@@ -58,15 +77,11 @@
 
         .card {
             background: #fff;
-            border-radius: 10px;
-            padding: 18px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
             margin-bottom: 18px;
-        }
-
-        .card h3 {
-            margin: 0 0 12px;
-            color: #003399;
+            border: 1px solid #eee;
         }
 
         .category-card {
@@ -103,45 +118,66 @@
             font-size: 16px;
         }
 
-        /* Standardize standings table across pages */
-        .standings-table th.center, .standings-table td.center {
-            text-align: center;
-            width: 34px !important;
-        }
-        .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
-            min-width: 48px !important;
-        }
-
+        /* Standardize table wrap */
         .table-wrap {
+            background: white;
+            border-radius: 12px;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             border: 1px solid #e6ebf3;
-            border-radius: 8px;
+            margin-bottom: 15px;
         }
 
-        .table-wrap table {
+        .standings-table {
             width: 100%;
             border-collapse: collapse;
-            background: #f8f9fc;
-            min-width: 600px;
+            table-layout: auto;
         }
 
-        .table-wrap th,
-        .table-wrap td {
+        .standings-table thead tr {
+            background: #f8fbff;
+            border-bottom: 2px solid #eef4ff;
+        }
+
+        .standings-table th {
+            padding: 12px 15px;
             text-align: left;
-            padding: 9px;
-            border-bottom: 1px solid #eef2f8;
-            font-size: 14px;
-        }
-
-        .table-wrap th {
-            border-bottom: 1px solid #e1e6ef;
-            background: #eef3fb;
-            color: #003399;
+            font-size: 11px;
+            color: #888;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .table-wrap tbody tr:nth-child(even) {
-            background: #fdfdff;
+        .standings-table td {
+            padding: 14px 15px;
+            border-bottom: 1px solid #f0f4f8;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* Mobile fixes for academy tables */
+        @media (max-width: 480px) {
+            .table-wrap {
+                overflow-x: hidden;
+                border-radius: 8px;
+            }
+
+            .standings-table th, .standings-table td {
+                padding: 8px 3px !important;
+                font-size: 11px;
+            }
+
+            /* Hide less important columns: # (1st), Cards (6th, 7th) */
+            .standings-table th:nth-child(1), .standings-table td:nth-child(1),
+            .standings-table th:nth-child(6), .standings-table td:nth-child(6),
+            .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
+                display: none;
+            }
+
+            .card {
+                padding: 16px;
+            }
         }
 
         .muted {
