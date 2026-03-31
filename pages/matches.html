@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zápasy | OŠK Kamenná Poruba</title>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -29,7 +28,6 @@
             min-height: 100vh;
         }
 
-
         .container {
             max-width: 1200px;
             margin: 20px auto;
@@ -44,6 +42,18 @@
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        @media screen and (max-width: 768px) {
+            h1, .page-title {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, .page-title {
+                font-size: 24px !important;
+            }
         }
 
         .matches-grid {
@@ -105,60 +115,9 @@
             letter-spacing: 0.5px;
         }
 
-        .match-status.upcoming {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .match-status.finished {
-            background: #f1f2f6;
-            color: #57606f;
-        }
-
-        .match-status.live {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .match-detail-header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .match-detail-header .match-competition {
-            margin-bottom: 8px;
-            justify-content: center;
-        }
-
-        .match-teams {
-            text-align: center;
-            margin: 8px 0;
-        }
-
-            .team-vs {
-                flex-direction: row;
-                flex-wrap: nowrap;
-                gap: 8px;
-            }
-
-        .team-name {
-            font-weight: bold;
-            font-size: 15px;
-            color: #003399;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 8px;
-        }
-
-        .vs-text {
-            color: #ffd700;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-
+        .match-status.upcoming { background: #e3f2fd; color: #1976d2; }
+        .match-status.finished { background: #f1f2f6; color: #57606f; }
+        .match-status.live { background: #ffebee; color: #c62828; }
 
         .score-value {
             text-align: center;
@@ -183,8 +142,6 @@
             width: 24px;
             height: 24px;
             object-fit: contain;
-            vertical-align: middle;
-            margin-right: 8px;
         }
 
         .match-details {

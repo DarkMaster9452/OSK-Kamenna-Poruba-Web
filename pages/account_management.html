@@ -36,10 +36,23 @@
             margin-bottom: 20px;
         }
 
-        .title {
+        h1, .page-title, .title {
             font-size: 30px;
             font-weight: 700;
             margin: 0;
+            color: #fff;
+        }
+
+        @media screen and (max-width: 768px) {
+            h1, .page-title, .title {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, .page-title, .title {
+                font-size: 24px !important;
+            }
         }
 
         .btn {
@@ -277,9 +290,6 @@
                 gap: 10px;
             }
 
-            .title {
-                font-size: 22px;
-            }
 
             .card {
                 padding: 14px;

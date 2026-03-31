@@ -28,13 +28,25 @@
             padding: 0 16px 24px;
         }
 
-        .page-title {
+        h1, .page-title {
             margin: 0 0 24px;
             font-size: 30px;
             color: #003399;
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        @media screen and (max-width: 768px) {
+            h1, .page-title {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, .page-title {
+                font-size: 24px !important;
+            }
         }
 
         .card {
@@ -193,69 +205,6 @@
             font-weight: 500;
         }
 
-        /* Mobile UI Improvements */
-        @media (max-width: 768px) {
-            main {
-                margin: 12px auto;
-                padding: 0 10px 20px;
-            }
-
-            .page-title {
-                font-size: 24px;
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-
-            .card {
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-
-            .card h3 {
-                font-size: 18px;
-                margin-bottom: 12px;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-
-            .form-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-
-            .player-check-item {
-                padding: 10px;
-            }
-
-            .group-card {
-                padding: 15px;
-            }
-
-            .group-card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .group-card-title {
-                font-size: 18px;
-            }
-
-            .group-card-meta {
-                font-size: 11px;
-            }
-
-            .member-tag {
-                font-size: 11px;
-                padding: 3px 8px;
-            }
-        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>

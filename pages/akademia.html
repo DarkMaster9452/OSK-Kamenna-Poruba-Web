@@ -23,13 +23,25 @@
             overflow-x: hidden;
         }
 
-        .page-title {
+        h1, .page-title {
             margin: 0 0 16px;
             font-size: 30px;
             color: #003399;
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        @media screen and (max-width: 768px) {
+            h1, .page-title {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, .page-title {
+                font-size: 24px !important;
+            }
         }
 
         main {
@@ -137,24 +149,6 @@
             font-size: 14px;
         }
 
-        @media (max-width: 700px) {
-            .page-title {
-                font-size: 20px;
-                white-space: nowrap;
-            }
-
-            main {
-                padding: 0 12px 20px;
-            }
-
-            .card {
-                padding: 14px;
-            }
-
-            .table-wrap table {
-                min-width: 480px;
-            }
-        }
 
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">

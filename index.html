@@ -417,13 +417,50 @@
             scroll-margin-top: calc(var(--header-offset) + 16px);
         }
 
-        h2 {
-            font-size: 36px;
-            margin-bottom: 30px;
+        h1, h2, .page-title, .section-title, .standings-title {
+            font-size: 30px;
+            margin-bottom: 24px;
             color: #003399;
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+        }
+
+        h2 {
             border-bottom: 3px solid #ffd700;
             padding-bottom: 10px;
-            display: inline-block;
+            display: inline-flex !important;
+        }
+
+        @media screen and (max-width: 768px) {
+            h1, h2, .page-title, .section-title, .standings-title {
+                font-size: 26px !important;
+            }
+            .hero h1 {
+                font-size: 36px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, h2, .page-title, .section-title, .standings-title {
+                font-size: 24px !important;
+            }
+            .hero h1 {
+                font-size: 32px !important;
+            }
+        }
+
+        .section-title {
+            margin-bottom: 24px;
+        }
+
+        .standings-title {
+            text-align: center;
+            margin: 40px 0 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            justify-content: center;
         }
 
         /* Cards */
@@ -801,6 +838,94 @@
             background: #003399;
             border-radius: 3px;
             flex-shrink: 0;
+        }
+
+        /* table-wrap for horizontal scroll */
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: #003399 #f0f0f0;
+        }
+
+        .table-wrap::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-wrap::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .table-wrap::-webkit-scrollbar-thumb {
+            background: #003399;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 991px) {
+            .hero h1 {
+                font-size: 42px;
+            }
+            .hero p {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 60px 20px;
+                min-height: 400px;
+            }
+            .hero h1 {
+                font-size: 32px;
+            }
+            h2, .section-title, .standings-title {
+                font-size: 26px !important;
+            }
+            .standings-table th,
+            .standings-table td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+            .standings-team-name {
+                font-size: 13px;
+            }
+            .standings-team-abbr {
+                width: 24px;
+                height: 24px;
+                font-size: 9px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px;
+            }
+            .hero p {
+                font-size: 18px;
+            }
+            h1, h2, .section-title, .standings-title, .page-title {
+                font-size: 24px !important;
+            }
+            .standings-table th,
+            .standings-table td {
+                padding: 6px 4px;
+                font-size: 11px;
+            }
+            .standings-team-name {
+                font-size: 12px;
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .standings-rank-qualifier {
+                width: 22px;
+                height: 22px;
+                font-size: 11px;
+            }
         }
 
         /* Standings category tabs */
@@ -2632,7 +2757,7 @@
         <section id="matches"
             style="background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); padding: 80px 20px;">
             <div style="max-width: 1400px; margin: 0 auto;">
-                <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
+                <h2 class="section-title">
                     <i class="fas fa-calendar-check"></i> ZÁPASY
                 </h2>
 
@@ -2699,7 +2824,7 @@
         <!-- Public Announcements Section -->
         <section id="publicAnnouncements" style="display:none; padding: 40px 20px 0;">
             <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 class="section-title" style="color:#003399; margin-bottom:24px; font-size:28px; display: flex; align-items: center; gap: 12px;">
+                <h2 class="section-title">
                     <i class="fas fa-bullhorn"></i> OZNAMY A UDALOSTI
                 </h2>
                 <div id="publicAnnouncementsList"
@@ -2709,7 +2834,7 @@
 
         <!-- About Section -->
    <section id="about">
-    <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
+    <h2 class="section-title">
         <i class="fas fa-info-circle"></i> O NAŠOM KLUBE
     </h2>
     <div class="about-history">
@@ -2749,7 +2874,7 @@
         <!-- Gallery Section -->
         <section id="gallery">
             <div class="gallery-actions"></div>
-            <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
+            <h2 class="section-title">
                 <i class="fas fa-images"></i> GALÉRIA
             </h2>
             <div class="gallery-grid" id="galleryGrid">
@@ -2790,7 +2915,7 @@
         </section>
 
         <section id="parking" style="margin-top: 40px;">
-            <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
+            <h2 class="section-title">
                 <i class="fas fa-car"></i> MAPA PARKOVANIA
             </h2>
             <div class="club-extra-card">
@@ -2818,7 +2943,7 @@
 
         <!-- Contact Section -->
         <section id="contact" style="margin-top: 40px;">
-            <h2 class="section-title" style="color: #003399; margin-bottom: 24px; font-size: 36px; display: flex; align-items: center; gap: 12px;">
+            <h2 class="section-title">
                 <i class="fas fa-envelope"></i> KONTAKTUJTE NÁS
             </h2>
             <div class="contact-grid">
@@ -4285,7 +4410,7 @@
 
         function renderStandingGroup(group) {
             const teams = group.results || [];
-            const QUALIFY = 2; // Fixed qualify count aligned with common leagues
+            const qualifyCount = 2; // Fixed qualify count aligned with common leagues
             const title = group.part && group.part !== group.competition
                 ? `${group.competition} – ${group.part}`
                 : group.competition;
@@ -4295,22 +4420,23 @@
                 const name = team.teamName || team.name || 'Tím';
                 const diff = (team.goalsFor || 0) - (team.goalsAgainst || 0);
                 const diffStr = diff > 0 ? `+${diff}` : String(diff);
-                const diffCls = diff > 0 ? 'standings-diff-pos' : (diff < 0 ? 'standings-diff-neg' : '');
+                const diffClass = diff > 0 ? 'standings-diff-pos' : (diff < 0 ? 'standings-diff-neg' : '');
                 const own = idxIsOwnTeam(name);
-                const qual = rank <= QUALIFY && teams.length > QUALIFY;
-                
-                const rankCell = qual
+                const qualifies = rank <= qualifyCount && teams.length > qualifyCount;
+                const logoImg = buildClubLogoImg(name, 30);
+                const rankCell = qualifies
                     ? `<span class="standings-rank-qualifier">${rank}</span>`
                     : `<span class="standings-rank">${rank}.</span>`;
-                
+                const goals = `${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}`;
+
                 return `
-                    <tr style="${own ? 'background: #f0f5ff;' : ''}">
+                    <tr class="${own ? 'own-team' : ''}" style="${own ? 'background: #f0f5ff;' : ''}">
                         <td class="standings-rank-cell">
-                            <div style="display:flex;align-items:center;padding-left:8px;">${rankCell}</div>
+                            <div class="standings-rank" style="display:flex;align-items:center;padding-left:8px;">${rankCell}</div>
                         </td>
                         <td>
                             <div class="standings-team-cell">
-                                ${buildClubLogoImg(name, 30)}
+                                ${logoImg}
                                 <span class="standings-team-name${own ? ' own-team' : ''}">${name}</span>
                             </div>
                         </td>
@@ -4318,22 +4444,22 @@
                         <td class="center">${team.won ?? 0}</td>
                         <td class="center">${team.drawn ?? 0}</td>
                         <td class="center">${team.lost ?? 0}</td>
-                        <td class="center">${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}</td>
-                        <td class="center"><span class="${diffCls}">${diffStr}</span></td>
+                        <td class="center">${goals}</td>
+                        <td class="center"><span class="${diffClass}">${diffStr}</span></td>
                         <td class="center"><span class="standings-points">${team.points ?? 0}</span></td>
                     </tr>`;
             }).join('');
 
-            const legend = QUALIFY > 0 && teams.length > QUALIFY
-                ? `<div class="standings-legend"><div class="standings-legend-dot"></div> Postup do ďalšej fázy</div>`
+            const legend = qualifyCount > 0 && teams.length > qualifyCount
+                ? `<div class="idx-standings-legend"><div class="idx-standings-legend-dot"></div> Postup do ďalšej fázy</div>`
                 : '';
 
             return `
-                <div class="standings-group">
-                    <div class="standings-group-header" style="background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%); color: white; padding: 13px 18px; font-size: 14px; font-weight: 700; text-transform: uppercase;">
+                <div class="idx-standings-group">
+                    <div class="idx-standings-header">
                         <i class="fas fa-table-cells"></i> ${title}
                     </div>
-                    <div class="table-wrap" style="overflow-x: auto;">
+                    <div class="table-wrap">
                         <table class="standings-table">
                             <thead>
                                 <tr>
