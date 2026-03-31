@@ -302,56 +302,7 @@
 </head>
 
 <body>
-    <script>
-        function resolveApiBase() {
-            const host = window.location.hostname;
-            if (host === 'localhost' || host === '127.0.0.1') {
-                return 'http://localhost:4000/api';
-            }
-            const configuredRaw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
-            const configured = String(configuredRaw || '').trim();
-            if (configured) {
-                const normalized = configured.replace(/\/+$/, '');
-                return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
-            }
-
-            return '/api';
-        }
-
-        const API_BASE = resolveApiBase();
-
-        (async function () {
-            try {
-                const response = await fetch(`${API_BASE}/me`, {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-
-                if (!response.ok) {
-                    window.location.href = '/index.html';
-                    return;
-                }
-
-                const payload = await response.json();
-                const user = payload.user;
-                if (!user || !['admin', 'coach', 'player', 'parent'].includes(user.role)) {
-                    window.location.href = '/index.html';
-                    return;
-                }
-
-                window.__sessionUser = {
-                    username: user.username,
-                    role: user.role,
-                    playerCategory: user.playerCategory || null,
-                    isLoggedIn: true
-                };
-
-                localStorage.setItem('currentUser', JSON.stringify(window.__sessionUser));
-            } catch (e) {
-                window.location.href = '/index.html';
-            }
-        })();
-    </script>
+    <script src="/assets/js/session.js"></script>
     <script src="/assets/js/header.js"></script>
     <div id="site-header-root"></div>
 
@@ -985,35 +936,17 @@
         }
 
         async function init() {
-            await loadState();
-            if (!currentUser || !currentUser.isLoggedIn) {
-                try {
-                    const response = await fetch(`${API_BASE}/me`, {
-                        method: 'GET',
-                        credentials: 'include'
-                    });
-                    if (response.ok) {
-                        const payload = await response.json();
-                        const user = payload.user;
-                        if (user) {
-                            currentUser = {
-                                username: user.username,
-                                role: user.role,
-                                playerCategory: user.playerCategory || null,
-                                isLoggedIn: true
-                            };
-                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        }
-                    }
-                } catch (e) {
-                    console.error(e);
-                }
+            const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
             }
 
             if (!currentUser || !currentUser.isLoggedIn) {
                 window.location.href = '/index.html';
                 return;
             }
+            
+            await loadState();
 
             loadSeenEvents();
 

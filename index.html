@@ -24,6 +24,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="/assets/js/session.js"></script>
     <style>
         /* Ensure modal arrows are always the same size */
         #galleryModalPrev,
@@ -2991,142 +2992,25 @@
             isLoggedIn: false
         };
         const PLAYERS = {};
-        function resolveApiBase() {
-            const host = window.location.hostname;
-            const isHttpsPage = window.location.protocol === 'https:';
-            if (host.endsWith('.vercel.app')) {
-                return '/api';
-            }
-            if (host === 'localhost' || host === '127.0.0.1') {
-                if (isHttpsPage) {
-                    return '/api';
-                }
-                return 'http://localhost:4000/api';
-            }
-            const configuredRaw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
-            const configured = String(configuredRaw || '').trim();
-            if (configured) {
-                const normalized = configured.replace(/\/+$/, '');
-                if (isHttpsPage && normalized.startsWith('http://')) {
-                    return '/api';
-                }
-                return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
-            }
-
-            return '/api';
-        }
-
-        const API_BASE = resolveApiBase();
-        let csrfTokenCache = null;
-
-        // Client-side cache (localStorage, 10 min TTL)
-        async function cachedFetch(url, options = {}) {
-            const CACHE_TTL = 10 * 60 * 1000;
-            const cacheKey = 'osk_cf__' + url;
-            try {
-                const raw = localStorage.getItem(cacheKey);
-                if (raw) {
-                    const entry = JSON.parse(raw);
-                    if (Date.now() - entry.ts < CACHE_TTL) {
-                        return entry.data;
-                    }
-                }
-            } catch (_) { }
-            try {
-                const res = await fetch(url, options);
-                if (res.ok) {
-                    const data = await res.json();
-                    try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
-                    return data;
-                }
-                return null;
-            } catch (err) {
-                return null;
-            }
-        }
-
-        async function fetchCsrfTokenWithRetry() {
-            let lastError = null;
-
-            for (let attempt = 1; attempt <= 3; attempt += 1) {
-                try {
-                    const response = await fetch(`${API_BASE}/csrf-token`, {
-                        method: 'GET',
-                        credentials: 'include'
-                    });
-
-                    if (!response.ok) {
-                        const payload = await response.json().catch(() => ({}));
-                        throw new Error(payload.message || `CSRF endpoint error (${response.status})`);
-                    }
-
-                    const payload = await response.json();
-                    return payload && payload.csrfToken !== undefined ? payload.csrfToken : '';
-                } catch (error) {
-                    lastError = error;
-                    if (attempt < 3) {
-                        await sleep(800 * attempt);
-                    }
-                }
-            }
-
-            throw lastError || new Error('Nepodarilo sa načítať CSRF token.');
-        }
-
-        function readCsrfCookie() {
-            const match = document.cookie.match(/(^|;\s*)_csrf=([^;]*)/);
-            return match ? decodeURIComponent(match[2]) : '';
-        }
-
-        function invalidateCsrfToken() {
-            csrfTokenCache = null;
-        }
-
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+        
         async function ensureCsrfToken() {
-            if (csrfTokenCache) {
-                return csrfTokenCache;
-            }
-
-            try {
-                csrfTokenCache = await fetchCsrfTokenWithRetry();
-            } catch (_) {
-                csrfTokenCache = readCsrfCookie();
-            }
-            return csrfTokenCache;
-        }
-
-        async function fetchSessionUser() {
-            const response = await fetch(`${API_BASE}/me`, {
-                method: 'GET',
-                credentials: 'include'
-            });
-
-            if (!response.ok) {
-                return null;
-            }
-
-            const payload = await response.json();
-            return payload.user || null;
+            return window.OSKSession ? window.OSKSession.ensureCsrfToken() : null;
         }
 
         async function syncCurrentUserFromSession() {
-            const user = await fetchSessionUser();
-            if (!user) {
-                currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
-                localStorage.removeItem('currentUser');
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
                 updateLoginButtonText();
-                return;
             }
+        }
 
-            currentUser = {
-                username: user.username,
-                role: user.role,
-                playerCategory: user.playerCategory || null,
-                isLoggedIn: true
-            };
+        async function fetchSessionUser() {
+            return window.OSKSession ? window.OSKSession.fetchSessionUser() : null;
+        }
 
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateLoginButtonText();
+        function invalidateCsrfToken() {
+            if (window.OSKSession) window.OSKSession.invalidateCsrfToken();
         }
 
         function normalizeCaption(caption) {
@@ -3957,7 +3841,11 @@
         }
 
         async function handleSwitchAccount() {
-            await handleLogout();
+            if (window.OSKSession) {
+                await window.OSKSession.handleLogout();
+            } else {
+                localStorage.removeItem('currentUser');
+            }
             openLoginModal();
         }
 
@@ -4072,6 +3960,23 @@
                         closeChangePasswordModal();
                     }
                 });
+            }
+        });
+
+        window.addEventListener('load', async function () {
+            // Load matches and standings FIRST – independent and fast
+            loadUpcomingMatches();
+            loadStandingsSection();
+
+            if (window.OSKSession) {
+                window.OSKSession.ensureCsrfToken().catch(console.warn);
+                try {
+                    currentUser = await window.OSKSession.syncCurrentUserFromSession();
+                    if (window.updateLoginButtonText) updateLoginButtonText();
+                } catch (error) {
+                    console.error('Session sync error:', error);
+                    currentUser = { username: null, role: null, isLoggedIn: false };
+                }
             }
         });
 
@@ -4665,19 +4570,9 @@
             loadUpcomingMatches();
             loadStandingsSection();
 
-            ensureCsrfToken().catch(() => { csrfTokenCache = null; });
-
-            try {
-                await syncCurrentUserFromSession();
-            } catch (error) {
-                console.error(error);
-                currentUser = { username: null, role: null, isLoggedIn: false };
-                updateLoginButtonText();
-            }
-
             // These are slower – run after
-            initializePlayers();
-            showCoachPlayerCardButton();
+            if (typeof initializePlayers === 'function') initializePlayers();
+            if (typeof showCoachPlayerCardButton === 'function') showCoachPlayerCardButton();
             loadInstagramGalleryFeed();
             loadPublicAnnouncements();
 

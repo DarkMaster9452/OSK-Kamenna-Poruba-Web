@@ -303,132 +303,18 @@
         }
 
         /* Standardized Compact Footer */
-        footer {
-            background: #003399;
-            color: white;
-            padding: 40px 20px 30px;
+        #site-footer-root {
             margin-top: 50px;
-            border-top: 5px solid #ffd700;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 30px;
-        }
-
-        .footer-section {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .footer-section h3 {
-            color: #ffd700;
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: 800;
-            text-transform: uppercase;
-            display: flex !important;
-            align-items: center;
-            gap: 10px;
-            border: none;
-            padding: 0;
-        }
-
-        .footer-section ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 10px;
-        }
-
-        .footer-section ul li a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.2s;
-            display: inline-block;
-        }
-
-        .footer-section ul li a:hover {
-            color: #ffd700;
-            transform: translateX(5px);
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .social-icons a {
-            width: 38px;
-            height: 38px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .social-icons a:hover {
-            background: #ffd700;
-            color: #003399;
-            transform: translateY(-5px);
-            border-color: #ffd700;
-        }
-
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 40px auto 0;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        @media (max-width: 768px) {
-            footer {
-                padding: 40px 15px 25px;
-            }
-            .footer-content {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                gap: 40px;
-            }
-            .footer-section {
-                width: 100%;
-            }
-            .footer-section h3 {
-                justify-content: center;
-            }
-            .social-icons {
-                justify-content: center;
-            }
-            .footer-section ul li a:hover {
-                transform: none;
-            }
         }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
 
 <body>
+    <script src="/assets/js/session.js"></script>
     <script src="/assets/js/header.js"></script>
     <div id="site-header-root"></div>
+
     <div class="container">
         <div class="topbar">
             <h1><i class="fas fa-blog"></i> Klubový blog</h1>
@@ -474,26 +360,7 @@
     </div>
 
     <script>
-        function resolveApiBase() {
-            const host = window.location.hostname;
-            if (host.endsWith('.vercel.app')) {
-                return '/api';
-            }
-            if (host === 'localhost' || host === '127.0.0.1') {
-                return 'http://localhost:4000/api';
-            }
-            const configuredRaw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
-            const configured = String(configuredRaw || '').trim();
-            if (configured) {
-                const normalized = configured.replace(/\/+$/, '');
-                return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
-            }
-
-            return '/api';
-        }
-
-        const API_BASE = resolveApiBase();
-        let csrfTokenCache = null;
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
         let currentUser = null;
         let manageItems = [];
         let currentTagFilter = 'Všetky';
@@ -523,29 +390,6 @@
             renderPosts(orderedPosts);
         }
 
-        function readCsrfCookie() {
-            const match = document.cookie.match(/(^|;\s*)_csrf=([^;]*)/);
-            return match ? decodeURIComponent(match[2]) : '';
-        }
-
-        function invalidateCsrfToken() {
-            csrfTokenCache = null;
-        }
-
-        async function ensureCsrfToken() {
-            if (csrfTokenCache) return csrfTokenCache;
-
-            try {
-                const response = await fetch(`${API_BASE}/csrf-token`, { method: 'GET', credentials: 'include' });
-                if (!response.ok) throw new Error('Nepodarilo sa načítať CSRF token.');
-                const payload = await response.json();
-                csrfTokenCache = payload.csrfToken;
-            } catch (_) {
-                csrfTokenCache = readCsrfCookie();
-            }
-            return csrfTokenCache;
-        }
-
         function formatDate(value) {
             const date = new Date(value);
             if (Number.isNaN(date.getTime())) return 'Neznámy dátum';
@@ -568,17 +412,6 @@
             }
 
             return `${normalized.slice(0, maxLength).trim()}...`;
-        }
-
-        async function loadSessionUser() {
-            try {
-                const response = await fetch(`${API_BASE}/me`, { method: 'GET', credentials: 'include' });
-                if (!response.ok) return null;
-                const payload = await response.json();
-                return payload.user || null;
-            } catch (_) {
-                return null;
-            }
         }
 
         async function loadPublicPosts() {
@@ -647,14 +480,10 @@
             const title = document.getElementById('postDetailTitle');
             const meta = document.getElementById('postDetailMeta');
             const content = document.getElementById('postDetailContent');
-            if (!modal || !title || !meta || !content) {
-                return;
-            }
+            if (!modal || !title || !meta || !content) return;
 
             const post = window.__blogPostsById && window.__blogPostsById.get(id);
-            if (!post) {
-                return;
-            }
+            if (!post) return;
 
             title.textContent = post.title || 'Bez názvu';
             meta.innerHTML = post.tags && post.tags.length > 0 ? 
@@ -680,10 +509,7 @@
 
         function closePostDetail() {
             const modal = document.getElementById('postDetailModal');
-            if (!modal) {
-                return;
-            }
-
+            if (!modal) return;
             modal.classList.remove('open');
             modal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = 'auto';
@@ -697,7 +523,13 @@
         });
 
         async function refresh() {
-            currentUser = await loadSessionUser();
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.fetchSessionUser();
+            } else {
+                const raw = localStorage.getItem('currentUser');
+                currentUser = raw ? JSON.parse(raw) : null;
+            }
+
             const roleInfo = document.getElementById('blogRoleInfo');
             const composer = document.getElementById('composerCard');
 
@@ -706,6 +538,7 @@
                 roleInfo.textContent = `Prihlásený: ${currentUser.username} (${currentUser.role})`;
             } else {
                 composer.style.display = 'none';
+                if (roleInfo) roleInfo.textContent = '';
             }
 
             const publicPosts = await loadPublicPosts();
@@ -735,7 +568,7 @@
 
             try {
                 message.textContent = 'Ukladám príspevok...';
-                const csrfToken = await ensureCsrfToken();
+                const csrfToken = window.OSKSession ? await window.OSKSession.ensureCsrfToken() : '';
 
                 const response = await fetch(`${API_BASE}/blog`, {
                     method: 'POST',
@@ -770,7 +603,7 @@
             if (!confirm('Odstrániť blog príspevok?')) return;
 
             try {
-                const csrfToken = await ensureCsrfToken();
+                const csrfToken = window.OSKSession ? await window.OSKSession.ensureCsrfToken() : '';
                 const response = await fetch(`${API_BASE}/blog/${id}`, {
                     method: 'DELETE',
                     credentials: 'include',
@@ -795,6 +628,11 @@
         window.closePostDetail = closePostDetail;
 
         refresh().catch(console.error);
+
+        // Listen for auth changes to refresh UI if needed
+        window.addEventListener('osk-auth-changed', () => {
+            refresh().catch(console.error);
+        });
     </script>
 
     <!-- Scroll to top (mobile) -->

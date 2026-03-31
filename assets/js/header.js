@@ -243,6 +243,7 @@
             var isAdmin = role === 'admin';
             var isAdminOrCoach = isAdmin || role === 'coach';
 
+            // Show relevant links based on role
             if (trainingLink) trainingLink.style.display = isBlogger ? 'none' : '';
             if (infoLink) infoLink.style.display = isBlogger ? 'none' : '';
             if (accountMgmtBtn) accountMgmtBtn.style.display = isAdmin ? '' : 'none';
@@ -303,13 +304,13 @@
         if (!toggle || !nav) return;
 
         function closeNav() {
-            nav.classList.remove('open');
-            toggle.setAttribute('aria-expanded', 'false');
+            if (nav) nav.classList.remove('open');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
         }
 
         function openNav() {
-            nav.classList.add('open');
-            toggle.setAttribute('aria-expanded', 'true');
+            if (nav) nav.classList.add('open');
+            if (toggle) toggle.setAttribute('aria-expanded', 'true');
         }
 
         toggle.addEventListener('click', function (e) {
@@ -323,7 +324,7 @@
 
         // Close when clicking outside
         document.addEventListener('click', function (e) {
-            if (!nav.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
+            if (nav && !nav.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
                 closeNav();
             }
         });
@@ -337,23 +338,17 @@
 
         // Close on resize above breakpoint
         window.addEventListener('resize', function () {
-            if (window.innerWidth > 1100) {
+            if (window.innerWidth > 1100 && nav && nav.classList.contains('open')) {
                 closeNav();
             }
         });
-
-        // Close on scroll down > 10px while open
-        window.addEventListener('scroll', function () {
-            if (window.scrollY > 10 && nav.classList.contains('open')) {
-                closeNav();
-            }
-        }, { passive: true });
     }
 
     /* ------------------------------------------------------------------ */
     /*  Inject CSS                                                          */
     /* ------------------------------------------------------------------ */
     function injectCSS() {
+        if (document.getElementById('osk-header-styles')) return;
         var style = document.createElement('style');
         style.id = 'osk-header-styles';
         style.textContent = CSS;
@@ -366,7 +361,16 @@
     function injectHeader() {
         var root = document.getElementById('site-header-root');
         if (!root) return;
-        root.outerHTML = buildHeader();
+        var wrapper = document.createElement('div');
+        wrapper.innerHTML = buildHeader();
+        var headerElement = wrapper.firstElementChild;
+        root.parentNode.insertBefore(headerElement, root);
+        root.remove();
+        
+        // Add listener for auth changes from session.js
+        window.addEventListener('osk-auth-changed', function(e) {
+            refreshAuth(e.detail);
+        });
     }
 
     /* ------------------------------------------------------------------ */

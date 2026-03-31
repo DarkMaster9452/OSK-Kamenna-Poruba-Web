@@ -977,6 +977,7 @@
 </head>
 
 <body>
+    <script src="/assets/js/session.js"></script>
     <script src="/assets/js/header.js"></script>
     <div id="site-header-root"></div>
 
@@ -1023,22 +1024,7 @@
             cache: 'NONE'
         };
 
-        function resolveApiBase() {
-            const host = window.location.hostname;
-            if (host === 'localhost' || host === '127.0.0.1') {
-                return 'http://localhost:4000/api';
-            }
-            const configuredRaw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
-            const configured = String(configuredRaw || '').trim();
-            if (configured) {
-                const normalized = configured.replace(/\/+$/, '');
-                return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
-            }
-
-            return '/api';
-        }
-
-        const API_BASE = resolveApiBase();
+        const API_BASE = OSKSession.getApiBase();
 
         /* ===== 10-MINUTE CACHE HELPER ===== */
         const CACHE_TTL = 10 * 60 * 1000;
