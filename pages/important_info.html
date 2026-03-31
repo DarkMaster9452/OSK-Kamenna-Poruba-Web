@@ -304,131 +304,7 @@
             color: #ffd700;
         }
 
-        /* Standardized Compact Footer */
-        footer {
-            background: #003399;
-            color: white;
-            padding: 40px 20px 30px;
-            margin-top: 50px;
-            border-top: 5px solid #ffd700;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 30px;
-        }
-
-        .footer-section {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .footer-section h3 {
-            color: #ffd700;
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: 800;
-            text-transform: uppercase;
-            display: flex !important;
-            align-items: center;
-            gap: 10px;
-            border: none;
-            padding: 0;
-        }
-
-        .footer-section ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 10px;
-        }
-
-        .footer-section ul li a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.2s;
-            display: inline-block;
-        }
-
-        .footer-section ul li a:hover {
-            color: #ffd700;
-            transform: translateX(5px);
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .social-icons a {
-            width: 38px;
-            height: 38px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .social-icons a:hover {
-            background: #ffd700;
-            color: #003399;
-            transform: translateY(-5px);
-            border-color: #ffd700;
-        }
-
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 40px auto 0;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        @media (max-width: 768px) {
-            footer {
-                padding: 40px 15px 25px;
-            }
-            .footer-content {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                gap: 40px;
-            }
-            .footer-section {
-                width: 100%;
-            }
-            .footer-section h3 {
-                justify-content: center;
-            }
-            .social-icons {
-                justify-content: center;
-            }
-            .footer-section ul li a:hover {
-                transform: none;
-            }
-        }
-
-        @media (max-width: 900px) {
-            .coach-grid {
-                grid-template-columns: 1fr;
-            }
+        
         }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
@@ -515,7 +391,7 @@
                             <option value="players">Hráči</option>
                             <option value="parents">Rodičia</option>
                             <option value="coaches">Tréneri</option>
-                            <option value="admins">Admini</option>
+
                         </select>
                     </div>
                     <div class="form-group" id="noticeCategoryGroup" style="display:none;">
@@ -538,10 +414,10 @@
                         <label><input id="noticePublic" type="checkbox" style="width:auto;vertical-align:middle;">
                             Verejný oznam (zobrazí sa na hlavnej stránke aj pre neprihlásených)</label>
                     </div>
-                    <div class="form-group">
-                        <label for="noticeImageUrl">URL obrázka (voliteľné)</label>
-                        <input id="noticeImageUrl" type="url" placeholder="https://...">
-                    </div>
+
+
+
+
                     <button class="btn" onclick="createNotice()"><i class="fas fa-plus"></i> Pridať oznámenie</button>
                 </div>
 
@@ -578,7 +454,7 @@
                             <option value="players">Hráči</option>
                             <option value="parents">Rodičia</option>
                             <option value="coaches">Tréneri</option>
-                            <option value="admins">Admini</option>
+
                         </select>
                     </div>
                     <div class="form-group" id="pollCategoryGroup" style="display:none;">
@@ -1179,7 +1055,7 @@
 <script src="/assets/js/cloudinary-assets.js"></script>
 
     <!-- Footer -->
-    <footer>
+<!-- FOOTER REMOVED -->
         <div class="footer-content">
             <div class="footer-section">
                 <h3><i class="fas fa-futbol"></i> OŠK Kamenná Poruba</h3>
@@ -1206,7 +1082,7 @@
         <div class="footer-bottom">
             <p>&copy; 2026 OŠK Kamenná Poruba. Všetky práva vyhradené.</p>
         </div>
-    </footer>
+
 </body>
 
 </html>

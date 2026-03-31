@@ -96,7 +96,7 @@ function handleCsrfTokenRequest(req, res) {
   res.cookie('_csrf', token, {
     httpOnly: false,
     secure: env.cookieSecure || env.nodeEnv === 'production',
-    sameSite: 'lax',
+    sameSite: env.cookieSameSite,
     path: '/',
     maxAge: 1000 * 60 * 60 * 2
   });
