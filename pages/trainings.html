@@ -17,16 +17,8 @@
 </head>
 <body>
 
-
-    <header class="header">
-        <h1><i class="fas fa-calendar-alt"></i> Tréningy</h1>
-        <div class="header-buttons">
-            <a href="/index.html" class="btn btn-back"><i class="fas fa-arrow-left"></i> Späť na hlavnú stránku</a>
-            <button id="userDisplay" class="user-info" onclick="openLogoutModal()" style="display:none; cursor:pointer; position:relative; overflow:hidden;">
-                <i class="fas fa-user-circle"></i> <span></span>
-            </button>
-        </div>
-    </header>
+    <div id="site-header-root"></div>
+    <script src="/assets/js/header.js"></script>
 
     <style>
         * {
@@ -43,92 +35,21 @@
             padding: 20px;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .container {
             max-width: 1400px;
-            margin: 0 auto 40px;
-            padding: 20px 30px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 15px;
-            border-bottom: 3px solid #ffd700;
-            backdrop-filter: blur(10px);
+            margin: 20px auto;
         }
 
-        h1, .page-title, .header h1 {
+        h1, .page-title {
             display: flex;
             align-items: center;
             gap: 15px;
             font-size: 28px;
             color: #ffd700;
+            margin-bottom: 30px;
         }
 
-        @media screen and (max-width: 768px) {
-            h1, .page-title, .header h1 {
-                font-size: 24px !important;
-            }
-        }
 
-        @media screen and (max-width: 480px) {
-            h1, .page-title, .header h1 {
-                font-size: 22px !important;
-            }
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .btn-back {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .btn-back:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateX(-5px);
-        }
-
-        .btn-logout {
-            background: #e74c3c;
-            color: white;
-            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
-        }
-
-        .btn-logout:hover {
-            background: #f15b4b;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255, 215, 0, 0.15);
-            padding: 8px 18px;
-            border-radius: 30px;
-            color: #ffd700;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            font-weight: bold;
-        }
 
         .container {
             max-width: 1400px;
@@ -806,8 +727,8 @@
             return csrfTokenCache;
         }
 
-        async function loadTrainingsData() {
-            if (trainingsLoadPromise) {
+        async function loadTrainingsData(force = false) {
+            if (trainingsLoadPromise && !force) {
                 return trainingsLoadPromise;
             }
 
