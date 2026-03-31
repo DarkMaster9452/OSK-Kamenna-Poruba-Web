@@ -248,22 +248,7 @@
     </main>
 
     <script>
-        function resolveApiBase() {
-            const host = window.location.hostname;
-            if (host === 'localhost' || host === '127.0.0.1') {
-                return 'http://localhost:4000/api';
-            }
-            const configuredRaw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
-            const configured = String(configuredRaw || '').trim();
-            if (configured) {
-                const normalized = configured.replace(/\/+$/, '');
-                return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
-            }
-
-            return '/api';
-        }
-
-        const API_BASE = resolveApiBase();
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
 
         /* ===== 4-HOUR CACHE HELPER ===== */
         async function cachedFetch(url, options = {}) {
@@ -536,28 +521,18 @@
             }
         }
 
-        loadAcademyPlayers();
-        // Načítanie tabuliek (zatiaľ zakomentované, kým používateľ nedodá URL/IDs)
-        // fetchAndRenderLeagueTable('ID_SUTAZE_U19', 'leagueTablesContainer', 'U19 - Starší dorast');
-        // fetchAndRenderLeagueTable('ID_SUTAZE_U15', 'leagueTablesContainer', 'U15 - Starší žiaci');
+        window.addEventListener('load', async () => {
+            if (window.OSKSession) {
+                await window.OSKSession.syncCurrentUserFromSession();
+            }
+            loadAcademyPlayers();
+            // Načítanie tabuliek (zatiaľ zakomentované, kým používateľ nedodá URL/IDs)
+            // fetchAndRenderLeagueTable('ID_SUTAZE_U19', 'leagueTablesContainer', 'U19 - Starší dorast');
+            // fetchAndRenderLeagueTable('ID_SUTAZE_U15', 'leagueTablesContainer', 'U15 - Starší žiaci');
+        });
     </script>
 
-    <!-- Scroll to top (mobile) -->
-    <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Späť hore"
-        title="Späť hore"
-        style="display:none;position:fixed;bottom:24px;right:20px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#003399;color:#fff;border:2px solid #ffd700;box-shadow:0 4px 14px rgba(0,0,0,0.25);font-size:18px;cursor:pointer;align-items:center;justify-content:center;">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-    <script>
-        (function () {
-            var btn = document.getElementById('scrollTopBtn');
-            window.addEventListener('scroll', function () {
-                if (btn) {
-                    btn.style.display = (window.innerWidth <= 768 && window.scrollY > 220) ? 'flex' : 'none';
-                }
-            }, { passive: true });
-        })();
-    </script>
+
 
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>

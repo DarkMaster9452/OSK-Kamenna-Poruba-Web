@@ -2358,127 +2358,7 @@
             background: #f4f8ff;
         }
 
-        /* Footer */
-        /* Standardized Compact Footer */
-        footer {
-            background: #003399;
-            color: white;
-            padding: 40px 20px 30px;
-            margin-top: 50px;
-            border-top: 5px solid #ffd700;
-        }
 
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 30px;
-        }
-
-        .footer-section {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .footer-section h3 {
-            color: #ffd700;
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: 800;
-            text-transform: uppercase;
-            display: flex !important;
-            align-items: center;
-            gap: 10px;
-            border: none;
-            padding: 0;
-        }
-
-        .footer-section ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 10px;
-        }
-
-        .footer-section ul li a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.2s;
-            display: inline-block;
-        }
-
-        .footer-section ul li a:hover {
-            color: #ffd700;
-            transform: translateX(5px);
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .social-icons a {
-            width: 38px;
-            height: 38px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .social-icons a:hover {
-            background: #ffd700;
-            color: #003399;
-            transform: translateY(-5px);
-            border-color: #ffd700;
-        }
-
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 40px auto 0;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        @media (max-width: 768px) {
-            footer {
-                padding: 40px 15px 25px;
-            }
-            .footer-content {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                gap: 40px;
-            }
-            .footer-section {
-                width: 100%;
-            }
-            .footer-section h3 {
-                justify-content: center;
-            }
-            .social-icons {
-                justify-content: center;
-            }
-            .footer-section ul li a:hover {
-                transform: none;
-            }
-        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -2985,12 +2865,7 @@
         // Ak sa mení užívateľ (napr. login/logout)
         window.showCoachPlayerCardButton = showCoachPlayerCardButton;
         // Global variables
-        let currentUser = {
-            username: null,
-            role: null,
-            playerCategory: null,
-            isLoggedIn: false
-        };
+        let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
         const PLAYERS = {};
         const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
         
@@ -3522,14 +3397,17 @@
             const mobileLoginBtn = document.getElementById('shMobileLoginBtn');
             const trainingNavLink = document.getElementById('shTrainingNavLink');
             const infoNavLink = document.getElementById('shInfoNavLink');
-            if (currentUser.isLoggedIn) {
-                const fullUsername = currentUser.username || '';
+
+            const user = currentUser || { isLoggedIn: false };
+
+            if (user.isLoggedIn) {
+                const fullUsername = user.username || '';
                 if (loginBtn) { loginBtn.textContent = formatNavbarUsername(fullUsername); loginBtn.title = fullUsername; }
                 if (mobileLoginBtn) {
                     mobileLoginBtn.textContent = formatNavbarUsername(fullUsername);
                     mobileLoginBtn.title = fullUsername;
                 }
-                const isBlogger = currentUser.role === 'blogger';
+                const isBlogger = user.role === 'blogger';
                 if (trainingNavLink) trainingNavLink.style.display = isBlogger ? 'none' : '';
                 if (infoNavLink) infoNavLink.style.display = isBlogger ? 'none' : '';
             } else {
@@ -3539,7 +3417,7 @@
                     mobileLoginBtn.title = '';
                 }
                 if (trainingNavLink) trainingNavLink.style.display = 'none';
-                if (infoNavLink) trainingNavLink.style.display = 'none';
+                if (infoNavLink) infoNavLink.style.display = 'none';
             }
             applyRoleNavbarMode();
             updateImportantInfoNavBadge().catch(() => { });
@@ -3551,7 +3429,8 @@
         let importantInfoEventsCache = [];
 
         function getImportantInfoSeenKey() {
-            const username = currentUser && currentUser.username ? currentUser.username : 'guest';
+            const user = currentUser || {};
+            const username = user.username ? user.username : 'guest';
             return IMPORTANT_INFO_SEEN_PREFIX + username;
         }
 
@@ -3706,8 +3585,9 @@
                 document.body.style.overflow = 'hidden';
                 // Set username in modal
                 const userNameSpan = document.getElementById('logoutUserName');
-                if (userNameSpan && currentUser && currentUser.username) {
-                    userNameSpan.textContent = currentUser.username;
+                const user = currentUser || {};
+                if (userNameSpan && user.username) {
+                    userNameSpan.textContent = user.username;
                 }
             }
         }
@@ -3971,7 +3851,8 @@
             if (window.OSKSession) {
                 window.OSKSession.ensureCsrfToken().catch(console.warn);
                 try {
-                    currentUser = await window.OSKSession.syncCurrentUserFromSession();
+                    const syncedUser = await window.OSKSession.syncCurrentUserFromSession();
+                    currentUser = syncedUser || { username: null, role: null, isLoggedIn: false };
                     if (window.updateLoginButtonText) updateLoginButtonText();
                 } catch (error) {
                     console.error('Session sync error:', error);
@@ -4473,8 +4354,9 @@
 
         // Show training view
         function showTrainingView(event) {
-            event.preventDefault();
-            if (!currentUser.isLoggedIn) {
+            if (event && event.preventDefault) event.preventDefault();
+            const user = currentUser || { isLoggedIn: false };
+            if (!user.isLoggedIn) {
                 alert('Prosím sa najskôr prihláste!');
                 openLoginModal();
                 return;
@@ -4485,16 +4367,16 @@
             loadTrainingData();
 
             // Show/hide areas based on role
-            if (currentUser.role === 'player' || currentUser.role === 'parent') {
+            if (user.role === 'player' || user.role === 'parent') {
                 document.getElementById('coachCreateTrainingArea').style.display = 'none';
                 document.getElementById('playerTrainingArea').style.display = 'block';
-                document.getElementById('parentChildrenArea').style.display = currentUser.role === 'parent' ? 'block' : 'none';
+                document.getElementById('parentChildrenArea').style.display = user.role === 'parent' ? 'block' : 'none';
                 document.getElementById('coachRosterArea').style.display = 'none';
-                if (currentUser.role === 'parent') {
+                if (user.role === 'parent') {
                     updateChildrenList();
                 }
                 refreshPlayerTrainings();
-            } else if (currentUser.role === 'coach' || currentUser.role === 'admin') {
+            } else if (user.role === 'coach' || user.role === 'admin') {
                 document.getElementById('coachCreateTrainingArea').style.display = 'block';
                 document.getElementById('playerTrainingArea').style.display = 'none';
                 document.getElementById('parentChildrenArea').style.display = 'none';
@@ -4670,22 +4552,7 @@
         });
     </script>
 
-    <!-- Scroll to top (mobile) -->
-    <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Späť hore"
-        title="Späť hore"
-        style="display:none;position:fixed;bottom:24px;right:20px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#003399;color:#fff;border:2px solid #ffd700;box-shadow:0 4px 14px rgba(0,0,0,0.25);font-size:18px;cursor:pointer;align-items:center;justify-content:center;">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-    <script>
-        (function () {
-            var btn = document.getElementById('scrollTopBtn');
-            window.addEventListener('scroll', function () {
-                if (btn) {
-                    btn.style.display = (window.innerWidth <= 768 && window.scrollY > 220) ? 'flex' : 'none';
-                }
-            }, { passive: true });
-        })();
-    </script>
+
 
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>

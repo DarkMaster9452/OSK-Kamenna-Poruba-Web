@@ -92,7 +92,7 @@
             localStorage.removeItem('currentUser');
             // Notify other components if needed
             window.dispatchEvent(new CustomEvent('osk-auth-changed', { detail: { isLoggedIn: false } }));
-            return null;
+            return { username: null, role: null, playerCategory: null, isLoggedIn: false };
         }
 
         const currentUser = {

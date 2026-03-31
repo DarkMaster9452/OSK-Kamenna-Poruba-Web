@@ -361,7 +361,7 @@
 
     <script>
         const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
-        let currentUser = null;
+        let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
         let manageItems = [];
         let currentTagFilter = 'Všetky';
 
@@ -523,12 +523,12 @@
         });
 
         async function refresh() {
-            if (window.OSKSession) {
-                currentUser = await window.OSKSession.fetchSessionUser();
-            } else {
-                const raw = localStorage.getItem('currentUser');
-                currentUser = raw ? JSON.parse(raw) : null;
-            }
+        if (window.OSKSession) {
+            currentUser = await window.OSKSession.syncCurrentUserFromSession();
+        } else {
+            const raw = localStorage.getItem('currentUser');
+            currentUser = raw ? JSON.parse(raw) : { username: null, role: null, playerCategory: null, isLoggedIn: false };
+        }
 
             const roleInfo = document.getElementById('blogRoleInfo');
             const composer = document.getElementById('composerCard');
@@ -627,30 +627,23 @@
         window.openPostDetail = openPostDetail;
         window.closePostDetail = closePostDetail;
 
-        refresh().catch(console.error);
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
+            }
+            refresh().catch(console.error);
+        });
 
         // Listen for auth changes to refresh UI if needed
-        window.addEventListener('osk-auth-changed', () => {
+        window.addEventListener('osk-auth-changed', async () => {
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
+            }
             refresh().catch(console.error);
         });
     </script>
 
-    <!-- Scroll to top (mobile) -->
-    <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Späť hore"
-        title="Späť hore"
-        style="display:none;position:fixed;bottom:24px;right:20px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#003399;color:#fff;border:2px solid #ffd700;box-shadow:0 4px 14px rgba(0,0,0,0.25);font-size:18px;cursor:pointer;align-items:center;justify-content:center;">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-    <script>
-        (function () {
-            var btn = document.getElementById('scrollTopBtn');
-            window.addEventListener('scroll', function () {
-                if (btn) {
-                    btn.style.display = (window.innerWidth <= 768 && window.scrollY > 220) ? 'flex' : 'none';
-                }
-            }, { passive: true });
-        })();
-    </script>
+
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
 </body>

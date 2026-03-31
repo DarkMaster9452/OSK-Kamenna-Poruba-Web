@@ -135,6 +135,7 @@
     }
 
     function resolveApiBase() {
+        if (window.OSKSession) return window.OSKSession.getApiBase();
         var host = window.location.hostname;
         if (host === 'localhost' || host === '127.0.0.1') {
             return 'http://localhost:4000/api';

@@ -258,46 +258,8 @@
 
     <script src="/assets/js/header.js"></script>
     <script>
-        function resolveApiBase() {
-            var raw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
-            var configured = String(raw || '').trim();
-            if (configured) {
-                var n = configured.replace(/\/+$/, '');
-                return n.endsWith('/api') ? n : n + '/api';
-            }
-            return '/api';
-        }
-        var API_BASE = resolveApiBase();
-        var csrfTokenCache = null;
-
-        function readCsrfCookie() {
-            var match = document.cookie.match(/(^|;\s*)_csrf=([^;]*)/);
-            return match ? decodeURIComponent(match[2]) : '';
-        }
-
-        function invalidateCsrfToken() {
-            csrfTokenCache = null;
-        }
-
-        async function ensureCsrfToken() {
-            if (csrfTokenCache) return csrfTokenCache;
-
-            try {
-                var res = await fetch(API_BASE + '/csrf-token', { method: 'GET', credentials: 'include' });
-                var data = await res.json();
-                csrfTokenCache = data.csrfToken;
-            } catch (_) {
-                csrfTokenCache = readCsrfCookie();
-            }
-            return csrfTokenCache;
-        }
-
-        async function fetchSession() {
-            var res = await fetch(API_BASE + '/me', { method: 'GET', credentials: 'include' });
-            if (!res.ok) return null;
-            var data = await res.json();
-            return data.user || null;
-        }
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+        let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
 
         /* ===== STATE ===== */
         var allPlayers = [];
@@ -384,7 +346,7 @@
             btn.disabled = true;
 
             try {
-                var csrf = await ensureCsrfToken();
+                var csrf = window.OSKSession ? await window.OSKSession.ensureCsrfToken() : null;
                 var res = await fetch(API_BASE + '/groups', {
                     method: 'POST',
                     credentials: 'include',
@@ -461,13 +423,12 @@
             if (!confirm('Naozaj chceš zmazať skupinu "' + name + '"?')) return;
 
             try {
-                var csrf = await ensureCsrfToken();
                 var res = await fetch(API_BASE + '/groups/' + id + '/delete', {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-csrf-token': csrf
+                        'x-csrf-token': window.OSKSession ? await window.OSKSession.ensureCsrfToken() : null
                     }
                 });
 
@@ -492,15 +453,15 @@
         /* ===== INIT ===== */
         (async function () {
             try {
-                await ensureCsrfToken().catch(function () { });
-                var user = await fetchSession();
+                if (window.OSKSession) {
+                    currentUser = await window.OSKSession.syncCurrentUserFromSession();
+                }
+
                 var gate = document.getElementById('authGate');
                 var main = document.getElementById('mainContent');
-                var loader = document.getElementById('page-loader');
 
-                if (!user || (user.role !== 'coach' && user.role !== 'admin')) {
+                if (!currentUser.isLoggedIn || (currentUser.role !== 'coach' && currentUser.role !== 'admin')) {
                     gate.innerHTML = '<p style="color:#e74c3c;font-weight:bold;">Prístup je povolený len trénerom a administrátorom.</p>';
-                    if (loader) loader.style.display = 'none';
                     return;
                 }
 
@@ -516,22 +477,7 @@
         })();
     </script>
 
-    <!-- Scroll to top (mobile) -->
-    <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Späť hore"
-        title="Späť hore"
-        style="display:none;position:fixed;bottom:24px;right:20px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#003399;color:#fff;border:2px solid #ffd700;box-shadow:0 4px 14px rgba(0,0,0,0.25);font-size:18px;cursor:pointer;align-items:center;justify-content:center;">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-    <script>
-        (function () {
-            var btn = document.getElementById('scrollTopBtn');
-            window.addEventListener('scroll', function () {
-                if (btn) {
-                    btn.style.display = (window.innerWidth <= 768 && window.scrollY > 220) ? 'flex' : 'none';
-                }
-            }, { passive: true });
-        })();
-    </script>
+
 
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>

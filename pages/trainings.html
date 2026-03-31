@@ -121,7 +121,12 @@
 
     <script>
         // Global state expected by trainings.js
-        let currentUser = null;
+        let currentUser = {
+            username: null,
+            role: null,
+            playerCategory: null,
+            isLoggedIn: false
+        };
         let trainings = [];
         let parentChildren = {};
         const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
@@ -132,9 +137,10 @@
 
             try {
                 // 1. Sync session
-                currentUser = await window.OSKSession.syncCurrentUserFromSession();
+                const syncedUser = await window.OSKSession.syncCurrentUserFromSession();
+                currentUser = syncedUser || { username: null, role: null, isLoggedIn: false };
                 
-                if (!currentUser || !currentUser.isLoggedIn) {
+                if (!currentUser.isLoggedIn) {
                     trainingView.innerHTML = `
                         <div class="auth-error-card">
                             <i class="fas fa-lock fa-3x" style="color: #e74c3c; margin-bottom: 20px;"></i>

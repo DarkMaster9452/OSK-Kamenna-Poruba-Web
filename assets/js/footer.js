@@ -117,6 +117,30 @@
         '    footer#site-footer .footer-section ul li a:hover {',
         '        transform: none;',
         '    }',
+        '}',
+        '#scrollTopBtn {',
+        '    display: none;',
+        '    position: fixed;',
+        '    bottom: 24px;',
+        '    right: 20px;',
+        '    z-index: 9999;',
+        '    width: 48px;',
+        '    height: 48px;',
+        '    border-radius: 50%;',
+        '    background: #003399;',
+        '    color: #fff;',
+        '    border: 2px solid #ffd700;',
+        '    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);',
+        '    font-size: 18px;',
+        '    cursor: pointer;',
+        '    align-items: center;',
+        '    justify-content: center;',
+        '    outline: none;',
+        '    transition: all 0.3s ease;',
+        '}',
+        '#scrollTopBtn:hover {',
+        '    background: #1a4db8;',
+        '    transform: scale(1.1);',
         '}'
     ].join('\n');
 
@@ -173,7 +197,10 @@
             '    <div class="footer-bottom">',
             '        &copy; ' + currentYear + ' OŠK Kamenná Poruba. Všetky práva vyhradené. Stránku vytvoril DarkMaster.',
             '    </div>',
-            '</footer>'
+            '</footer>',
+            '<button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:\'smooth\'})" aria-label="Späť hore" title="Späť hore">',
+            '    <i class="fas fa-chevron-up"></i>',
+            '</button>'
         ].join('\n');
     }
 
@@ -200,6 +227,19 @@
 
     function init() {
         injectFooter();
+        // Initialize Scroll to Top button logic
+        (function() {
+            const btn = document.getElementById('scrollTopBtn');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                // Show only on mobile/narrow viewports when scrolled down
+                if (window.innerWidth <= 768 && window.scrollY > 220) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }, { passive: true });
+        })();
     }
 
     if (document.readyState === 'loading') {
