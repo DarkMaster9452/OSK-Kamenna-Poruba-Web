@@ -122,23 +122,27 @@
         }
 
         .match-category-tag {
-            font-size: 9px;
-            font-weight: 900;
+            font-size: 10px;
+            font-weight: 800;
+            background: #003399;
+            color: white;
             padding: 3px 10px;
-            border-radius: 6px;
+            border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
 
-        /* Color-coding for categories */
-        .match-category-tag[data-category="dospeli"], .detail-category-badge[data-category="dospeli"] { background: #003399; color: white; }
-        .match-category-tag[data-category="u19_dorast"], .detail-category-badge[data-category="u19_dorast"] { background: #ffd700; color: #003399; }
-        .match-category-tag[data-category="u15_ziaci"], .detail-category-badge[data-category="u15_ziaci"] { background: #10b981; color: white; }
-        .match-category-tag[data-category="u13_ziaci"], .detail-category-badge[data-category="u13_ziaci"] { background: #f59e0b; color: white; }
-        .match-category-tag[data-category="u11_pripravka"], .detail-category-badge[data-category="u11_pripravka"] { background: #ec4899; color: white; }
-        .match-category-tag[data-category="u09_pripravka"], .detail-category-badge[data-category="u09_pripravka"] { background: #8b5cf6; color: white; }
+        .detail-category-badge {
+            font-size: 11px;
+            font-weight: 900;
+            background: #003399;
+            color: white;
+            padding: 5px 16px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0,51,153,0.15);
+        }
 
         .match-status-badge {
             font-size: 10px;
@@ -455,13 +459,22 @@
             border-radius: 4px;
         }
 
+        .match-footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            grid-column: span 2;
+            margin-bottom: 2px;
+        }
+
         .match-footer {
             padding: 16px 20px;
             background: #fff;
             border-top: 1px solid #f1f5f9;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
         }
 
         .match-info-item {
@@ -1535,10 +1548,7 @@
             return `
                 <div class="match-card" onclick="openMatchModal('${match.id}')">
                     <div class="match-card-header">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <div class="match-category-tag" data-category="${match.category}">${categoryLabel}</div>
-                            <div class="match-competition">${match.competition}</div>
-                        </div>
+                        <div class="match-competition">${match.competition}</div>
                         <div class="match-status-badge ${statusClass}">${statusText}</div>
                     </div>
                     
@@ -1564,9 +1574,12 @@
                     </div>
 
                     <div class="match-footer">
-                        <div class="match-info-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>${formattedDay}, ${formattedDate}</span>
+                        <div class="match-footer-top">
+                            <div class="match-info-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>${formattedDay}, ${formattedDate}</span>
+                            </div>
+                            <div class="match-category-tag">${categoryLabel}</div>
                         </div>
                         <div class="match-info-item full-width">
                             <i class="fas fa-map-marker-alt"></i>
