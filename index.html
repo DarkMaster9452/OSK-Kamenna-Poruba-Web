@@ -1440,13 +1440,19 @@
         }
 
         .standings-group-header {
-            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
-            color: white;
-            padding: 14px 20px;
-            font-size: 15px;
-            font-weight: 700;
+            color: #003399;
+            padding: 18px 0 10px;
+            font-size: 16px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-bottom: 3px solid #ffd700;
+            width: fit-content;
+            margin: 0 auto 15px;
         }
 
         .standings-table {
@@ -2225,33 +2231,39 @@
                 font-size: 11px;
             }
 
-            /* Hide less important columns: V, R, P, +/- */
-            /* We keep: Rank (#), Team Name, Played (OZ), Score (SKÓRE), Points (B) */
-            .standings-table th:nth-child(4), .standings-table td:nth-child(4),
-            .standings-table th:nth-child(5), .standings-table td:nth-child(5),
-            .standings-table th:nth-child(6), .standings-table td:nth-child(6),
-            .standings-table th:nth-child(8), .standings-table td:nth-child(8) {
-                display: none;
+            /* Show ALL Columns - compact style to avoid scrolling */
+            .standings-table th, .standings-table td {
+                padding: 10px 2px !important;
+                font-size: 9px;
             }
 
-            .standings-team-abbr {
-                width: 24px;
-                height: 24px;
-                font-size: 8px;
+            /* Hide logos on mobile to fit stats */
+            .standings-team-cell {
+                display: flex;
+                align-items: center;
+                gap: 0;
+            }
+            .standings-team-cell img, .standings-team-cell .standings-team-abbr {
+                display: none !important;
             }
 
             .standings-team-name {
-                max-width: 105px !important;
-                font-size: 11px;
+                max-width: 90px !important;
+                font-size: 10px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }
 
             .standings-points {
-                font-size: 13px !important;
-                width: 35px !important;
-                text-align: center !important;
+                font-size: 11px !important;
+                width: auto !important;
+                font-weight: 800;
+            }
+
+            .standings-rank-cell {
+                width: 20px !important;
+                padding-left: 5px !important;
             }
         }
 
