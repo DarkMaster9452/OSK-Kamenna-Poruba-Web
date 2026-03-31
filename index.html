@@ -3015,9 +3015,9 @@
         const API_BASE = resolveApiBase();
         let csrfTokenCache = null;
 
-        // Client-side cache (localStorage, 4h TTL)
+        // Client-side cache (localStorage, 10 min TTL)
         async function cachedFetch(url, options = {}) {
-            const CACHE_TTL = 4 * 60 * 60 * 1000;
+            const CACHE_TTL = 10 * 60 * 1000;
             const cacheKey = 'osk_cf__' + url;
             try {
                 const raw = localStorage.getItem(cacheKey);
@@ -4136,6 +4136,17 @@
             if (text.includes('žiac') || text.includes('ziac') || text.includes('u15') || text.includes('u13')) return 'ziaci';
             if (text.includes('príprav') || text.includes('priprav') || text.includes('u11') || text.includes('u09') || text.includes('u9') || text.includes('respect')) return 'pripravka';
             return 'dospeli';
+        }
+
+        function getMatchCategoryLabel(competition) {
+            const cat = detectStandingsCategory(competition, '');
+            const labels = {
+                'dospeli': 'Dospelí (Muži)',
+                'dorast': 'Dorast U19',
+                'ziaci': 'Žiaci U15',
+                'pripravka': 'Prípravka'
+            };
+            return labels[cat] || 'A-Tím';
         }
 
         function renderStandingGroup(group) {
