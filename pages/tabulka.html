@@ -513,6 +513,127 @@
             flex-shrink: 0;
         }
 
+        /* Standardized Compact Footer */
+        footer {
+            background: #003399;
+            color: white;
+            padding: 40px 20px 30px;
+            margin-top: 50px;
+            border-top: 5px solid #ffd700;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-section h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: flex !important;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            padding: 0;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .footer-section ul li a:hover {
+            color: #ffd700;
+            transform: translateX(5px);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .social-icons a {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-icons a:hover {
+            background: #ffd700;
+            color: #003399;
+            transform: translateY(-5px);
+            border-color: #ffd700;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                padding: 40px 15px 25px;
+            }
+            .footer-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 40px;
+            }
+            .footer-section {
+                width: 100%;
+            }
+            .footer-section h3 {
+                justify-content: center;
+            }
+            .social-icons {
+                justify-content: center;
+            }
+            .footer-section ul li a:hover {
+                transform: none;
+            }
+        }
+
         .standings-team-abbr.own-team {
             background: #ffd700;
             color: #003399;
@@ -1165,11 +1286,11 @@
         function renderStandingGroup(group) {
             const teams = group.results || [];
             const qualifyCount = 2;
-            const title = group.part && group.part !== group.competition
+            const label = group.part && group.part !== group.competition
                 ? `${group.competition} – ${group.part}`
                 : group.competition;
 
-            const rows = teams.map((team, idx) => {
+            const rowsHtml = teams.map((team, idx) => {
                 const rank = team.rank ?? idx + 1;
                 const name = team.teamName || team.name || 'Tím';
                 const diff = (team.goalsFor || 0) - (team.goalsAgainst || 0);
@@ -1185,51 +1306,48 @@
 
                 return `
                     <tr class="${own ? 'own-team' : ''}">
-                        <td class="standings-rank-cell">
+                        <td class="standings-rank-cell" style="padding: 12px 15px;">
                             <div class="standings-rank">${rankCell}</div>
                         </td>
-                        <td>
+                        <td style="padding: 12px 15px;">
                             <div class="standings-team-cell">
                                 ${logoImg}
                                 <span class="standings-team-name${own ? ' own-team' : ''}">${name}</span>
                             </div>
                         </td>
-                        <td class="center">${team.played ?? 0}</td>
-                        <td class="center">${team.won ?? 0}</td>
-                        <td class="center">${team.drawn ?? 0}</td>
-                        <td class="center">${team.lost ?? 0}</td>
-                        <td class="center">${goals}</td>
-                        <td class="center"><span class="${diffClass}">${diffStr}</span></td>
-                        <td class="center"><span class="standings-points">${team.points ?? 0}</span></td>
+                        <td class="center" style="padding: 12px 15px;">${team.played ?? 0}</td>
+                        <td class="center" style="padding: 12px 15px;">${team.won ?? 0}</td>
+                        <td class="center" style="padding: 12px 15px;">${team.drawn ?? 0}</td>
+                        <td class="center" style="padding: 12px 15px;">${team.lost ?? 0}</td>
+                        <td class="center" style="padding: 12px 15px;">${goals}</td>
+                        <td class="center" style="padding: 12px 15px;"><span class="${diffClass}">${diffStr}</span></td>
+                        <td class="center" style="padding: 12px 15px;"><span class="standings-points">${team.points ?? 0}</span></td>
                     </tr>`;
             }).join('');
 
-            const legend = qualifyCount > 0 && teams.length > qualifyCount
-                ? `<div class="standings-legend"><div class="standings-legend-dot"></div> Postup do ďalšej fázy</div>`
-                : '';
-
             return `
-                <div class="standings-group">
-                    <div class="standings-group-header"><i class="fas fa-table-cells"></i> ${title}</div>
-                    <div class="table-wrap" style="border:none; border-radius:10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div class="standings-group" style="margin-bottom: 30px;">
+                    <h4 style="font-size: 18px; color: #003399; margin-bottom: 15px; border-left: 5px solid #ffd700; padding-left: 12px; font-weight: 800; text-transform: uppercase;">
+                        ${label}
+                    </h4>
+                    <div class="table-wrap" style="border: 1px solid #e6ebf3; border-radius: 12px; overflow: hidden; background: #fff;">
                         <table class="standings-table">
-                            <thead>
+                            <thead style="background: #f8fbff; border-bottom: 2px solid #eef4ff;">
                                 <tr>
-                                    <th class="standings-rank-cell">#</th>
-                                    <th>Tím</th>
-                                    <th class="center" title="Odohrané zápasy">OZ</th>
-                                    <th class="center" title="Výhry">V</th>
-                                    <th class="center" title="Remízy">R</th>
-                                    <th class="center" title="Prehry">P</th>
-                                    <th class="center" title="Skóre">SKÓRE</th>
-                                    <th class="center" title="Rozdiel gólov">+/-</th>
-                                    <th class="center" title="Body">B</th>
+                                    <th class="standings-rank-cell" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">#</th>
+                                    <th style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">Tím</th>
+                                    <th class="center" title="Odohrané zápasy" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">OZ</th>
+                                    <th class="center" title="Výhry" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">V</th>
+                                    <th class="center" title="Remízy" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">R</th>
+                                    <th class="center" title="Prehry" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">P</th>
+                                    <th class="center" title="Skóre" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">SKÓRE</th>
+                                    <th class="center" title="Rozdiel gólov" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">+/-</th>
+                                    <th class="center" title="Body" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">B</th>
                                 </tr>
                             </thead>
-                            <tbody>${rows}</tbody>
+                            <tbody>${rowsHtml}</tbody>
                         </table>
                     </div>
-                    ${legend}
                 </div>`;
         }
 
@@ -1654,18 +1772,10 @@
             <div class="footer-section">
                 <h3><i class="fas fa-futbol"></i> OŠK Kamenná Poruba</h3>
                 <div class="social-icons">
-                    <a href="https://www.facebook.com/profile.php?id=61587779259016" title="Facebook"><i
-                            class="fab fa-facebook-f"></i></a>
-                    <a href="https://sportnet.sme.sk/futbalnet/k/osk-kamenna-poruba/" title="Sportsnet" target="_blank"
-                        rel="noopener">
-                        <i class="fas fa-futbol"></i> </a>
-                    <a href="https://www.obeckamennaporuba.sk" title="Stránka obce" target="_blank" rel="noopener">
-                        <i class="fas fa-landmark"></i>
-                    </a>
-                    <a href="https://www.instagram.com/osk_kamennaporuba" title="Instagram" target="_blank"
-                        rel="noopener">
-                        <i class="fab fa-instagram"></i>
-                    </a>
+                    <a href="https://www.facebook.com/profile.php?id=61587779259016" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://sportnet.sme.sk/futbalnet/k/osk-kamenna-poruba/" title="Sportsnet" target="_blank" rel="noopener"><i class="fas fa-futbol"></i> </a>
+                    <a href="https://www.obeckamennaporuba.sk" title="Stránka obce" target="_blank" rel="noopener"><i class="fas fa-landmark"></i></a>
+                    <a href="https://www.instagram.com/osk_kamennaporuba" title="Instagram" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
             <div class="footer-section">
@@ -1677,7 +1787,7 @@
                     <li><a href="/pages/matches.html">Zápasy</a></li>
                     <li><a href="/pages/galeria.html">Galéria</a></li>
                     <li><a href="/pages/blog.html">Blog</a></li>
-                    <li><a href="#contact">Kontakt</a></li>
+                    <li><a href="/#contact">Kontakt</a></li>
                 </ul>
             </div>
         </div>

@@ -2322,28 +2322,41 @@
         }
 
         /* Footer */
+        /* Standardized Compact Footer */
         footer {
             background: #003399;
             color: white;
-            padding: 60px 20px 40px;
-            margin-top: 60px;
+            padding: 40px 20px 30px;
+            margin-top: 50px;
             border-top: 5px solid #ffd700;
         }
 
         .footer-content {
             max-width: 1200px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
         }
 
         .footer-section h3 {
             color: #ffd700;
-            margin-bottom: 25px;
-            font-size: 20px;
+            margin-bottom: 20px;
+            font-size: 18px;
             font-weight: 800;
             text-transform: uppercase;
+            display: flex !important;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            padding: 0;
         }
 
         .footer-section ul {
@@ -2353,29 +2366,31 @@
         }
 
         .footer-section ul li {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .footer-section ul li a {
-            color: rgba(255, 255, 255, 0.85);
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            transition: all 0.3s ease;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-block;
         }
 
         .footer-section ul li a:hover {
             color: #ffd700;
-            padding-left: 5px;
+            transform: translateX(5px);
         }
 
         .social-icons {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 15px;
         }
 
         .social-icons a {
-            width: 44px;
-            height: 44px;
+            width: 38px;
+            height: 38px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
             border-radius: 50%;
@@ -2383,24 +2398,49 @@
             align-items: center;
             justify-content: center;
             font-size: 18px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .social-icons a:hover {
             background: #ffd700;
             color: #003399;
-            transform: translateY(-5px) scale(1.1);
+            transform: translateY(-5px);
             border-color: #ffd700;
         }
 
         .footer-bottom {
-            margin-top: 60px;
-            padding-top: 30px;
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 20px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                padding: 40px 15px 25px;
+            }
+            .footer-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 40px;
+            }
+            .footer-section {
+                width: 100%;
+            }
+            .footer-section h3 {
+                justify-content: center;
+            }
+            .social-icons {
+                justify-content: center;
+            }
+            .footer-section ul li a:hover {
+                transform: none;
+            }
         }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
@@ -2952,7 +2992,7 @@
                 if (raw) {
                     const entry = JSON.parse(raw);
                     if (Date.now() - entry.ts < CACHE_TTL) {
-                        return { ok: true, status: 200, json: async () => entry.data };
+                        return entry.data;
                     }
                 }
             } catch (_) { }
@@ -2961,11 +3001,11 @@
                 if (res.ok) {
                     const data = await res.json();
                     try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
-                    return { ok: true, status: res.status, json: async () => data };
+                    return data;
                 }
-                return { ok: false, status: res.status, json: async () => ({}) };
+                return null;
             } catch (err) {
-                return { ok: false, status: 0, json: async () => ({}) };
+                return null;
             }
         }
 
@@ -4114,14 +4154,14 @@
 
             return `
                 <div class="idx-standings-group">
-                    <div class="idx-standings-header">
+                    <h4 class="idx-standings-title">
                         <i class="fas fa-table-cells"></i> ${title}
-                    </div>
+                    </h4>
                     <div class="table-wrap">
                         <table class="standings-table">
                             <thead>
                                 <tr>
-                                    <th class="standings-rank-cell" style="padding-left: 16px;">#</th>
+                                    <th class="standings-rank-cell">#</th>
                                     <th>Tím</th>
                                     <th class="center" title="Odohrané zápasy">OZ</th>
                                     <th class="center" title="Výhry">V</th>
@@ -4175,15 +4215,16 @@
                 const payload = await cachedFetch(`${API_BASE}/sportsnet/standings`, {
                     headers: { Accept: 'application/json' }
                 });
-                const standing = document.getElementById('standings');
-                const groups = Array.isArray(payload.standings) ? payload.standings : [];
+                
+                const groups = Array.isArray(payload?.standings) ? payload.standings : [];
 
                 // Only show groups where OŠK Kamenná Poruba plays
                 const ownGroups = groups.filter(g =>
-                    (g.results || []).some(t => idxIsOwnTeam(t.teamName))
+                    (g.results || []).some(t => idxIsOwnTeam(t.teamName || t.name))
                 );
 
                 if (ownGroups.length === 0) {
+                    const standing = document.getElementById('standings');
                     if (standing) standing.style.display = 'none';
                     return;
                 }
@@ -4198,14 +4239,6 @@
             }
         }
 
-        function getMatchCategoryLabel(competition) {
-            const text = (competition || '').toLowerCase();
-            if (text.includes('dorast') || text.includes('u19') || text.includes('u17')) return 'Dorastenci';
-            if (text.includes('žiac') || text.includes('ziac') || text.includes('u15') || text.includes('u13')) return 'Žiaci';
-            if (text.includes('príprav') || text.includes('priprav') || text.includes('u11') || text.includes('u09') || text.includes('u9') || text.includes('respect')) return 'Prípravka';
-            return 'Dospelí - A-tím';
-        }
-
         async function loadMatchesData(type = 'upcoming') {
             const containerId = type === 'upcoming' ? 'upcomingMatchesContainer' : 'finishedMatchesContainer';
             const container = document.getElementById(containerId);
@@ -4216,6 +4249,7 @@
                     method: 'GET',
                     headers: { Accept: 'application/json' }
                 });
+                
                 let allItems = Array.isArray(payload?.items) ? payload.items : [];
 
                 // Register all logos found in matches for standings table use
@@ -4261,7 +4295,7 @@
                 if (type === 'finished') {
                     items.sort((a, b) => b.matchDateObj - a.matchDateObj); // Od najnovšieho k najstaršiemu
                 } else if (type === 'upcoming') {
-                    items.sort((a, b) => a.matchDateObj - b.matchDateObj); // Od najbližšieho k najbližšiemu
+                    items.sort((a, b) => a.matchDateObj - b.matchDateObj); // Od najbližšieho k najvzdialenejšiemu
                 }
 
                 // Vynútime limit 4 zápasov na klientovi
@@ -4710,23 +4744,126 @@
     <script src="/assets/js/cloudinary-assets.js"></script>
 
     <!-- Footer -->
+    <style>
+        footer {
+            background: #003399;
+            color: #fff;
+            padding: 30px 20px 15px;
+            border-top: 4px solid #ffd700;
+            font-family: 'Inter', sans-serif;
+            margin-top: 60px;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 30px;
+        }
+        .footer-section {
+            flex: 1;
+        }
+        .footer-section h3 {
+            color: #ffd700;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 20px;
+        }
+        .footer-section ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            opacity: 0.9;
+        }
+        .footer-section ul li a:hover {
+            color: #ffd700;
+            opacity: 1;
+        }
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+        .social-icons a {
+            color: #fff;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.1);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            text-decoration: none;
+        }
+        .social-icons a:hover {
+            color: #003399;
+            background: #ffd700;
+            transform: translateY(-3px);
+        }
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 20px auto 0;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        @media (max-width: 768px) {
+            footer {
+                padding: 40px 20px 20px;
+                text-align: center;
+            }
+            .footer-content {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+            .footer-section {
+                width: 100%;
+            }
+            .footer-section h3 {
+                justify-content: center;
+            }
+            .footer-section ul {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                align-items: center;
+            }
+            .social-icons {
+                justify-content: center;
+            }
+            .footer-bottom {
+                margin-top: 30px;
+            }
+        }
+    </style>
     <footer>
         <div class="footer-content">
             <div class="footer-section">
                 <h3><i class="fas fa-futbol"></i> OŠK Kamenná Poruba</h3>
                 <div class="social-icons">
-                    <a href="https://www.facebook.com/profile.php?id=61587779259016" title="Facebook"><i
-                            class="fab fa-facebook-f"></i></a>
-                    <a href="https://sportnet.sme.sk/futbalnet/k/osk-kamenna-poruba/" title="Sportsnet" target="_blank"
-                        rel="noopener">
-                        <i class="fas fa-futbol"></i> </a>
-                    <a href="https://www.obeckamennaporuba.sk" title="Stránka obce" target="_blank" rel="noopener">
-                        <i class="fas fa-landmark"></i>
-                    </a>
-                    <a href="https://www.instagram.com/osk_kamennaporuba" title="Instagram" target="_blank"
-                        rel="noopener">
-                        <i class="fab fa-instagram"></i>
-                    </a>
+                    <a href="https://www.facebook.com/profile.php?id=61587779259016" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://sportnet.sme.sk/futbalnet/k/osk-kamenna-poruba/" title="Sportsnet" target="_blank" rel="noopener"><i class="fas fa-futbol"></i> </a>
+                    <a href="https://www.obeckamennaporuba.sk" title="Stránka obce" target="_blank" rel="noopener"><i class="fas fa-landmark"></i></a>
+                    <a href="https://www.instagram.com/osk_kamennaporuba" title="Instagram" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
             <div class="footer-section">
@@ -4738,7 +4875,7 @@
                     <li><a href="/pages/matches.html">Zápasy</a></li>
                     <li><a href="/pages/galeria.html">Galéria</a></li>
                     <li><a href="/pages/blog.html">Blog</a></li>
-                    <li><a href="#contact">Kontakt</a></li>
+                    <li><a href="/#contact">Kontakt</a></li>
                 </ul>
             </div>
         </div>
