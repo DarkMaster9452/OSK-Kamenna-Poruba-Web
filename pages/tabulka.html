@@ -797,6 +797,12 @@
             }
         }
 
+        @media (max-width: 768px) {
+            h1, .page-title, .standings-title {
+                font-size: 26px !important;
+            }
+        }
+
         @media screen and (max-width: 480px) {
             h1, .standings-title {
                 font-size: 24px !important;
@@ -804,6 +810,56 @@
 
             .modal-content {
                 padding: 20px;
+            }
+
+            /* Table optimization for mobile - NO SCROLLING */
+            .table-wrap {
+                overflow-x: hidden;
+                border-radius: 8px;
+            }
+
+            .standings-table th, .standings-table td {
+                padding: 8px 3px !important;
+                font-size: 11px;
+            }
+
+            .standings-team-name {
+                max-width: 105px !important;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 11px;
+            }
+
+            .standings-rank-cell {
+                width: 32px !important;
+                padding-left: 8px !important;
+            }
+
+            .standings-team-cell {
+                gap: 6px;
+            }
+
+            .standings-team-abbr {
+                width: 24px;
+                height: 24px;
+                font-size: 8px;
+            }
+
+            /* Hide less important Columns: V, R, P, +/- */
+            /* We keep: Rank (#), Team Name, Played (OZ), Score (SKÓRE), Points (B) */
+            /* In tabulka.html order is: 1:#, 2:Team, 3:OZ, 4:V, 5:R, 6:P, 7:Góly, 8:+/-, 9:B */
+            .standings-table th:nth-child(4), .standings-table td:nth-child(4),
+            .standings-table th:nth-child(5), .standings-table td:nth-child(5),
+            .standings-table th:nth-child(6), .standings-table td:nth-child(6),
+            .standings-table th:nth-child(8), .standings-table td:nth-child(8) {
+                display: none;
+            }
+
+            .standings-points {
+                font-size: 13px !important;
+                width: 35px !important;
+                text-align: center !important;
             }
         }
     </style>
@@ -1176,7 +1232,7 @@
                                     <th class="center" title="Výhry">V</th>
                                     <th class="center" title="Remízy">R</th>
                                     <th class="center" title="Prehry">P</th>
-                                    <th class="center" title="Góly">Góly</th>
+                                    <th class="center" title="Skóre">SKÓRE</th>
                                     <th class="center" title="Rozdiel gólov">+/-</th>
                                     <th class="center" title="Body">B</th>
                                 </tr>

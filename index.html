@@ -355,7 +355,7 @@
 
         .btn-primary:hover {
             background: #ffed4e;
-            color: #003399;
+            color: white;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
         }
@@ -2203,7 +2203,13 @@
             }
         }
 
-        @media (max-width: 480px) {
+        @media screen and (max-width: 768px) {
+            h1, h2, .section-title, .standings-title {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
             h1, h2, .section-title, .standings-title {
                 font-size: 24px !important;
             }
@@ -2219,14 +2225,12 @@
                 font-size: 11px;
             }
 
-            .standings-table th:nth-child(2), /* Team Name */
-            .standings-table td:nth-child(2) {
-                min-width: 110px;
-            }
-
-            /* Hide +/- column on mobile to save space */
-            .standings-table th:nth-child(8), 
-            .standings-table td:nth-child(8) {
+            /* Hide less important columns: V, R, P, +/- */
+            /* We keep: Rank (#), Team Name, Played (OZ), Score (SKÓRE), Points (B) */
+            .standings-table th:nth-child(4), .standings-table td:nth-child(4),
+            .standings-table th:nth-child(5), .standings-table td:nth-child(5),
+            .standings-table th:nth-child(6), .standings-table td:nth-child(6),
+            .standings-table th:nth-child(8), .standings-table td:nth-child(8) {
                 display: none;
             }
 
@@ -2237,8 +2241,17 @@
             }
 
             .standings-team-name {
-                max-width: 100px !important;
+                max-width: 105px !important;
                 font-size: 11px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .standings-points {
+                font-size: 13px !important;
+                width: 35px !important;
+                text-align: center !important;
             }
         }
 
@@ -4055,7 +4068,7 @@
                                     <th class="center" title="Výhry">V</th>
                                     <th class="center" title="Remízy">R</th>
                                     <th class="center" title="Prehry">P</th>
-                                    <th class="center" title="Góly">Góly</th>
+                                    <th class="center" title="Skóre">SKÓRE</th>
                                     <th class="center" title="Rozdiel gólov">+/-</th>
                                     <th class="center" title="Body">B</th>
                                 </tr>
