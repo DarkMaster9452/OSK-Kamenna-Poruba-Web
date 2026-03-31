@@ -319,12 +319,14 @@
         .hero h1 {
             font-size: 56px;
             margin-bottom: 15px;
+            color: white; /* Added to override global h1 color */
             animation: slideDown 0.8s ease-out;
         }
 
         .hero p {
             font-size: 24px;
             margin-bottom: 30px;
+            color: white; /* Explicitly set to white */
             animation: slideUp 0.8s ease-out;
         }
 
@@ -2096,18 +2098,26 @@
         }
 
         .close-btn {
-            background: #003399;
-            border: 2px solid #ffd700;
+            background: #fff;
+            border: 1px solid #e2e8f0;
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
-            color: #ffd700;
+            color: #64748b;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .close-btn:hover {
+            background: #f8fbff;
+            color: #003399;
+            transform: scale(1.05);
+            border-color: #003399;
         }
 
         /* Table Wrapping Container */
