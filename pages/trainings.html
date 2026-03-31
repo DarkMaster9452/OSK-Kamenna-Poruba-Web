@@ -16,11 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div id="page-loader">
-        <div class="loader-spinner"></div>
-        <div style="font-weight: bold; font-size: 18px;">OŠK Kamenná Poruba</div>
-        <div style="font-size: 14px; opacity: 0.8;">Pripravujeme tréningy...</div>
-    </div>
+
 
     <header class="header">
         <h1><i class="fas fa-calendar-alt"></i> Tréningy</h1>
@@ -157,29 +153,7 @@
             display: block;
         }
 
-        #page-loader {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #ffd700;
-            gap: 20px;
-        }
 
-        .loader-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 215, 0, 0.2);
-            border-top-color: #ffd700;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
 
         .coach-form {
             background: rgba(255, 255, 255, 0.05);

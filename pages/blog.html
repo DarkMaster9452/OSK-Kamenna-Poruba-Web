@@ -114,7 +114,7 @@
         .form-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 10px;
+            gap: 15px;
         }
 
         input:not([type="checkbox"]),
@@ -125,31 +125,14 @@
             border: 1px solid #ccc;
             background: #fff;
             color: #333;
-            padding: 10px;
+            padding: 12px;
             font-family: inherit;
+            font-size: 15px;
         }
 
         textarea {
-            min-height: 150px;
+            min-height: 200px;
             resize: vertical;
-        }
-
-        .checkbox-inline {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            color: #333;
-            user-select: none;
-        }
-
-        .checkbox-inline input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #003399;
-            cursor: pointer;
-            flex: 0 0 auto;
-            margin: 0;
         }
 
         .post {
@@ -456,22 +439,7 @@
             <div class="form-grid">
                 <input id="postTitle" placeholder="Nadpis príspevku" maxlength="200" />
                 <textarea id="postContent" placeholder="Obsah príspevku"></textarea>
-                <div style="margin: 8px 0;">
-                    <label style="display:block;margin-bottom:6px;font-size:14px;color:#003399;font-weight:bold;"><i class="fas fa-image"></i> Priložiť fotku (max. 5MB):</label>
-                    <input type="file" id="postImage" accept="image/*" style="padding: 6px; font-size: 13px;" />
-                </div>
-                <div style="margin: 8px 0;">
-                    <label style="display:block;margin-bottom:6px;font-size:14px;color:#003399;font-weight:bold;"><i class="fas fa-tag"></i> Kategória:</label>
-                    <select id="postTag" style="padding: 6px; font-size: 13px;">
-                        <option value="Novinky">Novinky</option>
-                        <option value="Zápasy">Zápasy</option>
-                        <option value="Rozhovory">Rozhovory</option>
-                        <option value="Mládež">Mládež</option>
-                        <option value="Ostatné">Ostatné</option>
-                    </select>
-                </div>
- <!-- Removed publish immediately checkbox -->
-
+                
                 <div>
                     <button class="btn btn-primary" onclick="createPost()">
                         <i class="fas fa-plus"></i> Pridať príspevok
@@ -752,15 +720,10 @@
         async function createPost() {
             const titleInput = document.getElementById('postTitle');
             const contentInput = document.getElementById('postContent');
-            const fileInput = document.getElementById('postImage');
-            const tagInput = document.getElementById('postTag');
-
             const message = document.getElementById('composerMessage');
 
             const title = titleInput.value.trim();
             const content = contentInput.value.trim();
-            const tags = tagInput ? [tagInput.value] : [];
-            const published = true;
 
             if (!title || !content) {
                 message.textContent = 'Nadpis aj obsah sú povinné.';
@@ -768,35 +731,9 @@
             }
 
             try {
-                message.textContent = 'Pripravujem...';
-                const csrfToken = await ensureCsrfToken();
-                let imageUrl = null;
-
-                // Handle image upload if selected
-                if (fileInput.files && fileInput.files[0]) {
-                    message.textContent = 'Nahrávam fotku...';
-                    const formData = new FormData();
-                    formData.append('image', fileInput.files[0]);
-
-                    const uploadResponse = await fetch(`${API_BASE}/cloudinary/upload`, {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'x-csrf-token': csrfToken
-                        },
-                        body: formData
-                    });
-
-                    if (!uploadResponse.ok) {
-                        const errData = await uploadResponse.json().catch(() => ({}));
-                        throw new Error(errData.message || 'Nepodarilo sa nahrať fotku.');
-                    }
-
-                    const uploadData = await uploadResponse.json();
-                    imageUrl = uploadData.url;
-                }
-
                 message.textContent = 'Ukladám príspevok...';
+                const csrfToken = await ensureCsrfToken();
+
                 const response = await fetch(`${API_BASE}/blog`, {
                     method: 'POST',
                     credentials: 'include',
@@ -804,7 +741,13 @@
                         'Content-Type': 'application/json',
                         'x-csrf-token': csrfToken
                     },
-                    body: JSON.stringify({ title, content, published, imageUrl, tags })
+                    body: JSON.stringify({ 
+                        title, 
+                        content, 
+                        published: true, 
+                        imageUrl: null, 
+                        tags: [] 
+                    })
                 });
 
                 const payload = await response.json().catch(() => ({}));
@@ -813,7 +756,6 @@
                 message.textContent = 'Príspevok bol vytvorený.';
                 titleInput.value = '';
                 contentInput.value = '';
-                fileInput.value = '';
 
                 await refresh();
             } catch (error) {
@@ -849,186 +791,56 @@
         window.openPostDetail = openPostDetail;
         window.closePostDetail = closePostDetail;
 
-        function openMobileNav() {
-            document.getElementById('mobileNav').classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeMobileNav() {
-            document.getElementById('mobileNav').classList.remove('open');
-            document.body.style.overflow = '';
-        }
-        window.openMobileNav = openMobileNav;
-        window.closeMobileNav = closeMobileNav;
-
-        document.getElementById('postDetailModal')?.addEventListener('click', (event) => {
-            if (event.target && event.target.id === 'postDetailModal') {
-                closePostDetail();
-            }
-        });
-
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                closePostDetail();
-            }
-        });
-
-        refresh().catch((error) => {
-            const container = document.getElementById('postsContainer');
-            container.innerHTML = `<div class="muted">${error.message || 'Načítanie blogu zlyhalo.'}</div>`;
-        });
+        refresh().catch(console.error);
     </script>
 
-    <!-- Scroll to top (mobile) -->
-    <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Späť hore"
-        title="Späť hore"
-        style="display:none;position:fixed;bottom:24px;right:20px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#003399;color:#fff;border:2px solid #ffd700;box-shadow:0 4px 14px rgba(0,0,0,0.25);font-size:18px;cursor:pointer;align-items:center;justify-content:center;"><i
-            class="fas fa-chevron-up"></i></button>
-    <script>
-        (function () {
-            var btn = document.getElementById('scrollTopBtn');
-            window.addEventListener('scroll', function () {
-                btn.style.display = (window.innerWidth <= 768 && window.scrollY > 220) ? 'flex' : 'none';
-            }, { passive: true });
-        })();
-    </script>
-
-    <style>
-        footer {
-            background: #003399;
-            color: #fff;
-            padding: 30px 20px 15px;
-            border-top: 4px solid #ffd700;
-            font-family: 'Inter', sans-serif;
-            margin-top: 60px;
-        }
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 30px;
-        }
-        .footer-section {
-            flex: 1;
-        }
-        .footer-section h3 {
-            color: #ffd700;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .footer-section ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px 20px;
-        }
-        .footer-section ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-            opacity: 0.9;
-        }
-        .footer-section ul li a:hover {
-            color: #ffd700;
-            opacity: 1;
-        }
-        .social-icons {
-            display: flex;
-            gap: 15px;
-            margin-top: 5px;
-        }
-        .social-icons a {
-            color: #fff;
-            font-size: 1.2rem;
-            transition: all 0.2s;
-            background: rgba(255,255,255,0.1);
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            text-decoration: none;
-        }
-        .social-icons a:hover {
-            color: #003399;
-            background: #ffd700;
-            transform: translateY(-3px);
-        }
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 20px auto 0;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-        @media (max-width: 768px) {
-            footer {
-                padding: 40px 20px 20px;
-                text-align: center;
-            }
-            .footer-content {
-                flex-direction: column;
-                align-items: center;
-                gap: 30px;
-            }
-            .footer-section {
-                width: 100%;
-            }
-            .footer-section h3 {
-                justify-content: center;
-            }
-            .footer-section ul {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                align-items: center;
-            }
-            .social-icons {
-                justify-content: center;
-            }
-            .footer-bottom {
-                margin-top: 30px;
-            }
-        }
-    </style>
+    <!-- Standardized Compact Footer -->
     <footer>
         <div class="footer-content">
             <div class="footer-section">
                 <h3><i class="fas fa-futbol"></i> OŠK Kamenná Poruba</h3>
+                <p style="font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.7); margin-top: 10px;">
+                    Oficiálna stránka futbalového klubu OŠK Kamenná Poruba. Sledujte naše výsledky, zápasy a aktuálne novinky z klubu.
+                </p>
                 <div class="social-icons">
-                    <a href="https://www.facebook.com/profile.php?id=61587779259016" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://sportnet.sme.sk/futbalnet/k/osk-kamenna-poruba/" title="Sportsnet" target="_blank" rel="noopener"><i class="fas fa-futbol"></i> </a>
-                    <a href="https://www.obeckamennaporuba.sk" title="Stránka obce" target="_blank" rel="noopener"><i class="fas fa-landmark"></i></a>
-                    <a href="https://www.instagram.com/osk_kamennaporuba" title="Instagram" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=100057416346765" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/oskkamennaporuba/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://sportnet.sme.sk/futbalnet/k/osk-kamenna-poruba/" target="_blank" title="Futbalnet"><i class="fas fa-globe"></i></a>
                 </div>
             </div>
+
             <div class="footer-section">
-                <h3>Rýchle odkazy</h3>
+                <h3><i class="fas fa-link"></i> Rýchle odkazy</h3>
                 <ul>
-                    <li><a href="/pages/vedenie.html">Vedenie klubu</a></li>
-                    <li><a href="/pages/atim.html">A-tím</a></li>
-                    <li><a href="/pages/akademia.html">Akadémia</a></li>
-                    <li><a href="/pages/matches.html">Zápasy</a></li>
-                    <li><a href="/pages/galeria.html">Galéria</a></li>
-                    <li><a href="/pages/blog.html">Blog</a></li>
-                    <li><a href="/#contact">Kontakt</a></li>
+                    <li><a href="/index.html"><i class="fas fa-chevron-right" style="font-size: 10px; margin-right: 8px;"></i> Domov</a></li>
+                    <li><a href="/pages/matches.html"><i class="fas fa-chevron-right" style="font-size: 10px; margin-right: 8px;"></i> Zápasy</a></li>
+                    <li><a href="/pages/tabulka.html"><i class="fas fa-chevron-right" style="font-size: 10px; margin-right: 8px;"></i> Tabuľka</a></li>
+                    <li><a href="/pages/skupiny.html"><i class="fas fa-chevron-right" style="font-size: 10px; margin-right: 8px;"></i> Tímy</a></li>
+                    <li><a href="/pages/galeria.html"><i class="fas fa-chevron-right" style="font-size: 10px; margin-right: 8px;"></i> Galéria</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3><i class="fas fa-map-marker-alt"></i> Kontakt</h3>
+                <ul style="color: rgba(255,255,255,0.8); font-size: 14px;">
+                    <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <i class="fas fa-envelope" style="color: #ffd700;"></i>
+                        osk.kamenna.poruba@gmail.com
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <i class="fas fa-location-dot" style="color: #ffd700;"></i>
+                        Futbalový areál, Kamenná Poruba
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-info-circle" style="color: #ffd700;"></i>
+                        IČO: 00647845
+                    </li>
                 </ul>
             </div>
         </div>
+
         <div class="footer-bottom">
-            <p>&copy; 2026 OŠK Kamenná Poruba. Všetky práva vyhradené.</p>
+            &copy; 2024 OŠK Kamenná Poruba. Všetky práva vyhradené. Stránku vytvoril DarkMaster.
         </div>
     </footer>
 </body>

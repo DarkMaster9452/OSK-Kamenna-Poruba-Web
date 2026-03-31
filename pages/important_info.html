@@ -731,8 +731,8 @@
             const playerCategory = target === 'players' && playerCategoryRaw ? playerCategoryRaw : null;
             const important = document.getElementById('noticeImportant').checked;
             const isPublic = document.getElementById('noticePublic').checked;
-            const imageUrlVal = document.getElementById('noticeImageUrl').value.trim();
-            const imageUrl = imageUrlVal || null;
+            const imageUrl = null;
+
 
             if (!title || !message) {
                 alert('Vyplňte nadpis aj správu.');
@@ -759,7 +759,7 @@
             document.getElementById('noticePlayerCategory').value = '';
             document.getElementById('noticeImportant').checked = false;
             document.getElementById('noticePublic').checked = false;
-            document.getElementById('noticeImageUrl').value = '';
+
             renderEvents();
         }
 

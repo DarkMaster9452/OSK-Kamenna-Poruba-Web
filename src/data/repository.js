@@ -1380,6 +1380,34 @@ async function createBlogPost(input, createdById) {
           select: { username: true }
         }
       }
+    }).catch(async (error) => {
+      // Robust fallback if database column is missing
+      if (error.message && (error.message.includes('tags') || error.message.includes('imageUrl'))) {
+        const minimalData = {
+          title: input.title,
+          content: input.content,
+          published: input.published ?? true,
+          createdById
+        };
+        // Only include imageUrl if error wasn't about it
+        if (!error.message.includes('imageUrl')) {
+           minimalData.imageUrl = input.imageUrl || null;
+        }
+        // Only include tags if error wasn't about it
+        if (!error.message.includes('tags')) {
+           minimalData.tags = input.tags || [];
+        }
+
+        return prisma.blogPost.create({
+          data: minimalData,
+          include: {
+            createdBy: {
+              select: { username: true }
+            }
+          }
+        });
+      }
+      throw error;
     });
   } catch (error) {
     if (!shouldFallbackWithoutBlogPostImageUrl(error)) {

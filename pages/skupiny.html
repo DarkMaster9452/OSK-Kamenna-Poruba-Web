@@ -22,29 +22,7 @@
             color: #333;
         }
 
-        #page-loader {
-            position: fixed;
-            inset: 0;
-            background: #f4f4f4;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #003399;
-            gap: 20px;
-        }
 
-        .loader-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 51, 153, 0.1);
-            border-top-color: #003399;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
 
         main {
             max-width: 900px;
@@ -232,15 +210,11 @@
 </head>
 
 <body>
-    <div id="page-loader">
-        <div class="loader-spinner"></div>
-        <div style="font-weight: bold; font-size: 18px;">OŠK Kamenná Poruba</div>
-        <div style="font-size: 14px; opacity: 0.8;">Pripravujeme skupiny...</div>
-    </div>
+
     
     <div id="site-header-root"></div>
 
-    <main id="mainContent" style="display: none;">
+    <main id="mainContent">
         <h1 class="page-title"><i class="fas fa-users"></i> Správa skupín hráčov</h1>
 
         <div class="card">
