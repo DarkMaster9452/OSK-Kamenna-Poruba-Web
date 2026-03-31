@@ -433,6 +433,7 @@
 
 
     <div class="container">
+        <h1><i class="fas fa-calendar-alt"></i> Manažment tréningov</h1>
         <!-- Logout Modal -->
         <div id="logoutModal" class="modal"
             style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
@@ -499,7 +500,7 @@
             </div>
         </div>
         <!-- Empty State -->
-        <div id="emptyState" class="empty-message">
+        <div id="emptyState" class="empty-message" style="display: none;">
             Musíte sa prihlásiť aby ste mohli vidieť tréningy.
         </div>
 
@@ -747,7 +748,7 @@
 
                     if (!response.ok) {
                         if (response.status === 401) {
-                            redirectToLoginWithMessage('Vaša relácia vypršala. Prihláste sa znova.');
+                            // Don't auto-redirect here, let the main auth logic handle fallback or explicit redirect.
                             throw new Error('Neautorizované (HTTP 401)');
                         }
                         const errorPayload = await response.json().catch(() => ({}));
@@ -876,24 +877,36 @@
                     method: 'GET',
                     credentials: 'include'
                 });
+                console.log('Trainings Auth /api/me status:', response.status);
                 if (response.status === 401) {
-                    redirectToLoginWithMessage('Prihlásenie vypršalo. Prihláste sa prosím znova.');
-                    return;
+                    console.log('Trainings Auth: 401 received, redirecting to login');
+                    // Only redirect if we don't have a valid cached session to allow offline/slow network access
+                    const storedRaw = localStorage.getItem('currentUser');
+                    const stored = storedRaw ? JSON.parse(storedRaw) : null;
+                    if (!stored || !stored.isLoggedIn) {
+                        redirectToLoginWithMessage('Prihlásenie vypršalo. Prihláste sa prosím znova.');
+                        return;
+                    } else {
+                        console.log('Trainings Auth: 401 but using cached currentUser as fallback');
+                    }
                 }
                 if (response.ok) {
                     const payload = await response.json();
                     sessionUser = payload.user || null;
+                    console.log('Trainings Auth: sessionUser loaded', sessionUser ? sessionUser.username : 'null');
                 }
             } catch (error) {
-                console.error(error);
+                console.error('Trainings Auth Error:', error);
             }
 
             if (!sessionUser) {
-                // Fallback: ak je používateľ dostupný v localStorage, stále sa pokúsime načítať tréningy zo servera.
+                console.log('Trainings Auth: No sessionUser, check fallback');
                 if (currentUser && currentUser.isLoggedIn) {
+                    console.log('Trainings Auth: Using localStorage fallback');
                     await loadTrainingsData();
                     updateUI();
                 } else {
+                    console.log('Trainings Auth: No fallback, showing emptyState');
                     document.getElementById('emptyState').style.display = 'block';
                 }
                 return;
@@ -932,13 +945,16 @@
         });
 
         function updateUI() {
+            console.log('Trainings updateUI called. currentUser:', JSON.stringify(currentUser));
             if (!currentUser.isLoggedIn) {
+                console.log('Trainings updateUI: Not logged in, showing emptyState');
                 document.getElementById('emptyState').style.display = 'block';
                 document.getElementById('backBtn').style.display = 'none';
-                document.getElementById('userDisplay').style.display = 'none'; // This line remains unchanged
+                document.getElementById('userDisplay').style.display = 'none'; 
                 return;
             }
 
+            console.log('Trainings updateUI: Logged in, hiding emptyState');
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('backBtn').style.display = 'inline-flex';
             document.getElementById('userDisplay').style.display = 'flex'; // This line remains unchanged
@@ -2598,9 +2614,13 @@
     </script>
     <script defer src="/_vercel/speed-insights/script.js"></script>
 
-<script src="/assets/js/cloudinary-assets.js"></script>
+    <!-- Site Footer -->
+    <div id="site-footer-root"></div>
+    <script src="/assets/js/footer.js"></script>
 
-    
+    <!-- Project Scripts -->
+    <script src="/assets/js/trainings.js"></script>
+    <script src="/assets/js/cloudinary-assets.js"></script>
 </body>
 
 </html>

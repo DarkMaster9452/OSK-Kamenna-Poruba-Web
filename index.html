@@ -4774,162 +4774,25 @@
             });
         });
     </script>
+
     <!-- Scroll to top (mobile) -->
     <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Späť hore"
         title="Späť hore"
-        style="display:none;position:fixed;bottom:24px;right:20px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#003399;color:#fff;border:2px solid #ffd700;box-shadow:0 4px 14px rgba(0,0,0,0.25);font-size:18px;cursor:pointer;align-items:center;justify-content:center;"><i
-            class="fas fa-chevron-up"></i></button>
+        style="display:none;position:fixed;bottom:24px;right:20px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#003399;color:#fff;border:2px solid #ffd700;box-shadow:0 4px 14px rgba(0,0,0,0.25);font-size:18px;cursor:pointer;align-items:center;justify-content:center;">
+        <i class="fas fa-chevron-up"></i>
+    </button>
     <script>
         (function () {
             var btn = document.getElementById('scrollTopBtn');
             window.addEventListener('scroll', function () {
-                btn.style.display = (window.innerWidth <= 768 && window.scrollY > 220) ? 'flex' : 'none';
+                if (btn) {
+                    btn.style.display = (window.innerWidth <= 768 && window.scrollY > 220) ? 'flex' : 'none';
+                }
             }, { passive: true });
         })();
     </script>
-    <script defer src="/_vercel/speed-insights/script.js"></script>
-    <script src="/assets/js/cloudinary-assets.js"></script>
 
-    <!-- Footer -->
-    <style>
-        footer {
-            background: #003399;
-            color: #fff;
-            padding: 30px 20px 15px;
-            border-top: 4px solid #ffd700;
-            font-family: 'Inter', sans-serif;
-            margin-top: 60px;
-        }
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 30px;
-        }
-        .footer-section {
-            flex: 1;
-        }
-        .footer-section h3 {
-            color: #ffd700;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .footer-section ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px 20px;
-        }
-        .footer-section ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-            opacity: 0.9;
-        }
-        .footer-section ul li a:hover {
-            color: #ffd700;
-            opacity: 1;
-        }
-        .social-icons {
-            display: flex;
-            gap: 15px;
-            margin-top: 5px;
-        }
-        .social-icons a {
-            color: #fff;
-            font-size: 1.2rem;
-            transition: all 0.2s;
-            background: rgba(255,255,255,0.1);
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            text-decoration: none;
-        }
-        .social-icons a:hover {
-            color: #003399;
-            background: #ffd700;
-            transform: translateY(-3px);
-        }
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 20px auto 0;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-        @media (max-width: 768px) {
-            footer {
-                padding: 40px 20px 20px;
-                text-align: center;
-            }
-            .footer-content {
-                flex-direction: column;
-                align-items: center;
-                gap: 30px;
-            }
-            .footer-section {
-                width: 100%;
-            }
-            .footer-section h3 {
-                justify-content: center;
-            }
-            .footer-section ul {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                align-items: center;
-            }
-            .social-icons {
-                justify-content: center;
-            }
-            .footer-bottom {
-                margin-top: 30px;
-            }
-        }
-    </style>
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3><i class="fas fa-futbol"></i> OŠK Kamenná Poruba</h3>
-                <div class="social-icons">
-                    <a href="https://www.facebook.com/profile.php?id=61587779259016" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://sportnet.sme.sk/futbalnet/k/osk-kamenna-poruba/" title="Sportsnet" target="_blank" rel="noopener"><i class="fas fa-futbol"></i> </a>
-                    <a href="https://www.obeckamennaporuba.sk" title="Stránka obce" target="_blank" rel="noopener"><i class="fas fa-landmark"></i></a>
-                    <a href="https://www.instagram.com/osk_kamennaporuba" title="Instagram" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Rýchle odkazy</h3>
-                <ul>
-                    <li><a href="/pages/vedenie.html">Vedenie klubu</a></li>
-                    <li><a href="/pages/atim.html">A-tím</a></li>
-                    <li><a href="/pages/akademia.html">Akadémia</a></li>
-                    <li><a href="/pages/matches.html">Zápasy</a></li>
-                    <li><a href="/pages/galeria.html">Galéria</a></li>
-                    <li><a href="/pages/blog.html">Blog</a></li>
-                    <li><a href="/#contact">Kontakt</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 OŠK Kamenná Poruba. Všetky práva vyhradené.</p>
-        </div>
-    </footer>
+    <div id="site-footer-root"></div>
+    <script src="/assets/js/footer.js"></script>
 </body>
-
 </html>
