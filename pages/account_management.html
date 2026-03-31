@@ -1409,8 +1409,8 @@
                     const last = new Date(data.fetchedAt);
                     document.getElementById('lastRefreshTime').textContent = last.toLocaleString('sk-SK');
                     
-                    // Assuming 10 minute cache TTL
-                    const next = new Date(last.getTime() + 10 * 60 * 1000);
+                    // Display next refresh based on 4 hour interval (14400 seconds)
+                    const next = new Date(last.getTime() + 4 * 60 * 60 * 1000);
                     document.getElementById('nextRefreshTime').textContent = next.toLocaleString('sk-SK');
                 }
             } catch (err) {
