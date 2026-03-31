@@ -76,28 +76,239 @@
 
         .matches-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 22px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
         }
 
-        /* Card and Table standardization */
-        .card {
+        .match-card {
             background: #fff;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            margin-bottom: 30px;
-            border: 1px solid #eee;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
 
-        .table-wrap {
-            background: white;
-            border-radius: 12px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border: 1px solid #e6ebf3;
-            margin-bottom: 15px;
+        .match-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,51,153,0.12);
+            border-color: rgba(0,51,153,0.1);
+        }
+
+        .match-card-header {
+            background: #f8fafc;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .match-competition {
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70%;
+        }
+
+        .match-status-badge {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .match-status-badge.upcoming { background: #e0f2fe; color: #0369a1; }
+        .match-status-badge.finished { background: #f1f5f9; color: #475569; }
+        .match-status-badge.live { background: #fee2e2; color: #dc2626; animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .match-body {
+            padding: 24px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .match-teams-row {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            align-items: center;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .team-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .team-logo-wrap {
+            width: 54px;
+            height: 54px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
+        }
+
+        .team-logo-wrap img { width: 36px; height: 36px; object-fit: contain; }
+
+        .match-card .team-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1.2;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 34px;
+        }
+
+        .match-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .match-main-score {
+            font-size: 24px;
+            font-weight: 900;
+            color: #003399;
+            letter-spacing: -1px;
+        }
+
+        .match-vs-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #94a3b8;
+            background: #f8fafc;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .match-footer {
+            padding: 16px 20px;
+            background: #fff;
+            border-top: 1px solid #f1f5f9;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .match-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .match-info-item i {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .match-info-item.full-width {
+            grid-column: span 2;
+        }
+
+        /* Tabs styling */
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .category-tab {
+            padding: 10px 22px;
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .category-tab:hover {
+            border-color: #003399;
+            color: #003399;
+            background: #f8fbff;
+        }
+
+        .category-tab.active {
+            background: #003399;
+            color: #fff;
+            border-color: #003399;
+            box-shadow: 0 10px 15px rgba(0,51,153,0.2);
+        }
+
+        #matchStatusTabs { margin-bottom: 20px; }
+        #matchStatusTabs .category-tab {
+            background: #f1f5f9;
+            border: none;
+            padding: 12px 30px;
+        }
+        #matchStatusTabs .category-tab.active {
+            background: #ffd700;
+            color: #003399;
+            box-shadow: 0 8px 15px rgba(255,215,0,0.3);
+        }
+
+        .no-matches {
+            grid-column: 1 / -1;
+            padding: 60px 20px;
+            text-align: center;
+            background: #fff;
+            border-radius: 16px;
+            border: 2px dashed #e2e8f0;
+        }
+
+        .no-matches p {
+            font-size: 16px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .matches-grid { grid-template-columns: 1fr; }
+            .match-teams-row { gap: 8px; grid-template-columns: 1fr 50px 1fr; }
+            .team-logo-wrap { width: 44px; height: 44px; }
+            .team-logo-wrap img { width: 28px; height: 28px; }
+            .match-card .team-name { font-size: 13px; }
+            .match-main-score { font-size: 20px; }
         }
 
         .standings-table {
@@ -150,7 +361,6 @@
         }
 
         /* Footer */
-        /* Standardized Compact Footer */
         footer {
             background: #003399;
             color: white;
@@ -570,10 +780,10 @@
 
     <!-- Main Content -->
     <div class="container">
-        <h1 class="page-title"><i class="fas fa-calendar"></i> Zápasy</h1>
+        <h1 class="page-title"><i class="fas fa-calendar-check"></i> Zápasy</h1>
 
         <!-- Filtre podla statusu -->
-        <div class="category-tabs" id="matchStatusTabs" style="position: relative;">
+        <div class="category-tabs" id="matchStatusTabs">
             <button class="category-tab active" data-match-type="upcoming" onclick="setMatchType('upcoming')">Nadchádzajúce</button>
             <button class="category-tab" data-match-type="finished" onclick="setMatchType('finished')">Odohrané</button>
         </div>
@@ -669,11 +879,11 @@
         const CATEGORY_LABELS = {
             all: 'Všetky',
             dospeli: 'Dospelí',
-            u19_dorast: 'U19 - Starší dorast',
-            u15_ziaci: 'U15 - Starší žiaci',
-            u13_ziaci: 'U13 - Mladší žiaci',
-            u11_pripravka: 'U11 - Prípravka',
-            u09_pripravka: 'U09 - Prípravka'
+            u19_dorast: 'Dorast U19',
+            u15_ziaci: 'Starší žiaci U15',
+            u13_ziaci: 'Mladší žiaci U13',
+            u11_pripravka: 'Prípravka U11',
+            u09_pripravka: 'Prípravka U09'
         };
 
         const CATEGORY_ORDER = ['all', 'dospeli', 'u19_dorast', 'u15_ziaci', 'u13_ziaci', 'u11_pripravka', 'u09_pripravka'];
@@ -1042,7 +1252,6 @@
                 .filter(m => m.status === 'finished')
                 .sort((a, b) => new Date(b.date + 'T' + b.time) - new Date(a.date + 'T' + a.time));
 
-            // Zobraziť všetky zápasy pre danú kategóriu
             const matchesToRender = activeMatchType === 'upcoming' ? upcoming : results;
 
             if (matchesToRender.length === 0) {
@@ -1054,67 +1263,71 @@
         }
 
         function renderMatchCard(match) {
-
-            const dateObj = new Date(match.date + 'T' + match.time);
+            const dateObj = new Date(match.date + 'T' + (match.time || '00:00'));
             const formattedDate = dateObj.toLocaleDateString('sk-SK', {
-                weekday: 'long',
                 day: 'numeric',
-                month: 'long',
+                month: 'numeric',
                 year: 'numeric'
             });
+            const formattedDay = dateObj.toLocaleDateString('sk-SK', { weekday: 'short' });
 
             const homeSrc = match.homeLogo || getClubLogo(match.homeTeam);
             const awaySrc = match.awayLogo || getClubLogo(match.awayTeam);
-            const hLogo = homeSrc ? `<img src="${homeSrc}" class="team-logo" alt="${match.homeTeam}">` : '';
-            const aLogo = awaySrc ? `<img src="${awaySrc}" class="team-logo" alt="${match.awayTeam}">` : '';
 
             let scoreHtml = '';
             if (match.status === 'finished' || match.status === 'live') {
-                scoreHtml = `<div class="score-value">${match.homeScore} : ${match.awayScore}</div>`;
+                scoreHtml = `<div class="match-main-score">${match.homeScore ?? 0} : ${match.awayScore ?? 0}</div>`;
             } else {
-                scoreHtml = `<div class="vs-text">VS</div>`;
+                scoreHtml = `<div class="match-vs-label">VS</div>`;
             }
 
             const statusClass = match.status;
             const statusText = {
-                'upcoming': 'NADCHÁDZAJÚCI',
-                'finished': 'ODOHRANÝ',
-                'live': 'NAŽIVO'
+                'upcoming': 'Budúci',
+                'finished': 'Koniec',
+                'live': 'Naživo'
             }[match.status];
 
             return `
                 <div class="match-card" onclick="openMatchModal('${match.id}')">
-                    <div class="match-competition">${match.competitionName}</div>
-                    <div class="match-status ${statusClass}">${statusText}</div>
+                    <div class="match-card-header">
+                        <div class="match-competition">${match.competition}</div>
+                        <div class="match-status-badge ${statusClass}">${statusText}</div>
+                    </div>
                     
-                    <div class="match-teams">
-                        <div class="team-vs">
-                            <div style="text-align: center;">
-                                ${hLogo || '<div class="team-logo-placeholder"></div>'}
+                    <div class="match-body">
+                        <div class="match-teams-row">
+                            <div class="team-container">
+                                <div class="team-logo-wrap">
+                                    ${homeSrc ? `<img src="${homeSrc}" alt="${match.homeTeam}">` : buildClubLogoImg(match.homeTeam, 36)}
+                                </div>
                                 <div class="team-name">${match.homeTeam}</div>
                             </div>
-                            <div class="match-score">
+                            <div class="match-center">
                                 ${scoreHtml}
+                                <div style="font-size: 11px; font-weight: 700; color: #94a3b8;">${match.time || '--:--'}</div>
                             </div>
-                            <div style="text-align: center;">
-                                ${aLogo || '<div class="team-logo-placeholder"></div>'}
+                            <div class="team-container">
+                                <div class="team-logo-wrap">
+                                    ${awaySrc ? `<img src="${awaySrc}" alt="${match.awayTeam}">` : buildClubLogoImg(match.awayTeam, 36)}
+                                </div>
                                 <div class="team-name">${match.awayTeam}</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="match-details">
-                        <div class="match-detail-row" style="color: #003399; font-weight: 700; margin-bottom: 4px;">
-                            <i class="fas fa-users"></i> ${CATEGORY_LABELS[match.category] || match.category}
+                    <div class="match-footer">
+                        <div class="match-info-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>${formattedDay}, ${formattedDate}</span>
                         </div>
-                        <div class="match-detail-row">
-                            <i class="fas fa-calendar"></i> ${formattedDate}
+                        <div class="match-info-item">
+                            <i class="fas fa-users"></i>
+                            <span>${CATEGORY_LABELS[match.category] || match.category}</span>
                         </div>
-                        <div class="match-detail-row">
-                            <i class="fas fa-clock"></i> ${match.time || '–'}
-                        </div>
-                        <div class="match-detail-row">
-                            <i class="fas fa-map-marker-alt"></i> ${match.venue || match.location || 'Miesto neurčené'}
+                        <div class="match-info-item full-width">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${match.location || 'Miesto neurčené'}</span>
                         </div>
                     </div>
                 </div>
@@ -1135,16 +1348,13 @@
         }
 
         function generateSportnetVideoSection(match) {
-            // Zobraziť len pre VI. ligu — API vracia "VI.liga" (bez medzery)
             const compLower = String(match.competition || '').toLowerCase().replace(/\s+/g, '');
             const isViLiga = compLower.includes('vi.liga') || compLower.includes('vi.league');
             if (!isViLiga || match.status !== 'finished') return '';
 
-            // Použij videoUrl (ak existuje z novej cache) alebo detailUrl
             let videoLink = match.videoUrl || match.detailUrl || null;
             if (!videoLink) return '';
 
-            // Zabezpeč, že URL končí /videozaznam/
             videoLink = videoLink.replace(/\/+$/, '');
             if (!videoLink.endsWith('/videozaznam')) {
                 videoLink += '/videozaznam';
@@ -1152,20 +1362,17 @@
             videoLink += '/';
 
             return `
-                <div class="sportnet-link-section">
-                    <div class="sportnet-link-title"><i class="fas fa-video"></i> Videozáznam zápasu</div>
-                    <a href="${videoLink}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:#003399;color:#fff;padding:10px 20px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:15px;">
-                        <i class="fas fa-play-circle"></i> Pozrieť videozáznam na SportNet
+                <div class="sportnet-link-section" style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 12px; text-align: center;">
+                    <div style="font-weight: 800; color: #003399; margin-bottom: 10px;"><i class="fas fa-video"></i> Videozáznam zápasu</div>
+                    <a href="${videoLink}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:10px;background:#003399;color:#fff;padding:12px 24px;border-radius:30px;font-weight:bold;text-decoration:none;font-size:14px;box-shadow: 0 4px 12px rgba(0,51,153,0.2);">
+                        <i class="fas fa-play"></i> Pozrieť na SportNet
                     </a>
-                    <div style="font-size: 12px; color: #666; margin-top: 10px;">
-                        <i class="fas fa-info-circle"></i> Otvorí sa stránka so záznami zápasu na SportNet.
-                    </div>
                 </div>
             `;
         }
 
         function generateMatchDetail(match) {
-            const dateObj = new Date(match.date + 'T' + match.time);
+            const dateObj = new Date(match.date + 'T' + (match.time || '00:00'));
             const formattedDate = dateObj.toLocaleDateString('sk-SK', {
                 weekday: 'long',
                 day: 'numeric',
@@ -1175,88 +1382,51 @@
 
             const hLogoSrc = match.homeLogo || getClubLogo(match.homeTeam);
             const aLogoSrc = match.awayLogo || getClubLogo(match.awayTeam);
-            const hLogo = hLogoSrc ? `<img src="${hLogoSrc}" class="detail-team-logo" alt="${match.homeTeam}">` : '';
-            const aLogo = aLogoSrc ? `<img src="${aLogoSrc}" class="detail-team-logo" alt="${match.awayTeam}">` : '';
+            
+            const hLogo = hLogoSrc ? `<img src="${hLogoSrc}" style="width:80px;height:80px;object-fit:contain;">` : buildClubLogoImg(match.homeTeam, 80);
+            const aLogo = aLogoSrc ? `<img src="${aLogoSrc}" style="width:80px;height:80px;object-fit:contain;">` : buildClubLogoImg(match.awayTeam, 80);
 
             let scoreSection = '';
             if (match.status === 'finished' || match.status === 'live') {
                 scoreSection = `
-                    <div class="match-score">
-                        <span>${match.homeScore}</span>
-                        <span class="score-divider">:</span>
-                        <span>${match.awayScore}</span>
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+                        <div style="font-size: 48px; font-weight: 900; color: #003399; line-height:1;">${match.homeScore} : ${match.awayScore}</div>
+                        ${match.status === 'live' ? '<div style="color:red; font-weight:800; font-size:12px; animation: pulse 2s infinite;">NAŽIVO</div>' : '<div style="color:#64748b; font-weight:700; font-size:12px;">KONIEC</div>'}
                     </div>
                 `;
             } else {
-                scoreSection = `<div class="detail-vs">VS</div>`;
+                scoreSection = `<div style="font-size: 32px; font-weight: 900; color: #cbd5e1;">VS</div>`;
             }
 
             let eventsHtml = '';
             if (match.status === 'finished') {
                 const allEvents = (match.events || []);
                 const goals = allEvents.filter(e => e.type === 'goal' || e.type === 'goal-own' || e.type === 'penalty');
-                const cards = allEvents.filter(e => e.type.includes('card'));
-
+                
                 if (goals.length > 0) {
-                    eventsHtml += `
-                        <div class="match-events-section">
-                            <div class="events-title"><i class="fas fa-futbol"></i> Strelci gólov</div>
-                            <div class="events-grid">
-                                <div class="events-column">
-                                    ${goals.filter(e => e.team === 'home').map(e => `
-                                        <div class="event-item">
-                                            <div class="event-info">
-                                                <div class="event-player">${e.player}</div>
-                                                <div class="event-minute">${e.minute}' ${e.type === 'goal-own' ? '<span class="own-goal">(vlastný)</span>' : ''}${e.type === 'penalty' ? '<span class="penalty">(pen.)</span>' : ''}</div>
-                                            </div>
-                                            <div class="event-icon">${e.icon || '⚽'}</div>
-                                        </div>
-                                    `).join('') || '<div class="event-empty">-</div>'}
-                                </div>
-                                <div class="events-separator"></div>
-                                <div class="events-column">
-                                    ${goals.filter(e => e.team === 'away').map(e => `
-                                        <div class="event-item">
-                                            <div class="event-icon">${e.icon || '⚽'}</div>
-                                            <div class="event-info">
-                                                <div class="event-player">${e.player}</div>
-                                                <div class="event-minute">${e.minute}' ${e.type === 'goal-own' ? '<span class="own-goal">(vlastný)</span>' : ''}${e.type === 'penalty' ? '<span class="penalty">(pen.)</span>' : ''}</div>
-                                            </div>
-                                        </div>
-                                    `).join('') || '<div class="event-empty">-</div>'}
-                                </div>
+                    eventsHtml = `
+                        <div style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                            <div style="font-weight: 800; color: #1e293b; margin-bottom: 20px; display:flex; align-items:center; gap:10px; justify-content:center;">
+                                <i class="fas fa-futbol"></i> Strelci gólov
                             </div>
-                        </div>
-                    `;
-                }
-
-                if (cards.length > 0) {
-                    eventsHtml += `
-                        <div class="match-events-section">
-                            <div class="events-title"><i class="fas fa-square"></i> Karty</div>
-                            <div class="events-grid">
-                                <div class="events-column">
-                                    ${cards.filter(e => e.team === 'home').map(e => `
-                                        <div class="event-item">
-                                            <div class="event-info">
-                                                <div class="event-player">${e.player}</div>
-                                                <div class="event-minute">${e.minute}'</div>
-                                            </div>
-                                            <div class="event-icon">${e.icon}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div style="text-align: right; border-right: 2px solid #f1f5f9; padding-right: 20px;">
+                                    ${goals.filter(e => e.team === 'home').map(e => `
+                                        <div style="margin-bottom: 8px;">
+                                            <span style="font-weight: 700; color: #334155;">${e.player}</span>
+                                            <span style="font-size: 12px; color: #94a3b8; margin-left: 5px;">${e.minute}'</span>
+                                            ${e.type === 'goal-own' ? '<span style="font-size:10px; color:red;">(vlastný)</span>' : ''}
                                         </div>
-                                    `).join('') || '<div class="event-empty">-</div>'}
+                                    `).join('') || '<div style="color:#cbd5e1;">-</div>'}
                                 </div>
-                                <div class="events-separator"></div>
-                                <div class="events-column">
-                                    ${cards.filter(e => e.team === 'away').map(e => `
-                                        <div class="event-item">
-                                            <div class="event-icon">${e.icon}</div>
-                                            <div class="event-info">
-                                                <div class="event-player">${e.player}</div>
-                                                <div class="event-minute">${e.minute}'</div>
-                                            </div>
+                                <div style="text-align: left; padding-left: 20px;">
+                                    ${goals.filter(e => e.team === 'away').map(e => `
+                                        <div style="margin-bottom: 8px;">
+                                            <span style="font-weight: 700; color: #334155;">${e.player}</span>
+                                            <span style="font-size: 12px; color: #94a3b8; margin-left: 5px;">${e.minute}'</span>
+                                            ${e.type === 'goal-own' ? '<span style="font-size:10px; color:red;">(vlastný)</span>' : ''}
                                         </div>
-                                    `).join('') || '<div class="event-empty">-</div>'}
+                                    `).join('') || '<div style="color:#cbd5e1;">-</div>'}
                                 </div>
                             </div>
                         </div>
@@ -1265,36 +1435,37 @@
             }
 
             return `
-                <div class="match-detail-header">
-                    <div class="detail-competition">${match.competition}</div>
-                    <div class="detail-teams">
-                        <div class="detail-team">
-                            ${hLogo}
-                            <div class="detail-team-name">${match.homeTeam}</div>
-                        </div>
-                        <div class="detail-score-container">
-                            ${scoreSection}
-                        </div>
-                        <div class="detail-team">
-                            ${aLogo}
-                            <div class="detail-team-name">${match.awayTeam}</div>
-                        </div>
+                <div style="text-align: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 20px;">
+                    <div style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 5px;">${match.competition}</div>
+                    <div style="font-size: 14px; color: #94a3b8; font-weight: 600;">${formattedDate} • ${match.time || '--:--'}</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 120px 1fr; align-items: center; gap: 20px; margin: 30px 0;">
+                    <div style="text-align: center;">
+                        <div style="margin-bottom: 15px;">${hLogo}</div>
+                        <div style="font-weight: 900; color: #003399; font-size: 18px;">${match.homeTeam}</div>
+                    </div>
+                    <div style="text-align: center;">${scoreSection}</div>
+                    <div style="text-align: center;">
+                        <div style="margin-bottom: 15px;">${aLogo}</div>
+                        <div style="font-weight: 900; color: #003399; font-size: 18px;">${match.awayTeam}</div>
                     </div>
                 </div>
 
-                <div class="detail-info-grid">
-                    <div class="info-item"><i class="fas fa-calendar"></i><br>${formattedDate}</div>
-                    <div class="info-item"><i class="fas fa-clock"></i><br>${match.time}</div>
-                    <div class="info-item"><i class="fas fa-map-marker-alt"></i><br>${match.location}</div>
+                <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="display:flex; align-items:center; gap:10px; font-size:13px; color:#475569;">
+                        <i class="fas fa-map-marker-alt" style="color:#cbd5e1;"></i>
+                        <span>${match.location || 'Miesto neuvedené'}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; font-size:13px; color:#475569;">
+                        <i class="fas fa-user-tie" style="color:#cbd5e1;"></i>
+                        <span>Rozhodca: ${match.referee || 'Neuvedené'}</span>
+                    </div>
                 </div>
 
                 ${eventsHtml}
 
                 ${generateSportnetVideoSection(match)}
-
-                <div class="detail-footer">
-                    <i class="fas fa-info-circle"></i> Rozhodca: ${match.referee || 'Neuvedené'}
-                </div>
             `;
         }
 
