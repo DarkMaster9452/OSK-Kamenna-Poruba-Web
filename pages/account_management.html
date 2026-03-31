@@ -587,6 +587,10 @@
                 </button>
                 <span id="sportnetRefreshStatus" style="font-size:13px;"></span>
             </div>
+            <div id="sportnetRefreshTimeInfo" style="margin-top:12px; padding:10px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:13px; color:#555; display:flex; gap:20px;">
+                <span><strong>Posledná aktualizácia:</strong> <span id="lastRefreshTime">—</span></span>
+                <span><strong>Nasledujúca aktualizácia:</strong> <span id="nextRefreshTime">—</span></span>
+            </div>
             <div id="sportnetRefreshMessage" style="margin-top:8px;"></div>
         </div>
 
@@ -1393,6 +1397,27 @@
             renderUsers();
         });
 
+        async function updateRefreshInfoUI() {
+            try {
+                const res = await fetch(`${API_BASE}/sportsnet/matches`, {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.fetchedAt) {
+                    const last = new Date(data.fetchedAt);
+                    document.getElementById('lastRefreshTime').textContent = last.toLocaleString('sk-SK');
+                    
+                    // Assuming 10 minute cache TTL
+                    const next = new Date(last.getTime() + 10 * 60 * 1000);
+                    document.getElementById('nextRefreshTime').textContent = next.toLocaleString('sk-SK');
+                }
+            } catch (err) {
+                console.error('Failed to update refresh info UI:', err);
+            }
+        }
+
         async function triggerSportnetRefresh() {
             const btn = document.getElementById('sportnetRefreshBtn');
             const status = document.getElementById('sportnetRefreshStatus');
@@ -1422,6 +1447,7 @@
                 const fetchedAt = new Date(matchData.fetchedAt || Date.now()).toLocaleString('sk-SK');
                 msg.className = 'success';
                 msg.textContent = `Sportnet dáta boli aktualizované. Zápasov: ${count}. Čas: ${fetchedAt}`;
+                await updateRefreshInfoUI();
             } catch (err) {
                 msg.className = 'error';
                 msg.textContent = 'Aktualizácia zlyhala: ' + (err.message || 'Neznáma chyba');
@@ -1440,6 +1466,7 @@
             category.disabled = true;
             shirtNumber.disabled = true;
             await fetchUsers();
+            await updateRefreshInfoUI();
         })();
     </script>
     <!-- Scroll to top (mobile) -->

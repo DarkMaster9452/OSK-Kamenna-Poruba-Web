@@ -470,8 +470,8 @@
                         <option value="Ostatné">Ostatné</option>
                     </select>
                 </div>
-                <label class="checkbox-inline"><input id="postPublished" type="checkbox" checked /> Publikovať
-                    ihneď</label>
+ <!-- Removed publish immediately checkbox -->
+
                 <div>
                     <button class="btn btn-primary" onclick="createPost()">
                         <i class="fas fa-plus"></i> Pridať príspevok
@@ -754,13 +754,13 @@
             const contentInput = document.getElementById('postContent');
             const fileInput = document.getElementById('postImage');
             const tagInput = document.getElementById('postTag');
-            const publishedInput = document.getElementById('postPublished');
+
             const message = document.getElementById('composerMessage');
 
             const title = titleInput.value.trim();
             const content = contentInput.value.trim();
             const tags = tagInput ? [tagInput.value] : [];
-            const published = publishedInput.checked;
+            const published = true;
 
             if (!title || !content) {
                 message.textContent = 'Nadpis aj obsah sú povinné.';
@@ -814,7 +814,7 @@
                 titleInput.value = '';
                 contentInput.value = '';
                 fileInput.value = '';
-                publishedInput.checked = true;
+
                 await refresh();
             } catch (error) {
                 message.textContent = error.message || 'Nepodarilo sa vytvoriť blog príspevok.';
