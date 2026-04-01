@@ -1058,11 +1058,23 @@ async function createTraining(input, createdById) {
 }
 
 async function closeTraining(id) {
-  return prisma.training.update({
-    where: { id },
-    data: {
-      isActive: false
-    }
+  return prisma.$transaction(async (tx) => {
+    await tx.trainingAttendance.updateMany({
+      where: {
+        trainingId: id,
+        status: 'unknown'
+      },
+      data: {
+        status: 'no'
+      }
+    });
+
+    return tx.training.update({
+      where: { id },
+      data: {
+        isActive: false
+      }
+    });
   });
 }
 

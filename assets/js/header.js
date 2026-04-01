@@ -117,6 +117,64 @@
         '    cursor: pointer;',
         '}',
         'header.site-header .sh-login-btn:hover { background: #ffed4e; color: #003399; }',
+        '.sh-account-modal-backdrop {',
+        '    position: fixed;',
+        '    inset: 0;',
+        '    background: rgba(0,0,0,0.55);',
+        '    display: none;',
+        '    align-items: center;',
+        '    justify-content: center;',
+        '    padding: 20px;',
+        '    z-index: 3000;',
+        '}',
+        '.sh-account-modal-backdrop.active { display: flex; }',
+        '.sh-account-modal {',
+        '    width: min(420px, 100%);',
+        '    background: #fff;',
+        '    border-radius: 18px;',
+        '    padding: 22px;',
+        '    box-shadow: 0 18px 50px rgba(0,0,0,0.28);',
+        '    color: #1f2937;',
+        '    position: relative;',
+        '}',
+        '.sh-account-modal h2 { margin: 0 0 10px; color: #003399; font-size: 28px; }',
+        '.sh-account-modal p { margin: 0 0 18px; font-size: 16px; line-height: 1.5; }',
+        '.sh-account-modal-close {',
+        '    position: absolute;',
+        '    top: 12px;',
+        '    right: 12px;',
+        '    width: 38px;',
+        '    height: 38px;',
+        '    border: 0;',
+        '    border-radius: 50%;',
+        '    background: #eef2ff;',
+        '    color: #003399;',
+        '    cursor: pointer;',
+        '    font-size: 18px;',
+        '}',
+        '.sh-account-modal-close:hover { background: #dbe4ff; }',
+        '.sh-account-btn {',
+        '    width: 100%;',
+        '    border: 0;',
+        '    border-radius: 12px;',
+        '    padding: 14px 16px;',
+        '    font-size: 16px;',
+        '    font-weight: 700;',
+        '    cursor: pointer;',
+        '    display: inline-flex;',
+        '    align-items: center;',
+        '    justify-content: center;',
+        '    gap: 10px;',
+        '    margin-bottom: 10px;',
+        '}',
+        '.sh-account-btn-danger { background: #e74c3c; color: #fff; }',
+        '.sh-account-btn-warning { background: #ffd700; color: #003399; }',
+        '.sh-account-btn-primary { background: #1a5ccc; color: #fff; margin-bottom: 0; }',
+        '.sh-account-form-row { margin-bottom: 14px; }',
+        '.sh-account-form-row label { display: block; margin-bottom: 6px; font-weight: 700; color: #334155; }',
+        '.sh-account-form-row input { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 14px; font-size: 16px; }',
+        '.sh-account-error { display: none; margin-top: 12px; color: #c62828; font-weight: 700; }',
+        '.sh-account-success { display: none; margin-top: 12px; color: #15803d; font-weight: 700; }',
         'header.site-header .sh-mobile-login { display: none; }',
         'header.site-header .sh-mobile-toggle {',
         '    display: none;',
@@ -222,6 +280,55 @@
         return name.slice(0, max - 1) + '\u2026';
     }
 
+    function setBodyScrollLocked(isLocked) {
+        document.body.style.overflow = isLocked ? 'hidden' : 'auto';
+    }
+
+    function readCurrentUser() {
+        try {
+            var raw = localStorage.getItem('currentUser');
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function buildSharedModals() {
+        return [
+            '<div class="sh-account-modal-backdrop" id="shAccountModalBackdrop">',
+            '  <div class="sh-account-modal" role="dialog" aria-modal="true" aria-labelledby="shAccountModalTitle">',
+            '    <button class="sh-account-modal-close" type="button" id="shAccountModalClose" aria-label="Zavrieť">',
+            '      <i class="fas fa-times"></i>',
+            '    </button>',
+            '    <h2 id="shAccountModalTitle">Môj účet</h2>',
+            '    <p>Ste prihlásený ako <b id="shAccountUserName"></b>.</p>',
+            '    <button class="sh-account-btn sh-account-btn-danger" type="button" id="shLogoutActionBtn"><i class="fas fa-sign-out-alt"></i> Odhlásiť sa</button>',
+            '    <button class="sh-account-btn sh-account-btn-warning" type="button" id="shSwitchAccountActionBtn"><i class="fas fa-user-switch"></i> Prepnúť účet</button>',
+            '    <button class="sh-account-btn sh-account-btn-primary" type="button" id="shChangePasswordActionBtn"><i class="fas fa-key"></i> Zmeniť heslo</button>',
+            '  </div>',
+            '</div>',
+            '<div class="sh-account-modal-backdrop" id="shChangePasswordBackdrop">',
+            '  <div class="sh-account-modal" role="dialog" aria-modal="true" aria-labelledby="shChangePasswordTitle">',
+            '    <button class="sh-account-modal-close" type="button" id="shChangePasswordClose" aria-label="Zavrieť">',
+            '      <i class="fas fa-times"></i>',
+            '    </button>',
+            '    <h2 id="shChangePasswordTitle">Zmena hesla</h2>',
+            '    <div class="sh-account-form-row">',
+            '      <label for="shNewPasswordInput">Nové heslo</label>',
+            '      <input id="shNewPasswordInput" type="password" minlength="8" placeholder="Min. 8 znakov">',
+            '    </div>',
+            '    <div class="sh-account-form-row">',
+            '      <label for="shConfirmPasswordInput">Potvrdiť heslo</label>',
+            '      <input id="shConfirmPasswordInput" type="password" minlength="8" placeholder="Zopakujte heslo">',
+            '    </div>',
+            '    <button class="sh-account-btn sh-account-btn-primary" type="button" id="shSubmitPasswordChangeBtn"><i class="fas fa-save"></i> Uložiť zmeny</button>',
+            '    <div class="sh-account-error" id="shChangePasswordError"></div>',
+            '    <div class="sh-account-success" id="shChangePasswordSuccess"></div>',
+            '  </div>',
+            '</div>'
+        ].join('');
+    }
+
     /* ------------------------------------------------------------------ */
     /*  Auth                                                                */
     /* ------------------------------------------------------------------ */
@@ -284,13 +391,7 @@
         }));
     }
 
-    async function logoutWithoutModal(user) {
-        var displayName = user && user.username ? user.username : 'týmto účtom';
-        var shouldLogout = window.confirm('Si prihlásený ako ' + displayName + '. Chceš sa odhlásiť?');
-        if (!shouldLogout) {
-            return;
-        }
-
+    async function performLogout() {
         try {
             var apiBase = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
             var response = await fetch(apiBase + '/logout', {
@@ -304,6 +405,178 @@
 
             clearStoredAuthState();
         } catch (error) {
+            throw error;
+        }
+    }
+
+    function openAccountModal(user) {
+        var backdrop = document.getElementById('shAccountModalBackdrop');
+        var userName = document.getElementById('shAccountUserName');
+        if (!backdrop) {
+            return;
+        }
+
+        if (userName) {
+            userName.textContent = user && user.username ? user.username : 'Účet';
+        }
+
+        backdrop.classList.add('active');
+        setBodyScrollLocked(true);
+    }
+
+    function closeAccountModal() {
+        var backdrop = document.getElementById('shAccountModalBackdrop');
+        if (!backdrop) {
+            return;
+        }
+
+        backdrop.classList.remove('active');
+        setBodyScrollLocked(false);
+    }
+
+    function openChangePasswordModalShared() {
+        var backdrop = document.getElementById('shChangePasswordBackdrop');
+        var errorNode = document.getElementById('shChangePasswordError');
+        var successNode = document.getElementById('shChangePasswordSuccess');
+        if (!backdrop) {
+            return;
+        }
+
+        closeAccountModal();
+        if (errorNode) {
+            errorNode.textContent = '';
+            errorNode.style.display = 'none';
+        }
+        if (successNode) {
+            successNode.textContent = '';
+            successNode.style.display = 'none';
+        }
+
+        backdrop.classList.add('active');
+        setBodyScrollLocked(true);
+    }
+
+    function closeChangePasswordModalShared() {
+        var backdrop = document.getElementById('shChangePasswordBackdrop');
+        var newPasswordInput = document.getElementById('shNewPasswordInput');
+        var confirmPasswordInput = document.getElementById('shConfirmPasswordInput');
+        var errorNode = document.getElementById('shChangePasswordError');
+        var successNode = document.getElementById('shChangePasswordSuccess');
+
+        if (backdrop) {
+            backdrop.classList.remove('active');
+        }
+        if (newPasswordInput) {
+            newPasswordInput.value = '';
+        }
+        if (confirmPasswordInput) {
+            confirmPasswordInput.value = '';
+        }
+        if (errorNode) {
+            errorNode.textContent = '';
+            errorNode.style.display = 'none';
+        }
+        if (successNode) {
+            successNode.textContent = '';
+            successNode.style.display = 'none';
+        }
+        setBodyScrollLocked(false);
+    }
+
+    async function submitSharedPasswordChange() {
+        var newPasswordInput = document.getElementById('shNewPasswordInput');
+        var confirmPasswordInput = document.getElementById('shConfirmPasswordInput');
+        var errorNode = document.getElementById('shChangePasswordError');
+        var successNode = document.getElementById('shChangePasswordSuccess');
+        var newPassword = newPasswordInput ? String(newPasswordInput.value || '').trim() : '';
+        var confirmPassword = confirmPasswordInput ? String(confirmPasswordInput.value || '').trim() : '';
+
+        if (errorNode) {
+            errorNode.textContent = '';
+            errorNode.style.display = 'none';
+        }
+        if (successNode) {
+            successNode.textContent = '';
+            successNode.style.display = 'none';
+        }
+
+        if (newPassword.length < 8) {
+            if (errorNode) {
+                errorNode.textContent = 'Nové heslo musí mať aspoň 8 znakov.';
+                errorNode.style.display = 'block';
+            }
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            if (errorNode) {
+                errorNode.textContent = 'Heslá sa nezhodujú.';
+                errorNode.style.display = 'block';
+            }
+            return;
+        }
+
+        try {
+            var apiBase = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+            var csrfToken = window.OSKSession ? await window.OSKSession.ensureCsrfToken() : '';
+            var response = await fetch(apiBase + '/change-password', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-csrf-token': csrfToken
+                },
+                body: JSON.stringify({ newPassword: newPassword })
+            });
+            var payload = await response.json().catch(function () { return {}; });
+            if (!response.ok) {
+                throw new Error(payload.message || 'Zmena hesla zlyhala.');
+            }
+
+            if (successNode) {
+                successNode.textContent = 'Heslo bolo úspešne zmenené.';
+                successNode.style.display = 'block';
+            }
+
+            window.setTimeout(function () {
+                closeChangePasswordModalShared();
+            }, 900);
+        } catch (error) {
+            if (errorNode) {
+                errorNode.textContent = error && error.message ? error.message : 'Zmena hesla zlyhala.';
+                errorNode.style.display = 'block';
+            }
+        }
+    }
+
+    async function handleSwitchAccountShared() {
+        try {
+            await performLogout();
+            closeAccountModal();
+            closeChangePasswordModalShared();
+
+            if (typeof window.openLoginModal === 'function') {
+                window.openLoginModal();
+                return;
+            }
+
+            try {
+                sessionStorage.setItem('osk-open-login-modal', '1');
+            } catch (e) {
+                // ignore storage errors
+            }
+
+            window.location.href = '/index.html';
+        } catch (error) {
+            window.alert(error && error.message ? error.message : 'Prepnutie účtu zlyhalo.');
+        }
+    }
+
+    async function handleLogoutShared() {
+        try {
+            await performLogout();
+            closeAccountModal();
+        } catch (error) {
             window.alert(error && error.message ? error.message : 'Odhlásenie zlyhalo. Skús to znova.');
         }
     }
@@ -314,15 +587,9 @@
     async function handleLoginClick(e) {
         e.preventDefault();
         try {
-            var raw = localStorage.getItem('currentUser');
-            var user = raw ? JSON.parse(raw) : null;
+            var user = readCurrentUser();
             if (user && user.isLoggedIn) {
-                if (typeof window.openLogoutModal === 'function') {
-                    window.openLogoutModal();
-                    return;
-                }
-
-                await logoutWithoutModal(user);
+                openAccountModal(user);
                 return;
             } else {
                 if (typeof window.openLoginModal === 'function') {
@@ -403,9 +670,12 @@
         var root = document.getElementById('site-header-root');
         if (!root) return;
         var wrapper = document.createElement('div');
-        wrapper.innerHTML = buildHeader();
+        wrapper.innerHTML = buildHeader() + buildSharedModals();
         var headerElement = wrapper.firstElementChild;
         root.parentNode.insertBefore(headerElement, root);
+        while (wrapper.children.length > 0) {
+            root.parentNode.insertBefore(wrapper.children[0], root);
+        }
         root.remove();
         
         // Add listener for auth changes from session.js
@@ -424,6 +694,40 @@
         if (mobileLoginBtn) mobileLoginBtn.addEventListener('click', handleLoginClick);
     }
 
+    function attachAccountModalHandlers() {
+        var accountBackdrop = document.getElementById('shAccountModalBackdrop');
+        var accountClose = document.getElementById('shAccountModalClose');
+        var logoutBtn = document.getElementById('shLogoutActionBtn');
+        var switchAccountBtn = document.getElementById('shSwitchAccountActionBtn');
+        var changePasswordBtn = document.getElementById('shChangePasswordActionBtn');
+        var changePasswordBackdrop = document.getElementById('shChangePasswordBackdrop');
+        var changePasswordClose = document.getElementById('shChangePasswordClose');
+        var submitPasswordBtn = document.getElementById('shSubmitPasswordChangeBtn');
+
+        if (accountClose) accountClose.addEventListener('click', closeAccountModal);
+        if (logoutBtn) logoutBtn.addEventListener('click', handleLogoutShared);
+        if (switchAccountBtn) switchAccountBtn.addEventListener('click', handleSwitchAccountShared);
+        if (changePasswordBtn) changePasswordBtn.addEventListener('click', openChangePasswordModalShared);
+        if (changePasswordClose) changePasswordClose.addEventListener('click', closeChangePasswordModalShared);
+        if (submitPasswordBtn) submitPasswordBtn.addEventListener('click', submitSharedPasswordChange);
+
+        if (accountBackdrop) {
+            accountBackdrop.addEventListener('click', function (e) {
+                if (e.target === accountBackdrop) {
+                    closeAccountModal();
+                }
+            });
+        }
+
+        if (changePasswordBackdrop) {
+            changePasswordBackdrop.addEventListener('click', function (e) {
+                if (e.target === changePasswordBackdrop) {
+                    closeChangePasswordModalShared();
+                }
+            });
+        }
+    }
+
     /* ------------------------------------------------------------------ */
     /*  Init                                                                */
     /* ------------------------------------------------------------------ */
@@ -436,6 +740,7 @@
         initToggle();
         loadAuthFromStorage();
         attachLoginHandlers();
+        attachAccountModalHandlers();
     }
 
     if (document.readyState === 'loading') {

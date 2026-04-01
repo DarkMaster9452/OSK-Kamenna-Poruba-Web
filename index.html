@@ -3368,6 +3368,17 @@
             });
         }
 
+        try {
+            if (sessionStorage.getItem('osk-open-login-modal') === '1') {
+                sessionStorage.removeItem('osk-open-login-modal');
+                window.setTimeout(function () {
+                    openLoginModal();
+                }, 50);
+            }
+        } catch (_) {
+            // ignore storage errors
+        }
+
         const slider = document.querySelector(".logo-slider");
         const track = document.querySelector(".logo-track");
         function closeLoginModal() {

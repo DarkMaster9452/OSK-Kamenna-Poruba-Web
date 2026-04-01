@@ -67,7 +67,7 @@ const attendanceSchema = z.object({
   playerUsername: usernameFieldSchema,
   username: usernameFieldSchema,
   personName: usernameFieldSchema,
-  status: z.enum(['yes', 'no', 'unknown'])
+  status: z.enum(['yes', 'no'])
 });
 
 const GROUP_META_PREFIX = '__OSK_GROUP_META__';

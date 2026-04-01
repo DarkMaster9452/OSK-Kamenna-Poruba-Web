@@ -479,17 +479,14 @@ function refreshPlayerTrainings() {
                             class="btn-attendance ${statusToUse === 'no' ? 'active-no' : ''}">
                             <i class="fas fa-times"></i> Nie
                         </button>
-                        <button onclick="markAttendance('${safeTrainingId}', '${safePersonName}', 'unknown')" 
-                            class="btn-attendance ${statusToUse === 'unknown' ? 'active-unknown' : ''}">
-                            <i class="fas fa-question"></i> ?
-                        </button>
                 `;
             } else {
-                const statusLabels = { yes: 'Prídem ✓', no: 'Neprídnem ✗', unknown: 'Neviem ?' };
-                const statusClass = statusToUse === 'yes' ? 'active-yes' : (statusToUse === 'no' ? 'active-no' : 'active-unknown');
+                const finalStatus = statusToUse === 'yes' ? 'yes' : 'no';
+                const statusLabels = { yes: 'Prídem ✓', no: 'Neprídem ✗' };
+                const statusClass = finalStatus === 'yes' ? 'active-yes' : 'active-no';
                 html += `
                         <div class="btn-attendance ${statusClass}" style="flex: 1; text-align: center; cursor: default; opacity: 0.8;">
-                            ${statusLabels[statusToUse]}
+                            ${statusLabels[finalStatus]}
                         </div>
                 `;
             }
@@ -597,7 +594,7 @@ async function markAttendance(trainingId, personName, status) {
 
     await loadTrainingData();
     
-    const statusLabels = { yes: 'Prídem', no: 'Neprídnem', unknown: 'Neviem' };
+    const statusLabels = { yes: 'Prídem', no: 'Neprídnem' };
     const message = personName === currentUser.username ? 
         'Vaša prítomnosť bola upravená na: ' + statusLabels[status] :
         'Prítomnosť ' + personName + ' bola upravená na: ' + statusLabels[status];
