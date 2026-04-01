@@ -161,10 +161,10 @@
             color: #333;
         }
 
-        /* Mobile fixes for academy tables */
+        /* Mobile roster keeps all desktop columns available via horizontal scroll */
         @media (max-width: 480px) {
             .table-wrap {
-                overflow-x: hidden;
+                overflow-x: auto;
                 border-radius: 8px;
             }
 
@@ -173,16 +173,13 @@
                 font-size: 11px;
             }
 
-            /* Hide less important columns: # (1st), Cards (6th, 7th) */
-            .standings-table th:nth-child(1), .standings-table td:nth-child(1),
-            .standings-table th:nth-child(6), .standings-table td:nth-child(6),
-            .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
-                display: none;
-            }
-
             .card {
                 padding: 16px;
             }
+        }
+
+        .standings-table {
+            min-width: 720px;
         }
 
         .muted {

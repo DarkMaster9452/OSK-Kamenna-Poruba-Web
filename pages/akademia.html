@@ -9,7 +9,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-P152RNBL34');
     </script>
@@ -24,7 +24,10 @@
         }
 
         /* Unified Heading Styles */
-        h1, .page-title, .standings-title, .section-title {
+        h1,
+        .page-title,
+        .standings-title,
+        .section-title {
             font-size: 30px;
             margin-bottom: 24px;
             color: #003399;
@@ -45,19 +48,29 @@
         }
 
         @media (max-width: 768px) {
-            h1, .page-title, .standings-title, .section-title {
+
+            h1,
+            .page-title,
+            .standings-title,
+            .section-title {
                 font-size: 26px !important;
             }
+
             h3 {
                 font-size: 22px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, .page-title, .standings-title, .section-title {
+
+            h1,
+            .page-title,
+            .standings-title,
+            .section-title {
                 font-size: 24px !important;
                 justify-content: center;
             }
+
             h3 {
                 font-size: 20px !important;
             }
@@ -161,23 +174,17 @@
             color: #333;
         }
 
-        /* Mobile fixes for academy tables */
+        /* Mobile roster keeps all desktop columns available via horizontal scroll */
         @media (max-width: 480px) {
             .table-wrap {
-                overflow-x: hidden;
+                overflow-x: auto;
                 border-radius: 8px;
             }
 
-            .standings-table th, .standings-table td {
+            .standings-table th,
+            .standings-table td {
                 padding: 8px 3px !important;
                 font-size: 11px;
-            }
-
-            /* Hide less important columns: # (1st), Cards (6th, 7th) */
-            .standings-table th:nth-child(1), .standings-table td:nth-child(1),
-            .standings-table th:nth-child(6), .standings-table td:nth-child(6),
-            .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
-                display: none;
             }
 
             .card {
@@ -185,12 +192,14 @@
             }
         }
 
+        .standings-table {
+            min-width: 720px;
+        }
+
         .muted {
             color: #666;
             font-size: 14px;
         }
-
-
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -537,4 +546,5 @@
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
 </body>
+
 </html>
