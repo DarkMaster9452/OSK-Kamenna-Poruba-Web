@@ -262,8 +262,9 @@ select.input-styled option {
 
 .training-meta i {
     color: var(--primary);
-    width: 22px;
+    width: 20px;
     text-align: center;
+    font-size: 0.85rem;
 }
 
 .training-badge {
@@ -354,14 +355,21 @@ select.input-styled option {
 /* Coach Dashboard & Attendance UI */
 .attendance-overview {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-    margin-top: 30px;
-    padding: 25px;
-    background: linear-gradient(180deg, #f7faff 0%, #eef3fb 100%);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8fafc;
     border-radius: var(--radius);
-    border: 1px solid #d7e3f2;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 10px 24px rgba(0, 51, 153, 0.06);
+    border: 1px solid #e2e8f0;
+    box-shadow: inset 0 2px 8px rgba(0, 51, 153, 0.02);
+}
+
+@media (max-width: 600px) {
+    .attendance-overview {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
 }
 
 .attendance-overview::before {
@@ -418,15 +426,15 @@ select.input-styled option {
 .attendance-column.col-unknown h5 i { color: var(--warning); }
 
 .attendance-column h5 {
-    margin: 0 0 20px 0;
-    font-size: 0.9rem;
+    margin: 0 0 12px 0;
+    font-size: 0.75rem;
     font-weight: 800;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     color: var(--primary);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .player-list-chips {
@@ -438,14 +446,18 @@ select.input-styled option {
 }
 
 .player-chip {
-    padding: 8px 16px;
-    background: #f8fafc;
+    padding: 5px 10px;
+    background: #ffffff;
     border-radius: 50px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
     border: 1px solid #e2e8f0;
     color: var(--text-main);
     transition: all 0.2s ease;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .player-chip:hover {
@@ -538,18 +550,16 @@ select.input-styled option {
 
 /* Attendance Summary Box (Coach View) */
 .attendance-summary-box {
-    text-align: right;
+    text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    min-width: 140px;
+    gap: 5px;
+    min-width: 120px;
     background: #f8fafc;
-    border: 1px solid #e1e8ed;
-    padding: 15px;
+    border: 1px solid #e2e8f0;
+    padding: 12px;
     border-radius: 12px;
     transition: var(--transition);
-    align-items: center;
-    justify-content: center;
 }
 
 .attendance-summary-box:hover {
@@ -559,18 +569,26 @@ select.input-styled option {
 }
 
 .attendance-count-vibrant {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     color: var(--accent);
     font-weight: 900;
     line-height: 1;
 }
 
 .attendance-label-vibrant {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-weight: 800;
+}
+
+@media (max-width: 768px) {
+    .attendance-summary-box {
+        min-width: 100px;
+        padding: 8px;
+        background: #f0f4f8;
+    }
 }
 
 /* Modal Styles */
@@ -732,27 +750,28 @@ select.input-styled option {
     }
 
     .training-card {
-        padding: 20px 15px;
-        gap: 15px;
-        border-radius: 12px;
-        margin-bottom: 15px;
+        padding: 12px;
+        gap: 8px;
+        border-radius: 10px;
+        margin-bottom: 10px;
     }
 
     .training-main-info h4 {
-        font-size: 1.15rem;
-        margin-bottom: 8px;
+        font-size: 1rem;
+        margin-bottom: 4px;
+        line-height: 1.3;
     }
 
     .training-meta {
-        gap: 12px;
-        font-size: 0.82rem;
+        gap: 6px;
+        font-size: 0.72rem;
     }
 
     .training-note {
-        padding: 10px;
-        font-size: 0.82rem;
-        border-radius: 8px;
-        margin-top: 10px;
+        padding: 8px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+        margin-top: 8px;
     }
 
     .attendance-grid {
@@ -761,18 +780,19 @@ select.input-styled option {
 
     .coach-actions {
         justify-content: flex-start;
-        margin-top: 10px;
-        gap: 8px;
+        margin-top: 8px;
+        gap: 6px;
     }
 
     .btn-coach-action {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
     }
     
     .training-info-row {
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
     }
     
     .training-info-row > div:last-child {
@@ -782,25 +802,26 @@ select.input-styled option {
     }
 
     .attendance-summary-box {
-        min-width: 100px;
-        padding: 10px;
+        min-width: 90px;
+        padding: 8px 12px;
         flex-direction: row;
         width: 100%;
         justify-content: space-between;
+        align-items: center;
     }
 
     .attendance-count-vibrant {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
     }
     
     .attendance-overview {
         grid-template-columns: 1fr;
-        padding: 15px;
-        gap: 15px;
+        padding: 12px;
+        gap: 12px;
     }
     
     .glass-card {
-        padding: 20px 15px;
+        padding: 15px 12px;
     }
 
     .modal-content-glass {

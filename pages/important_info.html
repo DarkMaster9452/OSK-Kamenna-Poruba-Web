@@ -247,17 +247,18 @@
 
         @media (max-width: 768px) {
             .events-list {
-                padding: 25px 20px 35px;
+                padding: 25px 15px 35px;
                 border-radius: 16px;
             }
 
             .events-list h2 {
-                font-size: 1.5rem !important;
+                font-size: 1.4rem !important;
+                margin-bottom: 20px;
             }
 
             #eventsContainer {
-                padding: 15px;
-                border-radius: 15px;
+                padding: 12px;
+                border-radius: 12px;
             }
         }
 
@@ -296,26 +297,30 @@
         }
 
         .event-type {
-            display: inline-block;
-            font-size: 11px;
-            font-weight: 800;
-            background: #f0f0f0;
-            color: #666;
+            display: inline-flex;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 900;
+            background: #f1f5f9;
+            color: #475569;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 4px;
-            padding: 4px 10px;
+            letter-spacing: 1.2px;
+            border-radius: 6px;
+            padding: 5px 12px;
             margin-bottom: 15px;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .event-type.notice {
-            background: #eef2ff;
-            color: #4338ca;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-color: #dbeafe;
         }
 
         .event-type.poll {
             background: #fff7ed;
-            color: #c2410c;
+            color: #ea580c;
+            border-color: #ffedd5;
         }
 
         .item {
@@ -352,12 +357,19 @@
         }
 
         .meta {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 12px;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 15px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .title {
@@ -424,13 +436,45 @@
         .result-row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 0.95rem;
-            padding: 10px 0;
-            border-bottom: 1px dashed #eee;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #edf2f7;
+            gap: 15px;
         }
 
-        .result-row:last-child {
-            border-bottom: none;
+        .result-row span:first-child {
+            font-weight: 600;
+            color: #334155;
+            flex: 1;
+        }
+
+        .result-row span:last-child {
+            font-weight: 800;
+            color: #003399;
+            background: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            white-space: nowrap;
+        }
+
+        @media (max-width: 600px) {
+            .result-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+                padding: 12px;
+            }
+            .result-row span:last-child {
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+            }
         }
 
         .empty {
@@ -1094,9 +1138,13 @@
                     return `
                         <div class="item notice ${n.important ? 'notice-important' : ''}">
                             <div class="event-type notice">${n.important ? 'DÔLEŽITÁ SPRÁVA' : 'SPRÁVA'}</div>
-                            <div class="meta">${formatDate(n.createdAt)} • ${n.createdBy} • ${targetLabel(n.target)}${n.playerCategory ? ' • ' + categoryLabel(n.playerCategory) : ''}</div>
+                            <div class="meta">
+                                <span><i class="far fa-calendar-alt"></i> ${formatDate(n.createdAt)}</span>
+                                <span><i class="far fa-user"></i> ${n.createdBy}</span>
+                                <span><i class="fas fa-bullseye"></i> ${targetLabel(n.target)}${n.playerCategory ? ' (' + categoryLabel(n.playerCategory) + ')' : ''}</span>
+                            </div>
                             <div class="title">${n.title}</div>
-                            <div>${n.message}</div>
+                            <div class="content-body" style="color: #4b5563; font-size: 1.05rem; margin-bottom: 20px;">${n.message}</div>
                             ${(currentUser.role === 'coach' || currentUser.role === 'admin' || currentUser.role === 'blogger') ? `<button class="delete-btn" onclick="deleteNotice('${n.id}')"><i class='fas fa-trash'></i> Zmazať</button>` : ''}
                         </div>
                     `;
@@ -1128,14 +1176,20 @@
                 return `
                     <div class="item poll">
                         <div class="event-type poll">ANKETA${p.active ? '' : ' • DOKONČENÁ'}</div>
-                        <div class="meta">${formatDate(p.createdAt)} • ${p.createdBy} • ${targetLabel(p.target)}${p.playerCategory ? ' • ' + categoryLabel(p.playerCategory) : ''}</div>
-                        ${closesAtText ? `<div class="meta">Koniec: ${closesAtText}${closedAtText ? ` • Dokončená: ${closedAtText}` : ''}</div>` : ''}
+                        <div class="meta">
+                            <span><i class="far fa-calendar-alt"></i> ${formatDate(p.createdAt)}</span>
+                            <span><i class="far fa-user"></i> ${p.createdBy}</span>
+                            <span><i class="fas fa-bullseye"></i> ${targetLabel(p.target)}${p.playerCategory ? ' (' + categoryLabel(p.playerCategory) + ')' : ''}</span>
+                        </div>
+                        ${closesAtText ? `<div class="meta"><span><i class="far fa-clock"></i> Koniec: ${closesAtText}${closedAtText ? ` • Dokončená: ${closedAtText}` : ''}</span></div>` : ''}
                         <div class="title">${p.question}</div>
                             <div class="poll-options">${optionsHtml}</div>
-                            ${(currentUser.role !== 'coach' && currentUser.role !== 'admin' && currentUser.role !== 'blogger') ? `<div class="meta">Hlasov spolu: ${totalVotes}</div>` : ''}
+                            ${(currentUser.role !== 'coach' && currentUser.role !== 'admin' && currentUser.role !== 'blogger') ? `<div class="meta" style="justify-content: flex-end;"><span><i class="fas fa-users"></i> Hlasov spolu: ${totalVotes}</span></div>` : ''}
                             ${(currentUser.role === 'coach' || currentUser.role === 'admin' || currentUser.role === 'blogger') ? `
-                                ${p.active ? `<button class="btn" style="margin-right:8px;" onclick="closePoll('${p.id}')"><i class='fas fa-stop'></i> Ukončiť anketu</button>` : ''}
-                                <button class="delete-btn" onclick="deletePoll('${p.id}')"><i class='fas fa-trash'></i> Zmazať</button>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    ${p.active ? `<button class="btn" style="padding: 8px 18px; font-size: 13px;" onclick="closePoll('${p.id}')"><i class='fas fa-stop'></i> Ukončiť anketu</button>` : ''}
+                                    <button class="delete-btn" onclick="deletePoll('${p.id}')"><i class='fas fa-trash'></i> Zmazať</button>
+                                </div>
                             ` : ''}
                     </div>
                 `;
