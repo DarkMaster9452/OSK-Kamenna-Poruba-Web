@@ -309,36 +309,72 @@
             background-size: cover;
             background-position: center;
             color: white;
-            padding: 100px 40px;
+            padding: 80px 20px;
             text-align: center;
-            min-height: 500px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1;
+        }
+
+        .hero > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-welcome {
+            font-size: 48px;
+            font-weight: 300;
+            display: block;
+            margin-bottom: 0;
+            animation: slideDown 0.8s ease-out;
+            letter-spacing: 1px;
         }
 
         .hero h1 {
-            font-size: 56px;
-            margin-bottom: 15px;
+            font-size: 86px;
+            margin: -5px 0 35px;
             color: white;
-            /* Added to override global h1 color */
+            font-weight: 800;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             animation: slideDown 0.8s ease-out;
+            line-height: 1.1;
         }
 
         .hero p {
-            font-size: 24px;
-            margin-bottom: 30px;
+            font-size: 28px;
+            margin-bottom: 50px;
             color: white;
-            /* Explicitly set to white */
+            max-width: 700px;
             animation: slideUp 0.8s ease-out;
+            font-weight: 400;
         }
 
         .hero-buttons {
             display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 18px;
+            width: 100%;
+            max-width: 340px;
+            align-items: center;
+        }
+
+        .hero .btn {
+            width: 100%;
+            padding: 18px 30px;
+            font-size: 22px;
+            border-radius: 12px;
+            text-shadow: none;
         }
 
         .btn {
@@ -469,8 +505,18 @@
                 font-size: 24px !important;
             }
 
+            .hero-welcome {
+                font-size: 28px !important;
+            }
             .hero h1 {
-                font-size: 32px !important;
+                font-size: 46px !important;
+            }
+            .hero p {
+                font-size: 20px !important;
+            }
+            .hero .btn {
+                font-size: 18px !important;
+                padding: 15px 20px !important;
             }
         }
 
@@ -2464,11 +2510,11 @@
 
     <!-- Hero Section -->
     <section class="hero" id="home" style="background-image: url('/assets/images/titulna.jpg');">
-        <h1>Vitajte na OŠK Kamenná Poruba</h1>
+        <span class="hero-welcome">Vitajte na OŠK</span>
+        <h1 class="hero-title">Kamenná Poruba</h1>
         <p>Výnimočnosť vo futbale, hrdosť komunity</p>
         <div class="hero-buttons">
-            <button class="btn btn-primary" onclick="document.getElementById('matches').scrollIntoView()">Zobraziť
-                zápasy</button>
+            <button class="btn btn-primary" onclick="document.getElementById('matches').scrollIntoView()">Zobraziť zápasy</button>
             <button class="btn btn-secondary" onclick="window.location.href='/pages/atim.html'">A-tím</button>
         </div>
     </section>
