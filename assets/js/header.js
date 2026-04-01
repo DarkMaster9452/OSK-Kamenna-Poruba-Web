@@ -137,6 +137,7 @@
         '    color: #1f2937;',
         '    position: relative;',
         '}',
+        '.sh-account-modal, .sh-account-modal *, .sh-account-modal *::before, .sh-account-modal *::after { box-sizing: border-box; }',
         '.sh-account-modal h2 { margin: 0 0 10px; color: #003399; font-size: 28px; }',
         '.sh-account-modal p { margin: 0 0 18px; font-size: 16px; line-height: 1.5; }',
         '.sh-account-modal-close {',
@@ -393,14 +394,10 @@
 
     async function performLogout() {
         try {
-            var apiBase = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
-            var response = await fetch(apiBase + '/logout', {
-                method: 'POST',
-                credentials: 'include'
-            });
-
-            if (!response.ok) {
-                throw new Error('Odhlásenie zlyhalo. Skús to znova.');
+            if (window.OSKSession && typeof window.OSKSession.handleLogout === 'function') {
+                await window.OSKSession.handleLogout();
+            } else {
+                throw new Error('Odhlásenie nie je momentálne dostupné.');
             }
 
             clearStoredAuthState();

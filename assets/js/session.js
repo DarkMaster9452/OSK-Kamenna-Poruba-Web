@@ -134,6 +134,25 @@
         return payload.user || null;
     }
 
+    async function logout() {
+        const csrfToken = await ensureCsrfToken();
+        const response = await fetch(`${API_BASE}/logout`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-csrf-token': csrfToken
+            }
+        });
+
+        if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload.message || 'Odhlásenie zlyhalo. Skús to znova.');
+        }
+
+        return clearPersistedUser();
+    }
+
     function persistUser(currentUser) {
         const previousUser = readPersistedUser();
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -239,6 +258,7 @@
         getApiBase: () => API_BASE,
         ensureCsrfToken,
         fetchSessionUser,
+        handleLogout: logout,
         syncCurrentUserFromSession,
         syncCurrentUserFromSessionWithRetry,
         invalidateCsrfToken: () => { csrfTokenCache = null; }
