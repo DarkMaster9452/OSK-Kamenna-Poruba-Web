@@ -704,44 +704,106 @@ select.input-styled option {
     .training-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 30px;
+        gap: 20px;
+        padding-bottom: 20px;
     }
     
-    .training-header h2 { font-size: 2rem !important; }
+    .training-header h2 { font-size: 1.8rem !important; }
     
-    .training-page-section { padding: 40px 15px; }
+    .training-page-section { padding: 30px 12px; }
     
-    .training-form-grid { grid-template-columns: 1fr; }
+    .training-form-grid { grid-template-columns: 1fr; gap: 20px; }
 
     .coach-roster-toolbar {
         align-items: stretch;
+        gap: 12px;
     }
 
     .coach-roster-toolbar .btn-training {
         width: 100%;
+        padding: 14px 20px;
+        font-size: 0.85rem;
+    }
+    
+    #coachTrainingsContainer, #playerTrainingsContainer {
+        padding: 15px 10px;
+        border-radius: 18px;
+        margin-top: 20px;
+    }
+
+    .training-card {
+        padding: 20px 15px;
+        gap: 15px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+    }
+
+    .training-main-info h4 {
+        font-size: 1.15rem;
+        margin-bottom: 8px;
+    }
+
+    .training-meta {
+        gap: 12px;
+        font-size: 0.82rem;
+    }
+
+    .training-note {
+        padding: 10px;
+        font-size: 0.82rem;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .attendance-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .coach-actions {
+        justify-content: flex-start;
+        margin-top: 10px;
+        gap: 8px;
+    }
+
+    .btn-coach-action {
+        width: 40px;
+        height: 40px;
     }
     
     .training-info-row {
         flex-direction: column;
+        gap: 15px;
     }
     
     .training-info-row > div:last-child {
         text-align: left !important;
         align-items: flex-start !important;
-        margin-top: 15px;
+        margin-top: 0;
     }
-    
-    .coach-actions {
-        justify-content: flex-start;
-        margin-top: 10px;
+
+    .attendance-summary-box {
+        min-width: 100px;
+        padding: 10px;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .attendance-count-vibrant {
+        font-size: 1.4rem;
     }
     
     .attendance-overview {
         grid-template-columns: 1fr;
         padding: 15px;
+        gap: 15px;
     }
     
     .glass-card {
+        padding: 20px 15px;
+    }
+
+    .modal-content-glass {
         padding: 25px 20px;
     }
 }

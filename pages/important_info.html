@@ -42,8 +42,20 @@
         @media (max-width: 768px) {
             h1,
             .page-title {
-                font-size: 26px !important;
-                margin-bottom: 25px;
+                font-size: 24px !important;
+                margin-bottom: 20px;
+                gap: 10px;
+            }
+
+            .container {
+                margin: 20px auto;
+                padding: 0 12px 40px;
+            }
+
+            .user-badge {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+                margin-bottom: 20px;
             }
         }
 
@@ -86,13 +98,23 @@
             display: none;
             background: #fff;
             border-radius: 20px;
-            padding: 35px;
+            padding: 35px 35px 50px;
             margin-bottom: 40px;
             box-shadow: 0 15px 50px rgba(0, 51, 153, 0.12);
             border: 1px solid #e1e8ed;
             border-left: 6px solid #003399;
             position: relative;
-            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .coach-panel {
+                padding: 25px 20px 35px;
+                border-radius: 16px;
+            }
+
+            .coach-panel h2 {
+                font-size: 1.5rem !important;
+            }
         }
 
         .coach-panel h2 {
@@ -200,6 +222,13 @@
             width: fit-content;
         }
 
+        @media (max-width: 768px) {
+            .box .btn {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 215, 0, 0.35);
@@ -209,12 +238,27 @@
         .events-list {
             background: #fff;
             border-radius: 20px;
-            padding: 35px;
+            padding: 35px 35px 50px;
             box-shadow: 0 15px 50px rgba(0, 51, 153, 0.12);
             border: 1px solid #e1e8ed;
             border-left: 6px solid #003399;
             position: relative;
-            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .events-list {
+                padding: 25px 20px 35px;
+                border-radius: 16px;
+            }
+
+            .events-list h2 {
+                font-size: 1.5rem !important;
+            }
+
+            #eventsContainer {
+                padding: 15px;
+                border-radius: 15px;
+            }
         }
 
         /* Container for individual event items with its own background */
@@ -321,6 +365,16 @@
             font-weight: 800;
             margin-bottom: 12px;
             color: #003399;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.2rem;
+            }
+
+            .item {
+                padding: 20px 15px;
+            }
         }
 
         .badge {
