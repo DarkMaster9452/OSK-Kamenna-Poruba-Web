@@ -392,9 +392,10 @@
 
         .events-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 30px;
             position: relative;
+            align-items: start;
         }
 
         .events-grid::after {
@@ -412,6 +413,8 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .event-group-header {
@@ -458,6 +461,7 @@
             align-items: center;
             gap: 10px;
             font-size: 14px;
+            min-width: 0;
         }
 
         .event-home {
@@ -473,6 +477,9 @@
         .event-player {
             font-weight: 700;
             color: #1e293b;
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         .event-time {
@@ -1442,6 +1449,107 @@
             return CLUB_LOGOS[normalizeTeamName(name)] || null;
         }
 
+        function getSportsnetTeamObjects(item) {
+            const rawTeams = Array.isArray(item?.raw?.teams)
+                ? item.raw.teams
+                : (Array.isArray(item?.teams) ? item.teams : []);
+
+            if (!rawTeams.length) {
+                return { homeTeamObj: null, awayTeamObj: null };
+            }
+
+            const homeTeamObj = rawTeams.find(team => team?.additionalProperties?.homeaway === 'home') || rawTeams[0] || null;
+            const awayTeamObj = rawTeams.find(team => team?.additionalProperties?.homeaway === 'away') || rawTeams[1] || null;
+
+            return { homeTeamObj, awayTeamObj };
+        }
+
+        function getSportsnetMediaUrl(media) {
+            if (typeof media === 'string' && media.trim()) {
+                return media.trim();
+            }
+
+            if (!media || typeof media !== 'object') {
+                return null;
+            }
+
+            const candidates = [
+                media.public_url,
+                media.media_url,
+                media.publicUrl,
+                media.mediaUrl,
+                media.url,
+                media.src,
+                media.path,
+                media.original?.public_url,
+                media.original?.media_url,
+                media.original?.url,
+                media.thumbnail?.public_url,
+                media.thumbnail?.media_url,
+                media.thumbnail?.url,
+                media.file?.public_url,
+                media.file?.media_url,
+                media.file?.url,
+                media.asset?.public_url,
+                media.asset?.media_url,
+                media.asset?.url
+            ];
+
+            return candidates.find(value => typeof value === 'string' && value.trim()) || null;
+        }
+
+        function getSportsnetTeamLogo(teamObj) {
+            if (!teamObj || typeof teamObj !== 'object') {
+                return null;
+            }
+
+            const mediaCandidates = [
+                teamObj.logo,
+                teamObj.emblem,
+                teamObj.crest,
+                teamObj.image,
+                teamObj.photo,
+                teamObj.avatar,
+                teamObj.organization?.logo,
+                teamObj.organization?.emblem,
+                teamObj.organization?.crest,
+                teamObj.club?.logo,
+                teamObj.club?.emblem,
+                teamObj.club?.crest,
+                ...(Array.isArray(teamObj.images) ? teamObj.images : []),
+                ...(Array.isArray(teamObj.media) ? teamObj.media : []),
+                ...(Array.isArray(teamObj.organization?.images) ? teamObj.organization.images : []),
+                ...(Array.isArray(teamObj.organization?.media) ? teamObj.organization.media : []),
+                ...(Array.isArray(teamObj.club?.images) ? teamObj.club.images : []),
+                ...(Array.isArray(teamObj.club?.media) ? teamObj.club.media : [])
+            ];
+
+            for (const media of mediaCandidates) {
+                const url = getSportsnetMediaUrl(media);
+                if (url) {
+                    return url;
+                }
+            }
+
+            const directCandidates = [
+                teamObj.logo_public_url,
+                teamObj.logoPublicUrl,
+                teamObj.emblem_public_url,
+                teamObj.crest_public_url,
+                teamObj.image_public_url,
+                teamObj.organization?.logo_public_url,
+                teamObj.organization?.logoPublicUrl,
+                teamObj.organization?.emblem_public_url,
+                teamObj.organization?.crest_public_url,
+                teamObj.club?.logo_public_url,
+                teamObj.club?.logoPublicUrl,
+                teamObj.club?.emblem_public_url,
+                teamObj.club?.crest_public_url
+            ];
+
+            return directCandidates.find(value => typeof value === 'string' && value.trim()) || null;
+        }
+
         function buildClubLogoImg(name, size) {
             size = size || 24;
             const logo = getClubLogo(name);
@@ -1460,6 +1568,7 @@
             const rawStatus = String(item.status || '').toLowerCase();
             const competition = item.competition || 'Súťaž';
             const location = item.location || item.venue || 'Štadión';
+            const { homeTeamObj, awayTeamObj } = getSportsnetTeamObjects(item);
 
             let status = 'upcoming';
             const matchDateObj = new Date((dateValue || '1970-01-01') + 'T' + timeValue);
@@ -1476,8 +1585,10 @@
             // Register club logos from sportnet data
             const homeTeamName = item.homeTeam || 'Domáci';
             const awayTeamName = item.awayTeam || 'Hostia';
-            if (item.homeLogo) registerClubLogo(homeTeamName, item.homeLogo);
-            if (item.awayLogo) registerClubLogo(awayTeamName, item.awayLogo);
+            const homeLogo = item.homeLogo || getSportsnetTeamLogo(homeTeamObj);
+            const awayLogo = item.awayLogo || getSportsnetTeamLogo(awayTeamObj);
+            if (homeLogo) registerClubLogo(homeTeamName, homeLogo);
+            if (awayLogo) registerClubLogo(awayTeamName, awayLogo);
 
             return {
                 id: String(item.id || `sportsnet_${index}`),
@@ -1485,8 +1596,8 @@
                 time: timeValue,
                 homeTeam: homeTeamName,
                 awayTeam: awayTeamName,
-                homeLogo: item.homeLogo || null,
-                awayLogo: item.awayLogo || null,
+                homeLogo: homeLogo || null,
+                awayLogo: awayLogo || null,
                 homeScore: item.scoreHome ?? null,
                 awayScore: item.scoreAway ?? null,
                 status,

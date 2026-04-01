@@ -231,8 +231,18 @@ function getTeamLogo(teamObj) {
     teamObj.image,
     teamObj.photo,
     teamObj.avatar,
+    teamObj.organization?.logo,
+    teamObj.organization?.emblem,
+    teamObj.organization?.crest,
+    teamObj.club?.logo,
+    teamObj.club?.emblem,
+    teamObj.club?.crest,
     ...(Array.isArray(teamObj.images) ? teamObj.images : []),
-    ...(Array.isArray(teamObj.media) ? teamObj.media : [])
+    ...(Array.isArray(teamObj.media) ? teamObj.media : []),
+    ...(Array.isArray(teamObj.organization?.images) ? teamObj.organization.images : []),
+    ...(Array.isArray(teamObj.organization?.media) ? teamObj.organization.media : []),
+    ...(Array.isArray(teamObj.club?.images) ? teamObj.club.images : []),
+    ...(Array.isArray(teamObj.club?.media) ? teamObj.club.media : [])
   ];
 
   for (const media of mediaCandidates) {
@@ -247,6 +257,14 @@ function getTeamLogo(teamObj) {
     || teamObj.emblem_public_url
     || teamObj.crest_public_url
     || teamObj.image_public_url
+    || teamObj.organization?.logo_public_url
+    || teamObj.organization?.logoPublicUrl
+    || teamObj.organization?.emblem_public_url
+    || teamObj.organization?.crest_public_url
+    || teamObj.club?.logo_public_url
+    || teamObj.club?.logoPublicUrl
+    || teamObj.club?.emblem_public_url
+    || teamObj.club?.crest_public_url
     || null;
 }
 
