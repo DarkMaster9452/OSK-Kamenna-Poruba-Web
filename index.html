@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <title>OŠK Kamenná Poruba | Oficiálna stránka klubu</title>
-    <meta name="description" content="Oficiálny web futbalového klubu OŠK Kamenná Poruba. Aktuálne výsledky, tabuľky, mládežnícka akadémia a novinky z klubu.">
+    <meta name="description"
+        content="Oficiálny web futbalového klubu OŠK Kamenná Poruba. Aktuálne výsledky, tabuľky, mládežnícka akadémia a novinky z klubu.">
 
     <meta property="og:title" content="OŠK Kamenná Poruba">
     <meta property="og:description" content="Sledujte novinky a výsledky nášho tímu na oficiálnom webe.">
@@ -261,7 +262,7 @@
             justify-content: center;
             cursor: pointer;
             z-index: 2100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             font-size: 20px;
             text-shadow: none;
@@ -320,14 +321,16 @@
         .hero h1 {
             font-size: 56px;
             margin-bottom: 15px;
-            color: white; /* Added to override global h1 color */
+            color: white;
+            /* Added to override global h1 color */
             animation: slideDown 0.8s ease-out;
         }
 
         .hero p {
             font-size: 24px;
             margin-bottom: 30px;
-            color: white; /* Explicitly set to white */
+            color: white;
+            /* Explicitly set to white */
             animation: slideUp 0.8s ease-out;
         }
 
@@ -342,7 +345,8 @@
             padding: 12px 30px;
             font-size: 16px;
             border: none;
-            border-radius: 30px; /* Fully rounded */
+            border-radius: 30px;
+            /* Fully rounded */
             cursor: pointer;
             transition: all 0.3s;
             text-decoration: none;
@@ -420,7 +424,11 @@
             scroll-margin-top: calc(var(--header-offset) + 16px);
         }
 
-        h1, h2, .page-title, .section-title, .standings-title {
+        h1,
+        h2,
+        .page-title,
+        .section-title,
+        .standings-title {
             font-size: 30px;
             margin-bottom: 24px;
             color: #003399;
@@ -437,18 +445,30 @@
         }
 
         @media screen and (max-width: 768px) {
-            h1, h2, .page-title, .section-title, .standings-title {
+
+            h1,
+            h2,
+            .page-title,
+            .section-title,
+            .standings-title {
                 font-size: 26px !important;
             }
+
             .hero h1 {
                 font-size: 36px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, h2, .page-title, .section-title, .standings-title {
+
+            h1,
+            h2,
+            .page-title,
+            .section-title,
+            .standings-title {
                 font-size: 24px !important;
             }
+
             .hero h1 {
                 font-size: 32px !important;
             }
@@ -554,6 +574,7 @@
                 display: grid;
                 grid-template-columns: 1fr 1fr;
             }
+
             .about-milestone {
                 justify-content: center;
                 text-align: center;
@@ -873,6 +894,7 @@
             .hero h1 {
                 font-size: 42px;
             }
+
             .hero p {
                 font-size: 20px;
             }
@@ -883,20 +905,27 @@
                 padding: 60px 20px;
                 min-height: 400px;
             }
+
             .hero h1 {
                 font-size: 32px;
             }
-            h2, .section-title, .standings-title {
+
+            h2,
+            .section-title,
+            .standings-title {
                 font-size: 26px !important;
             }
+
             .standings-table th,
             .standings-table td {
                 padding: 8px 6px;
                 font-size: 12px;
             }
+
             .standings-team-name {
                 font-size: 13px;
             }
+
             .standings-team-abbr {
                 width: 24px;
                 height: 24px;
@@ -908,17 +937,25 @@
             .hero h1 {
                 font-size: 28px;
             }
+
             .hero p {
                 font-size: 18px;
             }
-            h1, h2, .section-title, .standings-title, .page-title {
+
+            h1,
+            h2,
+            .section-title,
+            .standings-title,
+            .page-title {
                 font-size: 24px !important;
             }
+
             .standings-table th,
             .standings-table td {
                 padding: 6px 4px;
                 font-size: 11px;
             }
+
             .standings-team-name {
                 font-size: 12px;
                 max-width: 100px;
@@ -926,6 +963,7 @@
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }
+
             .standings-rank-qualifier {
                 width: 22px;
                 height: 22px;
@@ -1187,7 +1225,7 @@
             background: #fff;
             border-radius: 50%;
             padding: 5px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .match-card .team-name {
@@ -1587,13 +1625,17 @@
             font-size: 15px;
         }
 
-        .standings-table th.center, .standings-table td.center {
+        .standings-table th.center,
+        .standings-table td.center {
             text-align: center;
-            width: 34px; /* Even tighter for narrow columns */
+            width: 34px;
+            /* Even tighter for narrow columns */
         }
 
-        .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
-            min-width: 48px; /* Skore needs bit more but tighter */
+        .standings-table th:nth-child(7),
+        .standings-table td:nth-child(7) {
+            min-width: 48px;
+            /* Skore needs bit more but tighter */
         }
 
         .standings-diff-pos {
@@ -1627,10 +1669,10 @@
 
         /* Standings Title used on homepage to match tabulka.html style */
         .standings-title {
-            text-align: center; 
-            color: #003399; 
-            margin: 40px 0 24px; 
-            font-size: 30px; 
+            text-align: center;
+            color: #003399;
+            margin: 40px 0 24px;
+            font-size: 30px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -1644,13 +1686,16 @@
 
             .standings-table th,
             .standings-table td {
-                padding: 8px 3px; /* Even tighter padding */
+                padding: 8px 3px;
+                /* Even tighter padding */
                 font-size: 11px;
             }
 
             .section-title {
-                font-size: 20px !important; /* Smaller on mobile to fit one line */
-                white-space: nowrap; /* Force one line */
+                font-size: 20px !important;
+                /* Smaller on mobile to fit one line */
+                white-space: nowrap;
+                /* Force one line */
             }
 
             .standings-team-abbr {
@@ -1726,7 +1771,8 @@
                 gap: 24px !important;
             }
 
-            .contact-info-box, .contact-form-box {
+            .contact-info-box,
+            .contact-form-box {
                 padding: 24px !important;
                 border-radius: 12px !important;
             }
@@ -1739,7 +1785,8 @@
             margin-top: 30px;
         }
 
-        .contact-info-box, .contact-form-box {
+        .contact-info-box,
+        .contact-form-box {
             background: white;
             padding: 35px;
             border-radius: 16px;
@@ -1827,7 +1874,8 @@
             background: #003399;
             color: #fff;
             font-weight: 700;
-            border-radius: 30px; /* Pill-shaped button */
+            border-radius: 30px;
+            /* Pill-shaped button */
             padding: 12px 28px;
             cursor: pointer;
         }
@@ -2044,7 +2092,10 @@
         }
 
         /* Global Responsive Heading Scales */
-        h1, h2, .section-title, .standings-title {
+        h1,
+        h2,
+        .section-title,
+        .standings-title {
             font-size: 30px;
             margin-bottom: 24px;
             color: #003399;
@@ -2084,7 +2135,8 @@
         }
 
         /* Login/Logout Modals */
-        .modal, .logout-modal {
+        .modal,
+        .logout-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -2097,11 +2149,13 @@
             justify-content: center;
         }
 
-        .modal.active, .logout-modal.active {
+        .modal.active,
+        .logout-modal.active {
             display: flex;
         }
 
-        .modal-content, .logout-modal-content {
+        .modal-content,
+        .logout-modal-content {
             background: white;
             padding: 40px;
             border-radius: 10px;
@@ -2111,11 +2165,19 @@
         }
 
         @keyframes modalSlideIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
-        .modal-header, .logout-modal-header {
+        .modal-header,
+        .logout-modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -2137,7 +2199,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
         .close-btn:hover {
@@ -2225,17 +2287,27 @@
         }
 
         @keyframes sponsorsMarquee {
-            from { transform: translateX(0); }
-            to { transform: translateX(-1500px); }
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-1500px);
+            }
         }
 
         /* Responsive Overrides */
         @media (max-width: 768px) {
-            h1, h2, .section-title, .standings-title {
+
+            h1,
+            h2,
+            .section-title,
+            .standings-title {
                 font-size: 26px !important;
             }
 
-            .standings-table th, .standings-table td {
+            .standings-table th,
+            .standings-table td {
                 padding: 10px 6px;
                 font-size: 12px;
             }
@@ -2249,13 +2321,21 @@
         }
 
         @media screen and (max-width: 768px) {
-            h1, h2, .section-title, .standings-title {
+
+            h1,
+            h2,
+            .section-title,
+            .standings-title {
                 font-size: 26px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, h2, .section-title, .standings-title {
+
+            h1,
+            h2,
+            .section-title,
+            .standings-title {
                 font-size: 24px !important;
             }
 
@@ -2265,13 +2345,15 @@
                 border-radius: 8px;
             }
 
-            .standings-table th, .standings-table td {
+            .standings-table th,
+            .standings-table td {
                 padding: 8px 3px !important;
                 font-size: 11px;
             }
 
             /* Show ALL Columns - compact style to avoid scrolling */
-            .standings-table th, .standings-table td {
+            .standings-table th,
+            .standings-table td {
                 padding: 10px 2px !important;
                 font-size: 9px;
             }
@@ -2282,7 +2364,9 @@
                 align-items: center;
                 gap: 0;
             }
-            .standings-team-cell img, .standings-team-cell .standings-team-abbr {
+
+            .standings-team-cell img,
+            .standings-team-cell .standings-team-abbr {
                 display: none !important;
             }
 
@@ -2357,8 +2441,6 @@
             color: #003399;
             background: #f4f8ff;
         }
-
-
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -2446,18 +2528,18 @@
                         <button class="standings-tab" data-cat="ziaci">Žiaci</button>
                         <button class="standings-tab" data-cat="pripravka">Prípravka</button>
                     </div>
-                <div id="standingsSectionContainer">
-                    <div style="text-align:center;padding:40px;color:#666;">
-                        <i class="fas fa-spinner fa-spin" style="font-size:24px;color:#003399;"></i>
-                        <p style="margin-top:12px;">Načítívam tabuľku...</p>
+                    <div id="standingsSectionContainer">
+                        <div style="text-align:center;padding:40px;color:#666;">
+                            <i class="fas fa-spinner fa-spin" style="font-size:24px;color:#003399;"></i>
+                            <p style="margin-top:12px;">Načítívam tabuľku...</p>
+                        </div>
+                    </div>
+                    <div style="text-align:center;margin-top:28px;">
+                        <a href="/pages/matches.html" class="btn btn-primary">
+                            <i class="fas fa-arrow-right"></i> Zobraziť všetky zápasy
+                        </a>
                     </div>
                 </div>
-                <div style="text-align:center;margin-top:28px;">
-                    <a href="/pages/matches.html" class="btn btn-primary">
-                        <i class="fas fa-arrow-right"></i> Zobraziť všetky zápasy
-                    </a>
-                </div>
-            </div>
         </section>
 
         <!-- Public Announcements Section -->
@@ -2472,44 +2554,52 @@
         </section>
 
         <!-- About Section -->
-   <section id="about">
-    <h2 class="section-title">
-        <i class="fas fa-info-circle"></i> O NAŠOM KLUBE
-    </h2>
-    <div class="about-history">
-        <div class="about-milestones">
-            <span class="about-milestone"><i class="fas fa-flag"></i> 1955 - vznik hnutia</span>
-            <span class="about-milestone"><i class="fas fa-shield-alt"></i> 1977 - TJ ŠM</span>
-            <span class="about-milestone"><i class="fas fa-futbol"></i> 1980 - ihrisko Dub</span>
-            <span class="about-milestone"><i class="fas fa-signature"></i> 2003 - názov OŠK</span>
-        </div>
+        <section id="about">
+            <h2 class="section-title">
+                <i class="fas fa-info-circle"></i> O NAŠOM KLUBE
+            </h2>
+            <div class="about-history">
+                <div class="about-milestones">
+                    <span class="about-milestone"><i class="fas fa-flag"></i> 1955 - vznik hnutia</span>
+                    <span class="about-milestone"><i class="fas fa-shield-alt"></i> 1977 - TJ ŠM</span>
+                    <span class="about-milestone"><i class="fas fa-futbol"></i> 1980 - ihrisko Dub</span>
+                    <span class="about-milestone"><i class="fas fa-signature"></i> 2003 - názov OŠK</span>
+                </div>
 
-        <p>Podľa pamätníkov sa telovýchovné hnutie v Kamennej Porube zorganizovalo v roku 1955. Pri jeho zrode stáli 
-            <strong>Karol Vereš, Jozef Čuklovič, Ignác Vereš, Pavol Chovančík, Anton Turanec, Blažej Pleva, Ondrej Rybárik a František Sandanus</strong>.
-        </p>
+                <p>Podľa pamätníkov sa telovýchovné hnutie v Kamennej Porube zorganizovalo v roku 1955. Pri jeho zrode
+                    stáli
+                    <strong>Karol Vereš, Jozef Čuklovič, Ignác Vereš, Pavol Chovančík, Anton Turanec, Blažej Pleva,
+                        Ondrej Rybárik a František Sandanus</strong>.
+                </p>
 
-        <p>Prvý názov bol <span class="about-emphasis">Sokol Kamenná Poruba</span>. V roku 1977 sa názov zmenil na 
-            <span class="about-emphasis">TJ ŠM Kamenná Poruba</span> a od roku 2003 nesie klub názov 
-            <span class="about-emphasis">Obecný športový klub Kamenná Poruba</span>.
-        </p>
+                <p>Prvý názov bol <span class="about-emphasis">Sokol Kamenná Poruba</span>. V roku 1977 sa názov zmenil
+                    na
+                    <span class="about-emphasis">TJ ŠM Kamenná Poruba</span> a od roku 2003 nesie klub názov
+                    <span class="about-emphasis">Obecný športový klub Kamenná Poruba</span>.
+                </p>
 
-        <p>Prvé ihrisko bolo na konci dediny v Porubskej doline. Od roku 1969 sa hrával futbal na ihrisku na Skotni. 
-            Na ihrisko bol veľmi zlý prístup a aj samotné ihrisko nebolo moc dobré. Vďaka Jozefovi Čuklovičovi sa pri ihrisku postavila aj malá šatňa. 
-            Nové ihrisko sa za pomoci miestnych futbalových nadšencov začalo stavať v lokalite <strong>Dub</strong>. 
-            Hrávať sa na ňom začalo v roku 1980.
-        </p>
+                <p>Prvé ihrisko bolo na konci dediny v Porubskej doline. Od roku 1969 sa hrával futbal na ihrisku na
+                    Skotni.
+                    Na ihrisko bol veľmi zlý prístup a aj samotné ihrisko nebolo moc dobré. Vďaka Jozefovi Čuklovičovi
+                    sa pri ihrisku postavila aj malá šatňa.
+                    Nové ihrisko sa za pomoci miestnych futbalových nadšencov začalo stavať v lokalite
+                    <strong>Dub</strong>.
+                    Hrávať sa na ňom začalo v roku 1980.
+                </p>
 
-        <p>V roku 2006 sa pri ihrisku začali budovať šatne, ktoré sa dokončili v roku 2010. V roku 2016 pribudol nádherný prístrešok a tribúna. 
-            V roku 2018 sa na ihrisku vybudovalo umelé zavlažovanie.
-        </p>
+                <p>V roku 2006 sa pri ihrisku začali budovať šatne, ktoré sa dokončili v roku 2010. V roku 2016 pribudol
+                    nádherný prístrešok a tribúna.
+                    V roku 2018 sa na ihrisku vybudovalo umelé zavlažovanie.
+                </p>
 
-        <div class="about-note">
-            <i class="fas fa-heart" style="color:#d62828;margin-right:8px;"></i>
-            Každý deň sa dobrovoľníci a nadšenci snažia niečo vylepšiť a práve vďaka tomu je to dnes veľmi pekný športový areál, 
-            ktorý neslúži len na šport, ale aj na rôzne kultúrne a spoločenské podujatia.
-        </div>
-    </div>
-</section>
+                <div class="about-note">
+                    <i class="fas fa-heart" style="color:#d62828;margin-right:8px;"></i>
+                    Každý deň sa dobrovoľníci a nadšenci snažia niečo vylepšiť a práve vďaka tomu je to dnes veľmi pekný
+                    športový areál,
+                    ktorý neslúži len na šport, ale aj na rôzne kultúrne a spoločenské podujatia.
+                </div>
+            </div>
+        </section>
         <!-- Gallery Section -->
         <section id="gallery">
             <div class="gallery-actions"></div>
@@ -2590,26 +2680,27 @@
                     <h3 style="margin-bottom: 20px; color: #1a1a2e;">Kontaktné informácie</h3>
                     <div class="contact-info-box">
                         <p style="margin-bottom: 20px;"><i class="fas fa-map-marker-alt"
-                                style="color: #ffd700; width: 30px;"></i> <strong>Adresa:</strong><a href="https://www.google.com/maps/search/?api=1&query=49.1016944,18.6856944" target="_blank" rel="noopener"><br>Futbalový
-                            štadión, Kamenná Poruba, Slovensko</a></p>
+                                style="color: #ffd700; width: 30px;"></i> <strong>Adresa:</strong><a
+                                href="https://www.google.com/maps/search/?api=1&query=49.1016944,18.6856944"
+                                target="_blank" rel="noopener"><br>Futbalový
+                                štadión, Kamenná Poruba, Slovensko</a></p>
 
 
                         <p style="margin-bottom: 20px;">
-                        <i class="fas fa-phone" style="color: #ffd700; width: 30px;"></i>
-                        <strong>Telefón:</strong><br>
-                        <a href="tel:+421905553738"
-                            style="color: #007bff; text-decoration: underline;">
-                            +421 905 553 738
-                        </a>
+                            <i class="fas fa-phone" style="color: #ffd700; width: 30px;"></i>
+                            <strong>Telefón:</strong><br>
+                            <a href="tel:+421905553738" style="color: #007bff; text-decoration: underline;">
+                                +421 905 553 738
+                            </a>
                         </p>
 
                         <p style="margin-bottom: 20px;">
-                        <i class="fas fa-envelope" style="color: #ffd700; width: 30px;"></i>
-                        <strong>Email:</strong><br>
-                        <a href="mailto:oskkamennaporuba@gmail.com"
-                            style="color: #007bff; text-decoration: underline;">
-                            oskkamennaporuba@gmail.com
-                        </a>
+                            <i class="fas fa-envelope" style="color: #ffd700; width: 30px;"></i>
+                            <strong>Email:</strong><br>
+                            <a href="mailto:oskkamennaporuba@gmail.com"
+                                style="color: #007bff; text-decoration: underline;">
+                                oskkamennaporuba@gmail.com
+                            </a>
                         </p>
                     </div>
                 </div>
@@ -2782,17 +2873,18 @@
             <a href="https://gardenteam.sk" target="_blank" rel="noopener noreferrer"><img
                     src="/assets/images/Gardenteam_mhfrtb.png" alt="Gardenteam" /></a>
             <a href="https://timbernabytok.sk" target="_blank" rel="noopener noreferrer"><img
-                    src="/assets/images/Timber_Nábytok_lqmxmh.png" alt="Timber Nábytok" class="logo-double logo-xl" /></a>
+                    src="/assets/images/Timber_Nábytok_lqmxmh.png" alt="Timber Nábytok"
+                    class="logo-double logo-xl" /></a>
             <a href="https://www.kamennaporuba.sk/" target="_blank" rel="noopener noreferrer"><img
                     src="/assets/images/obec_KP_aky0u3.jpg" alt="Obec Kamenná Poruba" class="logo-double" /></a>
             <a href="https://profiroof.sk/" target="_blank" rel="noopener noreferrer"><img
                     src="/assets/images/profi_roof_mcnx4n.png" alt="Profi roof" class="logo-double" /></a>
             <a href="https://www.foreal.sk/" target="_blank" rel="noopener noreferrer"><img
                     src="/assets/images/Foreal_Drevodomy_zuspkf.webp" alt="Foreal Drevodomy" class="logo-double" /></a>
-            <a href="" target="_blank" rel="noopener noreferrer"><img
-                    src="/assets/images/ELISAS_dyj2b0.jpg" alt="Elisas" class="logo-double" /></a>
-            <a href="" target="_blank" rel="noopener noreferrer"><img
-                    src="/assets/images/LV_Energy_imoyse.jpg" alt="LV Energy" class="logo-double" /></a>
+            <a href="" target="_blank" rel="noopener noreferrer"><img src="/assets/images/ELISAS_dyj2b0.jpg"
+                    alt="Elisas" class="logo-double" /></a>
+            <a href="" target="_blank" rel="noopener noreferrer"><img src="/assets/images/LV_Energy_imoyse.jpg"
+                    alt="LV Energy" class="logo-double" /></a>
 
         </div>
     </div>
@@ -2868,7 +2960,7 @@
         let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
         const PLAYERS = {};
         const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
-        
+
         async function ensureCsrfToken() {
             return window.OSKSession ? window.OSKSession.ensureCsrfToken() : null;
         }
@@ -4048,7 +4140,7 @@
                 const payload = await cachedFetch(`${API_BASE}/sportsnet/standings`, {
                     headers: { Accept: 'application/json' }
                 });
-                
+
                 const groups = Array.isArray(payload?.standings) ? payload.standings : [];
 
                 // Only show groups where OŠK Kamenná Poruba plays
@@ -4082,7 +4174,7 @@
                     method: 'GET',
                     headers: { Accept: 'application/json' }
                 });
-                
+
                 let allItems = Array.isArray(payload?.items) ? payload.items : [];
 
                 // Register all logos found in matches for standings table use
@@ -4556,4 +4648,5 @@
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
 </body>
+
 </html>
