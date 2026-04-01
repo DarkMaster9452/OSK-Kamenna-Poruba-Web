@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zápasy | OŠK Kamenná Poruba</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Google tag (gtag.js) -->
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -20,8 +23,15 @@
             box-sizing: border-box;
         }
 
+        body,
+        button,
+        input,
+        textarea,
+        select {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -183,7 +193,7 @@
 
         /* Modal / Detail View Styling */
         #matchDetailContent {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .detail-header {
@@ -279,13 +289,38 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
+            width: 100%;
         }
 
         .detail-score-value {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            align-items: end;
+            gap: 14px;
+            width: 100%;
+            max-width: 220px;
+            line-height: 1;
+        }
+
+        .detail-score-number {
             font-size: 56px;
             font-weight: 900;
             color: #1e293b;
-            line-height: 1;
+        }
+
+        .detail-score-number.home {
+            text-align: right;
+        }
+
+        .detail-score-number.away {
+            text-align: left;
+        }
+
+        .detail-score-separator {
+            font-size: 38px;
+            font-weight: 900;
+            color: #cbd5e1;
+            padding-bottom: 6px;
         }
 
         .detail-vs-label {
@@ -379,6 +414,45 @@
             gap: 12px;
         }
 
+        .event-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 4px;
+        }
+
+        .event-group-header.home {
+            text-align: right;
+        }
+
+        .event-group-header.away {
+            text-align: left;
+        }
+
+        .event-group-team {
+            font-size: 12px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .event-group-score {
+            font-size: 22px;
+            font-weight: 900;
+            color: #003399;
+            line-height: 1;
+        }
+
+        .event-empty {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
         .event-row {
             display: flex;
             align-items: center;
@@ -426,7 +500,17 @@
             }
 
             .detail-score-value {
+                gap: 8px;
+                max-width: 120px;
+            }
+
+            .detail-score-number {
                 font-size: 28px;
+            }
+
+            .detail-score-separator {
+                font-size: 22px;
+                padding-bottom: 2px;
             }
 
             .detail-status-pill {
@@ -465,6 +549,18 @@
             .event-row {
                 font-size: 12px;
                 gap: 5px;
+            }
+
+            .event-group-header {
+                gap: 8px;
+            }
+
+            .event-group-team {
+                font-size: 10px;
+            }
+
+            .event-group-score {
+                font-size: 18px;
             }
 
             .event-player {
@@ -550,10 +646,35 @@
         }
 
         .match-main-score {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 70px;
+            color: #003399;
+        }
+
+        .match-score-number {
             font-size: 24px;
             font-weight: 900;
-            color: #003399;
             letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .match-score-number.home {
+            text-align: right;
+        }
+
+        .match-score-number.away {
+            text-align: left;
+        }
+
+        .match-score-separator {
+            font-size: 18px;
+            font-weight: 900;
+            color: #94a3b8;
+            line-height: 1;
         }
 
         .match-vs-label {
@@ -694,7 +815,16 @@
             }
 
             .match-main-score {
+                max-width: 58px;
+                gap: 5px;
+            }
+
+            .match-score-number {
                 font-size: 20px;
+            }
+
+            .match-score-separator {
+                font-size: 15px;
             }
         }
 
@@ -1690,7 +1820,13 @@
 
             let scoreHtml = '';
             if (match.status === 'finished' || match.status === 'live') {
-                scoreHtml = `<div class="match-main-score">${match.homeScore ?? 0} : ${match.awayScore ?? 0}</div>`;
+                scoreHtml = `
+                    <div class="match-main-score">
+                        <span class="match-score-number home">${match.homeScore ?? 0}</span>
+                        <span class="match-score-separator">:</span>
+                        <span class="match-score-number away">${match.awayScore ?? 0}</span>
+                    </div>
+                `;
             } else {
                 scoreHtml = `<div class="match-vs-label">VS</div>`;
             }
@@ -1875,7 +2011,11 @@
             if (match.status === 'finished' || match.status === 'live') {
                 scoreDisplay = `
                     <div class="detail-score-box">
-                        <div class="detail-score-value">${match.homeScore} : ${match.awayScore}</div>
+                        <div class="detail-score-value">
+                            <span class="detail-score-number home">${match.homeScore ?? 0}</span>
+                            <span class="detail-score-separator">:</span>
+                            <span class="detail-score-number away">${match.awayScore ?? 0}</span>
+                        </div>
                         <div class="detail-status-pill ${statusPillClass}">${statusText}</div>
                     </div>
                 `;
@@ -1891,28 +2031,38 @@
             let eventsHtml = '';
             if (match.status === 'finished') {
                 const goals = (match.events || []).filter(e => ['goal', 'goal-own', 'penalty'].includes(e.type));
+                const homeGoals = goals.filter(e => e.team === 'home');
+                const awayGoals = goals.filter(e => e.team === 'away');
                 if (goals.length > 0) {
                     eventsHtml = `
                         <div class="events-container">
                             <div class="events-title"><i class="fas fa-futbol"></i> Góly v zápase</div>
                             <div class="events-grid">
                                 <div class="event-group">
-                                    ${goals.filter(e => e.team === 'home').map(e => `
+                                    <div class="event-group-header home">
+                                        <span class="event-group-team">${match.homeTeam}</span>
+                                        <span class="event-group-score">${match.homeScore ?? homeGoals.length}</span>
+                                    </div>
+                                    ${homeGoals.map(e => `
                                         <div class="event-row event-home">
                                             <span class="event-player">${e.player}</span>
                                             <span class="event-time">${formatEventMinute(e.minute)}</span>
                                             <div class="event-icon"><i class="fas fa-futbol"></i></div>
                                         </div>
-                                    `).join('') || '<div style="flex:1"></div>'}
+                                    `).join('') || '<div class="event-empty">Bez strelca</div>'}
                                 </div>
                                 <div class="event-group">
-                                    ${goals.filter(e => e.team === 'away').map(e => `
+                                    <div class="event-group-header away">
+                                        <span class="event-group-score">${match.awayScore ?? awayGoals.length}</span>
+                                        <span class="event-group-team">${match.awayTeam}</span>
+                                    </div>
+                                    ${awayGoals.map(e => `
                                         <div class="event-row event-away">
                                             <div class="event-icon"><i class="fas fa-futbol"></i></div>
                                             <span class="event-player">${e.player}</span>
                                             <span class="event-time">${formatEventMinute(e.minute)}</span>
                                         </div>
-                                    `).join('') || '<div style="flex:1"></div>'}
+                                    `).join('') || '<div class="event-empty">Bez strelca</div>'}
                                 </div>
                             </div>
                         </div>

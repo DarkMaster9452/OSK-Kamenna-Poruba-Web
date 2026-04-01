@@ -187,12 +187,67 @@ function getTeamName(teamObj, fallback) {
   return teamObj?.name || teamObj?.displayName || fallback;
 }
 
+function getMediaUrl(media) {
+  if (isNonEmptyString(media)) {
+    return media.trim();
+  }
+
+  if (!media || typeof media !== 'object') {
+    return null;
+  }
+
+  const directFields = [
+    media.public_url,
+    media.media_url,
+    media.publicUrl,
+    media.mediaUrl,
+    media.url,
+    media.src,
+    media.path,
+    media.original?.public_url,
+    media.original?.media_url,
+    media.original?.url,
+    media.thumbnail?.public_url,
+    media.thumbnail?.media_url,
+    media.thumbnail?.url,
+    media.file?.public_url,
+    media.file?.media_url,
+    media.file?.url,
+    media.asset?.public_url,
+    media.asset?.media_url,
+    media.asset?.url
+  ];
+
+  return directFields.find(isNonEmptyString) || null;
+}
+
 function getTeamLogo(teamObj) {
   if (!teamObj) return null;
-  if (teamObj.logo && typeof teamObj.logo === 'object') {
-    return teamObj.logo.public_url || teamObj.logo.media_url || null;
+
+  const mediaCandidates = [
+    teamObj.logo,
+    teamObj.emblem,
+    teamObj.crest,
+    teamObj.image,
+    teamObj.photo,
+    teamObj.avatar,
+    ...(Array.isArray(teamObj.images) ? teamObj.images : []),
+    ...(Array.isArray(teamObj.media) ? teamObj.media : [])
+  ];
+
+  for (const media of mediaCandidates) {
+    const mediaUrl = getMediaUrl(media);
+    if (mediaUrl) {
+      return mediaUrl;
+    }
   }
-  return teamObj.logo_public_url || teamObj.logo || null;
+
+  return teamObj.logo_public_url
+    || teamObj.logoPublicUrl
+    || teamObj.emblem_public_url
+    || teamObj.crest_public_url
+    || teamObj.image_public_url
+    || null;
 }
 
 function resolveScore(item, homeTeamIdx, awayTeamIdx) {
