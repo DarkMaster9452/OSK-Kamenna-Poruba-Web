@@ -37,6 +37,48 @@
     let keepAliveTimer = null;
     let syncInFlight = null;
 
+    function readPersistedUser() {
+        try {
+            const raw = localStorage.getItem('currentUser');
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === 'object' ? parsed : null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function normalizeUserForComparison(user) {
+        if (!user || !user.isLoggedIn) {
+            return {
+                username: null,
+                role: null,
+                playerCategory: null,
+                parentChildren: [],
+                isLoggedIn: false
+            };
+        }
+
+        return {
+            username: user.username || null,
+            role: user.role || null,
+            playerCategory: user.playerCategory || null,
+            parentChildren: Array.isArray(user.parentChildren)
+                ? user.parentChildren.map((child) => {
+                    if (child && typeof child === 'object') {
+                        return child.username || JSON.stringify(child);
+                    }
+                    return String(child);
+                })
+                : [],
+            isLoggedIn: true
+        };
+    }
+
+    function authStateChanged(previousUser, nextUser) {
+        return JSON.stringify(normalizeUserForComparison(previousUser)) !== JSON.stringify(normalizeUserForComparison(nextUser));
+    }
+
     async function fetchCsrfTokenWithRetry() {
         let lastError = null;
         for (let attempt = 1; attempt <= 3; attempt += 1) {
@@ -75,34 +117,56 @@
     }
 
     async function fetchSessionUser() {
-        try {
-            const response = await fetch(`${API_BASE}/me`, {
-                method: 'GET',
-                credentials: 'include'
-            });
-            if (!response.ok) return null;
-            const payload = await response.json();
-            return payload.user || null;
-        } catch (err) {
-            console.warn('Session check failed:', err);
+        const response = await fetch(`${API_BASE}/me`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+
+        if (response.status === 401 || response.status === 403) {
             return null;
         }
+
+        if (!response.ok) {
+            throw new Error(`Session endpoint error (${response.status})`);
+        }
+
+        const payload = await response.json();
+        return payload.user || null;
     }
 
     function persistUser(currentUser) {
+        const previousUser = readPersistedUser();
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        window.dispatchEvent(new CustomEvent('osk-auth-changed', { detail: currentUser }));
+        if (authStateChanged(previousUser, currentUser)) {
+            window.dispatchEvent(new CustomEvent('osk-auth-changed', { detail: currentUser }));
+        }
         return currentUser;
     }
 
     function clearPersistedUser() {
+        const previousUser = readPersistedUser();
         localStorage.removeItem('currentUser');
-        window.dispatchEvent(new CustomEvent('osk-auth-changed', { detail: { isLoggedIn: false } }));
-        return { username: null, role: null, playerCategory: null, isLoggedIn: false };
+        const clearedUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
+        if (authStateChanged(previousUser, clearedUser)) {
+            window.dispatchEvent(new CustomEvent('osk-auth-changed', { detail: { isLoggedIn: false } }));
+        }
+        return clearedUser;
     }
 
     async function syncCurrentUserFromSession() {
-        const user = await fetchSessionUser();
+        let user;
+
+        try {
+            user = await fetchSessionUser();
+        } catch (error) {
+            console.warn('Session check failed:', error);
+            const persistedUser = readPersistedUser();
+            if (persistedUser && persistedUser.isLoggedIn) {
+                return persistedUser;
+            }
+            throw error;
+        }
+
         if (!user) {
             return clearPersistedUser();
         }
@@ -152,14 +216,8 @@
     }
 
     function shouldRunKeepAlive() {
-        try {
-            const raw = localStorage.getItem('currentUser');
-            if (!raw) return false;
-            const user = JSON.parse(raw);
-            return Boolean(user && user.isLoggedIn);
-        } catch (_) {
-            return false;
-        }
+        const user = readPersistedUser();
+        return Boolean(user && user.isLoggedIn);
     }
 
     function startSessionKeepAlive() {
@@ -201,7 +259,7 @@
         }
     });
 
-    if (localStorage.getItem('currentUser')) {
+    if (readPersistedUser()) {
         syncCurrentUserFromSessionSafe();
     }
 })();
