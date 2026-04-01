@@ -1550,15 +1550,63 @@
             return directCandidates.find(value => typeof value === 'string' && value.trim()) || null;
         }
 
+        const OWN_TEAM_LOCAL_LOGO = '/assets/images/O%C5%A0KKP_logo.png';
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getLocalClubLogo(name) {
+            return isOwnTeam(name) ? OWN_TEAM_LOCAL_LOGO : null;
+        }
+
+        function buildFallbackLogoBadge(name, size) {
+            const abbr = String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+            const own = isOwnTeam(name);
+            return `<div class="standings-team-abbr${own ? ' own-team' : ''}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;">${escapeHtml(abbr)}</div>`;
+        }
+
+        function handleTeamLogoError(img) {
+            if (!img) return;
+
+            const teamName = img.dataset.teamName || img.alt || '';
+            const size = Number.parseInt(img.dataset.logoSize || '24', 10) || 24;
+            const localFallback = img.dataset.localFallback || '';
+            const alreadyTriedLocal = img.dataset.triedLocalFallback === 'true';
+
+            if (localFallback && !alreadyTriedLocal && img.currentSrc !== localFallback && img.src !== localFallback) {
+                img.dataset.triedLocalFallback = 'true';
+                img.src = localFallback;
+                return;
+            }
+
+            img.onerror = null;
+            img.outerHTML = buildFallbackLogoBadge(teamName, size);
+        }
+
+        window.handleTeamLogoError = handleTeamLogoError;
+
+        function buildTeamLogoMarkup(name, size, src) {
+            const safeName = escapeHtml(name || 'Klub');
+            const localFallback = getLocalClubLogo(name);
+            const resolvedSrc = src || localFallback;
+
+            if (!resolvedSrc) {
+                return buildFallbackLogoBadge(name, size);
+            }
+
+            return `<img src="${escapeHtml(resolvedSrc)}" alt="${safeName}" data-team-name="${safeName}" data-logo-size="${size}" data-local-fallback="${escapeHtml(localFallback || '')}" onerror="window.handleTeamLogoError(this)" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:50%;background:#fff;flex-shrink:0;">`;
+        }
+
         function buildClubLogoImg(name, size) {
             size = size || 24;
             const logo = getClubLogo(name);
-            if (logo) {
-                return `<img src="${logo}" alt="${name}" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:50%;background:#fff;flex-shrink:0;">`;
-            }
-            const abbr = String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
-            const own = isOwnTeam(name);
-            return `<div class="standings-team-abbr${own ? ' own-team' : ''}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;">${abbr}</div>`;
+            return buildTeamLogoMarkup(name, size, logo);
         }
 
         function normalizeSportsnetMatch(item, index) {
@@ -1962,7 +2010,7 @@
                         <div class="match-teams-row">
                             <div class="team-container">
                                 <div class="team-logo-wrap">
-                                    ${homeSrc ? `<img src="${homeSrc}" alt="${match.homeTeam}">` : buildClubLogoImg(match.homeTeam, 36)}
+                                    ${buildTeamLogoMarkup(match.homeTeam, 36, homeSrc)}
                                 </div>
                                 <div class="team-name">${match.homeTeam}</div>
                             </div>
@@ -1972,7 +2020,7 @@
                             </div>
                             <div class="team-container">
                                 <div class="team-logo-wrap">
-                                    ${awaySrc ? `<img src="${awaySrc}" alt="${match.awayTeam}">` : buildClubLogoImg(match.awayTeam, 36)}
+                                    ${buildTeamLogoMarkup(match.awayTeam, 36, awaySrc)}
                                 </div>
                                 <div class="team-name">${match.awayTeam}</div>
                             </div>
@@ -2108,8 +2156,8 @@
             const homeSrc = match.homeLogo || getClubLogo(match.homeTeam);
             const awaySrc = match.awayLogo || getClubLogo(match.awayTeam);
 
-            const homeLogoHtml = homeSrc ? `<img src="${homeSrc}" alt="${match.homeTeam}">` : buildClubLogoImg(match.homeTeam, 70);
-            const awayLogoHtml = awaySrc ? `<img src="${awaySrc}" alt="${match.awayTeam}">` : buildClubLogoImg(match.awayTeam, 70);
+            const homeLogoHtml = buildTeamLogoMarkup(match.homeTeam, 70, homeSrc);
+            const awayLogoHtml = buildTeamLogoMarkup(match.awayTeam, 70, awaySrc);
 
             let statusPillClass = match.status;
             let statusText = {
