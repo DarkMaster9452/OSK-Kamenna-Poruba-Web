@@ -185,7 +185,7 @@ function initializeTrainingView() {
     if (!trainingContainer) return;
 
     trainingContainer.innerHTML = `
-        <section class="training-page-section">
+        <section id="trainingSection" class="training-page-section">
             <div class="training-container">
                 <div class="training-header">
                     <h2><i class="fas fa-dumbbell"></i> Systém Tréningov</h2>
