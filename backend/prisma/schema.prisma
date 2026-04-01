@@ -85,11 +85,28 @@ model User {
   pollVotes            PollVote[]     @relation("PollVotesByUser")
   attendanceUpdates    TrainingAttendance[] @relation("AttendanceUpdatedBy")
   auditLogs            AuditLog[]     @relation("AuditActor")
+  passwordResetTokens  PasswordResetToken[]
   parentChildren       ParentChild[]  @relation("ParentChildren")
   childParents         ParentChild[]  @relation("ChildParents")
   playerGroupsCreated  PlayerGroup[]  @relation("PlayerGroupsCreatedBy")
 
   @@map("All Accs")
+}
+
+model PasswordResetToken {
+  id                String   @id @default(cuid())
+  tokenHash         String   @unique
+  expiresAt         DateTime
+  usedAt            DateTime?
+  requestedIp       String?
+  requestedUserAgent String?
+  createdAt         DateTime @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model ParentChild {

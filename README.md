@@ -133,6 +133,8 @@ OŠK-Kamenná-Poruba/
 - `POST /api/auth/logout`
 - `GET /api/auth/me`
 - `POST /api/auth/change-password`
+- `POST /api/auth/forgot-password`
+- `POST /api/auth/reset-password`
 
 ### Tréningy
 
@@ -202,6 +204,8 @@ Potrebné env premenné:
 - `SMTP_USER`, `SMTP_PASS`
 - `SMTP_FROM_EMAIL` (odosielateľ)
 - `CONTACT_FORM_TO_EMAIL` (voliteľné, príjemca správ z verejného kontaktného formulára; ak chýba, použije sa `SMTP_FROM_EMAIL`)
+- `PUBLIC_APP_URL` (verejná URL frontend aplikácie pre odkazy v emailoch, napr. `https://oskkp.sk`)
+- `PASSWORD_RESET_EXPIRES_MINUTES` (voliteľné, default `30`)
 
 6. Prisma:
    - `npx prisma generate`

@@ -428,10 +428,72 @@ async function sendContactFormEmail({ name, email, phone, message }) {
   });
 }
 
+function buildPasswordResetEmailHtml({ username, resetUrl, expiresMinutes }) {
+  return `
+  <div style="font-family:Arial,Helvetica,sans-serif;background:#f6f8fb;padding:24px;color:#1a1a1a;">
+    ${buildHiddenPreheader('Obnova hesla pre klubový systém OŠK Kamenná Poruba')}
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;margin:0 auto;background:#ffffff;border-radius:14px;border:1px solid #e5eaf3;overflow:hidden;">
+      <tr>
+        <td style="background:#003399;padding:20px 24px;">
+          <div style="font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:#ffd700;font-weight:700;">OŠK Kamenná Poruba</div>
+          <div style="font-size:26px;line-height:1.2;font-weight:800;color:#ffffff;margin-top:6px;">OBNOVA HESLA</div>
+          <div style="font-size:14px;color:#dbe7ff;margin-top:8px;">Ahoj ${escapeHtml(username)}, prišla požiadavka na nastavenie nového hesla.</div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:24px;">
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#24304d;">Ak si túto zmenu vyžiadal ty, klikni na tlačidlo nižšie a nastav si nové heslo.</p>
+          <a href="${escapeHtml(resetUrl)}" style="display:inline-block;padding:12px 20px;background:#003399;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;">Nastaviť nové heslo</a>
+          <p style="margin:18px 0 0;font-size:14px;line-height:1.6;color:#5f6b7a;">Odkaz je platný ${escapeHtml(expiresMinutes)} minút. Ak si o obnovu hesla nežiadal ty, tento email ignoruj.</p>
+          <p style="margin:18px 0 0;font-size:13px;line-height:1.6;color:#5f6b7a;word-break:break-all;">Ak tlačidlo nefunguje, skopíruj tento odkaz do prehliadača:<br>${escapeHtml(resetUrl)}</p>
+        </td>
+      </tr>
+    </table>
+  </div>`;
+}
+
+async function sendPasswordResetEmail({ recipientEmail, username, resetUrl, expiresMinutes }) {
+  const mailer = getTransporter();
+  if (!mailer) {
+    return { sent: 0, skipped: 'smtp_not_configured' };
+  }
+
+  const safeRecipient = String(recipientEmail || '').trim().toLowerCase();
+  if (!safeRecipient) {
+    return { sent: 0, skipped: 'no_valid_email' };
+  }
+
+  await mailer.sendMail({
+    from: `"${env.smtpFromName}" <${env.smtpFromEmail}>`,
+    to: safeRecipient,
+    subject: 'OŠK: Obnova hesla',
+    text: [
+      `Ahoj ${username},`,
+      '',
+      'prišla požiadavka na nastavenie nového hesla do klubového systému OŠK Kamenná Poruba.',
+      '',
+      `Odkaz na obnovu hesla: ${resetUrl}`,
+      `Platnosť odkazu: ${expiresMinutes} minút`,
+      '',
+      'Ak si o obnovu hesla nežiadal ty, tento email ignoruj.',
+      '',
+      'OŠK Kamenná Poruba'
+    ].join('\n'),
+    html: buildPasswordResetEmailHtml({
+      username,
+      resetUrl,
+      expiresMinutes
+    })
+  });
+
+  return { sent: 1, skipped: null };
+}
+
 module.exports = {
   sendToRecipients,
   sendTrainingCreatedEmails,
   sendTrainingUpdatedEmails,
   sendSubtrainingAssignedEmails,
-  sendContactFormEmail
+  sendContactFormEmail,
+  sendPasswordResetEmail
 };

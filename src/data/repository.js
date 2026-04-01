@@ -303,6 +303,60 @@ async function findUserByUsername(username) {
   });
 }
 
+async function findUserByUsernameOrEmail(identifier) {
+  const exactIdentifier = String(identifier || '').trim();
+  if (!exactIdentifier) {
+    return null;
+  }
+
+  try {
+    return await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: exactIdentifier },
+          { email: exactIdentifier.toLowerCase() }
+        ]
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        passwordHash: true,
+        role: true,
+        playerCategory: true,
+        isActive: true
+      }
+    });
+  } catch (error) {
+    if (!shouldFallbackWithoutEmail(error)) {
+      throw error;
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        username: exactIdentifier
+      },
+      select: {
+        id: true,
+        username: true,
+        passwordHash: true,
+        role: true,
+        playerCategory: true,
+        isActive: true
+      }
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      ...user,
+      email: null
+    };
+  }
+}
+
 async function findUserById(id) {
   try {
     return await prisma.user.findUnique({
@@ -618,6 +672,85 @@ async function updateUserPassword(id, passwordHash) {
       passwordHash,
       lastPasswordChangeAt: new Date()
     }
+  });
+}
+
+async function createPasswordResetToken(userId, tokenHash, expiresAt, requestedIp, requestedUserAgent) {
+  return prisma.passwordResetToken.create({
+    data: {
+      userId,
+      tokenHash,
+      expiresAt,
+      requestedIp: requestedIp || null,
+      requestedUserAgent: requestedUserAgent || null
+    }
+  });
+}
+
+async function findPasswordResetTokenByHash(tokenHash) {
+  return prisma.passwordResetToken.findUnique({
+    where: {
+      tokenHash
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          passwordHash: true,
+          isActive: true
+        }
+      }
+    }
+  });
+}
+
+async function revokePasswordResetTokensForUser(userId, usedAt = new Date()) {
+  return prisma.passwordResetToken.updateMany({
+    where: {
+      userId,
+      usedAt: null
+    },
+    data: {
+      usedAt
+    }
+  });
+}
+
+async function completePasswordReset(tokenId, userId, passwordHash) {
+  const usedAt = new Date();
+
+  return prisma.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        passwordHash,
+        lastPasswordChangeAt: usedAt
+      }
+    });
+
+    await tx.passwordResetToken.update({
+      where: { id: tokenId },
+      data: {
+        usedAt
+      }
+    });
+
+    await tx.passwordResetToken.updateMany({
+      where: {
+        userId,
+        id: {
+          not: tokenId
+        },
+        usedAt: null
+      },
+      data: {
+        usedAt
+      }
+    });
+
+    return usedAt;
   });
 }
 
@@ -1651,6 +1784,7 @@ async function deletePlayerGroup(id) {
 
 module.exports = {
   findUserByUsername,
+  findUserByUsernameOrEmail,
   findUserById,
   listUsersForManagement,
   countUsersByRole,
@@ -1659,6 +1793,10 @@ module.exports = {
   resetUserPasswordByAdmin,
   updateUserRoleAndCategory,
   updateUserPassword,
+  createPasswordResetToken,
+  findPasswordResetTokenByHash,
+  revokePasswordResetTokensForUser,
+  completePasswordReset,
   listActivePlayers,
   listParentChildrenByParentId,
   setParentChildren,

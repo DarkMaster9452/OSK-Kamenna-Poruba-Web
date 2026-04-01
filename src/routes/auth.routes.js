@@ -1,19 +1,26 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const { z } = require('zod');
 const env = require('../config/env');
 const {
   findUserByUsername,
+  findUserByUsernameOrEmail,
   findUserById,
   updateUserPassword,
   setUserActiveStatus,
   createAuditLog,
   createAnnouncement,
-  listParentChildrenByParentId
+  listParentChildrenByParentId,
+  createPasswordResetToken,
+  findPasswordResetTokenByHash,
+  revokePasswordResetTokensForUser,
+  completePasswordReset
 } = require('../data/repository');
 const { validateBody } = require('../middleware/validate');
 const { requireAuth } = require('../middleware/auth');
 const { signAccessToken } = require('../services/token.service');
+const { sendPasswordResetEmail } = require('../services/email.service');
 const { getCookieBaseOptions, clearAuthCookieVariants } = require('../config/cookies');
 
 const router = express.Router();
@@ -27,6 +34,15 @@ const changePasswordSchema = z.object({
   newPassword: z.string().min(8).max(200)
 });
 
+const forgotPasswordSchema = z.object({
+  identifier: z.string().min(3).max(200)
+});
+
+const resetForgottenPasswordSchema = z.object({
+  token: z.string().min(20).max(500),
+  newPassword: z.string().min(8).max(200)
+});
+
 const LOGIN_MAX_FAILED_ATTEMPTS = 5;
 const loginAttemptTracker = new Map();
 
@@ -34,6 +50,12 @@ const ADMIN_FAILED_WINDOW_MS = 15 * 60 * 1000;
 const ADMIN_FAILED_THRESHOLD = 3;
 const ADMIN_ALERT_COOLDOWN_MS = 15 * 60 * 1000;
 const adminFailedTracker = new Map();
+
+const PASSWORD_RESET_RESPONSE_MESSAGE = 'Ak účet existuje a má nastavený email, poslali sme vám odkaz na obnovu hesla.';
+const PASSWORD_RESET_INVALID_MESSAGE = 'Odkaz na obnovu hesla je neplatný alebo už expiroval.';
+const PASSWORD_RESET_REQUEST_WINDOW_MS = 15 * 60 * 1000;
+const PASSWORD_RESET_REQUEST_LIMIT = 3;
+const passwordResetRequestTracker = new Map();
 
 function toLoginKey(username) {
   return String(username || '').trim().toLowerCase();
@@ -66,6 +88,38 @@ function registerFailedLoginAttempt(username) {
 
 function clearFailedLoginAttempts(username) {
   loginAttemptTracker.delete(toLoginKey(username));
+}
+
+function hashPasswordResetToken(token) {
+  return crypto.createHash('sha256').update(String(token || '')).digest('hex');
+}
+
+function buildPasswordResetUrl(rawToken) {
+  const baseUrl = String(env.publicAppUrl || '').trim().replace(/\/+$/, '');
+  return `${baseUrl}/pages/reset_password.html?token=${encodeURIComponent(rawToken)}`;
+}
+
+function isPasswordResetRateLimited(key) {
+  const now = Date.now();
+  const entry = passwordResetRequestTracker.get(key);
+  const timestamps = Array.isArray(entry) ? entry.filter((ts) => now - ts < PASSWORD_RESET_REQUEST_WINDOW_MS) : [];
+
+  if (timestamps.length >= PASSWORD_RESET_REQUEST_LIMIT) {
+    passwordResetRequestTracker.set(key, timestamps);
+    return true;
+  }
+
+  timestamps.push(now);
+  passwordResetRequestTracker.set(key, timestamps);
+  return false;
+}
+
+async function writeAuditLogSafe(payload) {
+  try {
+    await createAuditLog(payload);
+  } catch (error) {
+    console.error('Audit log write failed:', error);
+  }
 }
 
 function getClientIp(req) {
@@ -238,6 +292,115 @@ router.post('/login', validateBody(loginSchema), async (req, res, next) => {
 router.post('/logout', (req, res) => {
   clearAuthCookieVariants(res, req, env.cookieName);
   return res.json({ message: 'Odhlásenie úspešné' });
+});
+
+router.post('/forgot-password', validateBody(forgotPasswordSchema), async (req, res) => {
+  try {
+    const identifier = String(req.body.identifier || '').trim();
+    const ipAddress = getClientIp(req);
+    const rateKey = `${ipAddress}:${toLoginKey(identifier)}`;
+
+    if (isPasswordResetRateLimited(rateKey)) {
+      return res.json({ message: PASSWORD_RESET_RESPONSE_MESSAGE });
+    }
+
+    const user = await findUserByUsernameOrEmail(identifier);
+    if (!user || !user.isActive || !user.email) {
+      return res.json({ message: PASSWORD_RESET_RESPONSE_MESSAGE });
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = hashPasswordResetToken(rawToken);
+    const expiresMinutes = Math.max(5, Number(env.passwordResetExpiresMinutes || 30));
+    const expiresAt = new Date(Date.now() + expiresMinutes * 60 * 1000);
+
+    await revokePasswordResetTokensForUser(user.id);
+    await createPasswordResetToken(
+      user.id,
+      tokenHash,
+      expiresAt,
+      ipAddress,
+      req.headers['user-agent'] || null
+    );
+
+    const emailResult = await sendPasswordResetEmail({
+      recipientEmail: user.email,
+      username: user.username,
+      resetUrl: buildPasswordResetUrl(rawToken),
+      expiresMinutes
+    });
+
+    await writeAuditLogSafe({
+      actorUserId: user.id,
+      action: 'password_reset_requested',
+      entityType: 'auth',
+      entityId: user.id,
+      details: {
+        username: user.username,
+        ipAddress,
+        userAgent: req.headers['user-agent'] || null,
+        emailSent: emailResult.sent > 0,
+        expiresAt: expiresAt.toISOString()
+      }
+    });
+
+    return res.json({ message: PASSWORD_RESET_RESPONSE_MESSAGE });
+  } catch (error) {
+    console.error('Forgot password failed:', error);
+    return res.status(500).json({ message: 'Nepodarilo sa spracovať požiadavku na obnovu hesla.' });
+  }
+});
+
+router.post('/reset-password', validateBody(resetForgottenPasswordSchema), async (req, res) => {
+  try {
+    const tokenHash = hashPasswordResetToken(req.body.token);
+    const resetToken = await findPasswordResetTokenByHash(tokenHash);
+
+    if (!resetToken || !resetToken.user || !resetToken.user.isActive) {
+      return res.status(400).json({ message: PASSWORD_RESET_INVALID_MESSAGE });
+    }
+
+    if (resetToken.usedAt || new Date(resetToken.expiresAt).getTime() < Date.now()) {
+      await writeAuditLogSafe({
+        actorUserId: resetToken.user.id,
+        action: 'password_reset_invalid_token',
+        entityType: 'auth',
+        entityId: resetToken.user.id,
+        details: {
+          username: resetToken.user.username,
+          reason: resetToken.usedAt ? 'token_used' : 'token_expired'
+        }
+      });
+
+      return res.status(400).json({ message: PASSWORD_RESET_INVALID_MESSAGE });
+    }
+
+    const sameAsCurrent = await bcrypt.compare(req.body.newPassword, resetToken.user.passwordHash);
+    if (sameAsCurrent) {
+      return res.status(400).json({ message: 'Nové heslo musí byť odlišné od aktuálneho.' });
+    }
+
+    const newPasswordHash = await bcrypt.hash(req.body.newPassword, 12);
+    await completePasswordReset(resetToken.id, resetToken.user.id, newPasswordHash);
+    clearFailedLoginAttempts(resetToken.user.username);
+
+    await writeAuditLogSafe({
+      actorUserId: resetToken.user.id,
+      action: 'password_reset_completed',
+      entityType: 'auth',
+      entityId: resetToken.user.id,
+      details: {
+        username: resetToken.user.username,
+        ipAddress: getClientIp(req),
+        userAgent: req.headers['user-agent'] || null
+      }
+    });
+
+    return res.json({ message: 'Heslo bolo úspešne obnovené. Môžete sa prihlásiť.' });
+  } catch (error) {
+    console.error('Reset password failed:', error);
+    return res.status(500).json({ message: 'Nepodarilo sa obnoviť heslo.' });
+  }
 });
 
 router.post('/change-password', requireAuth, validateBody(changePasswordSchema), async (req, res) => {
