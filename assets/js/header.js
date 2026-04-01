@@ -271,10 +271,47 @@
         }
     }
 
+    function clearStoredAuthState() {
+        try {
+            localStorage.removeItem('currentUser');
+        } catch (e) {
+            // ignore storage errors
+        }
+
+        refreshAuth({ isLoggedIn: false });
+        window.dispatchEvent(new CustomEvent('osk-auth-changed', {
+            detail: { isLoggedIn: false }
+        }));
+    }
+
+    async function logoutWithoutModal(user) {
+        var displayName = user && user.username ? user.username : 'týmto účtom';
+        var shouldLogout = window.confirm('Si prihlásený ako ' + displayName + '. Chceš sa odhlásiť?');
+        if (!shouldLogout) {
+            return;
+        }
+
+        try {
+            var apiBase = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+            var response = await fetch(apiBase + '/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Odhlásenie zlyhalo. Skús to znova.');
+            }
+
+            clearStoredAuthState();
+        } catch (error) {
+            window.alert(error && error.message ? error.message : 'Odhlásenie zlyhalo. Skús to znova.');
+        }
+    }
+
     /* ------------------------------------------------------------------ */
     /*  Login button click handler                                          */
     /* ------------------------------------------------------------------ */
-    function handleLoginClick(e) {
+    async function handleLoginClick(e) {
         e.preventDefault();
         try {
             var raw = localStorage.getItem('currentUser');
@@ -284,6 +321,9 @@
                     window.openLogoutModal();
                     return;
                 }
+
+                await logoutWithoutModal(user);
+                return;
             } else {
                 if (typeof window.openLoginModal === 'function') {
                     window.openLoginModal();
