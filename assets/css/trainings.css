@@ -1,26 +1,28 @@
-/* Trainings Section Styles - Modern & Premium */
+/* Trainings Section Styles - Modern & Premium - Light Theme */
 :root {
     --primary: #003399;
     --primary-light: #1a5ccc;
     --secondary: #ffd700;
-    --secondary-light: #ffed4e;
+    --secondary-dark: #ccae00;
     --accent: #2ecc71;
     --error: #e74c3c;
     --warning: #f39c12;
-    --text-light: rgba(255, 255, 255, 0.95);
-    --text-dim: rgba(255, 255, 255, 0.7);
-    --glass-bg: rgba(255, 255, 255, 0.08);
-    --glass-border: rgba(255, 255, 255, 0.15);
-    --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    --radius: 12px;
+    --text-main: #333333;
+    --text-muted: #666666;
+    --text-light: #999999;
+    --bg-light: #f4f7fa;
+    --card-bg: #ffffff;
+    --card-shadow: 0 10px 30px rgba(0, 51, 153, 0.08);
+    --border-color: #e1e8ed;
+    --radius: 16px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .training-page-section {
-    background: linear-gradient(135deg, #001f5c 0%, #003399 50%, #1a5ccc 100%);
-    color: white;
+    background: var(--bg-light);
+    color: var(--text-main);
     padding: 80px 20px;
-    min-height: 80vh;
+    min-height: 85vh;
 }
 
 .training-container {
@@ -33,16 +35,15 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 40px;
-    border-bottom: 1px solid var(--glass-border);
-    padding-bottom: 20px;
+    border-bottom: 2px solid var(--secondary);
+    padding-bottom: 25px;
 }
 
 .training-header h2 {
     font-size: 2.5rem !important;
     font-weight: 800;
     margin: 0;
-    color: white !important;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    color: var(--primary) !important;
     border: none !important;
 }
 
@@ -51,52 +52,51 @@
     margin-right: 15px;
 }
 
-/* Glass Card Style */
+/* Glass Card Style -> Now Light Card Style */
 .glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    padding: 30px;
+    padding: 35px;
     box-shadow: var(--card-shadow);
-    margin-bottom: 30px;
+    margin-bottom: 35px;
     transition: var(--transition);
 }
 
 .glass-card:hover {
-    border-color: rgba(255, 215, 0, 0.3);
+    border-color: var(--secondary);
     transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 51, 153, 0.12);
 }
 
 /* Form Styles */
 .training-form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
     align-items: flex-end;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .form-group label {
-    color: var(--secondary);
-    font-weight: 700;
-    font-size: 0.9rem;
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
 }
 
 .input-styled {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    padding: 12px 15px;
-    color: white;
+    background: #fff;
+    border: 1px solid #ccd6dd;
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--text-main);
     font-family: inherit;
     font-size: 1rem;
     transition: var(--transition);
@@ -104,31 +104,30 @@
 
 .input-styled:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--secondary);
-    box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(0, 51, 153, 0.08);
 }
 
 /* Select Styling */
 select.input-styled {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffd700' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23003399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 40px;
+    background-position: right 12px center;
+    padding-right: 45px;
 }
 
 select.input-styled option {
-    background-color: #001f5c;
-    color: white;
+    background-color: white;
+    color: var(--text-main);
 }
 
 /* Button Styles */
 .btn-training {
-    padding: 14px 25px;
-    border-radius: 30px;
+    padding: 16px 30px;
+    border-radius: 50px;
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
@@ -136,34 +135,35 @@ select.input-styled option {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     border: none;
 }
 
 .btn-training-primary {
-    background: var(--secondary);
-    color: var(--primary);
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 6px 20px rgba(0, 51, 153, 0.2);
 }
 
 .btn-training-primary:hover {
-    background: var(--secondary-light);
-    transform: scale(1.02);
-    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+    background: var(--primary-light);
+    transform: scale(1.03) translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 51, 153, 0.3);
 }
 
 /* Training List Cards */
 .training-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    padding: 25px;
-    margin-bottom: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
 }
 
 .training-card::before {
@@ -171,238 +171,435 @@ select.input-styled option {
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
+    width: 6px;
     height: 100%;
-    background: var(--secondary);
+    background: var(--primary);
 }
 
 .training-info-row {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 25px;
 }
 
 .training-main-info h4 {
-    color: var(--secondary);
-    font-size: 1.2rem;
-    margin: 0 0 10px 0;
+    color: var(--primary);
+    font-size: 1.4rem;
+    margin: 0 0 12px 0;
     font-weight: 800;
 }
 
 .training-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    color: var(--text-dim);
+    gap: 20px;
+    color: var(--text-muted);
     font-size: 0.95rem;
 }
 
 .training-meta i {
-    color: var(--secondary);
-    width: 20px;
+    color: var(--primary);
+    width: 22px;
     text-align: center;
 }
 
 .training-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 800;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.badge-active { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
-.badge-closed { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
+.badge-active { 
+    background: #e8f8f0; 
+    color: #2ecc71; 
+    border: 1px solid rgba(46, 204, 113, 0.2); 
+}
+.badge-closed { 
+    background: #fdf2f2; 
+    color: #e74c3c; 
+    border: 1px solid rgba(231, 76, 60, 0.2); 
+}
 
 /* Attendance Controls */
 .attendance-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 .player-attendance-item {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
-    padding: 15px;
-    border: 1px solid var(--glass-border);
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #edf2f7;
 }
 
 .player-name-tag {
-    font-weight: 700;
-    color: var(--secondary);
-    margin-bottom: 12px;
-    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 0.95rem;
 }
 
 .attendance-buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
 .btn-attendance {
     flex: 1;
-    padding: 10px 5px;
-    border: none;
-    border-radius: 6px;
+    padding: 12px 6px;
+    border: 1px solid #e1e8ed;
+    border-radius: 10px;
     font-size: 0.8rem;
-    font-weight: bold;
+    font-weight: 800;
     cursor: pointer;
     transition: var(--transition);
-    color: white;
-    background: rgba(255, 255, 255, 0.08);
+    color: #666;
+    background: #fff;
 }
 
-.btn-attendance i { margin-right: 4px; }
+.btn-attendance i { margin-right: 5px; }
 
-.btn-attendance:hover { background: rgba(255, 255, 255, 0.15); }
+.btn-attendance:hover { 
+    background: #f0f4f8;
+    border-color: #ccd6dd;
+}
 
-.btn-attendance.active-yes { background: var(--accent) !important; box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3); }
-.btn-attendance.active-no { background: var(--error) !important; box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3); }
-.btn-attendance.active-unknown { background: var(--warning) !important; box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3); }
-
-/* Coach Dashboard Tables */
-.coach-training-table {
-    width: 100%;
-    margin-bottom: 40px;
+.btn-attendance.active-yes { 
+    background: var(--accent) !important; 
+    color: white !important;
+    border: none;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3); 
+}
+.btn-attendance.active-no { 
+    background: var(--error) !important; 
+    color: white !important;
+    border: none;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3); 
+}
+.btn-attendance.active-unknown { 
+    background: var(--warning) !important; 
+    color: white !important;
+    border: none;
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3); 
 }
 
 /* Coach Dashboard & Attendance UI */
 .attendance-overview {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 25px;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-    border: 1px solid var(--glass-border);
+    gap: 25px;
+    margin-top: 30px;
+    padding: 25px;
+    background: #f1f5f9;
+    border-radius: var(--radius);
+    border: 1px solid #e2e8f0;
 }
 
 .attendance-column {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 10px;
-    padding: 15px;
-    border-top: 3px solid transparent;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border-top: 4px solid transparent;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     transition: var(--transition);
 }
 
 .attendance-column:hover {
-    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-3px);
 }
 
-.col-yes { border-color: var(--accent); background: rgba(46, 204, 113, 0.03); }
-.col-no { border-color: var(--error); background: rgba(231, 76, 60, 0.03); }
-.col-unknown { border-color: var(--warning); background: rgba(243, 156, 18, 0.03); }
+.col-yes { border-color: var(--accent); }
+.col-no { border-color: var(--error); }
+.col-unknown { border-color: var(--warning); }
+
+.attendance-column.col-yes h5 i { color: var(--accent); }
+.attendance-column.col-no h5 i { color: var(--error); }
+.attendance-column.col-unknown h5 i { color: var(--warning); }
 
 .attendance-column h5 {
-    margin: 0 0 15px 0;
-    font-size: 0.95rem;
+    margin: 0 0 20px 0;
+    font-size: 0.9rem;
     font-weight: 800;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    color: var(--primary);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 
 .player-list-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
 }
 
 .player-chip {
-    padding: 6px 14px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 20px;
-    font-size: 0.8rem;
+    padding: 8px 16px;
+    background: #f8fafc;
+    border-radius: 50px;
+    font-size: 0.85rem;
     font-weight: 600;
-    border: 1px solid var(--glass-border);
+    border: 1px solid #e2e8f0;
+    color: var(--text-main);
     transition: all 0.2s ease;
 }
 
 .player-chip:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.05);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: var(--primary);
+    color: white;
+    transform: scale(1.08);
+    border-color: var(--primary);
 }
 
 .coach-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     justify-content: flex-end;
 }
 
 .btn-coach-action {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 1px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: var(--text-muted);
     transition: var(--transition);
+    font-size: 1rem;
 }
 
 .btn-coach-action.btn-start {
     width: auto;
-    padding: 0 20px;
-    background: var(--warning);
+    padding: 0 25px;
+    background: var(--secondary);
     color: var(--primary);
     font-weight: 800;
     border: none;
 }
 
-.btn-coach-action.btn-edit { background: #3498db; }
-.btn-coach-action.btn-delete { background: var(--error); }
+.btn-coach-action.btn-edit { 
+    color: #3498db;
+    background: #ebf5fb;
+    border-color: #d1e9f7;
+}
+
+.btn-coach-action.btn-delete { 
+    color: var(--error);
+    background: #fdf2f2;
+    border-color: #facdcd;
+}
 
 .btn-coach-action:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    filter: brightness(1.1);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.btn-coach-action.btn-start:hover {
+    background: var(--secondary-dark);
 }
 
 /* Parent Child View Styles */
 .child-item-glass {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--glass-border);
-    padding: 15px 20px;
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 20px 25px;
     border-radius: var(--radius);
-    margin-bottom: 12px;
+    margin-bottom: 15px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
 }
 
 .child-item-glass:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--secondary);
-    transform: translateX(8px);
+    background: #fcfcfc;
+    border-color: var(--primary);
+    transform: translateX(10px);
+    box-shadow: 0 6px 18px rgba(0, 51, 153, 0.08);
 }
 
 .child-name-text {
-    color: var(--secondary);
+    color: var(--primary);
     font-weight: 800;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     display: flex;
     align-items: center;
+    gap: 15px;
+}
+
+/* Attendance Summary Box (Coach View) */
+.attendance-summary-box {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 140px;
+    background: #f8fafc;
+    border: 1px solid #e1e8ed;
+    padding: 15px;
+    border-radius: 12px;
+    transition: var(--transition);
+    align-items: center;
+    justify-content: center;
+}
+
+.attendance-summary-box:hover {
+    background: #eef2ff;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.attendance-count-vibrant {
+    font-size: 1.8rem;
+    color: var(--accent);
+    font-weight: 900;
+    line-height: 1;
+}
+
+.attendance-label-vibrant {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+}
+
+.modal-content-glass {
+    width: 100%;
+    max-width: 680px;
+    max-height: 95vh;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 40px;
+    color: var(--text-main);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.modal-title {
+    margin: 0 0 30px 0;
+    color: var(--primary);
+    font-size: 1.8rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.modal-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+}
+
+.modal-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: default;
+}
+
+.modal-form-group span {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal-time-inputs {
+    display: flex;
     gap: 12px;
+}
+
+.span-full {
+    grid-column: 1 / -1;
+}
+
+.modal-error {
+    display: none;
+    margin-top: 20px;
+    color: var(--error);
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: #fdf2f2;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border-left: 5px solid var(--error);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #eee;
+}
+
+.btn-secondary-outline {
+    background: white;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.btn-secondary-outline:hover {
+    background: #f8f9fa;
+    border-color: #666;
+}
+
+.empty-list-text {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.empty-message {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 40px;
+    font-style: italic;
+    background: white;
+    border-radius: 16px;
+    border: 2px dashed #e2e8f0;
+    grid-column: 1 / -1;
 }
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.glass-card, .training-card, .child-item-glass {
-    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+.glass-card, .training-card, .child-item-glass, .attendance-overview {
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* Mobile Adjustments */
@@ -410,10 +607,10 @@ select.input-styled option {
     .training-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 25px;
+        gap: 30px;
     }
     
-    .training-header h2 { font-size: 1.8rem !important; }
+    .training-header h2 { font-size: 2rem !important; }
     
     .training-page-section { padding: 40px 15px; }
     
@@ -431,9 +628,15 @@ select.input-styled option {
     
     .coach-actions {
         justify-content: flex-start;
+        margin-top: 10px;
     }
     
     .attendance-overview {
         grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    
+    .glass-card {
+        padding: 25px 20px;
     }
 }

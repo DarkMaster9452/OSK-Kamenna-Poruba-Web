@@ -502,7 +502,7 @@ function updateChildrenList() {
     const children = Object.keys(parentChildren);
     
     if (children.length === 0) {
-        childrenList.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6); text-align: center;">Nemáte pridelené žiadne deti.</p>';
+        childrenList.innerHTML = '<p class="empty-message">Nemáte pridelené žiadne deti.</p>';
         return;
     }
     
@@ -657,11 +657,10 @@ function refreshCoachRoster() {
                         </div>
                         ${noteHtml}
                     </div>
-                    <div style="text-align: right; display: flex; flex-direction: column; gap: 10px; min-width: 150px;">
-                        <div style="background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.3); padding: 10px; border-radius: 8px;">
-                            <div style="font-size: 1.5rem; color: #2ecc71; font-weight: 800;">${attendingPlayers.length}</div>
-                            <div style="font-size: 0.7rem; color: #2ecc71; text-transform: uppercase; letter-spacing: 0.5px;">Hráči prídu</div>
-                        </div>
+                    <div class="attendance-summary-box">
+                        <div class="attendance-count-vibrant">${attendingPlayers.length}</div>
+                        <div class="attendance-label-vibrant">Hráči prídu</div>
+                    </div>
                         <div class="coach-actions">
                             ${training.isActive ? `
                                 <button onclick="startTraining('${training.id}')" class="btn-coach-action btn-start" title="Uzavrieť tréning">
@@ -680,29 +679,29 @@ function refreshCoachRoster() {
 
                 <div class="attendance-overview">
                     <div class="attendance-column col-yes">
-                        <h5><i class="fas fa-check-circle" style="color: var(--accent);"></i> Prídu (${attendingPlayers.length})</h5>
+                        <h5><i class="fas fa-check-circle"></i> Prídu (${attendingPlayers.length})</h5>
                         <div class="player-list-chips">
                             ${attendingPlayers.length > 0 ? attendingPlayers.map(p => `
                                 <span class="player-chip">${p}</span>
-                            `).join('') : '<span style="font-size: 0.8rem; opacity: 0.5;">Nikto</span>'}
+                            `).join('') : '<span class="empty-list-text">Nikto</span>'}
                         </div>
                     </div>
 
                     <div class="attendance-column col-no">
-                        <h5><i class="fas fa-times-circle" style="color: var(--error);"></i> Neprídu (${notAttendingPlayers.length})</h5>
+                        <h5><i class="fas fa-times-circle"></i> Neprídu (${notAttendingPlayers.length})</h5>
                         <div class="player-list-chips">
                             ${notAttendingPlayers.length > 0 ? notAttendingPlayers.map(p => `
                                 <span class="player-chip">${p}</span>
-                            `).join('') : '<span style="font-size: 0.8rem; opacity: 0.5;">Nikto</span>'}
+                            `).join('') : '<span class="empty-list-text">Nikto</span>'}
                         </div>
                     </div>
 
                     <div class="attendance-column col-unknown">
-                        <h5><i class="fas fa-question-circle" style="color: var(--warning);"></i> Nevedia (${unknownPlayers.length})</h5>
+                        <h5><i class="fas fa-question-circle"></i> Nevedia (${unknownPlayers.length})</h5>
                         <div class="player-list-chips">
                             ${unknownPlayers.length > 0 ? unknownPlayers.map(p => `
                                 <span class="player-chip">${p}</span>
-                            `).join('') : '<span style="font-size: 0.8rem; opacity: 0.5;">Nikto neodpovedal</span>'}
+                            `).join('') : '<span class="empty-list-text">Nikto neodpovedal</span>'}
                         </div>
                     </div>
                 </div>
@@ -773,40 +772,25 @@ function openTrainingEditModal(training) {
             .join('');
 
         const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.inset = '0';
-        overlay.style.background = 'rgba(0, 0, 0, 0.7)';
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';
-        overlay.style.justifyContent = 'center';
-        overlay.style.padding = '20px';
-        overlay.style.zIndex = '9999';
+        overlay.className = 'modal-overlay';
 
         const modal = document.createElement('div');
-        modal.style.width = '100%';
-        modal.style.maxWidth = '680px';
-        modal.style.maxHeight = '90vh';
-        modal.style.overflowY = 'auto';
-        modal.style.background = '#0f2f73';
-        modal.style.border = '2px solid #ffd700';
-        modal.style.borderRadius = '10px';
-        modal.style.padding = '20px';
-        modal.style.color = 'white';
+        modal.className = 'modal-content-glass';
 
         modal.innerHTML = `
-            <h3 style="margin:0 0 16px 0;color:#ffd700;"><i class="fa-solid fa-pen-to-square"></i> Upraviť tréning</h3>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
-                <label style="display:flex;flex-direction:column;gap:6px;">
+            <h3 class="modal-title"><i class="fa-solid fa-pen-to-square"></i> Upraviť tréning</h3>
+            <div class="modal-form-grid">
+                <label class="modal-form-group">
                     <span>Dátum</span>
-                    <input id="editTrainingDate" type="date" value="${training.date || ''}" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                    <input id="editTrainingDate" type="date" value="${training.date || ''}" class="input-styled">
                 </label>
-                <label style="display:flex;flex-direction:column;gap:6px;">
+                <label class="modal-form-group">
                     <span>Čas</span>
-                    <div style="display:flex;gap:8px;">
-                        <select id="editTrainingHour" style="flex:1;padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                    <div class="modal-time-inputs">
+                        <select id="editTrainingHour" class="input-styled">
                             ${hourOptions}
                         </select>
-                        <select id="editTrainingMinute" style="flex:1;padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                        <select id="editTrainingMinute" class="input-styled">
                             <option value="00" ${currentMinute === '00' ? 'selected' : ''}>00</option>
                             <option value="15" ${currentMinute === '15' ? 'selected' : ''}>15</option>
                             <option value="30" ${currentMinute === '30' ? 'selected' : ''}>30</option>
@@ -814,34 +798,34 @@ function openTrainingEditModal(training) {
                         </select>
                     </div>
                 </label>
-                <label style="display:flex;flex-direction:column;gap:6px;">
+                <label class="modal-form-group">
                     <span>Typ</span>
-                    <select id="editTrainingType" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                    <select id="editTrainingType" class="input-styled">
                         <option value="technical" ${training.type === 'technical' ? 'selected' : ''}>Technický</option>
                         <option value="tactical" ${training.type === 'tactical' ? 'selected' : ''}>Taktický</option>
                         <option value="physical" ${training.type === 'physical' ? 'selected' : ''}>Fyzický</option>
                         <option value="friendly" ${training.type === 'friendly' ? 'selected' : ''}>Priateľský</option>
                     </select>
                 </label>
-                <label style="display:flex;flex-direction:column;gap:6px;">
+                <label class="modal-form-group">
                     <span>Trvanie (min)</span>
-                    <input id="editTrainingDuration" type="number" min="1" step="1" value="${training.duration || 60}" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                    <input id="editTrainingDuration" type="number" min="1" step="1" value="${training.duration || 60}" class="input-styled">
                 </label>
-                <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1;">
+                <label class="modal-form-group span-full">
                     <span>Kategória</span>
-                    <select id="editTrainingCategory" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
+                    <select id="editTrainingCategory" class="input-styled">
                         ${renderTrainingCategoryOptions(training.category)}
                     </select>
                 </label>
-                <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1;">
+                <label class="modal-form-group span-full">
                     <span>Poznámka</span>
-                    <textarea id="editTrainingNote" maxlength="1000" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;min-height:90px;resize:vertical;">${training.note || ''}</textarea>
+                    <textarea id="editTrainingNote" maxlength="1000" class="input-styled" style="min-height:90px;resize:vertical;">${training.note || ''}</textarea>
                 </label>
             </div>
-            <div id="editTrainingError" style="display:none;margin-top:12px;color:#ffb3b3;"></div>
-            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:18px;">
-                <button id="editTrainingCancel" type="button" style="padding:10px 14px;border:none;border-radius:6px;background:#7f8c8d;color:white;cursor:pointer;">Zrušiť</button>
-                <button id="editTrainingSave" type="button" style="padding:10px 14px;border:none;border-radius:6px;background:#2ecc71;color:white;cursor:pointer;">Uložiť zmeny</button>
+            <div id="editTrainingError" class="modal-error"></div>
+            <div class="modal-actions">
+                <button id="editTrainingCancel" type="button" class="btn-training btn-secondary-outline">Zrušiť</button>
+                <button id="editTrainingSave" type="button" class="btn-training btn-training-primary">Uložiť zmeny</button>
             </div>
         `;
 
