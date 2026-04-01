@@ -1,4 +1,4 @@
-﻿// ====================================
+// ====================================
 // SYSTÉM TRÉNINGOV - OŠK Kamenná Poruba
 // ====================================
 
@@ -185,27 +185,27 @@ function initializeTrainingView() {
     if (!trainingContainer) return;
 
     trainingContainer.innerHTML = `
-        <section id="trainingSection" style="background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%); color: white; padding: 60px 40px;">
-            <div style="max-width: 1400px; margin: 0 auto;">
-                <h2 style="border: none; color: white; padding-bottom: 10px; margin-bottom: 30px;">
-                    <i class="fas fa-dumbbell"></i> Systém Tréningov
-                </h2>
+        <section class="training-page-section">
+            <div class="training-container">
+                <div class="training-header">
+                    <h2><i class="fas fa-dumbbell"></i> Systém Tréningov</h2>
+                </div>
 
                 <!-- Coach's Training Creation Form -->
-                <div id="coachCreateTrainingArea" style="display: none; margin-bottom: 40px; background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 10px; border: 2px solid #ffd700;">
-                    <h3 style="color: #ffd700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <div id="coachCreateTrainingArea" class="glass-card" style="display: none;">
+                    <h3 style="color: var(--secondary); margin-bottom: 25px; display: flex; align-items: center; gap: 12px; font-weight: 800;">
                         <i class="fas fa-plus-circle"></i> Vytvoriť nový tréning
                     </h3>
-                    <form style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Dátum:</label>
-                            <input type="date" id="coachTrainingDate" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
+                    <form class="training-form-grid">
+                        <div class="form-group">
+                            <label>Dátum</label>
+                            <input type="date" id="coachTrainingDate" class="input-styled">
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Čas:</label>
-                            <div style="display:flex; gap:8px;">
-                                <select id="coachTrainingHour" style="flex: 1; width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;"></select>
-                                <select id="coachTrainingMinute" style="flex: 1; width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
+                        <div class="form-group">
+                            <label>Čas</label>
+                            <div style="display:flex; gap:10px;">
+                                <select id="coachTrainingHour" class="input-styled" style="flex: 1;"></select>
+                                <select id="coachTrainingMinute" class="input-styled" style="flex: 1;">
                                     <option value="00">00</option>
                                     <option value="15">15</option>
                                     <option value="30">30</option>
@@ -213,33 +213,33 @@ function initializeTrainingView() {
                                 </select>
                             </div>
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Typ:</label>
-                            <select id="coachTrainingType" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
+                        <div class="form-group">
+                            <label>Typ tréningu</label>
+                            <select id="coachTrainingType" class="input-styled">
                                 <option value="">-- Vybrať typ --</option>
                                 <option value="technical">Technický tréning</option>
                                 <option value="tactical">Taktický tréning</option>
                                 <option value="physical">Fyzický tréning</option>
-                                <option value="friendly">Prieťahový zápas</option>
+                                <option value="friendly">Prípravný zápas</option>
                             </select>
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Trvanie (min):</label>
-                            <input type="number" id="coachTrainingDuration" value="60" min="1" step="1" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
+                        <div class="form-group">
+                            <label>Trvanie (min)</label>
+                            <input type="number" id="coachTrainingDuration" value="60" min="1" step="1" class="input-styled">
                         </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Kategória:</label>
-                            <select id="coachTrainingCategory" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
+                        <div class="form-group">
+                            <label>Kategória</label>
+                            <select id="coachTrainingCategory" class="input-styled">
                                 <option value="">-- Vybrať kategóriu --</option>
                                 ${renderTrainingCategoryOptions('')}
                             </select>
                         </div>
-                        <div style="grid-column: 1 / -1;">
-                            <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Poznámka k tréningu:</label>
-                            <textarea id="coachTrainingNote" maxlength="1000" placeholder="Voliteľná poznámka pre hráčov a rodičov" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white; font-family: inherit; min-height: 80px; resize: vertical;"></textarea>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Poznámka k tréningu</label>
+                            <textarea id="coachTrainingNote" maxlength="1000" placeholder="Voliteľná poznámka pre hráčov a rodičov" class="input-styled" style="min-height: 80px; resize: vertical;"></textarea>
                         </div>
-                        <div>
-                            <button type="button" onclick="createTraining()" style="width: 100%; padding: 12px; background: #ffd700; color: #003399; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; transition: all 0.3s;">
+                        <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 10px;">
+                            <button type="button" onclick="createTraining()" class="btn-training btn-training-primary">
                                 <i class="fas fa-plus"></i> Vytvoriť tréning
                             </button>
                         </div>
@@ -247,25 +247,25 @@ function initializeTrainingView() {
                 </div>
 
                 <!-- Parent Children Management (Read-Only) -->
-                <div id="parentChildrenArea" style="display: none; margin-bottom: 40px; background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 10px; border: 2px solid #ffd700;">
-                    <h3 style="color: #ffd700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <div id="parentChildrenArea" class="glass-card" style="display: none;">
+                    <h3 style="color: var(--secondary); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; font-weight: 800;">
                         <i class="fas fa-child"></i> Moje deti
                     </h3>
-                    <div id="childrenList"></div>
+                    <div id="childrenList" class="player-list-chips"></div>
                 </div>
 
                 <!-- Player/Parent Training Selection -->
                 <div id="playerTrainingArea" style="display: none; margin-bottom: 40px;">
-                    <h3 style="color: #ffd700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-calendar-check"></i> Prihlásiť sa na tréning
+                    <h3 style="color: var(--secondary); margin-bottom: 25px; display: flex; align-items: center; gap: 12px; font-weight: 800;">
+                        <i class="fas fa-calendar-check"></i> Moje tréningy
                     </h3>
                     <div id="playerTrainingsContainer"></div>
                 </div>
 
-                <!-- Coach's Training Roster Table -->
+                <!-- Coach's Training Roster -->
                 <div id="coachRosterArea" style="display: none;">
-                    <h3 style="color: #ffd700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-list"></i> Tréningy a účasť hráčov
+                    <h3 style="color: var(--secondary); margin-bottom: 25px; display: flex; align-items: center; gap: 12px; font-weight: 800;">
+                        <i class="fas fa-list-check"></i> Správa tréningov a dochádzka
                     </h3>
                     <div id="coachTrainingsContainer"></div>
                 </div>
@@ -421,27 +421,25 @@ function refreshPlayerTrainings() {
         const formattedDate = date.toLocaleDateString('sk-SK');
         const typeLabel = getTrainingTypeLabel(training.type);
         const noteHtml = training.note
-            ? `<p style="margin: 5px 0; color: rgba(255, 255, 255, 0.85);"><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(training.note)}</p>`
+            ? `<div class="training-meta" style="margin-top: 10px; width: 100%;"><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(training.note)}</div>`
             : '';
         
         html += `
-            <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 10px; margin-bottom: 15px;">
-                <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; margin-bottom: 15px;">
-                    <div>
-                        <h4 style="margin: 0 0 10px 0; color: #ffd700; font-size: 16px;">${typeLabel}</h4>
-                        <p style="margin: 5px 0; color: rgba(255, 255, 255, 0.8);">
-                            <i class="fas fa-calendar"></i> ${formattedDate} o ${training.time}
-                        </p>
-                        <p style="margin: 5px 0; color: rgba(255, 255, 255, 0.8);">
-                            <i class="fas fa-clock"></i> Trvanie: ${training.duration} minút
-                        </p>
+            <div class="training-card">
+                <div class="training-info-row">
+                    <div class="training-main-info">
+                        <h4>${typeLabel}</h4>
+                        <div class="training-meta">
+                            <span><i class="fas fa-calendar"></i> ${formattedDate} o ${training.time}</span>
+                            <span><i class="fas fa-clock"></i> ${training.duration} min</span>
+                            <span class="training-badge ${training.isActive ? 'badge-active' : 'badge-closed'}">
+                                ${training.isActive ? 'Aktívny' : 'Uzavretý'}
+                            </span>
+                        </div>
                         ${noteHtml}
-                        <p style="margin: 5px 0; color: ${training.isActive ? '#2ecc71' : '#e74c3c'}; font-weight: bold;">
-                            ${training.isActive ? '🟢 Aktívny tréning' : '🔴 Uzavretý tréning'}
-                        </p>
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">`
+                <div class="attendance-grid">`
         ;
         
         // Show attendance options for each person
@@ -453,31 +451,31 @@ function refreshPlayerTrainings() {
             const statusToUse = currentStatus || 'unknown';
             
             html += `
-                <div style="background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px; border-left: 3px solid #ffd700;">
-                    <p style="margin: 0 0 10px 0; color: #ffd700; font-size: 12px; font-weight: bold;">${personName}</p>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">`
+                <div class="player-attendance-item">
+                    <div class="player-name-tag"><i class="fas fa-user-circle"></i> ${personName}</div>
+                    <div class="attendance-buttons">`
             ;
             
             if (training.isActive) {
                 html += `
                         <button onclick="markAttendance('${safeTrainingId}', '${safePersonName}', 'yes')" 
-                            style="flex: 1; padding: 8px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 12px; ${statusToUse === 'yes' ? 'background: #2ecc71; color: white;' : 'background: rgba(255, 255, 255, 0.1); color: white;'} transition: all 0.3s;">
+                            class="btn-attendance ${statusToUse === 'yes' ? 'active-yes' : ''}">
                             <i class="fas fa-check"></i> Prídem
                         </button>
                         <button onclick="markAttendance('${safeTrainingId}', '${safePersonName}', 'no')" 
-                            style="flex: 1; padding: 8px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 12px; ${statusToUse === 'no' ? 'background: #e74c3c; color: white;' : 'background: rgba(255, 255, 255, 0.1); color: white;'} transition: all 0.3s;">
-                            <i class="fas fa-times"></i> Neprídnem
+                            class="btn-attendance ${statusToUse === 'no' ? 'active-no' : ''}">
+                            <i class="fas fa-times"></i> Nie
                         </button>
                         <button onclick="markAttendance('${safeTrainingId}', '${safePersonName}', 'unknown')" 
-                            style="flex: 1; padding: 8px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 12px; ${statusToUse === 'unknown' ? 'background: #95a5a6; color: white;' : 'background: rgba(255, 255, 255, 0.1); color: white;'} transition: all 0.3s;">
-                            <i class="fas fa-question"></i> Neviem
+                            class="btn-attendance ${statusToUse === 'unknown' ? 'active-unknown' : ''}">
+                            <i class="fas fa-question"></i> ?
                         </button>
                 `;
             } else {
                 const statusLabels = { yes: 'Prídem ✓', no: 'Neprídnem ✗', unknown: 'Neviem ?' };
-                const statusColors = { yes: '#2ecc71', no: '#e74c3c', unknown: '#95a5a6' };
+                const statusClass = statusToUse === 'yes' ? 'active-yes' : (statusToUse === 'no' ? 'active-no' : 'active-unknown');
                 html += `
-                        <div style="flex: 1; padding: 8px; border-radius: 3px; background: ${statusColors[statusToUse]}; color: white; text-align: center; font-weight: bold;">
+                        <div class="btn-attendance ${statusClass}" style="flex: 1; text-align: center; cursor: default; opacity: 0.8;">
                             ${statusLabels[statusToUse]}
                         </div>
                 `;
@@ -513,8 +511,8 @@ function updateChildrenList() {
         const childName = PLAYER_NAME_MAP[childUsername] || childUsername;
         
         html += `
-            <div style="background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: #ffd700; font-weight: bold;">${index + 1}. ${childName}</span>
+            <div class="child-item-glass">
+                <span class="child-name-text"><i class="fas fa-user-tag"></i> ${childName}</span>
             </div>
         `;
     });
@@ -645,99 +643,66 @@ function refreshCoachRoster() {
         const attendancePercent = totalExpected > 0 ? Math.round((attendingPlayers.length / totalExpected) * 100) : 0;
 
         html += `
-            <div style="border: 2px solid #ffd700; border-radius: 10px; overflow: hidden; background: rgba(255, 255, 255, 0.02); margin-bottom: 20px;">
-                <!-- Training Header -->
-                <div style="background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(0, 51, 153, 0.2) 100%); padding: 20px; border-bottom: 2px solid #ffd700;">
-                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start;">
-                        <div>
-                            <h3 style="margin: 0 0 10px 0; color: #ffd700; font-size: 20px;">
-                                <i class="fas fa-futbol"></i> ${typeLabel}
-                            </h3>
-                            <p style="margin: 8px 0; color: rgba(255, 255, 255, 0.9);">
-                                <i class="fas fa-calendar"></i> <strong>${formattedDate}</strong>
-                            </p>
-                            <p style="margin: 8px 0; color: rgba(255, 255, 255, 0.9);">
-                                <i class="fas fa-clock"></i> <strong>${training.time}</strong> | <i class="fas fa-hourglass-half"></i> ${training.duration} minút
-                            </p>
-                            <p style="margin: 8px 0; color: #ffd700; font-weight: bold;">
-                                <i class="fas fa-users"></i> Kategória: ${categoryLabel}
-                            </p>
-                            ${noteHtml}
-                            <p style="margin: 8px 0; color: ${training.isActive ? '#2ecc71' : '#e74c3c'}; font-weight: bold;">
-                                ${training.isActive ? '🟢 Aktívny tréning - hráči môžu meniť odpovede' : '🔴 Uzavretý tréning - žiadne zmeny'}
-                            </p>
+            <div class="training-card">
+                <div class="training-info-row">
+                    <div class="training-main-info">
+                        <h4>${typeLabel}</h4>
+                        <div class="training-meta">
+                            <span><i class="fas fa-calendar-alt"></i> ${formattedDate}</span>
+                            <span><i class="fas fa-clock"></i> ${training.time} (${training.duration} min)</span>
+                            <span><i class="fas fa-users-viewfinder"></i> ${categoryLabel}</span>
+                            <span class="training-badge ${training.isActive ? 'badge-active' : 'badge-closed'}">
+                                ${training.isActive ? 'Aktívny' : 'Uzavretý'}
+                            </span>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="background: rgba(46, 204, 113, 0.2); border: 2px solid #2ecc71; padding: 15px 20px; border-radius: 8px; margin-bottom: 10px;">
-                                <div style="font-size: 28px; color: #2ecc71; font-weight: bold;">${attendingPlayers.length}</div>
-                                <div style="font-size: 12px; color: #2ecc71;">Hráči prídu</div>
-                            </div>
-                            <div style="background: rgba(46, 204, 113, 0.1); padding: 5px 10px; border-radius: 5px; font-size: 12px; color: #2ecc71; margin-bottom: 10px;">
-                                Účasť: ${attendancePercent}%
-                            </div>
-                            <div style="display: flex; gap: 8px; flex-direction: column;">
-                                ${training.isActive ? `
-                                    <button onclick="startTraining('${training.id}')" style="padding: 8px 12px; background: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%;">
-                                        <i class="fas fa-play"></i> Začať tréning
-                                    </button>
-                                ` : ''}
-                                <button onclick="editTraining('${training.id}')" style="padding: 8px 12px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%;">
-                                    <i class="fa-solid fa-pen-to-square"></i> Upraviť
+                        ${noteHtml}
+                    </div>
+                    <div style="text-align: right; display: flex; flex-direction: column; gap: 10px; min-width: 150px;">
+                        <div style="background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.3); padding: 10px; border-radius: 8px;">
+                            <div style="font-size: 1.5rem; color: #2ecc71; font-weight: 800;">${attendingPlayers.length}</div>
+                            <div style="font-size: 0.7rem; color: #2ecc71; text-transform: uppercase; letter-spacing: 0.5px;">Hráči prídu</div>
+                        </div>
+                        <div class="coach-actions">
+                            ${training.isActive ? `
+                                <button onclick="startTraining('${training.id}')" class="btn-coach-action btn-start" title="Uzavrieť tréning">
+                                    <i class="fas fa-lock"></i> Uzavrieť
                                 </button>
-                                <button onclick="deleteTraining('${training.id}')" style="padding: 8px 12px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%;">
-                                    <i class="fas fa-trash"></i> Odstrániť
-                                </button>
-                            </div>
+                            ` : ''}
+                            <button onclick="editTraining('${training.id}')" class="btn-coach-action btn-edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteTraining('${training.id}')" class="btn-coach-action btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Attendance Lists -->
-                <div style="padding: 20px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                        <!-- Coming Players -->
-                        <div>
-                            <h4 style="margin: 0 0 15px 0; color: #2ecc71; display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-check-circle"></i> Prídu (${attendingPlayers.length})
-                            </h4>
-                            <div style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 15px; border-radius: 8px; min-height: 100px; max-height: 300px; overflow-y: auto;">
-                                ${attendingPlayers.length > 0 ? attendingPlayers.map((p, idx) => `
-                                    <div style="padding: 10px 0; border-bottom: 1px solid rgba(46, 204, 113, 0.2); color: #2ecc71; display: flex; align-items: center; gap: 8px;">
-                                        <span style="display: inline-block; width: 24px; height: 24px; background: #2ecc71; color: white; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: bold;">${idx + 1}</span>
-                                        ${p}
-                                    </div>
-                                `).join('') : '<p style="color: rgba(255, 255, 255, 0.5); margin: 0; text-align: center; padding-top: 30px;">Zatiaľ nikto</p>'}
-                            </div>
+                <div class="attendance-overview">
+                    <div class="attendance-column col-yes">
+                        <h5><i class="fas fa-check-circle" style="color: var(--accent);"></i> Prídu (${attendingPlayers.length})</h5>
+                        <div class="player-list-chips">
+                            ${attendingPlayers.length > 0 ? attendingPlayers.map(p => `
+                                <span class="player-chip">${p}</span>
+                            `).join('') : '<span style="font-size: 0.8rem; opacity: 0.5;">Nikto</span>'}
                         </div>
+                    </div>
 
-                        <!-- Not Coming Players -->
-                        <div>
-                            <h4 style="margin: 0 0 15px 0; color: #e74c3c; display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-times-circle"></i> Neprídú (${notAttendingPlayers.length})
-                            </h4>
-                            <div style="background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.3); padding: 15px; border-radius: 8px; min-height: 100px; max-height: 300px; overflow-y: auto;">
-                                ${notAttendingPlayers.length > 0 ? notAttendingPlayers.map((p, idx) => `
-                                    <div style="padding: 10px 0; border-bottom: 1px solid rgba(231, 76, 60, 0.2); color: #e74c3c; display: flex; align-items: center; gap: 8px;">
-                                        <span style="display: inline-block; width: 24px; height: 24px; background: #e74c3c; color: white; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: bold;">${idx + 1}</span>
-                                        ${p}
-                                    </div>
-                                `).join('') : '<p style="color: rgba(255, 255, 255, 0.5); margin: 0; text-align: center; padding-top: 30px;">Zatiaľ nikto</p>'}
-                            </div>
+                    <div class="attendance-column col-no">
+                        <h5><i class="fas fa-times-circle" style="color: var(--error);"></i> Neprídu (${notAttendingPlayers.length})</h5>
+                        <div class="player-list-chips">
+                            ${notAttendingPlayers.length > 0 ? notAttendingPlayers.map(p => `
+                                <span class="player-chip">${p}</span>
+                            `).join('') : '<span style="font-size: 0.8rem; opacity: 0.5;">Nikto</span>'}
                         </div>
+                    </div>
 
-                        <!-- Unknown Response Players -->
-                        <div>
-                            <h4 style="margin: 0 0 15px 0; color: #95a5a6; display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-question-circle"></i> Nevedia (${unknownPlayers.length})
-                            </h4>
-                            <div style="background: rgba(149, 165, 166, 0.1); border: 1px solid rgba(149, 165, 166, 0.3); padding: 15px; border-radius: 8px; min-height: 100px; max-height: 300px; overflow-y: auto;">
-                                ${unknownPlayers.length > 0 ? unknownPlayers.map((p, idx) => `
-                                    <div style="padding: 10px 0; border-bottom: 1px solid rgba(149, 165, 166, 0.2); color: #95a5a6; display: flex; align-items: center; gap: 8px;">
-                                        <span style="display: inline-block; width: 24px; height: 24px; background: #95a5a6; color: white; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: bold;">${idx + 1}</span>
-                                        ${p}
-                                    </div>
-                                `).join('') : '<p style="color: rgba(255, 255, 255, 0.5); margin: 0; text-align: center; padding-top: 30px;">Všetci odpovedali</p>'}
-                            </div>
+                    <div class="attendance-column col-unknown">
+                        <h5><i class="fas fa-question-circle" style="color: var(--warning);"></i> Nevedia (${unknownPlayers.length})</h5>
+                        <div class="player-list-chips">
+                            ${unknownPlayers.length > 0 ? unknownPlayers.map(p => `
+                                <span class="player-chip">${p}</span>
+                            `).join('') : '<span style="font-size: 0.8rem; opacity: 0.5;">Nikto neodpovedal</span>'}
                         </div>
                     </div>
                 </div>
