@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | OŠK Kamenná Poruba</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-P152RNBL34');
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 28px 24px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        h1,
+        .page-title,
+        .topbar h1 {
+            margin: 0;
+            color: #003399;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media screen and (max-width: 768px) {
+
+            h1,
+            .page-title,
+            .topbar h1 {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+
+            h1,
+            .page-title,
+            .topbar h1 {
+                font-size: 24px !important;
+            }
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-back {
+            background: #f4f4f4;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-primary {
+            background: #003399;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #fff;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h2 {
+            margin: 0 0 15px;
+            color: #003399;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        input:not([type="checkbox"]),
+        textarea,
+        select {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #fff;
+            color: #333;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 15px;
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        .post {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background: #fff;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.15s;
+        }
+
+        .post:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+            border-color: #003399;
+        }
+
+        .post h3 {
+            margin: 0 0 10px;
+            color: #003399;
+            font-size: 22px;
+        }
+
+        .meta {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .excerpt {
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+        }
+
+        .btn-ghost {
+            background: #fff;
+            color: #003399;
+            border: 1px solid #003399;
+        }
+
+        .btn-ghost:hover {
+            background: #003399;
+            color: #fff;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 9999;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 840px;
+            max-height: 90vh;
+            overflow: auto;
+            border-radius: 12px;
+            background: #fdfdfd;
+            padding: 24px 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-card h3 {
+            margin: 0 0 10px;
+            color: #003399;
+            font-size: 26px;
+        }
+
+        .modal-content {
+            margin-top: 15px;
+            white-space: pre-wrap;
+            line-height: 1.7;
+            color: #333;
+        }
+
+        .post-detail-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #eee;
+            display: none;
+            border: 1px solid #ddd;
+        }
+
+        .muted {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 5px;
+        }
+
+        .tag-tab {
+            padding: 8px 18px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .tag-tab:hover {
+            border-color: #003399;
+            color: #003399;
+            background: rgba(0, 51, 153, 0.05);
+        }
+
+        .tag-tab.active {
+            background: #003399;
+            color: #fff;
+            border-color: #003399;
+            box-shadow: 0 4px 10px rgba(0, 51, 153, 0.2);
+        }
+
+        .post-tag {
+            background: #eee;
+            color: #555;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        #composerCard {
+            display: none;
+        }
+
+        /* Standardized Compact Footer */
+        #site-footer-root {
+            margin-top: 50px;
+        }
+    </style>
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
+</head>
+
+<body>
+    <script src="/assets/js/session.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <div id="site-header-root"></div>
+
+    <div class="container">
+        <div class="topbar">
+            <h1><i class="fas fa-blog"></i> Klubový blog</h1>
+        </div>
+
+        <div id="composerCard" class="card">
+            <h2><i class="fas fa-pen"></i> Nový blog príspevok</h2>
+            <div class="form-grid">
+                <input id="postTitle" placeholder="Nadpis príspevku" maxlength="200" />
+                <textarea id="postContent" placeholder="Obsah príspevku"></textarea>
+
+                <div>
+                    <button class="btn btn-primary" onclick="createPost()">
+                        <i class="fas fa-plus"></i> Pridať príspevok
+                    </button>
+                </div>
+                <div id="composerMessage" class="muted"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="row">
+                <h2 style="margin:0;"><i class="fas fa-newspaper"></i> Príspevky</h2>
+                <div id="blogRoleInfo" class="muted"></div>
+            </div>
+            <div id="tagFilters" class="tag-tabs" style="margin-top: 20px;"></div>
+            <div id="postsContainer"></div>
+        </div>
+    </div>
+
+    <div id="postDetailModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <div class="row" style="margin-bottom:10px;">
+                <h3 id="postDetailTitle"></h3>
+                <button class="btn btn-back" type="button" onclick="closePostDetail()">
+                    <i class="fas fa-times"></i> Zavrieť
+                </button>
+            </div>
+            <div id="postDetailMeta" class="meta"></div>
+            <img id="postDetailImage" class="post-detail-image" alt="Obrázok k príspevku" />
+            <div id="postDetailContent" class="modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+        let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
+        let manageItems = [];
+        let currentTagFilter = 'Všetky';
+
+        function renderTagFilters(posts) {
+            const container = document.getElementById('tagFilters');
+            if (!container) return;
+
+            const tags = new Set(['Všetky']);
+            posts.forEach(p => {
+                if (p.tags && p.tags.length > 0) {
+                    p.tags.forEach(t => tags.add(t));
+                }
+            });
+
+            container.innerHTML = Array.from(tags).map(tag => `
+                <div class="tag-tab ${currentTagFilter === tag ? 'active' : ''}" onclick="filterByTag('${escapeHtml(tag)}')">
+                    ${escapeHtml(tag)}
+                </div>
+            `).join('');
+        }
+
+        function filterByTag(tag) {
+            currentTagFilter = tag;
+            const orderedPosts = window.__blogPostsById ? Array.from(window.__blogPostsById.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : [];
+            renderTagFilters(orderedPosts);
+            renderPosts(orderedPosts);
+        }
+
+        function formatDate(value) {
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return 'Neznámy dátum';
+            return date.toLocaleString('sk-SK');
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function buildExcerpt(content, maxLength = 220) {
+            const normalized = String(content || '').replace(/\s+/g, ' ').trim();
+            if (normalized.length <= maxLength) {
+                return normalized;
+            }
+
+            return `${normalized.slice(0, maxLength).trim()}...`;
+        }
+
+        async function loadPublicPosts() {
+            const response = await fetch(`${API_BASE}/blog`, { method: 'GET', credentials: 'include' });
+            if (!response.ok) throw new Error('Nepodarilo sa načítať blog príspevky.');
+            const payload = await response.json();
+            return Array.isArray(payload.items) ? payload.items : [];
+        }
+
+        async function loadManagePosts() {
+            if (!currentUser || !['blogger', 'coach', 'admin'].includes(currentUser.role)) {
+                manageItems = [];
+                return;
+            }
+
+            const response = await fetch(`${API_BASE}/blog/manage`, { method: 'GET', credentials: 'include' });
+            if (!response.ok) {
+                manageItems = [];
+                return;
+            }
+
+            const payload = await response.json();
+            manageItems = Array.isArray(payload.items) ? payload.items : [];
+        }
+
+        function canManagePost(post) {
+            if (!currentUser) return false;
+            if (currentUser.role === 'admin') return true;
+            return ['blogger', 'coach'].includes(currentUser.role) && post.createdBy === currentUser.username;
+        }
+
+        function renderPosts(orderedPosts) {
+            const container = document.getElementById('postsContainer');
+
+            let posts = orderedPosts;
+            if (currentTagFilter !== 'Všetky') {
+                posts = orderedPosts.filter(p => p.tags && p.tags.includes(currentTagFilter));
+            }
+
+            if (!posts.length) {
+                container.innerHTML = '<div class="muted" style="margin-top: 12px;">Zatiaľ nie sú žiadne príspevky pre tento filter.</div>';
+                return;
+            }
+
+            container.innerHTML = posts.map((post) => {
+                const canDelete = canManagePost(post);
+                const tagHtml = (post.tags && post.tags.length > 0) ? `<div class="post-tag">${escapeHtml(post.tags[0])}</div>` : '';
+                return `
+                    <article class="post" onclick="openPostDetail('${post.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPostDetail('${post.id}')">
+                        <div class="row">
+                            <h3>${escapeHtml(post.title)}</h3>
+                            ${canDelete ? `<button class="btn btn-danger" onclick="event.stopPropagation();deletePost('${post.id}')"><i class="fas fa-trash"></i> Odstrániť</button>` : ''}
+                        </div>
+                        <div class="meta">${tagHtml} Autor: ${post.createdBy} • ${formatDate(post.createdAt)}</div>
+                        <div class="excerpt">${escapeHtml(buildExcerpt(post.content))}</div>
+                        <div class="btn btn-ghost" style="pointer-events:none;display:inline-flex;align-items:center;gap:6px;margin-top:6px;">
+                            <i class="fas fa-book-open"></i> Čítať celý článok
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function openPostDetail(id) {
+            const modal = document.getElementById('postDetailModal');
+            const title = document.getElementById('postDetailTitle');
+            const meta = document.getElementById('postDetailMeta');
+            const content = document.getElementById('postDetailContent');
+            if (!modal || !title || !meta || !content) return;
+
+            const post = window.__blogPostsById && window.__blogPostsById.get(id);
+            if (!post) return;
+
+            title.textContent = post.title || 'Bez názvu';
+            meta.innerHTML = post.tags && post.tags.length > 0 ?
+                `<div class="post-tag">${escapeHtml(post.tags[0])}</div> Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}` :
+                `Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}`;
+
+            const img = document.getElementById('postDetailImage');
+            if (img) {
+                if (post.imageUrl) {
+                    img.src = post.imageUrl;
+                    img.style.display = 'block';
+                } else {
+                    img.style.display = 'none';
+                }
+            }
+
+            content.textContent = String(post.content || '');
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            history.pushState({ postModal: true }, '');
+        }
+
+        function closePostDetail() {
+            const modal = document.getElementById('postDetailModal');
+            if (!modal) return;
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = 'auto';
+        }
+
+        window.addEventListener('popstate', function (e) {
+            const modal = document.getElementById('postDetailModal');
+            if (modal && modal.classList.contains('open')) {
+                closePostDetail();
+            }
+        });
+
+        async function refresh() {
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
+            } else {
+                const raw = localStorage.getItem('currentUser');
+                currentUser = raw ? JSON.parse(raw) : { username: null, role: null, playerCategory: null, isLoggedIn: false };
+            }
+
+            const roleInfo = document.getElementById('blogRoleInfo');
+            const composer = document.getElementById('composerCard');
+
+            if (currentUser && ['blogger', 'coach', 'admin'].includes(currentUser.role)) {
+                composer.style.display = 'block';
+                roleInfo.textContent = `Prihlásený: ${currentUser.username} (${currentUser.role})`;
+            } else {
+                composer.style.display = 'none';
+                if (roleInfo) roleInfo.textContent = '';
+            }
+
+            const publicPosts = await loadPublicPosts();
+            await loadManagePosts();
+
+            const byId = new Map();
+            publicPosts.forEach((item) => byId.set(item.id, item));
+            manageItems.forEach((item) => byId.set(item.id, item));
+            const orderedPosts = Array.from(byId.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            window.__blogPostsById = new Map(orderedPosts.map((post) => [post.id, post]));
+            renderTagFilters(orderedPosts);
+            renderPosts(orderedPosts);
+        }
+
+        async function createPost() {
+            const titleInput = document.getElementById('postTitle');
+            const contentInput = document.getElementById('postContent');
+            const message = document.getElementById('composerMessage');
+
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+
+            if (!title || !content) {
+                message.textContent = 'Nadpis aj obsah sú povinné.';
+                return;
+            }
+
+            try {
+                message.textContent = 'Ukladám príspevok...';
+                const csrfToken = window.OSKSession ? await window.OSKSession.ensureCsrfToken() : '';
+
+                const response = await fetch(`${API_BASE}/blog`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({
+                        title,
+                        content,
+                        published: true,
+                        imageUrl: null,
+                        tags: []
+                    })
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(payload.message || 'Nepodarilo sa vytvoriť blog príspevok.');
+
+                message.textContent = 'Príspevok bol vytvorený.';
+                titleInput.value = '';
+                contentInput.value = '';
+
+                await refresh();
+            } catch (error) {
+                message.textContent = error.message || 'Nepodarilo sa vytvoriť blog príspevok.';
+            }
+        }
+
+        async function deletePost(id) {
+            if (!confirm('Odstrániť blog príspevok?')) return;
+
+            try {
+                const csrfToken = window.OSKSession ? await window.OSKSession.ensureCsrfToken() : '';
+                const response = await fetch(`${API_BASE}/blog/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    }
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(payload.message || 'Nepodarilo sa odstrániť blog príspevok.');
+
+                await refresh();
+            } catch (error) {
+                alert(error.message || 'Nepodarilo sa odstrániť blog príspevok.');
+            }
+        }
+
+        window.deletePost = deletePost;
+        window.createPost = createPost;
+        window.openPostDetail = openPostDetail;
+        window.closePostDetail = closePostDetail;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
+            }
+            refresh().catch(console.error);
+        });
+
+        // Listen for auth changes to refresh UI if needed
+        window.addEventListener('osk-auth-changed', async () => {
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
+            }
+            refresh().catch(console.error);
+        });
+    </script>
+
+
+    <div id="site-footer-root"></div>
+    <script src="/assets/js/footer.js"></script>
+</body>
+
+</html>

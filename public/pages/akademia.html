@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akadémia | OŠK Kamenná Poruba</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-P152RNBL34');
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Unified Heading Styles */
+        h1, .page-title, .standings-title, .section-title {
+            font-size: 30px;
+            margin-bottom: 24px;
+            color: #003399;
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        h3 {
+            font-size: 24px;
+            color: #003399;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #ffd700;
+            padding-bottom: 8px;
+            display: inline-flex !important;
+        }
+
+        @media (max-width: 768px) {
+            h1, .page-title, .standings-title, .section-title {
+                font-size: 26px !important;
+            }
+            h3 {
+                font-size: 22px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, .page-title, .standings-title, .section-title {
+                font-size: 24px !important;
+                justify-content: center;
+            }
+            h3 {
+                font-size: 20px !important;
+            }
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px 24px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 18px;
+            border: 1px solid #eee;
+        }
+
+        .category-card {
+            background: #f8f9fc;
+            border-left: 4px solid #ffd700;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .category-card h4 {
+            margin: 0 0 8px;
+            color: #003399;
+        }
+
+        .players-list {
+            margin: 8px 0 0;
+            padding-left: 18px;
+            line-height: 1.6;
+        }
+
+        .players-list li {
+            margin-bottom: 4px;
+        }
+
+        /* Player table standardization */
+        .team-section {
+            margin-bottom: 35px;
+        }
+
+        .team-section h4 {
+            margin: 0 0 16px;
+            color: #003399;
+            border-left: 5px solid #ffd700;
+            padding-left: 12px;
+            font-size: 18px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+
+        /* table-wrap for responsiveness */
+        .table-wrap {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+        }
+
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+
+        .standings-table thead tr {
+            background: #f8fbff;
+            border-bottom: 2px solid #eef4ff;
+        }
+
+        .standings-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 11px;
+            color: #888;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .standings-table td {
+            padding: 14px 15px;
+            border-bottom: 1px solid #f0f4f8;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* Mobile fixes for academy tables */
+        @media (max-width: 480px) {
+            .table-wrap {
+                overflow-x: hidden;
+                border-radius: 8px;
+            }
+
+            .standings-table th, .standings-table td {
+                padding: 8px 3px !important;
+                font-size: 11px;
+            }
+
+            /* Hide less important columns: # (1st), Cards (6th, 7th) */
+            .standings-table th:nth-child(1), .standings-table td:nth-child(1),
+            .standings-table th:nth-child(6), .standings-table td:nth-child(6),
+            .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
+                display: none;
+            }
+
+            .card {
+                padding: 16px;
+            }
+        }
+
+        .muted {
+            color: #666;
+            font-size: 14px;
+        }
+
+
+    </style>
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
+</head>
+
+<body>
+    <script src="/assets/js/session.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <div id="site-header-root"></div>
+
+    <main>
+        <h1 class="page-title"><i class="fas fa-graduation-cap"></i> Akadémia</h1>
+        <section class="card">
+            <h3>Prehľad mládežníckych kategórií</h3>
+            <div id="academyTeamsContainer">
+                <p style="color:#888;text-align:center;padding:24px 0;"><i class="fas fa-spinner fa-spin"></i> Načítavam
+                    súpisky...</p>
+            </div>
+            <p id="academyPlayersStatus" class="muted" style="margin-top:12px;">Načítavam mená hráčov z účtov…</p>
+        </section>
+
+
+        <section class="card">
+            <h3><i class="fas fa-address-book"></i> Kontakty na trénerov</h3>
+            <p class="muted" style="margin-bottom:12px;">Ak máte otázky ohľadom tréningov alebo potrebujete kontaktovať
+                trénera, tu nájdete kontaktné údaje.</p>
+            <div class="grid">
+                <div class="category-card" style="grid-column: 1 / -1;">
+                    <h4>Hlavný tréner mládeže U15-U13-U11-U9</h4>
+                    <p style="margin:0;"><strong>Hodás Jaroslav</strong></p>
+                    <p style="margin:4px 0;"><i class="fas fa-phone" style="color:#003399;width:18px;"></i> <a
+                            href="tel:+421904131394" style="color:#003399;">0904 131 394</a></p>
+                </div>
+                <div class="category-card">
+                    <h4>U15, U13A</h4>
+                    <p style="margin:0;"><strong>Hodás Jaroslav</strong></p>
+                </div>
+                <div class="category-card">
+                    <h4>U13B</h4>
+                    <p style="margin:0;"><strong>Michna Vladimír</strong></p>
+                </div>
+                <div class="category-card">
+                    <h4>U11</h4>
+                    <p style="margin:0;"><strong>Hodás Miroslav, Kasman Filip</strong></p>
+                </div>
+                <div class="category-card">
+                    <h4>U9</h4>
+                    <p style="margin:0;"><strong>Frnková Nina, Hodás Mário</strong></p>
+                </div>
+            </div>
+            <p class="muted" style="margin-top:14px;">
+                <i class="fas fa-envelope" style="color:#003399;"></i> Všeobecný email: <a
+                    href="mailto:oskkamennaporuba@gmail.com" style="color:#003399;">oskkamennaporuba@gmail.com</a>
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+
+        /* ===== 4-HOUR CACHE HELPER ===== */
+        async function cachedFetch(url, options = {}) {
+            const CACHE_TTL = 10 * 60 * 1000;
+            const cacheKey = 'osk_cf__' + url;
+            try {
+                const raw = localStorage.getItem(cacheKey);
+                if (raw) {
+                    const entry = JSON.parse(raw);
+                    if (Date.now() - entry.ts < CACHE_TTL) {
+                        return entry.data;
+                    }
+                }
+            } catch (_) { }
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
+                return data;
+            } catch (err) {
+                console.error('Fetch error:', err);
+                return null;
+            }
+        }
+
+        function renderPlayersToList(listId, names) {
+            const list = document.getElementById(listId);
+            if (!list) return;
+
+            if (!names.length) {
+                list.innerHTML = '<li class="muted">Zatiaľ bez hráčov</li>';
+                return;
+            }
+
+            list.innerHTML = names
+                .sort((a, b) => a.localeCompare(b, 'sk'))
+                .map((name) => `<li>${name}</li>`)
+                .join('');
+        }
+
+        const CATEGORY_LABELS = {
+            u19: 'U19 - Starší dorast',
+            u17: 'U17',
+            u15: 'U15 - Starší žiaci',
+            u13: 'U13 - Mladší žiaci',
+            u11: 'U11 - Prípravka',
+            u09: 'U9 - Prípravka'
+        };
+
+        function renderTeamTable(label, players) {
+            if (!players || players.length === 0) {
+                return `<div class="team-section"><h4>${label}</h4><p class="muted">Zatiaľ bez hráčov</p></div>`;
+            }
+            const rows = players.map(p => {
+                const s = p.stats || {};
+                return `<tr>
+                    <td class="center" style="width:50px;">${p.number || '—'}</td>
+                    <td>${p.name}</td>
+                    <td class="center" style="width:70px;">${s.matches ?? '—'}</td>
+                    <td class="center" style="width:60px;">${s.goals ?? '—'}</td>
+                    <td class="center" style="width:70px;">${s.minutes ?? '—'}</td>
+                    <td class="center" style="width:50px;">${s.yellowCards ?? '—'}</td>
+                    <td class="center" style="width:50px;">${s.redCards ?? '—'}</td>
+                </tr>`;
+            }).join('');
+
+            return `<div class="team-section">
+                <h4>${label}</h4>
+                <div class="table-wrap">
+                    <table class="standings-table">
+                        <thead>
+                            <tr>
+                                <th class="center" style="width:50px;">#</th>
+                                <th>Meno hráča</th>
+                                <th class="center" style="width:70px;"><i class="fas fa-futbol" title="Zápasy"></i> Záp.</th>
+                                <th class="center" style="width:60px;"><i class="fas fa-futbol" title="Góly"></i> Góly</th>
+                                <th class="center" style="width:70px;"><i class="far fa-clock" title="Minúty"></i> Min.</th>
+                                <th class="center" style="width:50px;"><span title="Žlté karty" style="color:#e8b500;">&#9632;</span></th>
+                                <th class="center" style="width:50px;"><span title="Červené karty" style="color:#d00;">&#9632;</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        async function loadAcademyPlayers() {
+            const status = document.getElementById('academyPlayersStatus');
+
+            try {
+                const payload = await cachedFetch(
+                    `${API_BASE}/sportsnet/players`,
+                    { method: 'GET', headers: { Accept: 'application/json' } }
+                );
+                const teams = payload.teams || {};
+
+                // Use the same category orders as defined in the layout
+                const categories = ['u19', 'u17', 'u15', 'u13', 'u11', 'u09'];
+                const container = document.getElementById('academyTeamsContainer');
+                let html = '';
+                let totalPlayers = 0;
+
+                categories.forEach(key => {
+                    const team = teams[key];
+                    const label = CATEGORY_LABELS[key] || key.toUpperCase();
+                    if (team && Array.isArray(team.players) && team.players.length > 0) {
+                        totalPlayers += team.players.length;
+                        html += renderTeamTable(label, team.players);
+                    }
+                });
+
+                container.innerHTML = html || '<p class="muted" style="text-align:center;padding:24px 0;">Žiadni hráči neboli nájdení.</p>';
+
+                if (status) {
+                    const source = payload.cache === 'HIT' ? 'cache' : 'API';
+                    status.textContent = `Načítaných ${totalPlayers} hráčov zo SportNet (${source})`;
+                }
+            } catch (error) {
+                console.warn('SportNet direct fetch failed, trying local DB fallback...', error);
+                try {
+                    await loadAcademyPlayersFromDb();
+                } catch (_) {
+                    const container = document.getElementById('academyTeamsContainer');
+                    if (container) {
+                        container.innerHTML = '<p class="muted" style="text-align:center;padding:24px 0;">Nepodarilo sa načítať hráčov.</p>';
+                    }
+
+                    if (status) {
+                        status.textContent = error.message || 'Načítanie hráčov sa nepodarilo.';
+                    }
+                }
+            }
+        }
+
+        async function loadAcademyPlayersFromDb() {
+            const status = document.getElementById('academyPlayersStatus');
+            const CATEGORY_TO_BUCKETS = {
+                dospeli: ['dospeli'],
+                u19_dorast: ['u19'],
+                u15_ziaci: ['u15'],
+                u13_ziaci: ['u13'],
+                u11_pripravka: ['u11'],
+                u09_pripravka: ['u9']
+            };
+
+            const response = await fetch(`${API_BASE}/players`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) throw new Error('Nepodarilo sa načítať hráčov.');
+
+            const payload = await response.json();
+            const items = Array.isArray(payload?.items) ? payload.items : [];
+
+            const buckets = { u9: [], u11: [], u13: [], u15: [], u17: [], u19: [] };
+
+            items.forEach((player) => {
+                const category = player?.category;
+                const name = player?.fullName || player?.username || null;
+                if (!category || !name) return;
+
+                const targetBuckets = CATEGORY_TO_BUCKETS[category] || [];
+                targetBuckets.forEach((bucket) => {
+                    buckets[bucket].push(name);
+                });
+            });
+
+            renderPlayersToList('players-u9', buckets.u9);
+            renderPlayersToList('players-u11', buckets.u11);
+            renderPlayersToList('players-u13', buckets.u13);
+            renderPlayersToList('players-u15', buckets.u15);
+            renderPlayersToList('players-u17', buckets.u17);
+            renderPlayersToList('players-u19', buckets.u19);
+
+            if (status) {
+                status.textContent = `Načítané mená hráčov z účtov: ${items.length}`;
+            }
+        }
+
+        async function fetchAndRenderLeagueTable(competitionId, containerId, categoryTitle) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            // Vytvorenie kontajnera pre danú ligu, ak ešte neexistuje
+            let tableDiv = document.getElementById(`league-table-${competitionId}`);
+            if (!tableDiv) {
+                tableDiv = document.createElement('div');
+                tableDiv.id = `league-table-${competitionId}`;
+                tableDiv.style.marginBottom = '24px';
+
+                // Odstránime placeholder ak existuje
+                const placeholder = container.querySelector('p');
+                if (placeholder && placeholder.textContent.includes('Čakáme na dodanie')) {
+                    placeholder.remove();
+                }
+
+                container.appendChild(tableDiv);
+            }
+
+            if (!competitionId) return;
+
+            try {
+                const data = await cachedFetch(
+                    `https://sutaze.api.sportnet.online/api/v2/competitions/${competitionId}`,
+                    { method: 'GET', headers: { 'Accept': 'application/json' } }
+                );
+                const parts = data.parts || [];
+                let results = [];
+                if (parts.length > 0 && parts[0].resultsTable && parts[0].resultsTable.results) {
+                    results = parts[0].resultsTable.results;
+                }
+
+                if (results.length === 0) {
+                    tableDiv.innerHTML = `<h4 style="color:#003399; border-left:4px solid #ffd700; padding-left:8px;">${categoryTitle || data.name}</h4><p class="muted">Tabuľka je zatiaľ prázdna.</p>`;
+                    return;
+                }
+
+                const rows = results.map((row, index) => {
+                    const stats = row.stats || {};
+                    const matches = stats.matches || {};
+                    const goals = stats.goals || {};
+                    const points = stats.points || 0;
+
+                    const isOsk = row.team && row.team.name && row.team.name.includes('Kamenná Poruba');
+                    const rowStyle = isOsk ? 'background-color: #f0f5ff; font-weight: bold;' : '';
+
+                    return `
+                        <tr style="${rowStyle}">
+                            <td class="center">${index + 1}.</td>
+                            <td>${row.team?.name || 'Neznámy tím'}</td>
+                            <td class="center">${matches.played || 0}</td>
+                            <td class="center">${matches.won || 0}</td>
+                            <td class="center">${matches.draw || 0}</td>
+                            <td class="center">${matches.lost || 0}</td>
+                            <td class="center">${goals.given || 0}:${goals.received || 0}</td>
+                            <td class="center"><strong>${points}</strong></td>
+                        </tr>
+                    `;
+                }).join('');
+
+                tableDiv.innerHTML = `
+                    <h4 style="color:#003399; margin-bottom: 12px; border-left:4px solid #ffd700; padding-left:8px;">${categoryTitle || data.name}</h4>
+                    <div class="table-wrap">
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th class="center">Por.</th>
+                                    <th>Tím</th>
+                                    <th class="center" title="Zápasy">Z</th>
+                                    <th class="center" title="Výhry">V</th>
+                                    <th class="center" title="Remízy">R</th>
+                                    <th class="center" title="Prehry">P</th>
+                                    <th class="center" title="Skóre">Skóre</th>
+                                    <th class="center" title="Body">B</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error("Nepodarilo sa načítať tabuľku mládeže:", error);
+                tableDiv.innerHTML = `<h4 style="color:#003399; border-left:4px solid #ffd700; padding-left:8px;">${categoryTitle || 'Tabuľka'}</h4><p style="color:#c00;"><i class="fas fa-exclamation-triangle"></i> Nepodarilo sa načítať tabuľku.</p>`;
+            }
+        }
+
+        window.addEventListener('load', async () => {
+            if (window.OSKSession) {
+                await window.OSKSession.syncCurrentUserFromSession();
+            }
+            loadAcademyPlayers();
+            // Načítanie tabuliek (zatiaľ zakomentované, kým používateľ nedodá URL/IDs)
+            // fetchAndRenderLeagueTable('ID_SUTAZE_U19', 'leagueTablesContainer', 'U19 - Starší dorast');
+            // fetchAndRenderLeagueTable('ID_SUTAZE_U15', 'leagueTablesContainer', 'U15 - Starší žiaci');
+        });
+    </script>
+
+
+
+    <div id="site-footer-root"></div>
+    <script src="/assets/js/footer.js"></script>
+</body>
+</html>

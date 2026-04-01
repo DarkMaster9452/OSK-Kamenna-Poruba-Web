@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karta hráča | Tréner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 40px;
+            background: rgba(0, 0, 0, 0.25);
+            border-bottom: 3px solid #ffd700;
+        }
+
+        h1, .page-title, .header h1 {
+            color: #ffd700;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
+
+        @media screen and (max-width: 768px) {
+            h1, .page-title, .header h1 {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, .page-title, .header h1 {
+                font-size: 24px !important;
+            }
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffd700;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+            padding: 40px 32px;
+        }
+
+        .player-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #ffd700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 54px;
+            color: #003399;
+            margin: 0 auto 18px auto;
+        }
+
+        .player-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .player-info {
+            color: #fff;
+            font-size: 17px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .player-category {
+            color: #ffd700;
+            font-size: 15px;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+
+        .player-position {
+            color: #fff;
+            font-size: 15px;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+
+        .player-number {
+            color: #fff;
+            font-size: 15px;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+
+        .player-details {
+            margin-top: 24px;
+        }
+
+        .player-details div {
+            margin-bottom: 8px;
+        }
+
+        .skills-section {
+            margin-top: 32px;
+        }
+
+        .skills-title {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .skills-list {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+        }
+
+        .skill-item {
+            background: rgba(0, 0, 0, 0.13);
+            border-radius: 8px;
+            padding: 10px 18px;
+            text-align: center;
+        }
+
+        .skill-label {
+            color: #ffd700;
+            font-size: 13px;
+        }
+
+        .skill-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .notes-section {
+            margin-top: 32px;
+        }
+
+        .notes-title {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .notes-content {
+            background: rgba(255, 255, 255, 0.10);
+            border-radius: 8px;
+            padding: 14px 18px;
+            color: #fff;
+            font-size: 15px;
+        }
+    </style>
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
+</head>
+
+<body>
+    <script src="/assets/js/session.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <div id="site-header-root"></div>
+    <script>
+        const API_BASE = OSKSession.getApiBase();
+
+        async function init() {
+            // Guard coach access using the centralized session
+            const user = await OSKSession.syncCurrentUserFromSession();
+            if (!user || (user.role !== 'coach' && user.role !== 'admin')) {
+                window.location.href = '/index.html';
+                return;
+            }
+            renderPlayerDetail();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+    <div class="header">
+        <h1><i class="fas fa-user"></i> Karta hráča</h1>
+        <button class="btn-back" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Späť</button>
+    </div>
+    <div class="container" id="playerDetailContainer">
+        <!-- Player detail will be loaded here -->
+    </div>
+    <script>
+        function getUsernameFromQuery() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('username');
+        }
+
+        function getCategoryLabel(category) {
+            if (category === 'pripravka_u9') return 'Prípravka U9';
+            if (category === 'pripravka_u11') return 'Prípravka U11';
+            if (category === 'ziaci') return 'Žiaci';
+            if (category === 'dorastenci') return 'Dorastenci';
+            if (category === 'adults_young') return 'Dospelí - Mladí';
+            if (category === 'adults_pro') return 'Dospelí - Skúsení';
+            return category || '--';
+        }
+
+        function sleep(ms) {
+            return new Promise((resolve) => setTimeout(resolve, ms));
+        }
+
+        async function fetchPlayersWithRetry() {
+            let lastError = null;
+
+            for (let attempt = 1; attempt <= 2; attempt += 1) {
+                try {
+                    const response = await fetch(`${API_BASE}/players`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Načítanie hráča zlyhalo.');
+                    }
+
+                    return response.json();
+                } catch (error) {
+                    lastError = error;
+                    if (attempt < 2) {
+                        await sleep(1200);
+                    }
+                }
+            }
+
+            throw lastError || new Error('Načítanie hráča zlyhalo.');
+        }
+
+        async function renderPlayerDetail() {
+            const username = getUsernameFromQuery();
+            const container = document.getElementById('playerDetailContainer');
+            container.innerHTML = '<div style="color:#ffd700;text-align:center;font-size:20px;padding:40px 0;">Načítavam detail hráča...</div>';
+
+            if (!username) {
+                container.innerHTML = '<div style="color:#ffd700;text-align:center;font-size:22px;padding:40px 0;">Hráč nebol nájdený.</div>';
+                return;
+            }
+
+            try {
+                const payload = await fetchPlayersWithRetry();
+                const items = Array.isArray(payload && payload.items) ? payload.items : [];
+                const p = items.find((item) => item.username === username);
+
+                if (!p) {
+                    container.innerHTML = '<div style="color:#ffd700;text-align:center;font-size:22px;padding:40px 0;">Hráč nebol nájdený.</div>';
+                    return;
+                }
+
+                const stats = p.stats || {};
+                const category = getCategoryLabel(p.category);
+
+                container.innerHTML = `
+                <div class="player-avatar"><i class='fas fa-user'></i></div>
+                <div class="player-name">${p.fullName || p.username}</div>
+                <div class="player-info">${p.dateOfBirth || '--'} | #${p.shirtNumber || '--'}</div>
+                <div class="player-category">${category}</div>
+                <div class="player-position">${p.position || '--'}</div>
+                <div class="player-details">
+                    <div><b>Dátum narodenia:</b> ${p.dateOfBirth || '--'}</div>
+                    <div><b>Kategória:</b> ${category}</div>
+                    <div><b>Pozícia:</b> ${p.position || '--'}</div>
+                    <div><b>Výška:</b> --</div>
+                    <div><b>Váha:</b> --</div>
+                    <div><b>V klube od:</b> --</div>
+                    <div><b>Rodič:</b> --</div>
+                    <div><b>Email:</b> --</div>
+                    <div><b>Telefón:</b> --</div>
+                    <div><b>Adresa:</b> --</div>
+                </div>
+                <div class="skills-section">
+                    <div class="skills-title">Štatistiky</div>
+                    <div class="skills-list">
+                        <div class="skill-item"><div class="skill-label">Zápasy</div><div class="skill-value">${stats.matches || 0}</div></div>
+                        <div class="skill-item"><div class="skill-label">Minúty</div><div class="skill-value">${stats.minutes || 0}</div></div>
+                        <div class="skill-item"><div class="skill-label">Góly</div><div class="skill-value">${stats.goals || 0}</div></div>
+                        <div class="skill-item"><div class="skill-label">Karty</div><div class="skill-value">${(stats.yellowCards || 0) + (stats.redCards || 0)}</div></div>
+                    </div>
+                </div>
+                <div class="notes-section">
+                    <div class="notes-title">Poznámky trénera</div>
+                    <div class="notes-content"><i>Zatiaľ bez poznámok.</i></div>
+                </div>
+            `;
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<div style="color:#ffd700;text-align:center;font-size:22px;padding:40px 0;">Server sa pravdepodobne prebúdza. Skús obnoviť stránku o pár sekúnd.</div>';
+            }
+        }
+
+        // Renders player detail, called from init()
+    </script>
+
+
+
+    <div id="site-footer-root"></div>
+    <script src="/assets/js/footer.js"></script>
+</body>
+</html>

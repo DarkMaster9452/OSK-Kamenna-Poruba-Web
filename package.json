@@ -1,7 +1,10 @@
 {
   "scripts": {
     "postinstall": "prisma generate || true",
-    "build": "node node_modules/prisma/build/index.js generate && mkdir -p public && cp -r index.html pages assets public/"
+    "build": "node node_modules/prisma/build/index.js generate && node scripts/build-public.js",
+    "vercel:build": "npx vercel build",
+    "vercel:deploy": "npx vercel deploy --prebuilt",
+    "vercel:deploy:prod": "npx vercel deploy --prebuilt --prod"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

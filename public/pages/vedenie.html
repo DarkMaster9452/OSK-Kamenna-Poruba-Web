@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vedenie klubu | OŠK Kamenná Poruba</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-P152RNBL34');
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1, .page-title {
+            margin: 0 0 8px;
+            font-size: 30px;
+            color: #003399;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-heading {
+            margin: 36px 0 0;
+            font-size: 26px;
+            font-weight: 700;
+            color: #003399;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 14px;
+            border-left: 4px solid #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            h1, .page-title, .section-heading {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, .page-title, .section-heading {
+                font-size: 24px !important;
+            }
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .board-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .board-card:hover {
+            transform: translateY(-5px);
+        }
+
+
+        .board-icon {
+            font-size: 50px;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .board-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #003399;
+            margin-bottom: 5px;
+        }
+
+        .board-role {
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+
+    </style>
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
+</head>
+
+<body>
+    <script src="/assets/js/session.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <div id="site-header-root"></div>
+
+    <div class="container">
+        <h1><i class="fas fa-users-gear"></i> Vedenie klubu</h1>
+        <p style="font-size: 16px; color: #666; margin-top: 6px;">
+            Spoznajte ľudí, ktorí stoja za fungovaním OŠK Kamenná Poruba.
+        </p>
+
+        <div class="board-grid">
+            <!-- Predseda -->
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="board-name">Kavecký Zdeno</div>
+                <div class="board-role">Predseda klubu</div>
+            </div>
+
+            <!-- Podpredseda -->
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="board-name">Kasman Miloš</div>
+                <div class="board-role">Podpredseda klubu</div>
+            </div>
+
+            <!-- Športový manažér -->
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-user-cog"></i></div>
+                <div class="board-name">Pekný Juraj</div>
+                <div class="board-role">šPORTOVý MANAžéR</div>
+            </div>
+
+            <!-- Pokladník -->
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-users"></i></div>
+                <div class="board-name">Sandanus Martin</div>
+                <div class="board-role">Pokladník + ISS manažér</div>
+            </div>
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-users"></i></div>
+                <div class="board-name">Skotnicky Ľubomír</div>
+                <div class="board-role">Člen výboru</div>
+            </div>
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-users"></i></div>
+                <div class="board-name">Ondrejka Peter</div>
+                <div class="board-role">Člen výboru</div>
+            </div>
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-users"></i></div>
+                <div class="board-name">Hodas Jaroslav</div>
+                <div class="board-role">Člen výboru</div>
+            </div>
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-users"></i></div>
+                <div class="board-name">Hodas Miroslav</div>
+                <div class="board-role">Člen výboru</div>
+            </div>
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-users"></i></div>
+                <div class="board-name">Vereš Vincent</div>
+                <div class="board-role">Člen výboru</div>
+            </div>
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-users"></i></div>
+                <div class="board-name">Tretina Martin</div>
+                <div class="board-role">Člen výboru</div>
+            </div>
+
+        </div>
+
+        <h2 class="section-heading"><i class="fas fa-users"></i> Vedúci tímov</h2>
+        <div class="board-grid">
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="board-name">Ondrejka Peter</div>
+                <div class="board-role">Vedúci A-mužstva</div>
+            </div>
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="board-name">Knotek Tomáš</div>
+                <div class="board-role">Vedúci U19</div>
+            </div>
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-user-cog"></i></div>
+                <div class="board-name">Štrba Martin</div>
+                <div class="board-role">Vedúci u15</div>
+            </div>
+
+            <div class="board-card">
+                <div class="board-icon"><i class="fas fa-users"></i></div>
+                <div class="board-name">Tretina Martin</div>
+                <div class="board-role">vedúci u13</div>
+            </div>
+        </div>
+
+        <h2 class="section-heading" style="margin-top: 60px;"><i class="fas fa-users"></i> Kontrolná komisia</h2>
+        <div class="board-grid">
+
+                <div class="board-card">
+                    <div class="board-icon"><i class="fas fa-user-tie"></i></div>
+                    <div class="board-name">Kavecký František </div>
+                    <div class="board-role">predseda komisie</div>
+                </div>
+
+                <div class="board-card">
+                    <div class="board-icon"><i class="fas fa-user-tie"></i></div>
+                    <div class="board-name">Kasman Igor</div>
+                    <div class="board-role">člen komisie</div>
+                </div>
+
+                <div class="board-card">
+                    <div class="board-icon"><i class="fas fa-user-cog"></i></div>
+                    <div class="board-name">Turanec Jaroslav</div>
+                    <div class="board-role">člen komisie</div>
+                </div>
+
+
+            </div>
+
+
+
+<script src="/assets/js/cloudinary-assets.js"></script>
+
+    <!-- Footer -->
+
+
+
+    <div id="site-footer-root"></div>
+    <script src="/assets/js/footer.js"></script>
+</body>
+</html>

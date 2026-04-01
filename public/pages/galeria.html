@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galéria | OŠK Kamenná Poruba</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-P152RNBL34');
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 16px 24px;
+        }
+
+        h1,
+        .page-title {
+            margin: 0 0 16px;
+            font-size: 30px;
+            color: #003399;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media screen and (max-width: 768px) {
+
+            h1,
+            .page-title {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+
+            h1,
+            .page-title {
+                font-size: 24px !important;
+            }
+        }
+
+        /* Album Tabs */
+        .album-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding-bottom: 5px;
+        }
+
+        .album-tab {
+            padding: 10px 22px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #57606f;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .album-tab:hover {
+            border-color: #003399;
+            color: #003399;
+            background: rgba(0, 51, 153, 0.05);
+        }
+
+        .album-tab.active {
+            background: #003399;
+            color: #fff;
+            border-color: #003399;
+            box-shadow: 0 4px 12px rgba(0, 51, 153, 0.25);
+        }
+
+        /* Gallery Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .gallery-item {
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #eee;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover .gallery-image {
+            transform: scale(1.08);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+            color: #fff;
+            padding: 20px 15px 12px;
+            font-size: 13px;
+            line-height: 1.4;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-caption {
+            opacity: 1;
+        }
+
+        .gallery-caption-link {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        /* Load More */
+        .gallery-actions {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .gallery-load-more-btn {
+            background: #fff;
+            color: #003399;
+            border: 2px solid #003399;
+            padding: 12px 32px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .gallery-load-more-btn:hover {
+            background: #003399;
+            color: #fff;
+        }
+
+        .empty-msg {
+            grid-column: 1 / -1;
+            padding: 60px 20px;
+            text-align: center;
+            background: #fff;
+            border-radius: 12px;
+            color: #666;
+            font-size: 16px;
+            border: 2px dashed #ddd;
+        }
+
+        /* Modal */
+        .gallery-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 20000;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .gallery-modal.active {
+            display: flex;
+        }
+
+        #modalImg {
+            max-width: 92%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 30px;
+            right: 35px;
+            color: #fff;
+            font-size: 45px;
+            font-weight: 300;
+            cursor: pointer;
+            z-index: 20001;
+            transition: color 0.2s;
+        }
+
+        .modal-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 56px;
+            height: 56px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20001;
+            transition: all 0.2s;
+        }
+
+        .modal-arrow:hover {
+            background: #ffd700;
+            color: #003399;
+        }
+
+        .modal-arrow svg {
+            stroke: currentColor;
+        }
+
+        .modal-arrow.prev {
+            left: 25px;
+        }
+
+        .modal-arrow.next {
+            right: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 20px;
+                white-space: nowrap;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .modal-arrow {
+                width: 44px;
+                height: 44px;
+            }
+
+            .modal-arrow.prev {
+                left: 10px;
+            }
+
+            .modal-arrow.next {
+                right: 10px;
+            }
+        }
+
+        /* Folder Cards */
+        .folder-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .folder-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #eee;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+            border-color: #ffd700;
+        }
+
+        .folder-card i {
+            font-size: 50px;
+            color: #ffd700;
+            transition: transform 0.3s ease;
+        }
+
+        .folder-card:hover i {
+            transform: scale(1.1);
+        }
+
+        .folder-card-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #003399;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .folder-card-count {
+            font-size: 13px;
+            color: #888;
+            background: #f8f9fa;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* Back Button */
+        .gallery-back-container {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-back-gallery {
+            background: #fff;
+            border: 2px solid #003399;
+            color: #003399;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-back-gallery:hover {
+            background: #003399;
+            color: #fff;
+        }
+
+        .current-path {
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
+</head>
+
+<body>
+    <script src="/assets/js/session.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <div id="site-header-root"></div>
+
+    <main>
+        <h1 class="page-title"><i class="fas fa-images"></i> Galéria</h1>
+
+        <div class="album-tabs" id="albumTabs">
+            <button class="album-tab active" data-album="instagram"><i class="fab fa-instagram"></i> Instagram</button>
+        </div>
+
+        <div id="galleryBackNav" class="gallery-back-container" style="display:none;">
+            <button class="btn-back-gallery" id="backToAlbumsBtn">
+                <i class="fas fa-arrow-left"></i> Späť na albumy
+            </button>
+            <div class="current-path">
+                <i class="fas fa-folder-open" style="color:#ffd700;"></i>
+                <span id="currentEventName"></span>
+            </div>
+        </div>
+
+        <div id="albumInfo"
+            style="display:none; margin-bottom: 24px; background: #fff; border-left: 6px solid #ffd700; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+            <div id="albumTitle" style="font-size: 20px; color: #003399; font-weight: 800; margin-bottom: 8px;"></div>
+            <ul id="albumPoints" style="padding-left: 20px; color: #33405f; line-height: 1.6; margin: 0;"></ul>
+        </div>
+        <div id="folderGrid" class="folder-list" style="display:none;"></div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+
+        <div class="gallery-actions">
+            <button type="button" class="gallery-load-more-btn" id="loadMoreBtn" hidden>Načítať viac</button>
+            <p class="instagram-status" id="statusText" hidden></p>
+        </div>
+    </main>
+
+    <!-- Zoom modal -->
+    <div class="gallery-modal" id="galleryModal">
+        <span class="modal-close" id="modalClose">&times;</span>
+        <span class="modal-arrow prev" id="modalPrev">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <polyline points="20,8 12,16 20,24" stroke="#003399" stroke-width="3.5" stroke-linecap="round"
+                    stroke-linejoin="round" fill="none" />
+            </svg>
+        </span>
+        <span class="modal-arrow next" id="modalNext">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <polyline points="12,8 20,16 12,24" stroke="#003399" stroke-width="3.5" stroke-linecap="round"
+                    stroke-linejoin="round" fill="none" />
+            </svg>
+        </span>
+        <img id="modalImg" src="" alt="Zoom">
+    </div>
+
+    <script>
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+
+        /* ===== CLOUDINARY ALBUM DATA ===== */
+        let CLOUDINARY_ALBUMS = {};
+        let cloudinaryAlbumMeta = [];
+
+        const FOLDER_BLACKLIST = ['blog', 'Sponzori'];
+
+        const FOLDER_TEXT_CONFIG = {
+            'História': { year: 'Historické' },
+            'HISTORIA': { year: 'Historické' },
+            '2005': { year: '2005' },
+            '2006-2007': { year: '2006 – 2007' },
+            '2008': { year: '2008' },
+            '2009': { year: '2009' },
+            '2010': { year: '2010' },
+            '2011': { year: '2011' },
+            '2012': { year: '2012' },
+            '2013': { year: '2013' },
+            '2014': { year: '2014' },
+            '2015': { year: '2015' },
+            '2016': { year: '2016' },
+            '2017': { year: '2017' },
+            '2018': { year: '2018' },
+            '2023': { year: '2023' },
+            '2024': { year: '2024' },
+            '2025': { year: '2025' },
+            'VÝSTAVBA MULTIFUNKČNÉHO IHRISKA': { year: 'Výstavba ihriska' },
+            'VÝSTAVBA ŠATNÍ': { year: 'Výstavba šatní' }
+        };
+        function folderNameToKey(name) {
+            return String(name || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'ostatne';
+        }
+
+        function getFolderPathParts(path) {
+            return String(path || '').split('/').filter(Boolean);
+        }
+
+        function findPrimaryCategoryIndex(pathParts) {
+            var configuredIndex = pathParts.findIndex(function (part) {
+                return !!FOLDER_TEXT_CONFIG[part];
+            });
+            if (configuredIndex !== -1) return configuredIndex;
+
+            var yearIndex = pathParts.findIndex(function (part) {
+                return /^\d{4}(?:-\d{4})?$/.test(part);
+            });
+            if (yearIndex !== -1) return yearIndex;
+
+            if (pathParts.length > 1) return 1;
+            return 0;
+        }
+
+        function getCloudinaryFolderInfo(fullPath) {
+            var pathParts = getFolderPathParts(fullPath);
+            if (!pathParts.length) {
+                return null;
+            }
+
+            var categoryIndex = findPrimaryCategoryIndex(pathParts);
+            var primaryCategoryName = pathParts[categoryIndex] || pathParts[pathParts.length - 1] || 'Ostatné';
+            var conf = FOLDER_TEXT_CONFIG[primaryCategoryName] || {};
+            var label = conf.year || primaryCategoryName;
+            var trailingParts = pathParts.slice(categoryIndex + 1);
+            var subfolderName = trailingParts.length ? trailingParts.join(' / ') : label;
+
+            return {
+                key: folderNameToKey(primaryCategoryName),
+                label: label,
+                sortKey: primaryCategoryName,
+                conf: conf,
+                subfolderName: subfolderName,
+                pathParts: pathParts
+            };
+        }
+
+        async function loadCloudinaryAlbums(forceRefresh) {
+            console.log('[Gallery] Loading Cloudinary albums' + (forceRefresh ? ' (FORCED REFRESH)' : '') + '...');
+            try {
+                // Use API_BASE and append refresh parameter if requested
+                const url = new URL(API_BASE + '/cloudinary/timeline', window.location.href);
+                if (forceRefresh) url.searchParams.set('refresh', '1');
+
+                console.log('[Gallery] Fetching from:', url.toString());
+                const response = await fetch(url.toString());
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const data = await response.json();
+                const folders = Array.isArray(data.folders) ? data.folders : [];
+                console.log(`[Gallery] Received ${folders.length} folders from API (v.${data.fetchedAt || 'unknown'})`);
+
+                if (!folders.length && !forceRefresh) {
+                    console.warn('[Gallery] Empty Cloudinary response, retrying with refresh=1.');
+                    await loadCloudinaryAlbums(true);
+                    return;
+                }
+
+                CLOUDINARY_ALBUMS = {};
+                cloudinaryAlbumMeta = [];
+
+                folders.forEach(function (folder) {
+                    const fullPath = folder.path || folder.folder || '';
+                    const pathParts = getFolderPathParts(fullPath);
+                    const leafName = pathParts[pathParts.length - 1] || 'Ostatné';
+
+                    // Skip blacklisted folders
+                    if (FOLDER_BLACKLIST.some(function (b) {
+                        return pathParts.some(function (part) {
+                            return b.toLowerCase() === part.toLowerCase();
+                        });
+                    })) return;
+
+                    const images = (folder.images || []).map(function (img) {
+                        return { src: img.url, alt: leafName };
+                    });
+                    if (!images.length) return;
+
+                    var folderInfo = getCloudinaryFolderInfo(fullPath);
+                    if (!folderInfo) return;
+
+                    const key = folderInfo.key;
+                    const conf = folderInfo.conf;
+                    const label = folderInfo.label;
+
+                    if (!CLOUDINARY_ALBUMS[key]) {
+                        CLOUDINARY_ALBUMS[key] = {
+                            label: label,
+                            conf: conf,
+                            subfolders: []
+                        };
+                        cloudinaryAlbumMeta.push({
+                            key: key,
+                            label: label,
+                            sortKey: folderInfo.sortKey
+                        });
+                    }
+
+                    var existingSubfolder = CLOUDINARY_ALBUMS[key].subfolders.find(function (subfolder) {
+                        return subfolder.path === fullPath;
+                    });
+
+                    if (existingSubfolder) {
+                        existingSubfolder.images = existingSubfolder.images.concat(images);
+                        return;
+                    }
+
+                    CLOUDINARY_ALBUMS[key].subfolders.push({
+                        name: folderInfo.subfolderName,
+                        path: fullPath,
+                        images: images
+                    });
+                });
+
+                // Sort: Historické first, then by year ascending
+                const yearOrder = { 'Historické': -1 };
+                cloudinaryAlbumMeta.sort((a, b) => {
+                    const aY = parseInt(a.sortKey) || yearOrder[a.label] || 9999;
+                    const bY = parseInt(b.sortKey) || yearOrder[b.label] || 9999;
+                    if (aY !== bY) return aY - bY;
+                    return a.label.localeCompare(b.label);
+                });
+
+                // Sort subfolders alphabetically within each category
+                Object.values(CLOUDINARY_ALBUMS).forEach(album => {
+                    if (album.subfolders) {
+                        album.subfolders.sort((a, b) => a.name.localeCompare(b.name, 'sk'));
+                    }
+                });
+
+                if (cloudinaryAlbumMeta.length === 0) {
+                    console.warn('[Gallery] No populated Cloudinary albums found.');
+                } else {
+                    console.log(`[Gallery] Successfully processed ${cloudinaryAlbumMeta.length} albums.`);
+                }
+            } catch (e) {
+                console.error('[Gallery] Cloudinary albums load failed:', e);
+            }
+        }
+
+        function buildAlbumTabs() {
+            var tabsEl = document.getElementById('albumTabs');
+            var staticTabs = '<button class="album-tab' + (currentAlbum === 'instagram' ? ' active' : '') + '" data-album="instagram"><i class="fab fa-instagram"></i> Instagram</button>';
+            var dynamicTabs = cloudinaryAlbumMeta.map(function (m) {
+                return '<button class="album-tab' + (currentAlbum === m.key ? ' active' : '') + '" data-album="' + m.key + '">' + m.label + '</button>';
+            }).join('');
+            tabsEl.innerHTML = staticTabs + dynamicTabs;
+        }
+
+        /* ===== STATE ===== */
+        let instagramItems = [];
+        let currentAlbum = 'instagram';
+        let currentSubfolderIndex = null;
+        let currentImgIdx = 0;
+        const PAGE_SIZE = 20;
+        let renderedCount = 0;
+        let itemsToShow = [];
+
+        /* ===== HELPERS ===== */
+        function makeCloudinaryItem(item, album) {
+            return { src: item.src, alt: item.alt || album, album, type: 'cloudinary' };
+        }
+
+        function makeInstagramItem(item) {
+            return {
+                src: item.imageUrl,
+                alt: item.caption ? String(item.caption).slice(0, 150) : 'Instagram',
+                album: 'instagram',
+                type: 'instagram',
+                permalink: item.permalink || null
+            };
+        }
+
+        function getAllCloudinaryItems() {
+            var items = [];
+            Object.keys(CLOUDINARY_ALBUMS).forEach(function (album) {
+                (CLOUDINARY_ALBUMS[album].subfolders || []).forEach(function (subfolder) {
+                    (subfolder.images || []).forEach(function (item) {
+                        items.push(makeCloudinaryItem(item, album));
+                    });
+                });
+            });
+            return items;
+        }
+
+        /* ===== RENDER ===== */
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            const folderGrid = document.getElementById('folderGrid');
+            const backNav = document.getElementById('galleryBackNav');
+            const infoEl = document.getElementById('albumInfo');
+            const titleEl = document.getElementById('albumTitle');
+            const pointsEl = document.getElementById('albumPoints');
+
+            grid.innerHTML = '';
+            folderGrid.innerHTML = '';
+            folderGrid.style.display = 'none';
+            backNav.style.display = 'none';
+            infoEl.style.display = 'none';
+            titleEl.innerHTML = '';
+            pointsEl.innerHTML = '';
+            renderedCount = 0;
+
+            document.getElementById('statusText').hidden = currentAlbum !== 'instagram';
+
+            if (currentAlbum === 'instagram') {
+                itemsToShow = instagramItems.map(makeInstagramItem);
+            } else {
+                const albumData = CLOUDINARY_ALBUMS[currentAlbum];
+                if (!albumData) return;
+
+                const isHistory = albumData.label === 'Historické';
+
+                // Strategy: Only show folder list if there are COMPETING subfolders (>= 2)
+                // AND it's not the History category (where we want to see everything at once)
+                if (currentSubfolderIndex === null && albumData.subfolders.length > 1 && !isHistory) {
+                    renderFolderList(albumData.subfolders);
+                    document.getElementById('loadMoreBtn').hidden = true;
+                    return;
+                }
+
+                // Either a specific subfolder is selected, OR we are showing the combined view
+                if (currentSubfolderIndex !== null) {
+                    const subfolder = albumData.subfolders[currentSubfolderIndex];
+                    itemsToShow = subfolder.images.map(img => makeCloudinaryItem(img, currentAlbum));
+
+                    backNav.style.display = 'flex';
+                    document.getElementById('currentEventName').textContent = subfolder.name;
+                } else {
+                    // Show combined photos from ALL subfolders in this category
+                    itemsToShow = [];
+                    albumData.subfolders.forEach(sub => {
+                        itemsToShow = itemsToShow.concat(sub.images.map(img => makeCloudinaryItem(img, currentAlbum)));
+                    });
+                }
+
+                // Only show album info if it adds extra context (explicit title or bullet points)
+                const conf = albumData.conf || {};
+                const hasTitle = !!conf.title;
+                const hasPoints = !!(conf.points && conf.points.length);
+
+                if (hasTitle || hasPoints) {
+                    infoEl.style.display = 'block';
+                    titleEl.textContent = conf.title || '';
+                    titleEl.style.display = hasTitle ? 'block' : 'none';
+                    pointsEl.innerHTML = (conf.points || []).map(p => '<li>' + p + '</li>').join('');
+                }
+            }
+
+            if (!itemsToShow.length) {
+                grid.innerHTML = '<div class="empty-msg">Žiadne fotky v tomto albume.</div>';
+                document.getElementById('loadMoreBtn').hidden = true;
+                return;
+            }
+
+            renderNextBatch();
+        }
+
+        function renderFolderList(subfolders) {
+            const folderGrid = document.getElementById('folderGrid');
+            folderGrid.style.display = 'grid';
+
+            subfolders.forEach((sub, index) => {
+                const card = document.createElement('div');
+                card.className = 'folder-card';
+                card.innerHTML = `
+                    <i class="fas fa-folder"></i>
+                    <h4 class="folder-card-name">${sub.name}</h4>
+                    <span class="folder-card-count">${sub.images.length} fotiek</span>
+                `;
+                card.onclick = () => {
+                    currentSubfolderIndex = index;
+                    renderGallery();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                folderGrid.appendChild(card);
+            });
+        }
+
+        function renderNextBatch() {
+            const grid = document.getElementById('galleryGrid');
+            const batch = itemsToShow.slice(renderedCount, renderedCount + PAGE_SIZE);
+            const fragment = document.createDocumentFragment();
+
+            batch.forEach(function (item) {
+                var wrapper = document.createElement('div');
+                wrapper.className = 'gallery-item';
+
+                var img = document.createElement('img');
+                img.className = 'gallery-image';
+                img.src = item.src;
+                img.alt = item.alt;
+                img.loading = 'lazy';
+                wrapper.appendChild(img);
+
+                if (item.type === 'instagram') {
+                    var cap = document.createElement('div');
+                    cap.className = 'gallery-caption';
+                    cap.textContent = item.alt;
+                    if (item.permalink) {
+                        var br = document.createElement('br');
+                        cap.appendChild(br);
+                        var a = document.createElement('a');
+                        a.className = 'gallery-caption-link';
+                        a.href = item.permalink;
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.textContent = 'Pozrieť na Instagrame';
+                        cap.appendChild(a);
+                    }
+                    wrapper.appendChild(cap);
+                }
+
+                fragment.appendChild(wrapper);
+            });
+
+            grid.appendChild(fragment);
+            renderedCount += batch.length;
+
+            var btn = document.getElementById('loadMoreBtn');
+            btn.hidden = renderedCount >= itemsToShow.length;
+        }
+
+        /* ===== INSTAGRAM FEED ===== */
+        var INSTAGRAM_CACHE_KEY = 'osk_instagram_cache';
+        var INSTAGRAM_CACHE_TTL = 4 * 60 * 60 * 1000; // 4 hours in ms
+
+        function getInstagramCache() {
+            try {
+                var raw = localStorage.getItem(INSTAGRAM_CACHE_KEY);
+                if (!raw) return null;
+                var cached = JSON.parse(raw);
+                if (!cached || !cached.ts || !Array.isArray(cached.items)) return null;
+                if (Date.now() - cached.ts > INSTAGRAM_CACHE_TTL) return null;
+                return cached.items;
+            } catch (_) { return null; }
+        }
+
+        function setInstagramCache(items) {
+            try {
+                localStorage.setItem(INSTAGRAM_CACHE_KEY, JSON.stringify({ ts: Date.now(), items: items }));
+            } catch (_) { }
+        }
+
+        async function loadInstagramFeed() {
+            var status = document.getElementById('statusText');
+            try {
+                var cached = getInstagramCache();
+                if (cached) {
+                    instagramItems = cached.filter(function (it) { return it && it.imageUrl; });
+                    status.hidden = false;
+                    status.textContent = instagramItems.length
+                        ? 'Instagram: ' + instagramItems.length + ' príspevkov (z vyrovnávacej pamäte).'
+                        : 'Instagram zatiaľ nevrátil žiadne príspevky.';
+                    return;
+                }
+
+                status.hidden = false;
+                status.textContent = 'Načítavam Instagram príspevky…';
+
+                var endpoints = [
+                    API_BASE + '/instagram/feed?all=true',
+                    '/api/instagram/feed?all=true'
+                ];
+                var response = null;
+                for (var i = 0; i < endpoints.length; i++) {
+                    try {
+                        var r = await fetch(endpoints[i], { method: 'GET' });
+                        if (r.ok) { response = r; break; }
+                    } catch (_) { }
+                }
+
+                if (!response) {
+                    status.textContent = 'Instagram feed sa momentálne nepodarilo načítať.';
+                    return;
+                }
+
+                var payload = await response.json();
+                var items = Array.isArray(payload && payload.items) ? payload.items : [];
+                instagramItems = items.filter(function (it) { return it && it.imageUrl; });
+                setInstagramCache(instagramItems);
+
+                status.textContent = instagramItems.length
+                    ? 'Instagram: ' + instagramItems.length + ' príspevkov načítaných.'
+                    : 'Instagram zatiaľ nevrátil žiadne príspevky.';
+            } catch (e) {
+                status.textContent = 'Instagram feed sa momentálne nepodarilo načítať.';
+            }
+        }
+
+        /* ===== TABS & NAVIGATION ===== */
+        document.getElementById('albumTabs').addEventListener('click', function (e) {
+            var tab = e.target.closest('.album-tab');
+            if (!tab) return;
+            document.querySelectorAll('.album-tab').forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            currentAlbum = tab.dataset.album;
+            currentSubfolderIndex = null; // Reset subfolder view
+            renderGallery();
+        });
+
+        document.getElementById('backToAlbumsBtn').addEventListener('click', function () {
+            currentSubfolderIndex = null;
+            renderGallery();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        /* ===== LOAD MORE ===== */
+        document.getElementById('loadMoreBtn').addEventListener('click', function () {
+            renderNextBatch();
+        });
+
+        /* ===== MODAL ===== */
+        var modal = document.getElementById('galleryModal');
+        var modalImg = document.getElementById('modalImg');
+
+        function getVisibleImages() {
+            return Array.from(document.querySelectorAll('.gallery-image'));
+        }
+
+        function showModal(idx) {
+            var imgs = getVisibleImages();
+            if (!imgs.length) return;
+            if (idx < 0) idx = imgs.length - 1;
+            if (idx >= imgs.length) idx = 0;
+            currentImgIdx = idx;
+            modalImg.src = imgs[idx].src;
+            modalImg.alt = imgs[idx].alt;
+            modal.classList.add('active');
+        }
+
+        document.getElementById('galleryGrid').addEventListener('click', function (e) {
+            var img = e.target.closest('.gallery-image');
+            if (!img) return;
+            var all = getVisibleImages();
+            showModal(all.indexOf(img));
+        });
+
+        document.getElementById('modalClose').addEventListener('click', function () {
+            modal.classList.remove('active');
+            modalImg.src = '';
+        });
+
+        document.getElementById('modalPrev').addEventListener('click', function (e) {
+            e.stopPropagation();
+            showModal(currentImgIdx - 1);
+        });
+
+        document.getElementById('modalNext').addEventListener('click', function (e) {
+            e.stopPropagation();
+            showModal(currentImgIdx + 1);
+        });
+
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                modalImg.src = '';
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (!modal.classList.contains('active')) return;
+            if (e.key === 'ArrowLeft') showModal(currentImgIdx - 1);
+            else if (e.key === 'ArrowRight') showModal(currentImgIdx + 1);
+            else if (e.key === 'Escape') { modal.classList.remove('active'); modalImg.src = ''; }
+        });
+
+        /* ===== INIT ===== */
+        (async function () {
+            if (window.OSKSession) {
+                await window.OSKSession.syncCurrentUserFromSession();
+            }
+            buildAlbumTabs();
+
+            loadInstagramFeed().then(function () {
+                if (currentAlbum === 'instagram') renderGallery();
+            });
+
+            loadCloudinaryAlbums().then(function () {
+                buildAlbumTabs();
+                if (currentAlbum !== 'instagram') renderGallery();
+            });
+        })();
+    </script>
+
+
+
+
+    <div id="site-footer-root"></div>
+    <script src="/assets/js/footer.js"></script>
+</body>
+
+</html>

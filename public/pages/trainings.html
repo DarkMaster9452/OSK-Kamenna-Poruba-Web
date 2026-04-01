@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tréningy | OŠK Kamenná Poruba</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/site-footer.css">
+    <link rel="stylesheet" href="/assets/css/trainings.css">
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
+    <style>
+        :root {
+            --primary: #003399;
+            --secondary: #ffd700;
+            --text-dark: #333;
+            --text-light: #fff;
+            --bg-light: #f4f7f6;
+            --bg-white: #fff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 0;
+        }
+
+        #trainingView {
+            min-height: 400px;
+        }
+
+        /* Loading Spinner */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            color: var(--primary);
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .auth-error-card {
+            max-width: 500px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-top: 5px solid #e74c3c;
+        }
+
+        .auth-error-card h2 {
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .auth-error-card .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .auth-error-card .btn:hover {
+            background: #1a5ccc;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Scripts -->
+    <script src="/assets/js/session.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <script src="/assets/js/footer.js"></script>
+    <script src="/assets/js/trainings.js"></script>
+
+    <div id="site-header-root"></div>
+
+    <div class="main-content">
+        <div id="trainingView">
+            <div class="loader-container" id="initialLoader">
+                <div class="loader"></div>
+                <p>Načítavam tréningový systém...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="site-footer-root"></div>
+
+    <script>
+        // Global state expected by trainings.js
+        let currentUser = {
+            username: null,
+            role: null,
+            playerCategory: null,
+            isLoggedIn: false
+        };
+        let trainings = [];
+        let parentChildren = {};
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+
+        async function initPage() {
+            const trainingView = document.getElementById('trainingView');
+            const loader = document.getElementById('initialLoader');
+
+            try {
+                // 1. Sync session
+                const syncedUser = await window.OSKSession.syncCurrentUserFromSession();
+                currentUser = syncedUser || { username: null, role: null, isLoggedIn: false };
+                
+                if (!currentUser.isLoggedIn) {
+                    trainingView.innerHTML = `
+                        <div class="auth-error-card">
+                            <i class="fas fa-lock fa-3x" style="color: #e74c3c; margin-bottom: 20px;"></i>
+                            <h2>Prístup odmietnutý</h2>
+                            <p>Pre zobrazenie tréningov sa musíte najskôr prihlásiť.</p>
+                            <a href="/index.html" class="btn">Prejsť na hlavnú stránku</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 2. Initialize Training View from trainings.js
+                if (typeof initializeTrainingView === 'function') {
+                    initializeTrainingView();
+                } else {
+                    throw new Error('Nepodarilo sa načítať systém tréningov (trainings.js).');
+                }
+
+                // 3. Load Data
+                if (typeof loadTrainingData === 'function') {
+                    await loadTrainingData();
+                }
+
+                // 4. Update Header state just in case
+                if (window.OSKHeader) {
+                    window.OSKHeader.refresh(currentUser);
+                }
+
+            } catch (error) {
+                console.error('Initial load failed:', error);
+                trainingView.innerHTML = `
+                    <div class="auth-error-card">
+                        <i class="fas fa-exclamation-triangle fa-3x" style="color: #f39c12; margin-bottom: 20px;"></i>
+                        <h2>Chyba pri načítaní</h2>
+                        <p>${error.message || 'Nepodarilo sa načítať dáta zo servera.'}</p>
+                        <button onclick="window.location.reload()" class="btn">Skúsiť znova</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Run when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPage);
+        } else {
+            initPage();
+        }
+
+        // Listen for logout to redirect home
+        window.addEventListener('osk-auth-changed', (e) => {
+            if (!e.detail || !e.detail.isLoggedIn) {
+                window.location.href = '/index.html';
+            }
+        });
+    </script>
+</body>
+</html>

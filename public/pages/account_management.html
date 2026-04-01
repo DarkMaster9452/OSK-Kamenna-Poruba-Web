@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Správa účtov | OŠK Kamenná Poruba</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #003399 0%, #1a4db8 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: min(1400px, calc(100vw - 32px));
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        h1, .page-title, .title {
+            font-size: 30px;
+            font-weight: 700;
+            margin: 0;
+            color: #fff;
+        }
+
+        @media screen and (max-width: 768px) {
+            h1, .page-title, .title {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, .page-title, .title {
+                font-size: 24px !important;
+            }
+        }
+
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-primary {
+            background: #ffd700;
+            color: #003399;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #003399;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .btn-success {
+            background: #198754;
+            color: #fff;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            color: #222;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 14px;
+            color: #0f2f73;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        .list-toolbar {
+            display: grid;
+            grid-template-columns: minmax(260px, 2fr) repeat(2, minmax(160px, 1fr)) auto;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 12px;
+        }
+
+        .list-toolbar .btn {
+            white-space: nowrap;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        input:not([type="checkbox"]),
+        select {
+            width: 100%;
+            border: 1px solid #cfd6e4;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .children-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 2px;
+            border-bottom: 1px solid #f2f4f8;
+            margin: 0;
+            font-weight: 600;
+            color: #1f2f55;
+            cursor: pointer;
+        }
+
+        .children-option:last-child {
+            border-bottom: none;
+        }
+
+        .children-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #003399;
+            cursor: pointer;
+            margin: 0;
+            flex: 0 0 auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            table-layout: fixed;
+        }
+
+        .table-wrap {
+            border: 1px solid #e6e9f0;
+            border-radius: 10px;
+            overflow: auto;
+            background: #fff;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px 10px;
+            border-bottom: 1px solid #e6e9f0;
+            vertical-align: middle;
+            word-break: break-word;
+        }
+
+        th {
+            color: #003399;
+            background: #f7f9ff;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        tbody tr:hover {
+            background: #f9fbff;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .actions .btn {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+
+        #usersTableBody td:nth-child(1) {
+            font-weight: 700;
+            color: #0f2f73;
+        }
+
+        #usersTableBody td:nth-child(3),
+        #usersTableBody td:nth-child(4) {
+            color: #334155;
+        }
+
+        .status-badge {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Standardized Compact Footer */
+        .error {
+            color: #b00020;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .success {
+            color: #0f5132;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-box {
+            width: min(460px, calc(100vw - 24px));
+            background: #fff;
+            color: #222;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: calc(100vw - 20px);
+                padding: 10px 0;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+
+            .card {
+                padding: 14px;
+                border-radius: 12px;
+            }
+
+            .btn {
+                min-height: 42px;
+                font-size: 15px;
+                padding: 10px 12px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .list-toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                padding: 10px;
+                align-items: flex-start;
+            }
+
+            .modal-box {
+                width: 100%;
+                max-height: 92vh;
+                overflow-y: auto;
+                margin-top: 12px;
+                padding: 14px;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+                width: 100%;
+            }
+
+            thead {
+                display: none;
+            }
+
+            #usersTableBody tr {
+                border: 1px solid #e6e9f0;
+                border-radius: 10px;
+                padding: 8px;
+                margin-bottom: 10px;
+                background: #fff;
+            }
+
+            #usersTableBody td {
+                border: none;
+                border-bottom: 1px solid #f2f4f8;
+                padding: 8px 6px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                text-align: right;
+                word-break: break-word;
+            }
+
+            #usersTableBody td:last-child {
+                border-bottom: none;
+            }
+
+            #usersTableBody td::before {
+                content: attr(data-label);
+                color: #003399;
+                font-weight: 700;
+                text-align: left;
+                flex: 0 0 42%;
+            }
+
+            #usersTableBody td.actions {
+                display: block;
+                text-align: left;
+            }
+
+            #usersTableBody td.actions::before {
+                display: block;
+                margin-bottom: 8px;
+            }
+
+            .actions {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
+</head>
+
+<body>
+    <script src="/assets/js/session.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <div id="site-header-root"></div>
+    <div class="container">
+        <div class="topbar">
+            <h1 class="title"><i class="fas fa-users-cog"></i> Správa účtov</h1>
+        </div>
+
+        <div class="card">
+            <h3>Vytvoriť nový účet</h3>
+            <form id="createUserForm" class="grid">
+                <div>
+                    <label for="newUsername">Používateľské meno</label>
+                    <input id="newUsername" required minlength="3" />
+                </div>
+                <div>
+                    <label for="newEmail">Email</label>
+                    <input id="newEmail" type="email" placeholder="meno@domena.sk" required />
+                </div>
+                <div>
+                    <label for="newPassword">Počiatočné heslo</label>
+                    <input id="newPassword" type="password" required minlength="8" />
+                </div>
+                <div>
+                    <label for="newRole">Rola</label>
+                    <select id="newRole" required>
+                        <option value="admin">Admin</option>
+                        <option value="coach">Tréner</option>
+                        <option value="player">Hráč</option>
+                        <option value="parent">Rodič</option>
+                        <option value="blogger">Blogger</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="newCategory">Kategória hráča</label>
+                    <select id="newCategory">
+                        <option value="">—</option>
+                        <option value="dospeli">Dospelí</option>
+                        <option value="u19_dorast">U19 - Starší dorast</option>
+                        <option value="u15_ziaci">U15 - Starší žiaci</option>
+                        <option value="u13_ziaci">U13 - Mladší žiaci</option>
+                        <option value="u11_pripravka">U11 - Prípravka</option>
+                        <option value="u09_pripravka">U09 - Prípravka</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="newShirtNumber">Číslo dresu</label>
+                    <input id="newShirtNumber" type="number" min="1" max="99" step="1" placeholder="napr. 10" />
+                </div>
+                <div>
+                    <label for="newIsActive">Stav</label>
+                    <select id="newIsActive">
+                        <option value="true">Aktívny</option>
+                        <option value="false">Neaktívny</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-user-plus"></i> Vytvoriť</button>
+                </div>
+            </form>
+            <div id="createMessage"></div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-satellite-dish"></i> Sportnet API</h3>
+            <p style="margin:0 0 12px;font-size:14px;color:#444;">Manuálne spustenie aktualizácie dát zo Sportnet (zápasy, hráči, tabuľky).</p>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <button id="sportnetRefreshBtn" class="btn btn-primary" type="button" onclick="triggerSportnetRefresh()">
+                    <i class="fas fa-sync-alt"></i> Aktualizovať Sportnet dáta
+                </button>
+                <span id="sportnetRefreshStatus" style="font-size:13px;"></span>
+            </div>
+            <div id="sportnetRefreshTimeInfo" style="margin-top:12px; padding:10px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:13px; color:#555; display:flex; gap:20px;">
+                <span><strong>Posledná aktualizácia:</strong> <span id="lastRefreshTime">—</span></span>
+                <span><strong>Nasledujúca aktualizácia:</strong> <span id="nextRefreshTime">—</span></span>
+            </div>
+            <div id="sportnetRefreshMessage" style="margin-top:8px;"></div>
+        </div>
+
+        <div class="card">
+            <h3>Zoznam účtov</h3>
+            <div id="listMessage"></div>
+            <div class="list-toolbar">
+                <div>
+                    <label for="userSearchInput">Vyhľadávanie</label>
+                    <input id="userSearchInput" type="text" placeholder="Meno, email, rola, kategória, dres, deti..." />
+                </div>
+                <div>
+                    <label for="roleFilterSelect">Filter roly</label>
+                    <select id="roleFilterSelect">
+                        <option value="">Všetky roly</option>
+                        <option value="admin">Admin</option>
+                        <option value="coach">Tréner</option>
+                        <option value="player">Hráč</option>
+                        <option value="parent">Rodič</option>
+                        <option value="blogger">Blogger</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="statusFilterSelect">Filter stavu</label>
+                    <select id="statusFilterSelect">
+                        <option value="">Všetky stavy</option>
+                        <option value="active">Aktívny</option>
+                        <option value="inactive">Neaktívny</option>
+                    </select>
+                </div>
+                <button id="clearFiltersBtn" class="btn btn-secondary" type="button">Vyčistiť filtre</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Používateľ</th>
+                            <th>Email</th>
+                            <th>Rola</th>
+                            <th>Kategória</th>
+                            <th>Stav</th>
+                            <th>Akcie</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="6">Načítavam...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="passwordModal">
+        <div class="modal-box">
+            <h3>Reset hesla</h3>
+            <p id="resetUserLabel"></p>
+            <label for="resetPasswordInput">Nové heslo</label>
+            <input id="resetPasswordInput" type="password" minlength="8" />
+            <div id="resetMessage"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" type="button" onclick="closePasswordModal()">Zrušiť</button>
+                <button class="btn btn-primary" type="button" onclick="submitPasswordReset()">Uložiť</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editProfileModal">
+        <div class="modal-box">
+            <h3>Upraviť profil účtu</h3>
+            <p id="editUserLabel"></p>
+            <label for="editUsernameInput">Používateľské meno</label>
+            <input id="editUsernameInput" type="text" minlength="3" maxlength="100" required />
+            <label for="editEmailInput">Email</label>
+            <input id="editEmailInput" type="email" placeholder="meno@domena.sk" required />
+            <label for="editRoleSelect">Rola</label>
+            <select id="editRoleSelect">
+                <option value="admin">Admin</option>
+                <option value="coach">Tréner</option>
+                <option value="player">Hráč</option>
+                <option value="parent">Rodič</option>
+                <option value="blogger">Blogger</option>
+            </select>
+            <label for="editCategorySelect" style="margin-top:10px;">Kategória hráča</label>
+            <select id="editCategorySelect">
+                <option value="">—</option>
+                <option value="dospeli">Dospelí</option>
+                <option value="u19_dorast">U19 - Starší dorast</option>
+                <option value="u15_ziaci">U15 - Starší žiaci</option>
+                <option value="u13_ziaci">U13 - Mladší žiaci</option>
+                <option value="u11_pripravka">U11 - Prípravka</option>
+                <option value="u09_pripravka">U09 - Prípravka</option>
+            </select>
+            <label for="editShirtNumberInput" style="margin-top:10px;">Číslo dresu</label>
+            <input id="editShirtNumberInput" type="number" min="1" max="99" step="1" placeholder="napr. 10" />
+            <div id="editProfileMessage"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" type="button" onclick="closeEditProfileModal()">Zrušiť</button>
+                <button class="btn btn-primary" type="button" onclick="submitUserProfileUpdate()">Uložiť</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="childrenModal">
+        <div class="modal-box">
+            <h3>Priradiť deti rodičovi</h3>
+            <p id="childrenParentLabel"></p>
+            <div id="childrenOptions"
+                style="max-height:260px;overflow:auto;border:1px solid #e6e9f0;border-radius:8px;padding:10px;"></div>
+            <div id="childrenMessage"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" type="button" onclick="closeChildrenModal()">Zrušiť</button>
+                <button class="btn btn-primary" type="button" onclick="submitChildrenAssignment()">Uložiť</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+        let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
+        let users = [];
+        let resetUserId = null;
+        let resetUsername = null;
+        let editUserId = null;
+        let editUsername = null;
+        let activePlayers = [];
+        let childrenParentId = null;
+        let selectedChildIds = new Set();
+        let userSearchTerm = '';
+        let userRoleFilter = '';
+        let userStatusFilter = '';
+
+        function parseShirtNumber(rawValue) {
+            const value = String(rawValue || '').trim();
+            if (!value) return null;
+            const parsed = Number(value);
+            if (!Number.isInteger(parsed) || parsed < 1 || parsed > 99) {
+                return NaN;
+            }
+            return parsed;
+        }
+
+        function goBack() {
+            window.location.href = '/index.html';
+        }
+
+        function message(el, text, type) {
+            const node = document.getElementById(el);
+            if (!node) return;
+            node.className = type === 'error' ? 'error' : 'success';
+            node.textContent = text || '';
+        }
+
+        function categoryLabel(value) {
+            const map = {
+                dospeli: 'Dospelí',
+                u19_dorast: 'U19 - Starší dorast',
+                u15_ziaci: 'U15 - Starší žiaci',
+                u13_ziaci: 'U13 - Mladší žiaci',
+                u11_pripravka: 'U11 - Prípravka',
+                u09_pripravka: 'U09 - Prípravka'
+            };
+            return map[value] || '—';
+        }
+
+        function normalizeSearchValue(value) {
+            return String(value == null ? '' : value)
+                .toLowerCase()
+                .trim();
+        }
+
+        function getFilteredUsers() {
+            const term = normalizeSearchValue(userSearchTerm);
+
+            return users.filter((user) => {
+                if (userRoleFilter && String(user.role) !== userRoleFilter) {
+                    return false;
+                }
+
+                if (userStatusFilter === 'active' && !user.isActive) {
+                    return false;
+                }
+
+                if (userStatusFilter === 'inactive' && user.isActive) {
+                    return false;
+                }
+
+                if (!term) {
+                    return true;
+                }
+
+                const parentChildren = Array.isArray(user.children) ? user.children : [];
+                const childrenNames = parentChildren.map((child) => String(child.username || '').trim()).join(' ');
+                const categoryText = user.role === 'parent'
+                    ? (parentChildren.length ? `Deti: ${parentChildren.map((child) => child.username).join(', ')}` : '—')
+                    : categoryLabel(user.playerCategory);
+                const statusText = user.isActive ? 'Aktívny' : 'Neaktívny';
+
+                const haystack = normalizeSearchValue([
+                    user.username,
+                    user.email || '',
+                    user.role,
+                    categoryText,
+                    statusText,
+                    user.shirtNumber || '',
+                    childrenNames
+                ].join(' '));
+
+                return haystack.includes(term);
+            });
+        }
+
+        function encodeParam(value) {
+            return encodeURIComponent(value == null ? '' : String(value));
+        }
+
+        function decodeParam(value) {
+            try {
+                return decodeURIComponent(value == null ? '' : String(value));
+            } catch (_) {
+                return value == null ? '' : String(value);
+            }
+        }
+
+        async function ensureCsrfToken() {
+            return window.OSKSession ? window.OSKSession.ensureCsrfToken() : null;
+        }
+
+        async function ensureAdminAccess() {
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
+            }
+            if (!currentUser || !currentUser.isLoggedIn || currentUser.role !== 'admin') {
+                window.location.href = '/index.html';
+                return false;
+            }
+            return true;
+        }
+
+        function wait(ms) {
+            return new Promise((resolve) => setTimeout(resolve, ms));
+        }
+
+        async function saveChildrenAssignmentToApi(parentId, childIds, token) {
+            const requestBody = JSON.stringify({ childIds: Array.from(new Set((Array.isArray(childIds) ? childIds : []).filter(Boolean))) });
+            const methodsToTry = ['PATCH', 'POST', 'PUT'];
+            let lastError = null;
+
+            for (const method of methodsToTry) {
+                const res = await fetch(`${API_BASE}/users/${parentId}/children`, {
+                    method,
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': token
+                    },
+                    body: requestBody
+                });
+
+                if (res.ok) {
+                    return { ok: true };
+                }
+
+                const rawText = await res.text();
+                let payload = {};
+                try {
+                    payload = rawText ? JSON.parse(rawText) : {};
+                } catch (_) {
+                    payload = {};
+                }
+
+                const fallbackMessage = rawText && !payload.message
+                    ? `Uloženie zlyhalo (HTTP ${res.status}): ${rawText.slice(0, 180)}`
+                    : `Uloženie zlyhalo (HTTP ${res.status}).`;
+                const baseMessage = payload.message || fallbackMessage;
+                const routeHint = res.status === 404
+                    ? ' Backend pravdepodobne ešte nemá endpoint /users/:id/children (treba redeploy backendu).'
+                    : '';
+                lastError = new Error(`${baseMessage}${routeHint}`);
+
+                if (res.status !== 404 && res.status !== 405) {
+                    return { ok: false, error: lastError };
+                }
+            }
+
+            return { ok: false, error: lastError || new Error('Uloženie priradených detí zlyhalo.') };
+        }
+
+        async function isBackendHealthy() {
+            try {
+                const res = await fetch(`${API_BASE}/health`, { credentials: 'include' });
+                return res.ok;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        async function fetchUsers() {
+            let lastError = null;
+
+            for (let attempt = 1; attempt <= 3; attempt += 1) {
+                try {
+                    const res = await fetch(`${API_BASE}/users`, { credentials: 'include' });
+                    if (!res.ok) {
+                        const payload = await res.json().catch(() => ({}));
+                        const error = new Error(payload.message || `Načítanie účtov zlyhalo (HTTP ${res.status}).`);
+                        error.httpStatus = res.status;
+                        throw error;
+                    }
+
+                    const data = await res.json();
+                    users = data.items || [];
+                    renderUsers();
+                    return;
+                } catch (err) {
+                    lastError = err;
+                    if (attempt < 3) {
+                        await wait(700 * attempt);
+                    }
+                }
+            }
+
+            try {
+                if (lastError && lastError.httpStatus === 502) {
+                    const healthy = await isBackendHealthy();
+                    const text = healthy
+                        ? 'Backend odpovedá, ale endpoint účtov momentálne vracia 502. Skús to znovu o pár sekúnd alebo reštartuj backend službu.'
+                        : 'Backend je momentálne nedostupný (HTTP 502). Počkajte chvíľu, kým sa služba prebudí, alebo ju reštartujte.';
+                    message('listMessage', text, 'error');
+                } else {
+                    message('listMessage', (lastError && lastError.message) || 'Načítanie účtov zlyhalo.', 'error');
+                }
+            } catch (_) {
+                message('listMessage', (lastError && lastError.message) || 'Načítanie účtov zlyhalo.', 'error');
+            } finally {
+                document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="6">Nepodarilo sa načítať účty.</td></tr>';
+            }
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            if (!users.length) {
+                tbody.innerHTML = '<tr><td colspan="6">Zatiaľ nie sú žiadne účty.</td></tr>';
+                return;
+            }
+
+            const filteredUsers = getFilteredUsers();
+            if (!filteredUsers.length) {
+                tbody.innerHTML = '<tr><td colspan="6">Nenašli sa žiadne účty podľa filtra.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredUsers.map((user) => {
+                const statusClass = user.isActive ? 'status-active' : 'status-inactive';
+                const statusText = user.isActive ? 'Aktívny' : 'Neaktívny';
+                const toggleLabel = user.isActive ? 'Deaktivovať' : 'Aktivovať';
+                const toggleClass = user.isActive ? 'btn-danger' : 'btn-success';
+                const parentChildren = Array.isArray(user.children) ? user.children : [];
+                const categoryText = user.role === 'parent'
+                    ? (parentChildren.length ? `Deti: ${parentChildren.map((child) => child.username).join(', ')}` : '—')
+                    : categoryLabel(user.playerCategory);
+                const encodedUsername = encodeParam(user.username);
+                const encodedEmail = encodeParam(user.email || '');
+                const encodedRole = encodeParam(user.role);
+                const encodedCategory = encodeParam(user.playerCategory || '');
+                const encodedShirtNumber = encodeParam(user.shirtNumber || '');
+                return `
+                    <tr>
+                        <td data-label="Používateľ">${user.username}</td>
+                        <td data-label="Email">${user.email || '—'}</td>
+                        <td data-label="Rola">${user.role}</td>
+                        <td data-label="Kategória">${categoryText}</td>
+                        <td data-label="Stav"><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td data-label="Akcie" class="actions">
+                            <button class="btn btn-secondary" onclick="openEditProfileModalFromEncoded('${user.id}','${encodedUsername}','${encodedEmail}','${encodedRole}','${encodedCategory}','${encodedShirtNumber}')">Upraviť profil</button>
+                            ${user.role === 'parent' ? `<button class="btn btn-secondary" onclick="openChildrenModal('${user.id}')">Priradiť deti</button>` : ''}
+                            <button class="btn btn-secondary" onclick="openPasswordModalFromEncoded('${user.id}','${encodedUsername}')">Reset hesla</button>
+                            <button class="btn ${toggleClass}" onclick="toggleUserStatus('${user.id}', ${user.isActive})">${toggleLabel}</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openPasswordModalFromEncoded(userId, usernameEncoded) {
+            openPasswordModal(userId, decodeParam(usernameEncoded));
+        }
+
+        function openEditProfileModalFromEncoded(userId, usernameEncoded, emailEncoded, roleEncoded, playerCategoryEncoded, shirtNumberEncoded) {
+            openEditProfileModal(
+                userId,
+                decodeParam(usernameEncoded),
+                decodeParam(emailEncoded),
+                decodeParam(roleEncoded),
+                decodeParam(playerCategoryEncoded),
+                decodeParam(shirtNumberEncoded)
+            );
+        }
+
+        async function createUser(event) {
+            event.preventDefault();
+            message('createMessage', '', 'success');
+
+            const username = document.getElementById('newUsername').value.trim();
+            const email = document.getElementById('newEmail').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('newRole').value;
+            const categoryValue = document.getElementById('newCategory').value || null;
+            const shirtNumber = parseShirtNumber(document.getElementById('newShirtNumber').value);
+            const isActive = document.getElementById('newIsActive').value === 'true';
+
+            if (Number.isNaN(shirtNumber)) {
+                message('createMessage', 'Číslo dresu musí byť celé číslo od 1 do 99.', 'error');
+                return;
+            }
+
+            if (role === 'player' && !categoryValue) {
+                message('createMessage', 'Pre hráča treba zvoliť kategóriu.', 'error');
+                return;
+            }
+
+            try {
+                const token = await ensureCsrfToken();
+                const res = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': token
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password,
+                        role,
+                        playerCategory: role === 'player' ? categoryValue : null,
+                        shirtNumber: role === 'player' ? shirtNumber : null,
+                        isActive
+                    })
+                });
+
+                const payload = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(payload.message || 'Vytvorenie účtu zlyhalo.');
+
+                message('createMessage', `Účet ${payload.item.username} bol vytvorený.`, 'success');
+                document.getElementById('createUserForm').reset();
+                document.getElementById('newRole').value = 'admin';
+                await fetchUsers();
+            } catch (err) {
+                message('createMessage', err.message || 'Vytvorenie účtu zlyhalo.', 'error');
+            }
+        }
+
+        function openPasswordModal(userId, username) {
+            resetUserId = userId;
+            resetUsername = username;
+            document.getElementById('resetUserLabel').textContent = `Používateľ: ${username}`;
+            document.getElementById('resetPasswordInput').value = '';
+            message('resetMessage', '', 'success');
+            document.getElementById('passwordModal').classList.add('active');
+        }
+
+        function closePasswordModal() {
+            resetUserId = null;
+            resetUsername = null;
+            document.getElementById('passwordModal').classList.remove('active');
+        }
+
+        function openEditProfileModal(userId, username, email, role, playerCategory, shirtNumber) {
+            editUserId = userId;
+            editUsername = username;
+
+            document.getElementById('editUserLabel').textContent = `Používateľ: ${username}`;
+            document.getElementById('editUsernameInput').value = username || '';
+            document.getElementById('editEmailInput').value = email || '';
+            document.getElementById('editRoleSelect').value = role;
+            document.getElementById('editCategorySelect').value = playerCategory || '';
+            document.getElementById('editShirtNumberInput').value = shirtNumber || '';
+            message('editProfileMessage', '', 'success');
+
+            handleEditRoleToggle();
+            document.getElementById('editProfileModal').classList.add('active');
+        }
+
+        function closeEditProfileModal() {
+            editUserId = null;
+            editUsername = null;
+            document.getElementById('editProfileModal').classList.remove('active');
+        }
+
+        function handleEditRoleToggle() {
+            const role = document.getElementById('editRoleSelect').value;
+            const category = document.getElementById('editCategorySelect');
+            const shirtNumber = document.getElementById('editShirtNumberInput');
+            if (role === 'player') {
+                category.disabled = false;
+                shirtNumber.disabled = false;
+            } else {
+                category.value = '';
+                shirtNumber.value = '';
+                category.disabled = true;
+                shirtNumber.disabled = true;
+            }
+        }
+
+        async function fetchActivePlayersForAssignment() {
+            const res = await fetch(`${API_BASE}/players`, { credentials: 'include' });
+            if (!res.ok) {
+                const payload = await res.json().catch(() => ({}));
+                throw new Error(payload.message || 'Nepodarilo sa načítať zoznam aktívnych hráčov.');
+            }
+
+            const payload = await res.json();
+            const items = Array.isArray(payload.items) ? payload.items : [];
+            activePlayers = items.map((item) => ({
+                id: item.id,
+                username: item.username,
+                category: item.category || null
+            }));
+        }
+
+        function renderChildrenOptions() {
+            const node = document.getElementById('childrenOptions');
+            if (!node) return;
+
+            if (!activePlayers.length) {
+                node.innerHTML = '<p style="margin:0;color:#666;">Žiadni aktívni hráči.</p>';
+                return;
+            }
+
+            node.innerHTML = activePlayers.map((player) => {
+                const checked = selectedChildIds.has(player.id) ? 'checked' : '';
+                return `
+                    <label class="children-option">
+                        <input type="checkbox" value="${player.id}" ${checked} onchange="toggleChildSelection('${player.id}', this.checked)">
+                        <span><strong>${player.username}</strong>${player.category ? ` • ${categoryLabel(player.category)}` : ''}</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function toggleChildSelection(childId, isChecked) {
+            if (isChecked) {
+                selectedChildIds.add(childId);
+            } else {
+                selectedChildIds.delete(childId);
+            }
+        }
+
+        async function openChildrenModal(parentId) {
+            const parentUser = users.find((item) => String(item.id) === String(parentId));
+            if (!parentUser) {
+                message('listMessage', 'Rodič nebol nájdený.', 'error');
+                return;
+            }
+
+            childrenParentId = parentUser.id;
+            const assignedByApi = (Array.isArray(parentUser.children) ? parentUser.children : []).map((child) => child.id).filter(Boolean);
+            selectedChildIds = new Set(assignedByApi);
+            document.getElementById('childrenParentLabel').textContent = `Rodič: ${parentUser.username}`;
+            message('childrenMessage', '', 'success');
+
+            try {
+                await fetchActivePlayersForAssignment();
+                renderChildrenOptions();
+                document.getElementById('childrenModal').classList.add('active');
+            } catch (err) {
+                message('listMessage', err.message || 'Nepodarilo sa načítať hráčov.', 'error');
+            }
+        }
+
+        function closeChildrenModal() {
+            childrenParentId = null;
+            selectedChildIds = new Set();
+            document.getElementById('childrenModal').classList.remove('active');
+        }
+
+        async function submitChildrenAssignment() {
+            if (!childrenParentId) {
+                message('childrenMessage', 'Nie je vybraný rodič.', 'error');
+                return;
+            }
+
+            try {
+                const token = await ensureCsrfToken();
+                const result = await saveChildrenAssignmentToApi(childrenParentId, Array.from(selectedChildIds), token);
+                if (!result.ok) {
+                    throw (result.error || new Error('Uloženie priradených detí zlyhalo.'));
+                }
+
+                message('childrenMessage', 'Deti boli úspešne priradené.', 'success');
+                await fetchUsers();
+                setTimeout(() => closeChildrenModal(), 700);
+            } catch (err) {
+                message('childrenMessage', err.message || 'Uloženie priradených detí zlyhalo.', 'error');
+            }
+        }
+
+        async function submitUserProfileUpdate() {
+            const username = document.getElementById('editUsernameInput').value.trim();
+            const email = document.getElementById('editEmailInput').value.trim();
+            const role = document.getElementById('editRoleSelect').value;
+            const playerCategory = document.getElementById('editCategorySelect').value || null;
+            const shirtNumber = parseShirtNumber(document.getElementById('editShirtNumberInput').value);
+
+            if (!username || username.length < 3) {
+                message('editProfileMessage', 'Používateľské meno musí mať aspoň 3 znaky.', 'error');
+                return;
+            }
+
+            if (!email) {
+                message('editProfileMessage', 'Email je povinný.', 'error');
+                return;
+            }
+
+            if (Number.isNaN(shirtNumber)) {
+                message('editProfileMessage', 'Číslo dresu musí byť celé číslo od 1 do 99.', 'error');
+                return;
+            }
+
+            if (role === 'player' && !playerCategory) {
+                message('editProfileMessage', 'Pre hráča treba zvoliť kategóriu.', 'error');
+                return;
+            }
+
+            try {
+                const token = await ensureCsrfToken();
+                const res = await fetch(`${API_BASE}/users/${editUserId}/profile`, {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': token
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        role,
+                        playerCategory: role === 'player' ? playerCategory : null,
+                        shirtNumber: role === 'player' ? shirtNumber : null
+                    })
+                });
+
+                const payload = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(payload.message || 'Úprava profilu zlyhala.');
+
+                message('editProfileMessage', `Profil používateľa ${editUsername} bol upravený.`, 'success');
+                await fetchUsers();
+                setTimeout(() => closeEditProfileModal(), 700);
+            } catch (err) {
+                message('editProfileMessage', err.message || 'Úprava profilu zlyhala.', 'error');
+            }
+        }
+
+        async function submitPasswordReset() {
+            const newPassword = document.getElementById('resetPasswordInput').value;
+            if (!newPassword || newPassword.length < 8) {
+                message('resetMessage', 'Heslo musí mať aspoň 8 znakov.', 'error');
+                return;
+            }
+
+            try {
+                const token = await ensureCsrfToken();
+                const res = await fetch(`${API_BASE}/users/${resetUserId}/reset-password`, {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': token
+                    },
+                    body: JSON.stringify({ newPassword })
+                });
+
+                const payload = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(payload.message || 'Reset hesla zlyhal.');
+
+                message('resetMessage', `Heslo pre ${resetUsername} bolo resetované.`, 'success');
+                setTimeout(() => closePasswordModal(), 700);
+            } catch (err) {
+                message('resetMessage', err.message || 'Reset hesla zlyhal.', 'error');
+            }
+        }
+
+        async function toggleUserStatus(userId, currentlyActive) {
+            try {
+                const token = await ensureCsrfToken();
+                const res = await fetch(`${API_BASE}/users/${userId}/status`, {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': token
+                    },
+                    body: JSON.stringify({ isActive: !currentlyActive })
+                });
+
+                const payload = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(payload.message || 'Zmena stavu zlyhala.');
+
+                await fetchUsers();
+            } catch (err) {
+                message('listMessage', err.message || 'Zmena stavu zlyhala.', 'error');
+            }
+        }
+
+        document.getElementById('newRole').addEventListener('change', function () {
+            const category = document.getElementById('newCategory');
+            const shirtNumber = document.getElementById('newShirtNumber');
+            if (this.value === 'player') {
+                category.disabled = false;
+                shirtNumber.disabled = false;
+            } else {
+                category.value = '';
+                shirtNumber.value = '';
+                category.disabled = true;
+                shirtNumber.disabled = true;
+            }
+        });
+
+        document.getElementById('createUserForm').addEventListener('submit', createUser);
+
+        document.getElementById('passwordModal').addEventListener('click', function (e) {
+            if (e.target === this) closePasswordModal();
+        });
+
+        document.getElementById('editProfileModal').addEventListener('click', function (e) {
+            if (e.target === this) closeEditProfileModal();
+        });
+
+        document.getElementById('childrenModal').addEventListener('click', function (e) {
+            if (e.target === this) closeChildrenModal();
+        });
+
+        document.getElementById('editRoleSelect').addEventListener('change', handleEditRoleToggle);
+
+        const userSearchInput = document.getElementById('userSearchInput');
+        const roleFilterSelect = document.getElementById('roleFilterSelect');
+        const statusFilterSelect = document.getElementById('statusFilterSelect');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+
+        userSearchInput.addEventListener('input', function () {
+            userSearchTerm = this.value || '';
+            renderUsers();
+        });
+
+        roleFilterSelect.addEventListener('change', function () {
+            userRoleFilter = this.value || '';
+            renderUsers();
+        });
+
+        statusFilterSelect.addEventListener('change', function () {
+            userStatusFilter = this.value || '';
+            renderUsers();
+        });
+
+        clearFiltersBtn.addEventListener('click', function () {
+            userSearchTerm = '';
+            userRoleFilter = '';
+            userStatusFilter = '';
+            userSearchInput.value = '';
+            roleFilterSelect.value = '';
+            statusFilterSelect.value = '';
+            renderUsers();
+        });
+
+        async function updateRefreshInfoUI() {
+            try {
+                const res = await fetch(`${API_BASE}/sportsnet/matches`, {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.fetchedAt) {
+                    const last = new Date(data.fetchedAt);
+                    document.getElementById('lastRefreshTime').textContent = last.toLocaleString('sk-SK');
+                    
+                    // Display next refresh based on 4 hour interval (14400 seconds)
+                    const next = new Date(last.getTime() + 4 * 60 * 60 * 1000);
+                    document.getElementById('nextRefreshTime').textContent = next.toLocaleString('sk-SK');
+                }
+            } catch (err) {
+                console.error('Failed to update refresh info UI:', err);
+            }
+        }
+
+        async function triggerSportnetRefresh() {
+            const btn = document.getElementById('sportnetRefreshBtn');
+            const status = document.getElementById('sportnetRefreshStatus');
+            const msg = document.getElementById('sportnetRefreshMessage');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Aktualizujem...';
+            status.textContent = '';
+            msg.className = '';
+            msg.textContent = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/sportsnet/matches?refresh=true`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { Accept: 'application/json' }
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const matchData = await res.json();
+
+                // Also refresh standings and players
+                await Promise.allSettled([
+                    fetch(`${API_BASE}/sportsnet/standings?refresh=true`, { credentials: 'include', headers: { Accept: 'application/json' } }),
+                    fetch(`${API_BASE}/sportsnet/players?refresh=true`, { credentials: 'include', headers: { Accept: 'application/json' } })
+                ]);
+
+                const count = matchData.count || (matchData.items ? matchData.items.length : 0);
+                const fetchedAt = new Date(matchData.fetchedAt || Date.now()).toLocaleString('sk-SK');
+                msg.className = 'success';
+                msg.textContent = `Sportnet dáta boli aktualizované. Zápasov: ${count}. Čas: ${fetchedAt}`;
+                await updateRefreshInfoUI();
+            } catch (err) {
+                msg.className = 'error';
+                msg.textContent = 'Aktualizácia zlyhala: ' + (err.message || 'Neznáma chyba');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Aktualizovať Sportnet dáta';
+            }
+        }
+
+        (async function init() {
+            const ok = await ensureAdminAccess();
+            if (!ok) return;
+
+            const category = document.getElementById('newCategory');
+            const shirtNumber = document.getElementById('newShirtNumber');
+            category.disabled = true;
+            shirtNumber.disabled = true;
+            await fetchUsers();
+            await updateRefreshInfoUI();
+        })();
+    </script>
+
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+
+    <script src="/assets/js/cloudinary-assets.js"></script>
+    <div id="site-footer-root"></div>
+    <script src="/assets/js/footer.js"></script>
+</body>
+</html>

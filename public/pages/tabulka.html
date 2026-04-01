@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zápasy | OŠK Kamenná Poruba</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-P152RNBL34');
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1, .page-title {
+            text-align: left;
+            color: #003399;
+            margin: 0 0 16px;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+
+        .matches-section-header {
+            grid-column: 1 / -1;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1a1a1a;
+            border-left: 5px solid #ffd700;
+            padding: 8px 16px;
+            margin-bottom: 5px;
+            background: #f9f9f9;
+        }
+
+        .match-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.09);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border-left: 5px solid #ffd700;
+            overflow: hidden;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .match-competition {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+            color: #7f8c8d;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .match-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .match-status.upcoming {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .match-status.finished {
+            background: #f1f2f6;
+            color: #57606f;
+        }
+
+        .match-status.live {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .match-detail-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .match-detail-header .match-competition {
+            margin-bottom: 8px;
+            justify-content: center;
+        }
+
+        .match-teams {
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        .team-vs {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .team-name {
+            font-weight: bold;
+            font-size: 13px;
+            color: #003399;
+            padding: 6px 8px;
+            background: #f0f0f0;
+            border-radius: 0;
+            line-height: 1.3;
+        }
+
+        .vs-text {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .match-score {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 8px;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .score-value {
+            text-align: center;
+            color: #ffd700;
+            font-size: 32px;
+            background: #003399;
+            padding: 8px 16px;
+            border-radius: 12px;
+            min-width: 100px;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(0, 51, 153, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .team-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+
+        .team-logo-small {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .match-details {
+            font-size: 12px;
+            color: #222;
+            margin: 7px 0;
+        }
+
+        .match-details i {
+            color: #ffd700;
+            width: 20px;
+        }
+
+        .match-location {
+            background: #f9f9f9;
+            padding: 5px 8px;
+            border-radius: 0;
+            margin: 4px 0;
+        }
+
+        .match-date {
+            background: #f9f9f9;
+            padding: 5px 8px;
+            border-radius: 0;
+            margin: 4px 0;
+        }
+
+        .view-details-btn {
+            width: 100%;
+            padding: 7px;
+            background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+            color: white;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: background 0.3s;
+            margin-top: 8px;
+        }
+
+        .view-details-btn:hover {
+            background: linear-gradient(135deg, #1a5ccc 0%, #003399 100%);
+        }
+
+        /* Sportsnet Info Tab Styles */
+        .sportsnet-info {
+            background: rgba(0, 51, 153, 0.04);
+            border: 1px solid rgba(0, 51, 153, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 30px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .sportsnet-info-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #003399;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sportsnet-chip {
+            background: #ffd700;
+            color: #003399;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .sportsnet-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .sportsnet-info-grid strong {
+            color: #1a1a1a;
+            margin-right: 4px;
+        }
+
+        /* Category Tabs Styles */
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .category-tab {
+            background: white;
+            border: 1px solid #dcdde1;
+            color: #57606f;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .category-tab:hover {
+            border-color: #003399;
+            color: #003399;
+            background: rgba(0, 51, 153, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .category-tab.active {
+            background: #003399;
+            border-color: #003399;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 51, 153, 0.2);
+        }
+
+        #matchStatusTabs .category-tab {
+            padding: 8px 18px;
+            font-size: 14px;
+        }
+
+        #standingsTabs .category-tab {
+            padding: 6px 14px;
+            font-size: 13px;
+        }
+
+        #categoryTabs.category-tabs {
+            margin-top: 10px;
+        }
+
+        .standings-title {
+            text-align: center; 
+            color: #003399; 
+            margin: 40px 0 24px; 
+            font-size: 30px; 
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        /* Standings category tabs */
+        .standings-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .standings-tab {
+            padding: 8px 18px;
+            border: 1px solid #dcdde1;
+            border-radius: 20px;
+            background: #fff;
+            color: #57606f;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .standings-tab:hover {
+            border-color: #003399;
+            color: #003399;
+            background: rgba(0, 51, 153, 0.05);
+        }
+
+        .standings-tab.active {
+            background: #003399;
+            color: #fff;
+            border-color: #003399;
+            box-shadow: 0 4px 10px rgba(0, 51, 153, 0.2);
+        }
+
+        /* ===== STANDINGS / LEAGUE TABLE ===== */
+        /* table-wrap for horizontal scroll */
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 15px;
+        }
+
+        .standings-section {
+            margin-bottom: 32px;
+        }
+
+        .standings-group {
+            background: white;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .standings-group-header {
+            font-size: 13px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .standings-table thead tr {
+            background: #f5f7fa;
+            border-bottom: 2px solid #eee;
+        }
+
+        .standings-table th {
+            padding: 9px 12px;
+            text-align: left;
+            font-size: 11px;
+            color: #888;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .standings-table th.center,
+        .standings-table td.center {
+            text-align: center;
+            width: 34px !important; /* Even tighter for narrow columns */
+        }
+
+        .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
+            min-width: 48px !important; /* Skore needs bit more but tighter */
+        }
+
+        .standings-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .standings-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        .standings-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .standings-table td {
+            padding: 11px 12px;
+            font-size: 14px;
+        }
+
+        .standings-rank-cell {
+            width: 44px;
+        }
+
+        .standings-rank {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .standings-rank-qualifier {
+            background: #003399;
+            color: white;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .standings-team-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .standings-team-abbr {
+            width: 30px;
+            height: 30px;
+            background: #003399;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Standardized Compact Footer */
+        footer {
+            background: #003399;
+            color: white;
+            padding: 40px 20px 30px;
+            margin-top: 50px;
+            border-top: 5px solid #ffd700;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-section h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: flex !important;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            padding: 0;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .footer-section ul li a:hover {
+            color: #ffd700;
+            transform: translateX(5px);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .social-icons a {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-icons a:hover {
+            background: #ffd700;
+            color: #003399;
+            transform: translateY(-5px);
+            border-color: #ffd700;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                padding: 40px 15px 25px;
+            }
+            .footer-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 40px;
+            }
+            .footer-section {
+                width: 100%;
+            }
+            .footer-section h3 {
+                justify-content: center;
+            }
+            .social-icons {
+                justify-content: center;
+            }
+            .footer-section ul li a:hover {
+                transform: none;
+            }
+        }
+
+        .standings-team-abbr.own-team {
+            background: #ffd700;
+            color: #003399;
+        }
+
+        .standings-team-name {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .standings-team-name.own-team {
+            color: #003399;
+            font-weight: 700;
+        }
+
+        .standings-points {
+            font-weight: 800;
+            color: #003399;
+            background: #f4f8ff;
+            font-size: 15px;
+        }
+
+        .standings-diff-pos {
+            color: #1a7a1a;
+            font-weight: 600;
+        }
+
+        .standings-diff-neg {
+            color: #b71c1c;
+            font-weight: 600;
+        }
+
+        .standings-legend {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            font-size: 12px;
+            color: #555;
+            background: #f5f7fa;
+            border-top: 1px solid #eee;
+        }
+
+        .standings-legend-dot {
+            width: 14px;
+            height: 14px;
+            background: #003399;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .standings-table tbody tr.own-team {
+            background: #f0f7ff !important;
+            border-left: 4px solid #003399;
+        }
+
+        .standings-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        .standings-tab {
+            padding: 10px 22px;
+            border: 2px solid #edeff2;
+            border-radius: 30px;
+            background: #fff;
+            color: #7f8c8d;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .standings-tab:hover {
+            border-color: #003399;
+            color: #003399;
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 51, 153, 0.1);
+        }
+
+        .standings-tab.active {
+            background: #003399;
+            color: #fff;
+            border-color: #003399;
+            box-shadow: 0 8px 20px rgba(0, 51, 153, 0.25);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #c62828;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(198, 40, 40, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(198, 40, 40, 0); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 30, 90, 0.6);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            padding: 15px;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            border-radius: 24px;
+            overflow-y: auto;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 51, 153, 0.1);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: #003399;
+            color: white;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10002;
+            transition: all 0.2s;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0, 51, 153, 0.3);
+        }
+
+        .modal-close:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: #ffd700;
+            color: #003399;
+        }
+
+        .events-section {
+            margin-top: 25px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .events-title {
+            font-weight: 800;
+            color: #003399;
+            text-transform: uppercase;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .detail-teams {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .detail-team {
+            flex: 1;
+            text-align: center;
+        }
+
+        .detail-team-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: #003399;
+            text-transform: uppercase;
+        }
+
+        .detail-score {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffd700;
+            background: #003399;
+            padding: 4px 12px;
+            border-radius: 8px;
+            min-width: 50px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,51,153,0.3);
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .event-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .event-player {
+            font-weight: 700;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .event-type {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .btn-standings-jump {
+            background: #003399;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            position: absolute;
+            right: 0;
+            box-shadow: 0 2px 8px rgba(0,51,153,0.2);
+        }
+
+        .btn-standings-jump:hover {
+            background: #002266;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,51,153,0.3);
+        }
+
+        @media screen and (max-width: 991px) {
+            .btn-standings-jump {
+                position: static;
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1, .page-title, .standings-title {
+                font-size: 26px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1, .page-title, .standings-title {
+                font-size: 24px !important;
+            }
+
+            /* Table optimization for tiny screens - SHOW ALL 9 COLUMNS */
+            .table-wrap {
+                overflow-x: hidden;
+                border-radius: 8px;
+            }
+
+            .standings-table th, .standings-table td {
+                padding: 10px 2px !important;
+                font-size: 9px;
+            }
+
+            /* Hide logos on mobile to save space for stats */
+            .standings-team-cell {
+                display: flex;
+                align-items: center;
+                gap: 0;
+            }
+            
+            .standings-team-cell img, .standings-team-cell .standings-team-abbr {
+                display: none !important;
+            }
+
+            .standings-team-name {
+                max-width: 90px !important;
+                font-size: 10px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .standings-points {
+                font-size: 11px !important;
+                width: auto !important;
+                font-weight: 800;
+            }
+
+            .standings-rank-cell {
+                width: 20px !important;
+                padding-left: 5px !important;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
+</head>
+
+<body>
+    <script src="/assets/js/session.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <div id="site-header-root"></div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1 class="page-title"><i class="fas fa-table"></i> Tabuľka</h1>
+
+
+
+        <div id="standingsContainer" style="margin-top: 20px;">
+            <h2 class="standings-title">
+                <i class="fas fa-ranking-star"></i> Tabuľka súťaže
+            </h2>
+            <div class="standings-tabs" id="standingsTabs">
+                <button class="standings-tab active" data-cat="dospeli">Dospelí</button>
+                <button class="standings-tab" data-cat="dorast">Dorast</button>
+                <button class="standings-tab" data-cat="ziaci">Žiaci</button>
+                <button class="standings-tab" data-cat="pripravka">Prípravka</button>
+            </div>
+            <div id="standingsSectionContainer">
+                <div style="text-align:center;padding:40px;color:#666;">Načítavam tabuľku...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="matchModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeMatchModal()"><i class="fas fa-times"></i></button>
+            <div id="matchModalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // ====== GLOBÁLNE PREMENNÉ ======
+        let MATCHES = {};
+        let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
+        let activeCategory = 'all';
+        let activeMatchType = 'upcoming';
+        let SPORTSNET_INFO = {
+            status: 'LOADING',
+            source: 'SportNet API',
+            fetchedAt: null,
+            count: 0,
+            cache: 'NONE'
+        };
+
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+
+        /* ===== 10-MINUTE CACHE HELPER ===== */
+        const CACHE_TTL = 10 * 60 * 1000;
+        async function cachedFetch(cacheKey, url, options) {
+            try {
+                const raw = localStorage.getItem(cacheKey);
+                if (raw) {
+                    const cached = JSON.parse(raw);
+                    if (cached && cached.ts && (Date.now() - cached.ts < CACHE_TTL)) {
+                        // Preserved timestamp from when it was actually fetched
+                        if (cached.data && typeof cached.data === 'object' && !Array.isArray(cached.data)) {
+                            cached.data._fetchedAt = cached.ts;
+                        }
+                        return cached.data;
+                    }
+                }
+            } catch (_) { }
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            const ts = Date.now();
+            if (data && typeof data === 'object' && !Array.isArray(data)) {
+                data._fetchedAt = ts;
+            }
+            try { localStorage.setItem(cacheKey, JSON.stringify({ ts, data })); } catch (_) { }
+            return data;
+        }
+
+        function renderSportsnetInfo() {
+            const container = document.getElementById('sportsnetInfo');
+            if (!container) return;
+
+            const fetchedAtRaw = SPORTSNET_INFO.fetchedAt || Date.now();
+            const fetchedDate = new Date(fetchedAtRaw);
+            const fetchedText = fetchedDate.toLocaleString('sk-SK');
+            
+            // Cache TTL is 10 minutes
+            const nextUpdateAt = fetchedDate.getTime() + (10 * 60 * 1000);
+            const nextUpdateText = new Date(nextUpdateAt).toLocaleString('sk-SK');
+
+            container.innerHTML = `
+                <div class="sportsnet-info-header">
+                    <i class="fas fa-satellite-dish"></i>
+                    Informácie o prepojení (Sportsnet API)
+                </div>
+                <div class="sportsnet-info-grid">
+                    <div><strong>Stav API:</strong> <span class="sportsnet-chip" style="background:#2ecc71; color:white; margin:0; display:inline-block; vertical-align:middle;">${SPORTSNET_INFO.status}</span></div>
+                    <div><strong>Posledná aktualizácia:</strong> ${fetchedText}</div>
+                    <div><strong>Nasledujúca aktualizácia:</strong> ${nextUpdateText}</div>
+                </div>
+            `;
+        }
+
+        function detectCategory(competition) {
+            const c = String(competition || '').toLowerCase();
+            if (c.includes('u9') || c.includes('u09') || c.includes('mladších príprav')) return 'u09_pripravka';
+            if (c.includes('u11') || c.includes('príprav')) return 'u11_pripravka';
+            if (c.includes('u13') || c.includes('mladší žiaci') || c.includes('mladších žiakov')) return 'u13_ziaci';
+            if (c.includes('u15') || c.includes('starší žiaci') || c.includes('starších žiakov')) return 'u15_ziaci';
+            if (c.includes('dorast') || c.includes('u17') || c.includes('u19')) return 'u19_dorast';
+            return 'dospeli';
+        }
+
+        const CATEGORY_LABELS = {
+            all: 'Všetky',
+            dospeli: 'Dospelí',
+            u19_dorast: 'U19 - Starší dorast',
+            u15_ziaci: 'U15 - Starší žiaci',
+            u13_ziaci: 'U13 - Mladší žiaci',
+            u11_pripravka: 'U11 - Prípravka',
+            u09_pripravka: 'U09 - Prípravka'
+        };
+
+        const CATEGORY_ORDER = ['all', 'dospeli', 'u19_dorast', 'u15_ziaci', 'u13_ziaci', 'u11_pripravka', 'u09_pripravka'];
+
+        // Club logo registry - maps normalized team name to logo URL
+        const CLUB_LOGOS = {};
+
+        function normalizeTeamName(name) {
+            return String(name || '').toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
+        function registerClubLogo(name, logoUrl) {
+            if (!name || !logoUrl) return;
+            CLUB_LOGOS[normalizeTeamName(name)] = logoUrl;
+        }
+
+        function getClubLogo(name) {
+            return CLUB_LOGOS[normalizeTeamName(name)] || null;
+        }
+
+        function buildClubLogoImg(name, size) {
+            size = size || 24;
+            const logo = getClubLogo(name);
+            if (logo) {
+                return `<img src="${logo}" alt="${name}" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:50%;background:#fff;flex-shrink:0;">`;
+            }
+            const abbr = String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+            const own = isOwnTeam(name);
+            return `<div class="standings-team-abbr${own ? ' own-team' : ''}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;">${abbr}</div>`;
+        }
+
+        function normalizeSportsnetMatch(item, index) {
+            const startsAt = item.startsAt || (item.date && item.time ? `${item.date}T${item.time}` : null);
+            const dateValue = item.date || (startsAt ? startsAt.slice(0, 10) : null);
+            const timeValue = item.time || (startsAt ? startsAt.slice(11, 16) : null) || '00:00';
+            const rawStatus = String(item.status || '').toLowerCase();
+            let competition = String(item.competition || '');
+            if (!competition || competition === 'undefined' || competition === 'null') {
+                competition = 'Súťaž';
+            }
+
+            let status = 'upcoming';
+            const matchDateObj = new Date((dateValue || '1970-01-01') + 'T' + timeValue);
+            const now = new Date();
+
+            if (rawStatus.includes('live') || rawStatus === 'inprogress') {
+                status = 'live';
+            } else if (matchDateObj < now) {
+                status = 'finished';
+            } else {
+                status = 'upcoming';
+            }
+
+            // Register club logos from sportnet data
+            const homeTeamName = item.homeTeam || 'Domáci';
+            const awayTeamName = item.awayTeam || 'Hostia';
+            if (item.homeLogo) registerClubLogo(homeTeamName, item.homeLogo);
+            if (item.awayLogo) registerClubLogo(awayTeamName, item.awayLogo);
+
+            return {
+                id: String(item.id || `sportsnet_${index}`),
+                date: dateValue || new Date().toISOString().slice(0, 10),
+                time: timeValue,
+                homeTeam: homeTeamName,
+                awayTeam: awayTeamName,
+                homeLogo: item.homeLogo || null,
+                awayLogo: item.awayLogo || null,
+                homeScore: item.scoreHome ?? null,
+                awayScore: item.scoreAway ?? null,
+                status,
+                location: item.venue || 'Štadión',
+                address: item.venue || 'Neuvedené',
+                competition,
+                category: detectCategory(competition),
+                detailUrl: item.detailUrl || null,
+                videoUrl: item.videoUrl || null,
+                homeFormation: '-',
+                awayFormation: '-',
+                referee: 'Neuvedené',
+                homeLineup: [],
+                homeStats: null,
+                awayStats: null,
+                videoRecordings: {
+                    firstHalf: null,
+                    secondHalf: null
+                },
+                events: Array.isArray(item.events) ? item.events : []
+            };
+        }
+
+        async function loadMatchesFromApi() {
+            try {
+                const payload = await cachedFetch(
+                    'osk_matches_sportsnet',
+                    `${API_BASE}/sportsnet/matches`,
+                    { method: 'GET', headers: { Accept: 'application/json' } }
+                );
+                const items = Array.isArray(payload?.items) ? payload.items : [];
+
+                const isUnconfigured =
+                    payload?.source === 'sportsnet.unconfigured' ||
+                    payload?.cache === 'BYPASS';
+
+                if (isUnconfigured) {
+                    MATCHES = {};
+                    SPORTSNET_INFO = {
+                        status: 'UNCONFIGURED',
+                        source: 'Sportsnet endpoint nie je nastavený',
+                        fetchedAt: payload?.fetchedAt || new Date().toISOString(),
+                        count: 0,
+                        cache: 'NONE'
+                    };
+                    return;
+                }
+
+                SPORTSNET_INFO = {
+                    status: 'OK',
+                    source: payload?.source || 'sportsnet.online',
+                    fetchedAt: payload?._fetchedAt || payload?.fetchedAt || new Date().toISOString(),
+                    count: items.length,
+                    cache: payload?.cache || 'MISS'
+                };
+
+                if (items.length === 0) {
+                    SPORTSNET_INFO.status = 'EMPTY';
+                    MATCHES = {};
+                    return;
+                }
+
+                const normalizedMatches = {};
+                items.forEach((item, index) => {
+                    const normalized = normalizeSportsnetMatch(item, index);
+                    normalizedMatches[normalized.id] = normalized;
+                });
+
+                MATCHES = normalizedMatches;
+            } catch (error) {
+                MATCHES = {};
+                SPORTSNET_INFO = {
+                    status: 'ERROR',
+                    source: 'Chyba pri načítaní zo Sportsnet API',
+                    fetchedAt: new Date().toISOString(),
+                    count: 0,
+                    cache: 'NONE'
+                };
+                console.warn('Sportsnet dáta sa nepodarilo načítať.', error);
+            }
+        }
+
+        // ====== TABUĽKA SÚŤAŽE ======
+        // STANDINGS is an array of group objects: { competition, part, competitionId, partId, results[] }
+        let STANDINGS = [];
+        const OWN_TEAM_PATTERNS = ['kamenná poruba', 'kamenna poruba', 'ošk kamen', 'osk kamen'];
+
+        function isOwnTeam(name) {
+            const lower = String(name || '').toLowerCase();
+            return OWN_TEAM_PATTERNS.some(p => lower.includes(p));
+        }
+
+        async function loadStandingsFromApi() {
+            try {
+                const payload = await cachedFetch(
+                    'osk_standings_sportsnet',
+                    `${API_BASE}/sportsnet/standings`,
+                    { method: 'GET', headers: { Accept: 'application/json' } }
+                );
+                STANDINGS = Array.isArray(payload.standings) ? payload.standings : [];
+            } catch (error) {
+                STANDINGS = [];
+                console.warn('Nepodarilo sa načítať tabuľku.', error);
+            }
+        }
+
+        function renderStandingGroup(group) {
+            const teams = group.results || [];
+            const qualifyCount = 2;
+            const label = group.part && group.part !== group.competition
+                ? `${group.competition} – ${group.part}`
+                : group.competition;
+
+            const rowsHtml = teams.map((team, idx) => {
+                const rank = team.rank ?? idx + 1;
+                const name = team.teamName || team.name || 'Tím';
+                const diff = (team.goalsFor || 0) - (team.goalsAgainst || 0);
+                const diffStr = diff > 0 ? `+${diff}` : String(diff);
+                const diffClass = diff > 0 ? 'standings-diff-pos' : (diff < 0 ? 'standings-diff-neg' : '');
+                const own = isOwnTeam(name);
+                const qualifies = rank <= qualifyCount && teams.length > qualifyCount;
+                const logoImg = buildClubLogoImg(name, 30);
+                const rankCell = qualifies
+                    ? `<span class="standings-rank-qualifier">${rank}</span>`
+                    : `<span class="standings-rank">${rank}.</span>`;
+                const goals = `${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}`;
+
+                return `
+                    <tr class="${own ? 'own-team' : ''}">
+                        <td class="standings-rank-cell" style="padding: 12px 15px;">
+                            <div class="standings-rank">${rankCell}</div>
+                        </td>
+                        <td style="padding: 12px 15px;">
+                            <div class="standings-team-cell">
+                                ${logoImg}
+                                <span class="standings-team-name${own ? ' own-team' : ''}">${name}</span>
+                            </div>
+                        </td>
+                        <td class="center" style="padding: 12px 15px;">${team.played ?? 0}</td>
+                        <td class="center" style="padding: 12px 15px;">${team.won ?? 0}</td>
+                        <td class="center" style="padding: 12px 15px;">${team.drawn ?? 0}</td>
+                        <td class="center" style="padding: 12px 15px;">${team.lost ?? 0}</td>
+                        <td class="center" style="padding: 12px 15px;">${goals}</td>
+                        <td class="center" style="padding: 12px 15px;"><span class="${diffClass}">${diffStr}</span></td>
+                        <td class="center" style="padding: 12px 15px;"><span class="standings-points">${team.points ?? 0}</span></td>
+                    </tr>`;
+            }).join('');
+
+            return `
+                <div class="standings-group" style="margin-bottom: 30px;">
+                    <h4 style="font-size: 18px; color: #003399; margin-bottom: 15px; border-left: 5px solid #ffd700; padding-left: 12px; font-weight: 800; text-transform: uppercase;">
+                        ${label}
+                    </h4>
+                    <div class="table-wrap" style="border: 1px solid #e6ebf3; border-radius: 12px; overflow: hidden; background: #fff;">
+                        <table class="standings-table">
+                            <thead style="background: #f8fbff; border-bottom: 2px solid #eef4ff;">
+                                <tr>
+                                    <th class="standings-rank-cell" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">#</th>
+                                    <th style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">Tím</th>
+                                    <th class="center" title="Odohrané zápasy" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">OZ</th>
+                                    <th class="center" title="Výhry" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">V</th>
+                                    <th class="center" title="Remízy" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">R</th>
+                                    <th class="center" title="Prehry" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">P</th>
+                                    <th class="center" title="Skóre" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">SKÓRE</th>
+                                    <th class="center" title="Rozdiel gólov" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">+/-</th>
+                                    <th class="center" title="Body" style="padding: 12px 15px; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase;">B</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        let activeStandingsCat = 'dospeli';
+
+        function initStandingsTabs() {
+            const tabs = document.querySelectorAll('#standingsTabs .standings-tab');
+            if (!tabs.length) return;
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    activeStandingsCat = tab.getAttribute('data-cat');
+                    renderStandings();
+                });
+            });
+        }
+
+        function detectStandingsCategory(group) {
+            const teamCat = String(group.teamCategory || '').toUpperCase();
+            if (teamCat === 'ADULTS') return 'dospeli';
+            if (teamCat === 'U19' || teamCat === 'U17') return 'dorast';
+            if (teamCat === 'U15' || teamCat === 'U13') return 'ziaci';
+            if (teamCat === 'U11' || teamCat === 'U09') return 'pripravka';
+            
+            // Fallback matching
+            const text = `${group.competition || ''} ${group.part || ''}`.toLowerCase();
+            if (text.includes('dorast') || text.includes('u19') || text.includes('u17')) return 'dorast';
+            if (text.includes('žiac') || text.includes('ziac') || text.includes('u15') || text.includes('u13')) return 'ziaci';
+            if (text.includes('príprav') || text.includes('priprav') || text.includes('u11') || text.includes('u09') || text.includes('u9') || text.includes('respect')) return 'pripravka';
+            return 'dospeli';
+        }
+
+        function renderStandings() {
+            const container = document.getElementById('standingsSectionContainer');
+            if (!container) return;
+
+            if (STANDINGS.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Tabuľka je prázdna.</p>';
+                return;
+            }
+
+            const ownGroups = STANDINGS.filter(g =>
+                (g.results || []).some(t => isOwnTeam(t.teamName || t.name))
+            );
+
+            const filtered = ownGroups.filter(g => detectStandingsCategory(g) === activeStandingsCat);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Žiadne tabuľky pre túto kategóriu.</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(group => renderStandingGroup(group)).join('');
+        }
+
+        // ====== INICIALIZÁCIA ======
+        window.addEventListener('load', async function () {
+            // Standardized session safety
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
+            }
+
+            initStandingsTabs();
+
+            await Promise.all([
+                loadStandingsFromApi()
+            ]);
+            renderStandings();
+        });
+
+        function renderCategoryTabs() {
+            const container = document.getElementById('categoryTabs');
+            if (!container) return;
+            const allMatches = Object.values(MATCHES);
+            if (allMatches.length === 0) { container.innerHTML = ''; return; }
+
+            const usedCategories = new Set(allMatches.map(m => m.category));
+            const tabs = CATEGORY_ORDER.filter(c => c === 'all' || usedCategories.has(c));
+
+            container.innerHTML = tabs.map(cat => `
+                <button class="category-tab${activeCategory === cat ? ' active' : ''}" onclick="setCategory('${cat}')">
+                    ${CATEGORY_LABELS[cat] || cat}
+                </button>
+            `).join('');
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            renderCategoryTabs();
+            renderMatches();
+            renderStandings();
+        }
+
+        function setMatchType(type) {
+            activeMatchType = type;
+            document.querySelectorAll('#matchStatusTabs .category-tab').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.querySelector(`#matchStatusTabs .category-tab[data-match-type="${type}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+            renderMatches();
+        }
+
+        function renderMatches() {
+            const container = document.getElementById('matchesContainer');
+            const allMatches = Object.values(MATCHES);
+
+            if (allMatches.length === 0) {
+                let msg = 'Žiadne zápasy na zobrazenie';
+                if (SPORTSNET_INFO.status === 'ERROR') {
+                    msg = 'Nepodarilo sa načítať zápasy zo Sportsnet API. Skúste neskôr.';
+                } else if (SPORTSNET_INFO.status === 'UNCONFIGURED') {
+                    msg = 'Sportsnet API nie je nakonfigurované. Kontaktujte administrátora.';
+                }
+                container.innerHTML = `<div class="no-matches"><p>${msg}</p></div>`;
+                return;
+            }
+
+            const filtered = activeCategory === 'all'
+                ? allMatches
+                : allMatches.filter(m => m.category === activeCategory);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="no-matches"><p>Žiadne zápasy pre túto kategóriu.</p></div>';
+                return;
+            }
+
+            let upcoming = filtered
+                .filter(m => m.status === 'upcoming' || m.status === 'live')
+                .sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+            let results = filtered
+                .filter(m => m.status === 'finished')
+                .sort((a, b) => new Date(b.date + 'T' + b.time) - new Date(a.date + 'T' + a.time));
+
+            // Zobraziť všetky zápasy pre danú kategóriu
+            const matchesToRender = activeMatchType === 'upcoming' ? upcoming : results;
+
+            if (matchesToRender.length === 0) {
+                container.innerHTML = `<div class="no-matches"><p>Žiadne ${activeMatchType === 'upcoming' ? 'nadchádzajúce' : 'odohrané'} zápasy na zobrazenie.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = matchesToRender.map(match => renderMatchCard(match)).join('');
+        }
+
+        function renderMatchCard(match) {
+
+            const dateObj = new Date(match.date + 'T' + match.time);
+            const formattedDate = dateObj.toLocaleDateString('sk-SK', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            const homeSrc = match.homeLogo || getClubLogo(match.homeTeam);
+            const awaySrc = match.awayLogo || getClubLogo(match.awayTeam);
+            const hLogo = homeSrc ? `<img src="${homeSrc}" class="team-logo" alt="${match.homeTeam}">` : `<div class="team-logo" style="background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">LOGO</div>`;
+            const aLogo = awaySrc ? `<img src="${awaySrc}" class="team-logo" alt="${match.awayTeam}">` : `<div class="team-logo" style="background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">LOGO</div>`;
+
+            let scoreHtml = '';
+            if (match.status === 'finished' || match.status === 'live') {
+                scoreHtml = `
+                        <div class="match-score">
+                            <div style="text-align: center;">${hLogo}<div class="team-name">${match.homeTeam}</div></div>
+                            <div class="score-value">${match.homeScore} : ${match.awayScore}</div>
+                            <div style="text-align: center;">${aLogo}<div class="team-name">${match.awayTeam}</div></div>
+                        </div>
+                    `;
+            } else {
+                scoreHtml = `
+                        <div class="match-teams">
+                            <div class="team-vs">
+                                <div style="text-align: center;">${hLogo}<div class="team-name">${match.homeTeam}</div></div>
+                                <div class="vs-text">VS</div>
+                                <div style="text-align: center;">${aLogo}<div class="team-name">${match.awayTeam}</div></div>
+                            </div>
+                        </div>
+                    `;
+            }
+
+            const statusClass = match.status;
+            const statusText = {
+                'upcoming': 'NADCHÁDZAJÚCI',
+                'finished': 'SKONČENÝ',
+                'live': 'NAŽIVO'
+            }[match.status];
+
+            return `
+                <div class="match-card" onclick="openMatchModal('${match.id}')">
+                    <div class="match-competition">${match.competition}</div>
+                    <div class="match-status ${statusClass}">${statusText}</div>
+                    ${scoreHtml}
+                    <div class="match-details">
+                        <div style="color: #003399; font-weight: bold; margin-bottom: 8px;">
+                            <i class="fas fa-users"></i> ${CATEGORY_LABELS[match.category] || match.category}
+                        </div>
+                        <div class="match-date">
+                            <i class="fas fa-calendar"></i> ${formattedDate}
+                            <br>
+                            <i class="fas fa-clock"></i> ${match.time}
+                        </div>
+                        <div class="match-location">
+                            <i class="fas fa-map-marker-alt"></i> ${match.location}
+                        </div>
+                    </div>
+                    <button class="view-details-btn">
+                        <i class="fas fa-info-circle"></i> Detaily zápasu
+                    </button>
+                </div>
+            `;
+        }
+
+        function openMatchModal(matchId) {
+            const match = MATCHES[matchId];
+            if (!match) return;
+
+            const modal = document.getElementById('matchModal');
+            const content = document.getElementById('matchModalContent');
+            
+            content.innerHTML = generateMatchDetail(match);
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMatchModal() {
+            const modal = document.getElementById('matchModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function generateSportnetVideoSection(match) {
+            if (!match.detailUrl && !match.videoUrl) return '';
+
+            return `
+                <div class="video-section" style="margin-top: 25px; text-align: center; background: #fff; padding: 20px; border-radius: 16px; border: 2px solid #ffd700; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <div style="font-weight: 800; color: #003399; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                        <i class="fas fa-video"></i> Video & Zápis o stretnutí
+                    </div>
+                    <a href="${match.detailUrl || match.videoUrl}" target="_blank" rel="noopener noreferrer" 
+                       style="display: inline-flex; align-items: center; gap: 10px; background: #003399; color: white; padding: 12px 24px; border-radius: 30px; text-decoration: none; font-weight: bold; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,51,153,0.3);">
+                        <span>Pozrieť na SportNet</span>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <div style="font-size: 11px; color: #7f8c8d; margin-top: 10px; font-weight: 600;">
+                        Pozrite si detailné štatistiky a videozáznam priamo na portáli SportNet.
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateMatchDetail(match) {
+            const dateObj = new Date(match.date + 'T' + match.time);
+            const formattedDate = dateObj.toLocaleDateString('sk-SK', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            const hLogoSrc = match.homeLogo || getClubLogo(match.homeTeam);
+            const aLogoSrc = match.awayLogo || getClubLogo(match.awayTeam);
+            const hLogo = hLogoSrc ? `<img src="${hLogoSrc}" style="width:80px;height:80px;object-fit:contain;" alt="${match.homeTeam}">` : buildClubLogoImg(match.homeTeam, 80);
+            const aLogo = aLogoSrc ? `<img src="${aLogoSrc}" style="width:80px;height:80px;object-fit:contain;" alt="${match.awayTeam}">` : buildClubLogoImg(match.awayTeam, 80);
+
+            let scoreSection = '';
+            if (match.status === 'finished' || match.status === 'live') {
+                scoreSection = `
+                    <div class="match-score" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <div style="font-size: 48px; font-weight: 900; color: #003399; letter-spacing: -2px;">
+                            ${match.homeScore} : ${match.awayScore}
+                        </div>
+                        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: ${match.status === 'live' ? '#c62828' : '#7f8c8d'}; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+                            ${match.status === 'live' ? '<span class="live-dot"></span> NAŽIVO' : 'Koniec zápasu'}
+                        </div>
+                    </div>
+                `;
+            } else {
+                scoreSection = `<div style="text-align: center; color: #003399; font-weight: 900; font-size: 28px; letter-spacing: 4px;">VS</div>`;
+            }
+
+            let eventsHtml = '';
+            const allEvents = (match.events || []);
+            const goals = allEvents.filter(e => e.type === 'goal' || e.type === 'goal-own' || e.type === 'penalty');
+            const cards = allEvents.filter(e => e.type === 'yellow-card' || e.type === 'red-card');
+            
+            if (goals.length > 0) {
+                eventsHtml += `
+                    <div class="events-section" style="margin-top: 25px; background: #f0f7ff; padding: 25px; border-radius: 16px; border: 1px solid rgba(0,51,153,0.1);">
+                        <div class="events-title" style="margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; color: #003399; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 900; font-size: 14px;">
+                            <i class="fas fa-futbol"></i> Strelci gólov
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                            <div class="home-goals" style="text-align: right; border-right: 2px solid rgba(0,51,153,0.1); padding-right: 20px;">
+                                ${goals.filter(e => e.team === 'home' || e.side === 'home').map(e => `
+                                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 10px;">
+                                        <div style="font-size: 14px; line-height: 1.25;">
+                                            <span style="font-weight: 700; color: #333;">${e.player}</span>
+                                            <span style="background: #003399; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 5px;">${e.minute}'</span>
+                                            ${e.type === 'goal-own' ? '<span style="display:block; color:#c62828; font-size:10px; font-weight:bold;">VLASTNÝ GÓL</span>' : ''}
+                                            ${e.type === 'penalty' ? '<span style="display:block; color:#1976d2; font-size:10px; font-weight:bold;">PENALTA</span>' : ''}
+                                        </div>
+                                        <div style="color: #003399; font-size: 18px;">⚽</div>
+                                    </div>
+                                `).join('') || '<div style="color:#bbb; font-size:13px; font-style:italic;">-</div>'}
+                            </div>
+                            <div class="away-goals" style="padding-left: 10px;">
+                                ${goals.filter(e => e.team === 'away' || e.side === 'away').map(e => `
+                                    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 10px;">
+                                        <div style="color: #003399; font-size: 18px;">⚽</div>
+                                        <div style="font-size: 14px; line-height: 1.25;">
+                                            <span style="font-weight: 700; color: #333;">${e.player}</span>
+                                            <span style="background: #003399; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 5px;">${e.minute}'</span>
+                                            ${e.type === 'goal-own' ? '<span style="display:block; color:#c62828; font-size:10px; font-weight:bold;">VLASTNÝ GÓL</span>' : ''}
+                                            ${e.type === 'penalty' ? '<span style="display:block; color:#1976d2; font-size:10px; font-weight:bold;">PENALTA</span>' : ''}
+                                        </div>
+                                    </div>
+                                `).join('') || '<div style="color:#bbb; font-size:13px; font-style:italic;">-</div>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (cards.length > 0) {
+                eventsHtml += `
+                    <div class="events-section" style="margin-top: 15px; background: #fff5f5; padding: 25px; border-radius: 16px; border: 1px solid rgba(255,0,0,0.05);">
+                        <div class="events-title" style="margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; color: #c62828; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 900; font-size: 14px;">
+                            <i class="fas fa-square"></i> Karty
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                            <div style="text-align: right; border-right: 2px solid rgba(255,0,0,0.1); padding-right: 20px;">
+                                ${cards.filter(e => e.team === 'home' || e.side === 'home').map(e => `
+                                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 10px;">
+                                        <div style="font-size: 14px;">
+                                            <span style="font-weight: 700; color: #333;">${e.player}</span>
+                                            <span style="color: #666; font-size: 12px; margin-left: 5px;">${e.minute}'</span>
+                                        </div>
+                                        <div style="font-size: 18px;">${e.type === 'red-card' ? '🟥' : '🟨'}</div>
+                                    </div>
+                                `).join('') || '<div style="color:#bbb; font-size:13px;">-</div>'}
+                            </div>
+                            <div style="padding-left: 10px;">
+                                ${cards.filter(e => e.team === 'away' || e.side === 'away').map(e => `
+                                    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 10px;">
+                                        <div style="font-size: 18px;">${e.type === 'red-card' ? '🟥' : '🟨'}</div>
+                                        <div style="font-size: 14px;">
+                                            <span style="font-weight: 700; color: #333;">${e.player}</span>
+                                            <span style="color: #666; font-size: 12px; margin-left: 5px;">${e.minute}'</span>
+                                        </div>
+                                    </div>
+                                `).join('') || '<div style="color:#bbb; font-size:13px;">-</div>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="match-detail-header" style="border:none; margin-bottom: 10px; padding: 0;">
+                    <div class="match-competition" style="text-align: center; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #7f8c8d; font-size: 12px; margin-bottom: 25px;">${match.competition}</div>
+                    <div class="detail-teams" style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 30px; gap: 20px;">
+                        <div class="detail-team" style="flex: 1; text-align: center;">
+                            ${hLogo}
+                            <div class="detail-team-name" style="font-weight: 800; margin-top: 15px; color: #003399; font-size: 18px; line-height: 1.2;">${match.homeTeam}</div>
+                        </div>
+                        <div style="flex: 1.2; display: flex; flex-direction: column; align-items: center;">
+                            ${scoreSection}
+                        </div>
+                        <div class="detail-team" style="flex: 1; text-align: center;">
+                            ${aLogo}
+                            <div class="detail-team-name" style="font-weight: 800; margin-top: 15px; color: #003399; font-size: 18px; line-height: 1.2;">${match.awayTeam}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 20px; margin-bottom: 25px; text-align: center; border: 1px solid #eee; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                    <div><i class="fas fa-calendar" style="color:#ffd700; margin-bottom: 8px; font-size: 16px;"></i><br><span style="font-weight: 700; color: #333; font-size: 13px;">${formattedDate}</span></div>
+                    <div><i class="fas fa-clock" style="color:#ffd700; margin-bottom: 8px; font-size: 16px;"></i><br><span style="font-weight: 700; color: #333; font-size: 13px;">${match.time}</span></div>
+                    <div><i class="fas fa-map-marker-alt" style="color:#ffd700; margin-bottom: 8px; font-size: 16px;"></i><br><span style="font-weight: 700; color: #333; font-size: 13px;">${match.location}</span></div>
+                </div>
+
+                ${eventsHtml}
+
+                ${generateSportnetVideoSection(match)}
+
+                <div class="formation" style="margin-top: 30px; text-align: center; font-size: 13px; color: #7f8c8d; border-top: 2px dashed #eee; padding-top: 20px;">
+                    <div class="formation-title" style="font-weight: 700;"><i class="fas fa-info-circle"></i> Hlavný rozhodca: <span style="color:#333">${match.referee || 'Neuvedené'}</span></div>
+                </div>
+            `;
+        }
+
+        // Zatvorenie modalu kliknutím mimo
+        document.addEventListener('click', function (event) {
+            const modal = document.getElementById('matchModal');
+            if (event.target === modal) {
+                closeMatchModal();
+            }
+        });
+
+        // Zatvorenie modalu klávesom ESC
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeMatchModal();
+            }
+        });
+    </script>
+
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+
+    <script src="/assets/js/cloudinary-assets.js"></script>
+
+    <!-- Footer -->
+
+
+
+    <div id="site-footer-root"></div>
+    <script src="/assets/js/footer.js"></script>
+</body>
+</html>

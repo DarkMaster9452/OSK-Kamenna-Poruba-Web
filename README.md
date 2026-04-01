@@ -250,3 +250,24 @@ Táto verzia repozitára je pripravená na jeden Vercel projekt:
 - **Frontend**: statické HTML súbory z rootu
 - **Backend**: Vercel serverless funkcia cez `api/[...all].js` (Express app z `backend/src/app.js`)
   API a tokeny nastav iba cez Vercel Environment Variables / `backend/.env`.
+
+### Manuálny deploy bez Git auto deployu
+
+Ak chceš deployovať iba ručne a nie po každom pushi na GitHub:
+
+1. Vo Vercel projekte otvor `Settings -> Git`.
+2. Do `Ignored Build Step` nastav príkaz `exit 0`.
+3. Tým sa zastavia automatické Git buildy/deploye.
+
+Pre tento projekt potom používaj manuálny deploy takto:
+
+```bash
+npm run vercel:build
+npm run vercel:deploy:prod
+```
+
+Poznámka:
+
+- Pre tento repo nestačí iba `npm run build`, ak chceš použiť `vercel deploy --prebuilt`.
+- `--prebuilt` na Verceli očakáva výstup z `vercel build`, nie iba obyčajný lokálny build do vlastného priečinka.
+- Preview deploy môžeš spraviť cez `npm run vercel:deploy`.
