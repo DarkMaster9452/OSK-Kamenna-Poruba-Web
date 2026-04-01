@@ -9,7 +9,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-P152RNBL34');
     </script>
@@ -24,7 +24,8 @@
             padding: 0;
         }
 
-        h1, .page-title {
+        h1,
+        .page-title {
             color: #ffd700;
             font-size: 28px;
             display: flex;
@@ -34,14 +35,18 @@
         }
 
         @media (max-width: 768px) {
-            h1, .page-title {
+
+            h1,
+            .page-title {
                 font-size: 24px !important;
                 margin-bottom: 24px;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, .page-title {
+
+            h1,
+            .page-title {
                 font-size: 22px !important;
                 margin-bottom: 20px;
             }
@@ -296,7 +301,6 @@
             border-color: #ffd700;
             color: #ffd700;
         }
-
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -448,7 +452,7 @@
                 window.location.href = '/index.html';
                 return;
             }
-            
+
             await loadState();
 
             loadSeenEvents();
@@ -532,6 +536,7 @@
         function roleLabel(role) {
             if (role === 'admin') return 'Admin';
             if (role === 'coach') return 'Tréner';
+            if (role === 'blogger') return 'Blogger';
             if (role === 'player') return 'Hráč';
             if (role === 'parent') return 'Rodič';
             return role;
@@ -630,7 +635,7 @@
             const noticeEvents = notices
                 .filter(n => {
                     if (n.target === 'admins') return currentUser.role === 'admin';
-                    if (currentUser.role === 'coach' || currentUser.role === 'admin') return true;
+                    if (currentUser.role === 'coach' || currentUser.role === 'admin' || currentUser.role === 'blogger') return true;
                     if (!canSeeTarget(n.target)) return false;
                     if (n.target !== 'players') return true;
                     return !n.playerCategory || n.playerCategory === currentUser.playerCategory;
@@ -640,7 +645,7 @@
             const pollEvents = polls
                 .filter(p => {
                     if (p.target === 'admins') return currentUser.role === 'admin';
-                    if (currentUser.role === 'coach' || currentUser.role === 'admin') return true;
+                    if (currentUser.role === 'coach' || currentUser.role === 'admin' || currentUser.role === 'blogger') return true;
                     if (!canSeeTarget(p.target)) return false;
                     if (p.target !== 'players') return true;
                     return !p.playerCategory || p.playerCategory === currentUser.playerCategory;
@@ -684,7 +689,7 @@
 
         function renderHeader() {
             document.getElementById('userBadge').textContent = `Prihlásený: ${currentUser.username} (${roleLabel(currentUser.role)})`;
-            document.getElementById('coachPanel').style.display = (currentUser.role === 'coach' || currentUser.role === 'admin') ? 'block' : 'none';
+            document.getElementById('coachPanel').style.display = (currentUser.role === 'coach' || currentUser.role === 'admin' || currentUser.role === 'blogger') ? 'block' : 'none';
         }
 
         async function createNotice() {
@@ -848,7 +853,7 @@
         }
 
         async function votePoll(pollId, optionIndex) {
-            if (currentUser.role === 'coach' || currentUser.role === 'admin') return;
+            if (currentUser.role === 'coach' || currentUser.role === 'admin' || currentUser.role === 'blogger') return;
 
             try {
                 const csrfToken = await ensureCsrfToken();
@@ -915,7 +920,7 @@
                             <div class="meta">${formatDate(n.createdAt)} • ${n.createdBy} • ${targetLabel(n.target)}${n.playerCategory ? ' • ' + categoryLabel(n.playerCategory) : ''}</div>
                             <div class="title">${n.title}</div>
                             <div>${n.message}</div>
-                            ${(currentUser.role === 'coach' || currentUser.role === 'admin') ? `<button class="delete-btn" onclick="deleteNotice('${n.id}')"><i class='fas fa-trash'></i> Zmazať</button>` : ''}
+                            ${(currentUser.role === 'coach' || currentUser.role === 'admin' || currentUser.role === 'blogger') ? `<button class="delete-btn" onclick="deleteNotice('${n.id}')"><i class='fas fa-trash'></i> Zmazať</button>` : ''}
                         </div>
                     `;
                 }
@@ -932,7 +937,7 @@
                     const cnt = counts[idx] || 0;
                     const percent = totalVotes > 0 ? Math.round((cnt / totalVotes) * 100) : 0;
 
-                    if (currentUser.role === 'coach' || currentUser.role === 'admin' || !p.active) {
+                    if (currentUser.role === 'coach' || currentUser.role === 'admin' || currentUser.role === 'blogger' || !p.active) {
                         return `<div class="result-row"><span>${opt}</span><span>${cnt} hlasov (${percent}%)</span></div>`;
                     }
 
@@ -950,8 +955,8 @@
                         ${closesAtText ? `<div class="meta">Koniec: ${closesAtText}${closedAtText ? ` • Dokončená: ${closedAtText}` : ''}</div>` : ''}
                         <div class="title">${p.question}</div>
                             <div class="poll-options">${optionsHtml}</div>
-                            ${(currentUser.role !== 'coach' && currentUser.role !== 'admin') ? `<div class="meta">Hlasov spolu: ${totalVotes}</div>` : ''}
-                            ${(currentUser.role === 'coach' || currentUser.role === 'admin') ? `
+                            ${(currentUser.role !== 'coach' && currentUser.role !== 'admin' && currentUser.role !== 'blogger') ? `<div class="meta">Hlasov spolu: ${totalVotes}</div>` : ''}
+                            ${(currentUser.role === 'coach' || currentUser.role === 'admin' || currentUser.role === 'blogger') ? `
                                 ${p.active ? `<button class="btn" style="margin-right:8px;" onclick="closePoll('${p.id}')"><i class='fas fa-stop'></i> Ukončiť anketu</button>` : ''}
                                 <button class="delete-btn" onclick="deletePoll('${p.id}')"><i class='fas fa-trash'></i> Zmazať</button>
                             ` : ''}
@@ -967,4 +972,5 @@
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
 </body>
+
 </html>

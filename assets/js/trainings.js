@@ -11,6 +11,15 @@ const PLAYER_DIRECTORY = {};
 
 const PLAYER_NAME_MAP = {};
 
+const TRAINING_CATEGORY_OPTIONS = [
+    { value: 'pripravka_u9', label: 'Prípravka U9' },
+    { value: 'pripravka_u11', label: 'Prípravka U11' },
+    { value: 'ziaci_u13', label: 'Žiaci U13' },
+    { value: 'ziaci_u15', label: 'Žiaci U15' },
+    { value: 'dorastenci', label: 'Dorastenci (U19)' },
+    { value: 'dospeli', label: 'Dospelí' }
+];
+
 function escapeHtml(value) {
     return String(value || '')
         .replace(/&/g, '&amp;')
@@ -79,6 +88,62 @@ function getApiBase() {
 
 function getPlayerUsernamesByCategory(category) {
     return PLAYER_DIRECTORY[category] || [];
+}
+
+function isCoachRole(role) {
+    return role === 'coach' || role === 'admin';
+}
+
+function isPlayerRole(role) {
+    return role === 'player' || role === 'parent';
+}
+
+function renderTrainingCategoryOptions(selectedValue) {
+    return TRAINING_CATEGORY_OPTIONS.map((option) => {
+        const isSelected = option.value === selectedValue;
+        return `<option value="${option.value}"${isSelected ? ' selected' : ''}>${option.label}</option>`;
+    }).join('');
+}
+
+function setTrainingViewMode(user) {
+    const coachCreateArea = document.getElementById('coachCreateTrainingArea');
+    const parentChildrenArea = document.getElementById('parentChildrenArea');
+    const playerTrainingArea = document.getElementById('playerTrainingArea');
+    const coachRosterArea = document.getElementById('coachRosterArea');
+    const trainingSection = document.getElementById('trainingSection');
+
+    if (!trainingSection) {
+        return;
+    }
+
+    const role = user && user.role ? String(user.role).toLowerCase() : '';
+    const coachMode = isCoachRole(role);
+    const playerMode = isPlayerRole(role);
+    const parentMode = role === 'parent';
+
+    if (coachCreateArea) {
+        coachCreateArea.style.display = coachMode ? 'block' : 'none';
+    }
+    if (parentChildrenArea) {
+        parentChildrenArea.style.display = parentMode ? 'block' : 'none';
+    }
+    if (playerTrainingArea) {
+        playerTrainingArea.style.display = playerMode ? 'block' : 'none';
+    }
+    if (coachRosterArea) {
+        coachRosterArea.style.display = coachMode ? 'block' : 'none';
+    }
+
+    if (!coachMode && !playerMode) {
+        trainingSection.innerHTML = `
+            <div style="max-width: 900px; margin: 0 auto; background: rgba(255, 255, 255, 0.08); border: 2px solid #ffd700; border-radius: 12px; padding: 32px;">
+                <h3 style="margin: 0 0 12px 0; color: #ffd700;"><i class="fas fa-circle-info"></i> Prístup k tréningom</h3>
+                <p style="margin: 0; line-height: 1.6; color: rgba(255, 255, 255, 0.92);">
+                    Tréningový systém je dostupný len pre trénerov, adminov, hráčov a rodičov.
+                </p>
+            </div>
+        `;
+    }
 }
 
 async function loadTrainingsFromApi() {
@@ -166,11 +231,7 @@ function initializeTrainingView() {
                             <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Kategória:</label>
                             <select id="coachTrainingCategory" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
                                 <option value="">-- Vybrať kategóriu --</option>
-                                <option value="pripravky">Prípravky (U8-U9)</option>
-                                <option value="ziaci">Žiaci (U10-U12)</option>
-                                <option value="dorastenci">Dorastenci (U13-U18)</option>
-                                <option value="adults_young">Dospelí - Mladí (18-25)</option>
-                                <option value="adults_pro">Dospelí - Skúsení (25+)</option>
+                                ${renderTrainingCategoryOptions('')}
                             </select>
                         </div>
                         <div style="grid-column: 1 / -1;">
@@ -213,6 +274,7 @@ function initializeTrainingView() {
     `;
 
     initializeCoachTrainingTimeSelectors();
+    setTrainingViewMode(currentUser);
 }
 
 // Load training data from backend API
@@ -238,9 +300,14 @@ async function loadTrainingData() {
         });
     }
 
-    if (currentUser && (currentUser.role === 'coach' || currentUser.role === 'admin')) {
+    setTrainingViewMode(currentUser);
+
+    if (currentUser && isCoachRole(currentUser.role)) {
         refreshCoachRoster();
-    } else if (currentUser && (currentUser.role === 'player' || currentUser.role === 'parent')) {
+    } else if (currentUser && isPlayerRole(currentUser.role)) {
+        if (currentUser.role === 'parent') {
+            updateChildrenList();
+        }
         refreshPlayerTrainings();
     }
 }
@@ -719,11 +786,12 @@ async function startTraining(trainingId) {
 // Get training category label
 function getTrainingCategoryLabel(category) {
     const labels = {
-        'pripravky': 'Prípravky (U8-U9)',
-        'ziaci': 'Žiaci (U10-U12)',
-        'dorastenci': 'Dorastenci (U13-U18)',
-        'adults_young': 'Dospelí - Mladí (18-25)',
-        'adults_pro': 'Dospelí - Skúsení (25+)'
+        'pripravka_u9': 'Prípravka U9',
+        'pripravka_u11': 'Prípravka U11',
+        'ziaci_u13': 'Žiaci U13',
+        'ziaci_u15': 'Žiaci U15',
+        'dorastenci': 'Dorastenci (U19)',
+        'dospeli': 'Dospelí'
     };
     return labels[category] || category;
 }
@@ -797,11 +865,7 @@ function openTrainingEditModal(training) {
                 <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1;">
                     <span>Kategória</span>
                     <select id="editTrainingCategory" style="padding:10px;border:1px solid #ffd700;border-radius:6px;background:rgba(255,255,255,0.1);color:white;">
-                        <option value="pripravky" ${training.category === 'pripravky' ? 'selected' : ''}>Prípravky (U8-U9)</option>
-                        <option value="ziaci" ${training.category === 'ziaci' ? 'selected' : ''}>Žiaci (U10-U12)</option>
-                        <option value="dorastenci" ${training.category === 'dorastenci' ? 'selected' : ''}>Dorastenci (U13-U18)</option>
-                        <option value="adults_young" ${training.category === 'adults_young' ? 'selected' : ''}>Dospelí - Mladí (18-25)</option>
-                        <option value="adults_pro" ${training.category === 'adults_pro' ? 'selected' : ''}>Dospelí - Skúsení (25+)</option>
+                        ${renderTrainingCategoryOptions(training.category)}
                     </select>
                 </label>
                 <label style="display:flex;flex-direction:column;gap:6px;grid-column:1/-1;">

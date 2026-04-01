@@ -242,10 +242,11 @@
             var isBlogger = role === 'blogger';
             var isAdmin = role === 'admin';
             var isAdminOrCoach = isAdmin || role === 'coach';
+            var canSeeInfo = isAdminOrCoach || isBlogger || role === 'player' || role === 'parent';
 
             // Show relevant links based on role
             if (trainingLink) trainingLink.style.display = isBlogger ? 'none' : '';
-            if (infoLink) infoLink.style.display = isBlogger ? 'none' : '';
+            if (infoLink) infoLink.style.display = canSeeInfo ? '' : 'none';
             if (accountMgmtBtn) accountMgmtBtn.style.display = isAdmin ? '' : 'none';
             if (groupsBtn) groupsBtn.style.display = isAdminOrCoach ? '' : 'none';
         } else {

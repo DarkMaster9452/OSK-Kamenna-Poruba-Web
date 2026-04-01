@@ -88,14 +88,11 @@ async function ensurePollClosedIfExpired(poll) {
 }
 
 router.get('/', requireAuth, async (req, res) => {
-  if (req.user.role === 'blogger') {
-    return res.status(403).json({ message: 'Nemáte oprávnenie na zobrazenie ankiet.' });
-  }
   const rows = await listPolls();
   const rowsWithState = await Promise.all(rows.map((row) => ensurePollClosedIfExpired(row)));
   const visibleRows = rowsWithState.filter((row) => {
     if (row.target === 'admins') return req.user.role === 'admin';
-    if (req.user.role === 'coach' || req.user.role === 'admin') return true;
+    if (req.user.role === 'coach' || req.user.role === 'admin' || req.user.role === 'blogger') return true;
     if (row.target === 'all') return true;
     if (row.target === 'players') {
       if (req.user.role !== 'player') return false;
@@ -139,7 +136,7 @@ router.get('/', requireAuth, async (req, res) => {
   return res.json({ items });
 });
 
-router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(createPollSchema), async (req, res) => {
+router.post('/', requireAuth, requireRole('coach', 'blogger', 'admin'), validateBody(createPollSchema), async (req, res) => {
   if (req.body.target !== 'players' && req.body.playerCategory) {
     return res.status(400).json({ message: 'Kategóriu hráčov je možné zvoliť len pre cieľ Hráči.' });
   }
@@ -191,7 +188,7 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
 });
 
 async function handlePollVote(req, res) {
-  if (req.user.role === 'coach' || req.user.role === 'admin') {
+  if (req.user.role === 'coach' || req.user.role === 'admin' || req.user.role === 'blogger') {
     return res.status(403).json({ message: 'Tréner/Admin nemôže hlasovať v ankete.' });
   }
 
@@ -227,7 +224,7 @@ async function handlePollVote(req, res) {
 router.post('/:id/vote', requireAuth, validateBody(voteSchema), handlePollVote);
 router.post('/:id/votes', requireAuth, validateBody(voteSchema), handlePollVote);
 
-router.patch('/:id/close', requireAuth, requireRole('coach', 'admin'), async (req, res) => {
+router.patch('/:id/close', requireAuth, requireRole('coach', 'blogger', 'admin'), async (req, res) => {
   const poll = await findPollById(req.params.id);
   if (!poll) {
     return res.status(404).json({ message: 'Anketa neexistuje.' });
@@ -267,7 +264,7 @@ async function handleDeletePoll(req, res) {
   return res.status(204).send();
 }
 
-router.delete('/:id', requireAuth, requireRole('coach', 'admin'), handleDeletePoll);
-router.post('/:id/delete', requireAuth, requireRole('coach', 'admin'), handleDeletePoll);
+router.delete('/:id', requireAuth, requireRole('coach', 'blogger', 'admin'), handleDeletePoll);
+router.post('/:id/delete', requireAuth, requireRole('coach', 'blogger', 'admin'), handleDeletePoll);
 
 module.exports = router;

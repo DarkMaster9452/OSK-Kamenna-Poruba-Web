@@ -195,7 +195,7 @@
             '    </div>',
             '',
             '    <div class="footer-bottom">',
-            '        &copy; ' + currentYear + ' OŠK Kamenná Poruba. Všetky práva vyhradené. Stránku vytvoril DarkMaster.',
+            '        &copy; ' + currentYear + ' OŠK Kamenná Poruba. Všetky práva vyhradené.',
             '    </div>',
             '</footer>',
             '<button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:\'smooth\'})" aria-label="Späť hore" title="Späť hore">',

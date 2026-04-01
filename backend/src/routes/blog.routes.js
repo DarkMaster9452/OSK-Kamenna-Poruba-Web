@@ -52,7 +52,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/manage', requireAuth, requireRole('blogger', 'admin'), async (req, res) => {
+router.get('/manage', requireAuth, requireRole('blogger', 'coach', 'admin'), async (req, res) => {
   try {
     const rows = await listBlogPosts();
     const visibleRows = req.user.role === 'admin'
@@ -78,7 +78,7 @@ router.get('/manage', requireAuth, requireRole('blogger', 'admin'), async (req, 
   }
 });
 
-router.post('/', requireAuth, requireRole('blogger', 'admin'), validateBody(createBlogPostSchema), async (req, res) => {
+router.post('/', requireAuth, requireRole('blogger', 'coach', 'admin'), validateBody(createBlogPostSchema), async (req, res) => {
   try {
     const row = await createBlogPost(req.body, req.user.id);
     const item = {
@@ -111,14 +111,14 @@ router.post('/', requireAuth, requireRole('blogger', 'admin'), validateBody(crea
   }
 });
 
-router.delete('/:id', requireAuth, requireRole('blogger', 'admin'), async (req, res) => {
+router.delete('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), async (req, res) => {
   try {
     const row = await findBlogPostById(req.params.id);
     if (!row) {
       return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
     }
 
-    if (req.user.role === 'blogger' && row.createdById !== req.user.id) {
+    if (req.user.role !== 'admin' && row.createdById !== req.user.id) {
       return res.status(403).json({ message: 'Nemáte oprávnenie odstrániť cudzí blog príspevok.' });
     }
 

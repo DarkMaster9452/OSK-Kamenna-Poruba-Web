@@ -32,7 +32,10 @@
     }
 
     const API_BASE = resolveApiBase();
+    const SESSION_KEEPALIVE_MS = 10 * 60 * 1000;
     let csrfTokenCache = null;
+    let keepAliveTimer = null;
+    let syncInFlight = null;
 
     async function fetchCsrfTokenWithRetry() {
         let lastError = null;
@@ -86,13 +89,22 @@
         }
     }
 
+    function persistUser(currentUser) {
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        window.dispatchEvent(new CustomEvent('osk-auth-changed', { detail: currentUser }));
+        return currentUser;
+    }
+
+    function clearPersistedUser() {
+        localStorage.removeItem('currentUser');
+        window.dispatchEvent(new CustomEvent('osk-auth-changed', { detail: { isLoggedIn: false } }));
+        return { username: null, role: null, playerCategory: null, isLoggedIn: false };
+    }
+
     async function syncCurrentUserFromSession() {
         const user = await fetchSessionUser();
         if (!user) {
-            localStorage.removeItem('currentUser');
-            // Notify other components if needed
-            window.dispatchEvent(new CustomEvent('osk-auth-changed', { detail: { isLoggedIn: false } }));
-            return { username: null, role: null, playerCategory: null, isLoggedIn: false };
+            return clearPersistedUser();
         }
 
         const currentUser = {
@@ -103,9 +115,65 @@
             isLoggedIn: true
         };
 
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        window.dispatchEvent(new CustomEvent('osk-auth-changed', { detail: currentUser }));
-        return currentUser;
+        return persistUser(currentUser);
+    }
+
+    async function syncCurrentUserFromSessionWithRetry() {
+        let lastError = null;
+        for (let attempt = 1; attempt <= 3; attempt += 1) {
+            try {
+                return await syncCurrentUserFromSession();
+            } catch (error) {
+                lastError = error;
+                if (attempt < 3) {
+                    await new Promise((resolve) => setTimeout(resolve, attempt * 700));
+                }
+            }
+        }
+
+        throw lastError || new Error('Nepodarilo sa obnoviť používateľskú session.');
+    }
+
+    async function syncCurrentUserFromSessionSafe() {
+        if (syncInFlight) {
+            return syncInFlight;
+        }
+
+        syncInFlight = syncCurrentUserFromSessionWithRetry()
+            .catch((error) => {
+                console.warn('Session sync failed:', error);
+                return null;
+            })
+            .finally(() => {
+                syncInFlight = null;
+            });
+
+        return syncInFlight;
+    }
+
+    function shouldRunKeepAlive() {
+        try {
+            const raw = localStorage.getItem('currentUser');
+            if (!raw) return false;
+            const user = JSON.parse(raw);
+            return Boolean(user && user.isLoggedIn);
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function startSessionKeepAlive() {
+        if (keepAliveTimer) {
+            window.clearInterval(keepAliveTimer);
+        }
+
+        keepAliveTimer = window.setInterval(() => {
+            if (!shouldRunKeepAlive()) {
+                return;
+            }
+
+            syncCurrentUserFromSessionSafe();
+        }, SESSION_KEEPALIVE_MS);
     }
 
     // Export to global scope
@@ -114,11 +182,26 @@
         ensureCsrfToken,
         fetchSessionUser,
         syncCurrentUserFromSession,
+        syncCurrentUserFromSessionWithRetry,
         invalidateCsrfToken: () => { csrfTokenCache = null; }
     };
 
     // Auto-sync on load if we think we are logged in
+    startSessionKeepAlive();
+
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && shouldRunKeepAlive()) {
+            syncCurrentUserFromSessionSafe();
+        }
+    });
+
+    window.addEventListener('focus', function() {
+        if (shouldRunKeepAlive()) {
+            syncCurrentUserFromSessionSafe();
+        }
+    });
+
     if (localStorage.getItem('currentUser')) {
-        syncCurrentUserFromSession().catch(console.warn);
+        syncCurrentUserFromSessionSafe();
     }
 })();

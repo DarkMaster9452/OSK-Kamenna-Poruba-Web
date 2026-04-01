@@ -9,7 +9,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-P152RNBL34');
     </script>
@@ -42,7 +42,9 @@
             margin-bottom: 28px;
         }
 
-        h1, .page-title, .topbar h1 {
+        h1,
+        .page-title,
+        .topbar h1 {
             margin: 0;
             color: #003399;
             font-size: 30px;
@@ -52,13 +54,19 @@
         }
 
         @media screen and (max-width: 768px) {
-            h1, .page-title, .topbar h1 {
+
+            h1,
+            .page-title,
+            .topbar h1 {
                 font-size: 26px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, .page-title, .topbar h1 {
+
+            h1,
+            .page-title,
+            .topbar h1 {
                 font-size: 24px !important;
             }
         }
@@ -99,7 +107,7 @@
             border-radius: 12px;
             padding: 24px 28px;
             margin-bottom: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .card h2 {
@@ -146,7 +154,7 @@
         }
 
         .post:hover {
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
             transform: translateY(-2px);
             border-color: #003399;
         }
@@ -214,7 +222,7 @@
             border-radius: 12px;
             background: #fdfdfd;
             padding: 24px 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         .modal-card h3 {
@@ -272,7 +280,7 @@
             color: #555;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
         .tag-tab:hover {
@@ -325,7 +333,7 @@
             <div class="form-grid">
                 <input id="postTitle" placeholder="Nadpis príspevku" maxlength="200" />
                 <textarea id="postContent" placeholder="Obsah príspevku"></textarea>
-                
+
                 <div>
                     <button class="btn btn-primary" onclick="createPost()">
                         <i class="fas fa-plus"></i> Pridať príspevok
@@ -422,7 +430,7 @@
         }
 
         async function loadManagePosts() {
-            if (!currentUser || (currentUser.role !== 'blogger' && currentUser.role !== 'admin')) {
+            if (!currentUser || !['blogger', 'coach', 'admin'].includes(currentUser.role)) {
                 manageItems = [];
                 return;
             }
@@ -440,12 +448,12 @@
         function canManagePost(post) {
             if (!currentUser) return false;
             if (currentUser.role === 'admin') return true;
-            return currentUser.role === 'blogger' && post.createdBy === currentUser.username;
+            return ['blogger', 'coach'].includes(currentUser.role) && post.createdBy === currentUser.username;
         }
 
         function renderPosts(orderedPosts) {
             const container = document.getElementById('postsContainer');
-            
+
             let posts = orderedPosts;
             if (currentTagFilter !== 'Všetky') {
                 posts = orderedPosts.filter(p => p.tags && p.tags.includes(currentTagFilter));
@@ -486,10 +494,10 @@
             if (!post) return;
 
             title.textContent = post.title || 'Bez názvu';
-            meta.innerHTML = post.tags && post.tags.length > 0 ? 
+            meta.innerHTML = post.tags && post.tags.length > 0 ?
                 `<div class="post-tag">${escapeHtml(post.tags[0])}</div> Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}` :
                 `Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}`;
-            
+
             const img = document.getElementById('postDetailImage');
             if (img) {
                 if (post.imageUrl) {
@@ -515,7 +523,7 @@
             document.body.style.overflow = 'auto';
         }
 
-        window.addEventListener('popstate', function(e) {
+        window.addEventListener('popstate', function (e) {
             const modal = document.getElementById('postDetailModal');
             if (modal && modal.classList.contains('open')) {
                 closePostDetail();
@@ -523,17 +531,17 @@
         });
 
         async function refresh() {
-        if (window.OSKSession) {
-            currentUser = await window.OSKSession.syncCurrentUserFromSession();
-        } else {
-            const raw = localStorage.getItem('currentUser');
-            currentUser = raw ? JSON.parse(raw) : { username: null, role: null, playerCategory: null, isLoggedIn: false };
-        }
+            if (window.OSKSession) {
+                currentUser = await window.OSKSession.syncCurrentUserFromSession();
+            } else {
+                const raw = localStorage.getItem('currentUser');
+                currentUser = raw ? JSON.parse(raw) : { username: null, role: null, playerCategory: null, isLoggedIn: false };
+            }
 
             const roleInfo = document.getElementById('blogRoleInfo');
             const composer = document.getElementById('composerCard');
 
-            if (currentUser && (currentUser.role === 'blogger' || currentUser.role === 'admin')) {
+            if (currentUser && ['blogger', 'coach', 'admin'].includes(currentUser.role)) {
                 composer.style.display = 'block';
                 roleInfo.textContent = `Prihlásený: ${currentUser.username} (${currentUser.role})`;
             } else {
@@ -577,12 +585,12 @@
                         'Content-Type': 'application/json',
                         'x-csrf-token': csrfToken
                     },
-                    body: JSON.stringify({ 
-                        title, 
-                        content, 
-                        published: true, 
-                        imageUrl: null, 
-                        tags: [] 
+                    body: JSON.stringify({
+                        title,
+                        content,
+                        published: true,
+                        imageUrl: null,
+                        tags: []
                     })
                 });
 
@@ -647,4 +655,5 @@
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
 </body>
+
 </html>

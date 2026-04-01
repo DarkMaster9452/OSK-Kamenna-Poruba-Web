@@ -26,13 +26,10 @@ async function writeAuditSafe(payload) {
 
 router.get('/', requireAuth, async (req, res, next) => {
   try {
-    if (req.user.role === 'blogger') {
-      return res.status(403).json({ message: 'Nemáte oprávnenie na zobrazenie oznamov.' });
-    }
     const rows = await listAnnouncements();
     const visibleRows = rows.filter((row) => {
       if (row.target === 'admins') return req.user.role === 'admin';
-      if (req.user.role === 'coach' || req.user.role === 'admin') return true;
+      if (req.user.role === 'coach' || req.user.role === 'admin' || req.user.role === 'blogger') return true;
       if (row.target === 'all') return true;
       if (row.target === 'players') {
         if (req.user.role !== 'player') return false;
@@ -76,7 +73,7 @@ router.get('/public', async (req, res, next) => {
   }
 });
 
-router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(createAnnouncementSchema), async (req, res, next) => {
+router.post('/', requireAuth, requireRole('coach', 'blogger', 'admin'), validateBody(createAnnouncementSchema), async (req, res, next) => {
   try {
     if (req.body.target !== 'players' && req.body.playerCategory) {
       return res.status(400).json({ message: 'Kategóriu hráčov je možné zvoliť len pre cieľ Hráči.' });
@@ -135,7 +132,7 @@ async function handleDeleteAnnouncement(req, res, next) {
   }
 }
 
-router.delete('/:id', requireAuth, requireRole('coach', 'admin'), handleDeleteAnnouncement);
-router.post('/:id/delete', requireAuth, requireRole('coach', 'admin'), handleDeleteAnnouncement);
+router.delete('/:id', requireAuth, requireRole('coach', 'blogger', 'admin'), handleDeleteAnnouncement);
+router.post('/:id/delete', requireAuth, requireRole('coach', 'blogger', 'admin'), handleDeleteAnnouncement);
 
 module.exports = router;
