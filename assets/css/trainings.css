@@ -14,7 +14,7 @@
     --card-bg: #ffffff;
     --card-shadow: 0 10px 30px rgba(0, 51, 153, 0.08);
     --border-color: #e1e8ed;
-    --radius: 16px;
+    --radius: 20px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -94,7 +94,7 @@
 .input-styled {
     background: #fff;
     border: 1px solid #ccd6dd;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 14px 18px;
     color: var(--text-main);
     font-family: inherit;
@@ -317,7 +317,7 @@ select.input-styled option {
     flex: 1;
     padding: 12px 6px;
     border: 1px solid #e1e8ed;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 0.8rem;
     font-weight: 800;
     cursor: pointer;
@@ -390,8 +390,8 @@ select.input-styled option {
 }
 
 .attendance-column {
-    background: rgba(255, 255, 255, 0.92);
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 20px;
     padding: 20px;
     border: 1px solid rgba(214, 224, 236, 0.9);
     border-top: 4px solid transparent;
