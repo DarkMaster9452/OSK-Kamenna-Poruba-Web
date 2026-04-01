@@ -146,9 +146,9 @@
         return '/api';
     }
 
-    async function loadAndApply() {
+    async function loadAndApply(forceRefresh) {
         // Check cache first
-        var cached = getCache();
+        var cached = forceRefresh ? null : getCache();
         if (cached) {
             applyAssets(cached);
             return;
@@ -156,10 +156,15 @@
 
         try {
             var apiBase = resolveApiBase();
-            var response = await fetch(apiBase + '/cloudinary/assets');
+            var url = apiBase + '/cloudinary/assets' + (forceRefresh ? '?refresh=1' : '');
+            var response = await fetch(url);
             if (!response.ok) return;
             var data = await response.json();
             var assets = Array.isArray(data.assets) ? data.assets : [];
+            if (!assets.length && !forceRefresh) {
+                loadAndApply(true);
+                return;
+            }
             if (assets && assets.length) {
                 setCache(assets);
                 applyAssets(assets);

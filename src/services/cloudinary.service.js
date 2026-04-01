@@ -111,88 +111,96 @@ async function listAllSubFolders(folderPath) {
   return folders;
 }
 
+const GALLERY_FOLDER_BLACKLIST = new Set(['blog', 'sponzori']);
+
+function getFolderSegments(folderPath) {
+  return String(folderPath || '')
+    .split('/')
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+}
+
+function isGalleryFolderAllowed(folderPath) {
+  return getFolderSegments(folderPath).every((segment) => !GALLERY_FOLDER_BLACKLIST.has(segment.toLowerCase()));
+}
+
+async function fetchImagesForAssetFolder(folderPath) {
+  const images = [];
+  let nextCursor = null;
+
+  do {
+    const params = { max_results: 500, resource_type: 'image' };
+    if (nextCursor) params.next_cursor = nextCursor;
+
+    const result = await cloudinary.api.resources_by_asset_folder(folderPath, params);
+    for (const resource of (result.resources || [])) {
+      if (isDisplayableImage(resource)) {
+        images.push({
+          url: addAutoTransform(resource.secure_url),
+          publicId: resource.public_id,
+          format: resource.format || ''
+        });
+      }
+    }
+
+    nextCursor = result.next_cursor || null;
+  } while (nextCursor);
+
+  return images;
+}
+
+async function collectFolderTree(folderPath, blocks) {
+  if (!folderPath || !isGalleryFolderAllowed(folderPath)) {
+    return;
+  }
+
+  const images = await fetchImagesForAssetFolder(folderPath);
+  if (images.length > 0) {
+    const segments = getFolderSegments(folderPath);
+    blocks.push({
+      folder: segments[segments.length - 1] || folderPath,
+      path: folderPath,
+      images
+    });
+  }
+
+  const subFolders = await listAllSubFolders(folderPath);
+  for (const subFolder of subFolders) {
+    await collectFolderTree(subFolder.path, blocks);
+  }
+}
+
 async function collectAllFolderBlocks() {
   const rootFolder = env.cloudinaryRootFolder;
-  let subs = [];
+  let roots = [];
 
   console.log(`[Cloudinary] rootFolder="${rootFolder}" (truthy=${!!rootFolder})`);
 
   if (rootFolder) {
-    console.log(`[Cloudinary] Listing sub_folders of rootFolder: "${rootFolder}"`);
-    subs = await listAllSubFolders(rootFolder);
+    roots = [{ name: getFolderSegments(rootFolder).slice(-1)[0] || rootFolder, path: rootFolder }];
   } else {
-    const roots = await listAllRootFolders();
-    for (const root of roots) {
-      const rootSubs = await listAllSubFolders(root.path);
-      subs.push(...rootSubs);
-    }
+    roots = await listAllRootFolders();
   }
 
-  // Filter out folders that should not appear in the gallery
-  const FOLDER_BLACKLIST = ['blog', 'sponzori'];
-  subs = subs.filter((s) => !FOLDER_BLACKLIST.includes(s.name.toLowerCase()));
-
-  if (subs.length === 0) {
-    console.warn(`[Cloudinary] No subfolders found.`);
+  const allowedRoots = roots.filter((root) => isGalleryFolderAllowed(root.path || root.name));
+  if (allowedRoots.length === 0) {
+    console.warn('[Cloudinary] No gallery roots found after filtering.');
     return [];
   }
 
-  console.log(`[Cloudinary] Found ${subs.length} folders after filtering. Fetching images...`);
+  console.log(`[Cloudinary] Found ${allowedRoots.length} gallery roots. Scanning folder tree...`);
 
-
-  // For each folder, fetch its direct images AND images from sub-subfolders
-  async function fetchFolderWithSubfolders(sub) {
-    // 1. Fetch direct images in this folder
-    const images = [];
-    let nextCursor = null;
-    do {
-      const params = { max_results: 500, resource_type: 'image' };
-      if (nextCursor) params.next_cursor = nextCursor;
-      const result = await cloudinary.api.resources_by_asset_folder(sub.path, params);
-      for (const r of (result.resources || [])) {
-        if (isDisplayableImage(r)) {
-          images.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
-        }
-      }
-      nextCursor = result.next_cursor || null;
-    } while (nextCursor);
-
-    // 2. Check for sub-subfolders and fetch their images too
-    try {
-      const subSubs = await listAllSubFolders(sub.path);
-      if (subSubs.length > 0) {
-        const subResults = await Promise.all(subSubs.map(async (ss) => {
-          const subImages = [];
-          let cursor = null;
-          do {
-            const p = { max_results: 500, resource_type: 'image' };
-            if (cursor) p.next_cursor = cursor;
-            const res = await cloudinary.api.resources_by_asset_folder(ss.path, p);
-            for (const r of (res.resources || [])) {
-              if (isDisplayableImage(r)) {
-                subImages.push({ url: addAutoTransform(r.secure_url), publicId: r.public_id, format: r.format || '' });
-              }
-            }
-            cursor = res.next_cursor || null;
-          } while (cursor);
-          return subImages;
-        }));
-        for (const subImgs of subResults) {
-          images.push(...subImgs);
-        }
-      }
-    } catch (e) {
-      console.warn(`[Cloudinary] Failed to list sub-subfolders of "${sub.path}": ${e.message}`);
-    }
-
-    return { folder: sub.name, path: sub.path, images };
+  const blocks = [];
+  for (const root of allowedRoots) {
+    await collectFolderTree(root.path, blocks);
   }
 
-  const results = await Promise.all(subs.map(fetchFolderWithSubfolders));
-  const blocks = results.filter((r) => r.images.length > 0);
+  const dedupedBlocks = blocks.filter((block, index, allBlocks) => {
+    return allBlocks.findIndex((candidate) => candidate.path === block.path) === index;
+  });
 
-  console.log(`[Cloudinary] Scan complete. Found ${blocks.length} blocks.`);
-  return blocks;
+  console.log(`[Cloudinary] Scan complete. Found ${dedupedBlocks.length} blocks.`);
+  return dedupedBlocks;
 }
 
 async function getTimelineData({ forceRefresh = false } = {}) {

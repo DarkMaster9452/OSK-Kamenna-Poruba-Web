@@ -9,7 +9,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-P152RNBL34');
     </script>
@@ -28,7 +28,8 @@
             padding: 0 16px 24px;
         }
 
-        h1, .page-title {
+        h1,
+        .page-title {
             margin: 0 0 16px;
             font-size: 30px;
             color: #003399;
@@ -38,13 +39,17 @@
         }
 
         @media screen and (max-width: 768px) {
-            h1, .page-title {
+
+            h1,
+            .page-title {
                 font-size: 26px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, .page-title {
+
+            h1,
+            .page-title {
                 font-size: 24px !important;
             }
         }
@@ -71,7 +76,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
 
         .album-tab:hover {
@@ -101,7 +106,7 @@
             border-radius: 12px;
             overflow: hidden;
             aspect-ratio: 1;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: 1px solid #eee;
@@ -109,7 +114,7 @@
 
         .gallery-item:hover {
             transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
         }
 
         .gallery-image {
@@ -129,7 +134,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.85));
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
             color: #fff;
             padding: 20px 15px 12px;
             font-size: 13px;
@@ -191,7 +196,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0, 0, 0, 0.95);
             z-index: 20000;
             align-items: center;
             justify-content: center;
@@ -227,7 +232,7 @@
             transform: translateY(-50%);
             width: 56px;
             height: 56px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-radius: 50%;
             display: flex;
@@ -243,17 +248,41 @@
             color: #003399;
         }
 
-        .modal-arrow svg { stroke: currentColor; }
+        .modal-arrow svg {
+            stroke: currentColor;
+        }
 
-        .modal-arrow.prev { left: 25px; }
-        .modal-arrow.next { right: 25px; }
+        .modal-arrow.prev {
+            left: 25px;
+        }
+
+        .modal-arrow.next {
+            right: 25px;
+        }
 
         @media (max-width: 768px) {
-            .page-title { font-size: 20px; white-space: nowrap; }
-            .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .modal-arrow { width: 44px; height: 44px; }
-            .modal-arrow.prev { left: 10px; }
-            .modal-arrow.next { right: 10px; }
+            .page-title {
+                font-size: 20px;
+                white-space: nowrap;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .modal-arrow {
+                width: 44px;
+                height: 44px;
+            }
+
+            .modal-arrow.prev {
+                left: 10px;
+            }
+
+            .modal-arrow.next {
+                right: 10px;
+            }
         }
 
         /* Folder Cards */
@@ -272,7 +301,7 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid #eee;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -283,7 +312,7 @@
 
         .folder-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
             border-color: #ffd700;
         }
 
@@ -349,8 +378,6 @@
             align-items: center;
             gap: 8px;
         }
-
-
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
@@ -377,7 +404,8 @@
             </div>
         </div>
 
-        <div id="albumInfo" style="display:none; margin-bottom: 24px; background: #fff; border-left: 6px solid #ffd700; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+        <div id="albumInfo"
+            style="display:none; margin-bottom: 24px; background: #fff; border-left: 6px solid #ffd700; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
             <div id="albumTitle" style="font-size: 20px; color: #003399; font-weight: 800; margin-bottom: 8px;"></div>
             <ul id="albumPoints" style="padding-left: 20px; color: #33405f; line-height: 1.6; margin: 0;"></ul>
         </div>
@@ -440,7 +468,54 @@
             'VÝSTAVBA ŠATNÍ': { year: 'Výstavba šatní' }
         };
         function folderNameToKey(name) {
-            return name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            return String(name || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'ostatne';
+        }
+
+        function getFolderPathParts(path) {
+            return String(path || '').split('/').filter(Boolean);
+        }
+
+        function findPrimaryCategoryIndex(pathParts) {
+            var configuredIndex = pathParts.findIndex(function (part) {
+                return !!FOLDER_TEXT_CONFIG[part];
+            });
+            if (configuredIndex !== -1) return configuredIndex;
+
+            var yearIndex = pathParts.findIndex(function (part) {
+                return /^\d{4}(?:-\d{4})?$/.test(part);
+            });
+            if (yearIndex !== -1) return yearIndex;
+
+            if (pathParts.length > 1) return 1;
+            return 0;
+        }
+
+        function getCloudinaryFolderInfo(fullPath) {
+            var pathParts = getFolderPathParts(fullPath);
+            if (!pathParts.length) {
+                return null;
+            }
+
+            var categoryIndex = findPrimaryCategoryIndex(pathParts);
+            var primaryCategoryName = pathParts[categoryIndex] || pathParts[pathParts.length - 1] || 'Ostatné';
+            var conf = FOLDER_TEXT_CONFIG[primaryCategoryName] || {};
+            var label = conf.year || primaryCategoryName;
+            var trailingParts = pathParts.slice(categoryIndex + 1);
+            var subfolderName = trailingParts.length ? trailingParts.join(' / ') : label;
+
+            return {
+                key: folderNameToKey(primaryCategoryName),
+                label: label,
+                sortKey: primaryCategoryName,
+                conf: conf,
+                subfolderName: subfolderName,
+                pathParts: pathParts
+            };
         }
 
         async function loadCloudinaryAlbums(forceRefresh) {
@@ -457,23 +532,25 @@
                 const folders = Array.isArray(data.folders) ? data.folders : [];
                 console.log(`[Gallery] Received ${folders.length} folders from API (v.${data.fetchedAt || 'unknown'})`);
 
+                if (!folders.length && !forceRefresh) {
+                    console.warn('[Gallery] Empty Cloudinary response, retrying with refresh=1.');
+                    await loadCloudinaryAlbums(true);
+                    return;
+                }
+
                 CLOUDINARY_ALBUMS = {};
                 cloudinaryAlbumMeta = [];
 
                 folders.forEach(function (folder) {
                     const fullPath = folder.path || folder.folder || '';
-                    const pathParts = fullPath.split('/');
+                    const pathParts = getFolderPathParts(fullPath);
                     const leafName = pathParts[pathParts.length - 1] || 'Ostatné';
-                    
-                    var parentName = null;
-                    if (pathParts.length >= 2) {
-                        parentName = pathParts[pathParts.length - 2];
-                    }
 
                     // Skip blacklisted folders
-                    if (FOLDER_BLACKLIST.some(function(b) {
-                        return b.toLowerCase() === leafName.toLowerCase() ||
-                               (parentName && b.toLowerCase() === parentName.toLowerCase());
+                    if (FOLDER_BLACKLIST.some(function (b) {
+                        return pathParts.some(function (part) {
+                            return b.toLowerCase() === part.toLowerCase();
+                        });
                     })) return;
 
                     const images = (folder.images || []).map(function (img) {
@@ -481,15 +558,12 @@
                     });
                     if (!images.length) return;
 
-                    // Determine primary category (Year or Special folder)
-                    var primaryCategoryName = leafName;
-                    if (parentName && FOLDER_TEXT_CONFIG[parentName]) {
-                        primaryCategoryName = parentName;
-                    }
+                    var folderInfo = getCloudinaryFolderInfo(fullPath);
+                    if (!folderInfo) return;
 
-                    const key = folderNameToKey('-' + primaryCategoryName);
-                    const conf = FOLDER_TEXT_CONFIG[primaryCategoryName] || {};
-                    const label = conf.year || primaryCategoryName;
+                    const key = folderInfo.key;
+                    const conf = folderInfo.conf;
+                    const label = folderInfo.label;
 
                     if (!CLOUDINARY_ALBUMS[key]) {
                         CLOUDINARY_ALBUMS[key] = {
@@ -500,15 +574,21 @@
                         cloudinaryAlbumMeta.push({
                             key: key,
                             label: label,
-                            sortKey: primaryCategoryName
+                            sortKey: folderInfo.sortKey
                         });
                     }
 
-                    // Add this folder as a subfolder to the primary category
-                    // We only add it as a subfolder if its name is different from the primary category name
-                    // OR if there are other subfolders.
+                    var existingSubfolder = CLOUDINARY_ALBUMS[key].subfolders.find(function (subfolder) {
+                        return subfolder.path === fullPath;
+                    });
+
+                    if (existingSubfolder) {
+                        existingSubfolder.images = existingSubfolder.images.concat(images);
+                        return;
+                    }
+
                     CLOUDINARY_ALBUMS[key].subfolders.push({
-                        name: leafName,
+                        name: folderInfo.subfolderName,
                         path: fullPath,
                         images: images
                     });
@@ -526,14 +606,14 @@
                 // Sort subfolders alphabetically within each category
                 Object.values(CLOUDINARY_ALBUMS).forEach(album => {
                     if (album.subfolders) {
-                        album.subfolders.sort((a, b) => a.name.localeCompare(b.name));
+                        album.subfolders.sort((a, b) => a.name.localeCompare(b.name, 'sk'));
                     }
                 });
-                
+
                 if (cloudinaryAlbumMeta.length === 0) {
-                   console.warn('[Gallery] No populated Cloudinary albums found.');
+                    console.warn('[Gallery] No populated Cloudinary albums found.');
                 } else {
-                   console.log(`[Gallery] Successfully processed ${cloudinaryAlbumMeta.length} albums.`);
+                    console.log(`[Gallery] Successfully processed ${cloudinaryAlbumMeta.length} albums.`);
                 }
             } catch (e) {
                 console.error('[Gallery] Cloudinary albums load failed:', e);
@@ -542,9 +622,9 @@
 
         function buildAlbumTabs() {
             var tabsEl = document.getElementById('albumTabs');
-            var staticTabs = '<button class="album-tab active" data-album="instagram"><i class="fab fa-instagram"></i> Instagram</button>';
+            var staticTabs = '<button class="album-tab' + (currentAlbum === 'instagram' ? ' active' : '') + '" data-album="instagram"><i class="fab fa-instagram"></i> Instagram</button>';
             var dynamicTabs = cloudinaryAlbumMeta.map(function (m) {
-                return '<button class="album-tab" data-album="' + m.key + '">' + m.label + '</button>';
+                return '<button class="album-tab' + (currentAlbum === m.key ? ' active' : '') + '" data-album="' + m.key + '">' + m.label + '</button>';
             }).join('');
             tabsEl.innerHTML = staticTabs + dynamicTabs;
         }
@@ -576,8 +656,10 @@
         function getAllCloudinaryItems() {
             var items = [];
             Object.keys(CLOUDINARY_ALBUMS).forEach(function (album) {
-                CLOUDINARY_ALBUMS[album].forEach(function (item) {
-                    items.push(makeCloudinaryItem(item, album));
+                (CLOUDINARY_ALBUMS[album].subfolders || []).forEach(function (subfolder) {
+                    (subfolder.images || []).forEach(function (item) {
+                        items.push(makeCloudinaryItem(item, album));
+                    });
                 });
             });
             return items;
@@ -591,7 +673,7 @@
             const infoEl = document.getElementById('albumInfo');
             const titleEl = document.getElementById('albumTitle');
             const pointsEl = document.getElementById('albumPoints');
-            
+
             grid.innerHTML = '';
             folderGrid.innerHTML = '';
             folderGrid.style.display = 'none';
@@ -623,7 +705,7 @@
                 if (currentSubfolderIndex !== null) {
                     const subfolder = albumData.subfolders[currentSubfolderIndex];
                     itemsToShow = subfolder.images.map(img => makeCloudinaryItem(img, currentAlbum));
-                    
+
                     backNav.style.display = 'flex';
                     document.getElementById('currentEventName').textContent = subfolder.name;
                 } else {
@@ -638,7 +720,7 @@
                 const conf = albumData.conf || {};
                 const hasTitle = !!conf.title;
                 const hasPoints = !!(conf.points && conf.points.length);
-                
+
                 if (hasTitle || hasPoints) {
                     infoEl.style.display = 'block';
                     titleEl.textContent = conf.title || '';
@@ -659,7 +741,7 @@
         function renderFolderList(subfolders) {
             const folderGrid = document.getElementById('folderGrid');
             folderGrid.style.display = 'grid';
-            
+
             subfolders.forEach((sub, index) => {
                 const card = document.createElement('div');
                 card.className = 'folder-card';
@@ -799,7 +881,7 @@
             renderGallery();
         });
 
-        document.getElementById('backToAlbumsBtn').addEventListener('click', function() {
+        document.getElementById('backToAlbumsBtn').addEventListener('click', function () {
             currentSubfolderIndex = null;
             renderGallery();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -871,12 +953,12 @@
                 await window.OSKSession.syncCurrentUserFromSession();
             }
             buildAlbumTabs();
-            
-            loadInstagramFeed().then(function() {
+
+            loadInstagramFeed().then(function () {
                 if (currentAlbum === 'instagram') renderGallery();
             });
 
-            loadCloudinaryAlbums().then(function() {
+            loadCloudinaryAlbums().then(function () {
                 buildAlbumTabs();
                 if (currentAlbum !== 'instagram') renderGallery();
             });
@@ -889,4 +971,5 @@
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
 </body>
+
 </html>
