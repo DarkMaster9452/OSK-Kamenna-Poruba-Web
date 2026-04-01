@@ -2961,6 +2961,35 @@
         const PLAYERS = {};
         const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
 
+        const HOMEPAGE_CACHE_TTL = 10 * 60 * 1000;
+
+        async function cachedFetch(url, options = {}) {
+            const cacheKey = `osk_home_cf__${url}`;
+
+            try {
+                const raw = localStorage.getItem(cacheKey);
+                if (raw) {
+                    const entry = JSON.parse(raw);
+                    if (entry && entry.ts && (Date.now() - entry.ts < HOMEPAGE_CACHE_TTL)) {
+                        return entry.data;
+                    }
+                }
+            } catch (_) { }
+
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            try {
+                localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data }));
+            } catch (_) { }
+
+            return data;
+        }
+
         async function ensureCsrfToken() {
             return window.OSKSession ? window.OSKSession.ensureCsrfToken() : null;
         }
