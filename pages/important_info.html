@@ -328,20 +328,20 @@
         .item {
             background: #fff;
             background: linear-gradient(145deg, #ffffff 0%, #f9fbff 100%);
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 25px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(0, 51, 153, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(0, 51, 153, 0.04);
             position: relative;
             overflow: hidden;
         }
 
         .item:hover {
             border-color: #003399;
-            box-shadow: 0 12px 30px rgba(0, 51, 153, 0.08);
-            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 51, 153, 0.1);
+            transform: translateY(-4px);
         }
 
         .item.notice-important {
