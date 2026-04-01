@@ -1388,22 +1388,30 @@
 
         /* ===== 10-MINUTE CACHE HELPER ===== */
         async function cachedFetch(url, options = {}) {
-            const CACHE_TTL = 10 * 60 * 1000;
+            const {
+                localCacheTtlMs = 10 * 60 * 1000,
+                ...fetchOptions
+            } = options;
             const cacheKey = 'osk_cf__' + url;
             try {
                 const raw = localStorage.getItem(cacheKey);
                 if (raw) {
                     const entry = JSON.parse(raw);
-                    if (Date.now() - entry.ts < CACHE_TTL) {
+                    if (localCacheTtlMs > 0 && Date.now() - entry.ts < localCacheTtlMs) {
                         return entry.data;
+                    }
+                    if (localCacheTtlMs <= 0) {
+                        localStorage.removeItem(cacheKey);
                     }
                 }
             } catch (_) { }
             try {
-                const response = await fetch(url, options);
+                const response = await fetch(url, fetchOptions);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
-                try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
+                if (localCacheTtlMs > 0) {
+                    try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
+                }
                 return data;
             } catch (err) {
                 console.error('Fetch error:', err);
@@ -1673,7 +1681,12 @@
             try {
                 const payload = await cachedFetch(
                     `${API_BASE}/sportsnet/matches`,
-                    { method: 'GET', headers: { Accept: 'application/json' } }
+                    {
+                        method: 'GET',
+                        headers: { Accept: 'application/json' },
+                        cache: 'no-store',
+                        localCacheTtlMs: 0
+                    }
                 );
                 const items = Array.isArray(payload?.items) ? payload.items : [];
 
@@ -1741,7 +1754,12 @@
             try {
                 const payload = await cachedFetch(
                     `${API_BASE}/sportsnet/standings`,
-                    { method: 'GET', headers: { Accept: 'application/json' } }
+                    {
+                        method: 'GET',
+                        headers: { Accept: 'application/json' },
+                        cache: 'no-store',
+                        localCacheTtlMs: 0
+                    }
                 );
                 STANDINGS = Array.isArray(payload.standings) ? payload.standings : [];
             } catch (error) {
