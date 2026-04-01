@@ -379,8 +379,6 @@ async function createTraining() {
     }
 
     await loadTrainingData();
-
-    alert('Tréning bol úspešne vytvorený! Všetci hráči majú stav "neviem".');
     
     // Clear form
     document.getElementById('coachTrainingDate').value = '';
@@ -750,7 +748,6 @@ async function startTraining(trainingId) {
     }
 
     await loadTrainingData();
-    alert('Tréning bol uzavretý. Hráči nemôžu meniť svoje odpovede.');
     refreshCoachRoster();
     refreshPlayerTrainings();
 }
@@ -945,7 +942,6 @@ async function editTraining(id) {
     }
 
     await loadTrainingData();
-    alert('Tréning bol upravený a notifikácia odoslaná.');
     refreshCoachRoster();
     refreshPlayerTrainings();
 }
@@ -997,7 +993,6 @@ async function deleteTraining(id) {
         }
 
         await loadTrainingData();
-        alert('Tréning bol odstránený.');
         refreshCoachRoster();
         refreshPlayerTrainings();
     }

@@ -296,17 +296,36 @@ select.input-styled option {
     gap: 25px;
     margin-top: 30px;
     padding: 25px;
-    background: #f1f5f9;
+    background: linear-gradient(180deg, #f7faff 0%, #eef3fb 100%);
     border-radius: var(--radius);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #d7e3f2;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 10px 24px rgba(0, 51, 153, 0.06);
+}
+
+.attendance-overview::before {
+    content: 'Prehlad dochadzky';
+    grid-column: 1 / -1;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 8px 14px;
+    margin-bottom: -4px;
+    border-radius: 999px;
+    background: rgba(0, 51, 153, 0.08);
+    color: var(--primary);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
 .attendance-column {
-    background: white;
+    background: rgba(255, 255, 255, 0.92);
     border-radius: 12px;
     padding: 20px;
+    border: 1px solid rgba(214, 224, 236, 0.9);
     border-top: 4px solid transparent;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
     transition: var(--transition);
 }
 
@@ -314,9 +333,23 @@ select.input-styled option {
     transform: translateY(-3px);
 }
 
-.col-yes { border-color: var(--accent); }
-.col-no { border-color: var(--error); }
-.col-unknown { border-color: var(--warning); }
+.col-yes {
+    border-color: rgba(46, 204, 113, 0.22);
+    border-top-color: var(--accent);
+    background: linear-gradient(180deg, rgba(46, 204, 113, 0.08) 0%, rgba(255, 255, 255, 0.96) 38%);
+}
+
+.col-no {
+    border-color: rgba(231, 76, 60, 0.22);
+    border-top-color: var(--error);
+    background: linear-gradient(180deg, rgba(231, 76, 60, 0.08) 0%, rgba(255, 255, 255, 0.96) 38%);
+}
+
+.col-unknown {
+    border-color: rgba(243, 156, 18, 0.24);
+    border-top-color: var(--warning);
+    background: linear-gradient(180deg, rgba(243, 156, 18, 0.09) 0%, rgba(255, 255, 255, 0.96) 38%);
+}
 
 .attendance-column.col-yes h5 i { color: var(--accent); }
 .attendance-column.col-no h5 i { color: var(--error); }
@@ -338,6 +371,8 @@ select.input-styled option {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    align-content: flex-start;
+    min-height: 42px;
 }
 
 .player-chip {
