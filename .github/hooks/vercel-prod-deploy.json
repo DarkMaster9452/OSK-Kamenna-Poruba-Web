@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node ./scripts/hooks/deploy-vercel-prod.js",
+        "timeout": 1800
+      }
+    ]
+  }
+}
