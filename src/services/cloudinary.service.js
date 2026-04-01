@@ -112,6 +112,7 @@ async function listAllSubFolders(folderPath) {
 }
 
 const GALLERY_FOLDER_BLACKLIST = new Set(['blog', 'sponzori']);
+const DEFAULT_CLOUDINARY_ROOT_FOLDER = 'OSK Kamenna Poruba';
 
 function getFolderSegments(folderPath) {
   return String(folderPath || '')
@@ -122,6 +123,10 @@ function getFolderSegments(folderPath) {
 
 function isGalleryFolderAllowed(folderPath) {
   return getFolderSegments(folderPath).every((segment) => !GALLERY_FOLDER_BLACKLIST.has(segment.toLowerCase()));
+}
+
+function resolveCloudinaryRootFolder() {
+  return normalizeFolderPath(env.cloudinaryRootFolder || DEFAULT_CLOUDINARY_ROOT_FOLDER);
 }
 
 function normalizeFolderPath(folderPath) {
@@ -222,7 +227,7 @@ async function collectFolderTree(folderPath, blocks) {
 }
 
 async function collectAllFolderBlocks() {
-  const rootFolder = env.cloudinaryRootFolder;
+  const rootFolder = resolveCloudinaryRootFolder();
   console.log(`[Cloudinary] rootFolder="${rootFolder}" (truthy=${!!rootFolder})`);
 
   const resources = await fetchAllImageResources();
@@ -313,6 +318,8 @@ async function getRootAssets({ forceRefresh = false } = {}) {
     return { ...makeUnconfiguredResponse('assets'), assets: [] };
   }
 
+  const rootFolder = resolveCloudinaryRootFolder();
+
   if (!forceRefresh) {
     const cached = await readCache('cloudinary_assets');
     if (cached) {
@@ -321,18 +328,19 @@ async function getRootAssets({ forceRefresh = false } = {}) {
   }
 
   try {
-    // Use Search API to find images regardless of folder depth
-    const result = await cloudinary.search
-      .expression('resource_type:image')
-      .max_results(500)
-      .execute();
+    const resources = await fetchAllImageResources();
 
-    const resources = Array.isArray(result.resources) ? result.resources : [];
-
-    // All assets returned - map will handle basename matching
     const assets = resources
+      .filter((resource) => {
+        if (!isDisplayableImage(resource)) {
+          return false;
+        }
+
+        const folderPath = getResourceFolderPath(resource);
+        return !!folderPath && isInsideRootFolder(folderPath, rootFolder) && isGalleryFolderAllowed(folderPath);
+      })
       .map((r) => ({
-        url: r.secure_url,
+        url: addAutoTransform(r.secure_url),
         publicId: r.public_id,
         format: r.format || '',
         filename: r.public_id + (r.format ? '.' + r.format : '')
@@ -411,10 +419,13 @@ async function uploadImageToStream(fileBuffer, folder = 'blog') {
     throw new Error('Cloudinary nie je nakonfigurovaný.');
   }
 
+  const rootFolder = resolveCloudinaryRootFolder();
+  const uploadFolder = normalizeFolderPath([rootFolder, folder].filter(Boolean).join('/'));
+
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: `${env.cloudinaryRootFolder}/${folder}`,
+        folder: uploadFolder,
         resource_type: 'image'
       },
       (error, result) => {
