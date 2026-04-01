@@ -14,7 +14,7 @@ const {
 const { validateBody } = require('../middleware/validate');
 const { requireAuth } = require('../middleware/auth');
 const { signAccessToken } = require('../services/token.service');
-const { getCookieBaseOptions, getCookieClearOptions } = require('../config/cookies');
+const { getCookieBaseOptions, clearAuthCookieVariants } = require('../config/cookies');
 
 const router = express.Router();
 
@@ -200,6 +200,7 @@ router.post('/login', validateBody(loginSchema), async (req, res, next) => {
       playerCategory: user.playerCategory || null
     });
 
+    clearAuthCookieVariants(res, req, env.cookieName);
     res.cookie(env.cookieName, token, getCookieBaseOptions(req));
 
     try {
@@ -235,7 +236,7 @@ router.post('/login', validateBody(loginSchema), async (req, res, next) => {
 });
 
 router.post('/logout', (req, res) => {
-  res.clearCookie(env.cookieName, getCookieClearOptions(req));
+  clearAuthCookieVariants(res, req, env.cookieName);
   return res.json({ message: 'Odhlásenie úspešné' });
 });
 

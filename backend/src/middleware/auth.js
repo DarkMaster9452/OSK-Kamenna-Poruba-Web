@@ -1,15 +1,30 @@
 ﻿const env = require('../config/env');
-const { getCookieBaseOptions } = require('../config/cookies');
+const { getCookieBaseOptions, getCookieValueCandidates } = require('../config/cookies');
 const { verifyAccessToken, signAccessToken } = require('../services/token.service');
 const { findUserById, findUserByUsername } = require('../data/repository');
 
 function getTokenFromRequest(req) {
-  const cookieToken = req.cookies ? req.cookies[env.cookieName] : null;
-  if (cookieToken) return cookieToken;
+  const cookieTokens = getCookieValueCandidates(req, env.cookieName);
+  if (cookieTokens.length > 0) return cookieTokens[0];
 
   const authHeader = req.headers.authorization || '';
   if (authHeader.startsWith('Bearer ')) {
     return authHeader.substring(7);
+  }
+
+  return null;
+}
+
+function verifyAnyAccessToken(tokens) {
+  for (const token of tokens) {
+    try {
+      return {
+        payload: verifyAccessToken(token),
+        token
+      };
+    } catch (_) {
+      // try the next candidate when duplicate stale cookies are present
+    }
   }
 
   return null;
@@ -41,14 +56,22 @@ async function resolveAuthenticatedUser(payload) {
 }
 
 async function requireAuth(req, res, next) {
-  const cookieToken = req.cookies ? req.cookies[env.cookieName] : null;
-  const token = getTokenFromRequest(req);
-  if (!token) {
+  const cookieTokens = getCookieValueCandidates(req, env.cookieName);
+  const authToken = getTokenFromRequest(req);
+  if (!authToken) {
     return res.status(401).json({ message: 'Neautorizované' });
   }
 
   try {
-    const payload = verifyAccessToken(token);
+    const verified = cookieTokens.length > 0
+      ? verifyAnyAccessToken(cookieTokens)
+      : { payload: verifyAccessToken(authToken), token: authToken };
+
+    if (!verified || !verified.payload) {
+      return res.status(401).json({ message: 'Neautorizované' });
+    }
+
+    const payload = verified.payload;
     const user = await resolveAuthenticatedUser(payload);
     if (!user) {
       return res.status(401).json({ message: 'Neautorizované' });
@@ -61,7 +84,7 @@ async function requireAuth(req, res, next) {
       playerCategory: user.playerCategory || null
     };
 
-    const shouldRefreshToken = Boolean(cookieToken);
+    const shouldRefreshToken = cookieTokens.length > 0;
 
     if (shouldRefreshToken) {
       const refreshedToken = signAccessToken({
