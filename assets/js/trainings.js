@@ -11,6 +11,8 @@ const PLAYER_DIRECTORY = {};
 
 const PLAYER_NAME_MAP = {};
 
+let showClosedCoachTrainings = false;
+
 const TRAINING_CATEGORY_OPTIONS = [
     { value: 'pripravka_u9', label: 'Prípravka U9' },
     { value: 'pripravka_u11', label: 'Prípravka U11' },
@@ -272,9 +274,14 @@ function initializeTrainingView() {
 
                 <!-- Coach's Training Roster -->
                 <div id="coachRosterArea" style="display: none;">
-                    <h3 style="color: var(--secondary); margin-bottom: 25px; display: flex; align-items: center; gap: 12px; font-weight: 800;">
-                        <i class="fas fa-list-check"></i> Správa tréningov a dochádzka
-                    </h3>
+                    <div class="coach-roster-toolbar">
+                        <h3 style="color: var(--secondary); margin: 0; display: flex; align-items: center; gap: 12px; font-weight: 800;">
+                            <i class="fas fa-list-check"></i> Správa tréningov a dochádzka
+                        </h3>
+                        <button id="toggleClosedTrainingsButton" type="button" class="btn-training btn-training-secondary" onclick="toggleClosedCoachTrainings()">
+                            <i class="fas fa-eye"></i> Zobraziť uzavreté tréningy
+                        </button>
+                    </div>
                     <div id="coachTrainingsContainer"></div>
                 </div>
             </div>
@@ -605,9 +612,16 @@ function refreshCoachRoster() {
     console.log('refreshCoachRoster called, currentUser:', currentUser, 'trainings:', trainings);
     
     const container = document.getElementById('coachTrainingsContainer');
+    const toggleClosedTrainingsButton = document.getElementById('toggleClosedTrainingsButton');
     if (!container) {
         console.error('coachTrainingsContainer not found');
         return;
+    }
+
+    if (toggleClosedTrainingsButton) {
+        toggleClosedTrainingsButton.innerHTML = showClosedCoachTrainings
+            ? '<i class="fas fa-eye-slash"></i> Skryť uzavreté tréningy'
+            : '<i class="fas fa-eye"></i> Zobraziť uzavreté tréningy';
     }
     
     if (trainings.length === 0) {
@@ -615,14 +629,21 @@ function refreshCoachRoster() {
         return;
     }
 
+    const visibleTrainings = trainings.filter((training) => showClosedCoachTrainings || training.isActive);
+
+    if (visibleTrainings.length === 0) {
+        container.innerHTML = '<div class="empty-message">Momentálne nie sú žiadne aktívne tréningy. Klikni na tlačidlo pre zobrazenie uzavretých tréningov.</div>';
+        return;
+    }
+
     let html = '';
-    trainings.forEach(training => {
+    visibleTrainings.forEach(training => {
         const date = new Date(training.date);
         const formattedDate = date.toLocaleDateString('sk-SK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const typeLabel = getTrainingTypeLabel(training.type);
         const categoryLabel = getTrainingCategoryLabel(training.category);
         const noteHtml = training.note
-            ? `<p style="margin: 8px 0; color: rgba(255, 255, 255, 0.9);"><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(training.note)}</p>`
+            ? `<div class="training-note"><i class="fas fa-note-sticky"></i><span>${escapeHtml(training.note)}</span></div>`
             : '';
         
         // Get attendance for this training - now with three categories
@@ -716,6 +737,11 @@ function refreshCoachRoster() {
     });
 
     container.innerHTML = html;
+}
+
+function toggleClosedCoachTrainings() {
+    showClosedCoachTrainings = !showClosedCoachTrainings;
+    refreshCoachRoster();
 }
 
 // Start training - lock attendance changes

@@ -151,10 +151,42 @@ select.input-styled option {
     box-shadow: 0 8px 25px rgba(0, 51, 153, 0.3);
 }
 
+.btn-training-secondary {
+    background: #eef4ff;
+    color: var(--primary);
+    border: 1px solid rgba(0, 51, 153, 0.12);
+    box-shadow: 0 6px 18px rgba(0, 51, 153, 0.08);
+}
+
+.btn-training-secondary:hover {
+    background: #e0edff;
+    transform: translateY(-2px);
+}
+
+.coach-roster-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+/* Training List Containers */
+#coachTrainingsContainer, #playerTrainingsContainer {
+    background: #edf2f8;
+    padding: 35px;
+    border-radius: 24px;
+    border: 1px solid #dbe8f5;
+    margin-top: 30px;
+    box-shadow: inset 0 2px 10px rgba(0, 51, 153, 0.03);
+}
+
 /* Training List Cards */
 .training-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: #ffffff;
+    background: linear-gradient(145deg, #ffffff 0%, #f9fbff 100%);
+    border: 1px solid #e1e9f0;
     border-radius: var(--radius);
     padding: 30px;
     margin-bottom: 25px;
@@ -163,7 +195,14 @@ select.input-styled option {
     gap: 25px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 8px 25px rgba(0, 51, 153, 0.05), 0 2px 5px rgba(0, 0, 0, 0.02);
+    transition: var(--transition);
+}
+
+.training-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(0, 51, 153, 0.1);
+    border-color: var(--primary);
 }
 
 .training-card::before {
@@ -188,6 +227,29 @@ select.input-styled option {
     font-size: 1.4rem;
     margin: 0 0 12px 0;
     font-weight: 800;
+}
+
+.training-note {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 12px 14px;
+    max-width: min(100%, 760px);
+    background: #f7faff;
+    border: 1px solid #dbe7f7;
+    border-radius: 12px;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.training-note i {
+    color: var(--primary);
+    margin-top: 2px;
+}
+
+.training-note span {
+    color: var(--text-main);
 }
 
 .training-meta {
@@ -650,6 +712,14 @@ select.input-styled option {
     .training-page-section { padding: 40px 15px; }
     
     .training-form-grid { grid-template-columns: 1fr; }
+
+    .coach-roster-toolbar {
+        align-items: stretch;
+    }
+
+    .coach-roster-toolbar .btn-training {
+        width: 100%;
+    }
     
     .training-info-row {
         flex-direction: column;
