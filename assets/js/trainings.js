@@ -86,6 +86,14 @@ function getApiBase() {
     return '/api';
 }
 
+async function getCsrfToken() {
+    if (window.OSKSession && typeof window.OSKSession.ensureCsrfToken === 'function') {
+        return window.OSKSession.ensureCsrfToken();
+    }
+
+    return null;
+}
+
 function getPlayerUsernamesByCategory(category) {
     return PLAYER_DIRECTORY[category] || [];
 }
@@ -342,7 +350,7 @@ async function createTraining() {
     }
 
     try {
-        const csrfToken = typeof ensureCsrfToken === 'function' ? await ensureCsrfToken() : null;
+        const csrfToken = await getCsrfToken();
         const response = await fetch(`${getApiBase()}/trainings`, {
             method: 'POST',
             credentials: 'include',
@@ -535,7 +543,7 @@ async function markAttendance(trainingId, personName, status) {
     }
     
     try {
-        const csrfToken = typeof ensureCsrfToken === 'function' ? await ensureCsrfToken() : null;
+        const csrfToken = await getCsrfToken();
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 12000);
         let response;
@@ -722,7 +730,7 @@ async function startTraining(trainingId) {
     }
 
     try {
-        const csrfToken = typeof ensureCsrfToken === 'function' ? await ensureCsrfToken() : null;
+        const csrfToken = await getCsrfToken();
         const response = await fetch(`${getApiBase()}/trainings/${training.id}/close`, {
             method: 'PATCH',
             credentials: 'include',
@@ -904,7 +912,7 @@ async function editTraining(id) {
     }
 
     try {
-        const csrfToken = typeof ensureCsrfToken === 'function' ? await ensureCsrfToken() : null;
+        const csrfToken = await getCsrfToken();
         const patchResponse = await fetch(`${getApiBase()}/trainings/${id}`, {
             method: 'PATCH',
             credentials: 'include',
@@ -946,7 +954,7 @@ async function editTraining(id) {
 async function deleteTraining(id) {
     if (confirm('Ste si istý, že chcete odstrániť tento tréning?')) {
         try {
-            const csrfToken = typeof ensureCsrfToken === 'function' ? await ensureCsrfToken() : null;
+            const csrfToken = await getCsrfToken();
             const deleteResponse = await fetch(`${getApiBase()}/trainings/${id}`, {
                 method: 'DELETE',
                 credentials: 'include',
