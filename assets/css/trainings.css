@@ -426,15 +426,17 @@ select.input-styled option {
 .attendance-column.col-unknown h5 i { color: var(--warning); }
 
 .attendance-column h5 {
-    margin: 0 0 12px 0;
-    font-size: 0.75rem;
+    margin: 0 0 15px 0;
+    font-size: 0.8rem;
     font-weight: 800;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     color: var(--primary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .player-list-chips {
