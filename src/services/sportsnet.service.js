@@ -7,6 +7,9 @@ const cacheState = {
 };
 
 const detailCacheState = new Map();
+const logoUrlStatusCache = new Map();
+const teamLogoCache = new Map();
+const TEAM_LOGO_CACHE_TTL_MS = 1000 * 60 * 60 * 12;
 
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
@@ -268,6 +271,136 @@ function getTeamLogo(teamObj) {
     || null;
 }
 
+function getTeamLogoCacheKey(teamObj) {
+  return teamObj?.organization?._id
+    || teamObj?.appSpace
+    || teamObj?._id
+    || teamObj?.id
+    || teamObj?.name
+    || null;
+}
+
+function getTeamSlug(teamObj) {
+  const rawValue = teamObj?.organization?._id || teamObj?.appSpace || teamObj?.organization?.name || '';
+  const normalized = String(rawValue || '').trim().toLowerCase();
+  if (!normalized) return null;
+
+  if (normalized.endsWith('.futbalnet.sk')) {
+    return normalized.replace(/\.futbalnet\.sk$/i, '');
+  }
+
+  return normalized
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+async function isReachableImageUrl(url) {
+  if (!isNonEmptyString(url)) {
+    return false;
+  }
+
+  const cacheKey = url.trim();
+  const cached = logoUrlStatusCache.get(cacheKey);
+  const now = Date.now();
+  if (cached && cached.expiresAt > now) {
+    return cached.ok;
+  }
+
+  let ok = false;
+  try {
+    const response = await fetch(cacheKey, {
+      method: 'GET',
+      redirect: 'follow',
+      headers: { Accept: 'image/*,*/*;q=0.8' }
+    });
+    ok = response.ok && String(response.headers.get('content-type') || '').toLowerCase().startsWith('image/');
+  } catch (_) {
+    ok = false;
+  }
+
+  logoUrlStatusCache.set(cacheKey, {
+    ok,
+    expiresAt: now + TEAM_LOGO_CACHE_TTL_MS
+  });
+
+  return ok;
+}
+
+async function fetchTeamLogoFromClubPage(teamObj) {
+  const teamSlug = getTeamSlug(teamObj);
+  if (!teamSlug) {
+    return null;
+  }
+
+  const cacheKey = `club-page:${teamSlug}`;
+  const cached = teamLogoCache.get(cacheKey);
+  const now = Date.now();
+  if (cached && cached.expiresAt > now) {
+    return cached.logoUrl;
+  }
+
+  let logoUrl = null;
+  try {
+    const response = await fetch(`https://sportnet.sme.sk/futbalnet/k/${encodeURIComponent(teamSlug)}/`, {
+      method: 'GET',
+      redirect: 'follow',
+      headers: { Accept: 'text/html,application/xhtml+xml' }
+    });
+
+    if (response.ok) {
+      const html = await response.text();
+      const match = html.match(/https:\/\/api\.sportnet\.online\/data\/ppo\/[^"')\s]+\.(?:png|jpe?g|webp|svg)/i);
+      if (match && await isReachableImageUrl(match[0])) {
+        logoUrl = match[0];
+      }
+    }
+  } catch (_) {
+    logoUrl = null;
+  }
+
+  teamLogoCache.set(cacheKey, {
+    logoUrl,
+    expiresAt: now + TEAM_LOGO_CACHE_TTL_MS
+  });
+
+  return logoUrl;
+}
+
+async function resolveTeamLogo(teamObj) {
+  if (!teamObj) {
+    return null;
+  }
+
+  const cacheKey = getTeamLogoCacheKey(teamObj);
+  const now = Date.now();
+  if (cacheKey) {
+    const cached = teamLogoCache.get(cacheKey);
+    if (cached && cached.expiresAt > now) {
+      return cached.logoUrl;
+    }
+  }
+
+  const primaryLogo = getTeamLogo(teamObj);
+  let resolvedLogo = null;
+
+  if (primaryLogo && await isReachableImageUrl(primaryLogo)) {
+    resolvedLogo = primaryLogo;
+  } else {
+    resolvedLogo = await fetchTeamLogoFromClubPage(teamObj);
+  }
+
+  if (cacheKey) {
+    teamLogoCache.set(cacheKey, {
+      logoUrl: resolvedLogo,
+      expiresAt: now + TEAM_LOGO_CACHE_TTL_MS
+    });
+  }
+
+  return resolvedLogo;
+}
+
 function resolveScore(item, homeTeamIdx, awayTeamIdx) {
   if (Array.isArray(item?.score)) {
     return {
@@ -520,12 +653,14 @@ function extractReferee(item) {
   return refereeFromManagers || null;
 }
 
-function mapMatch(item, index = 0) {
+async function mapMatch(item, index = 0) {
   const context = getMatchTeams(item);
   const homeTeamName = getTeamName(context.homeTeamObj, item?.homeTeamName || item?.home || 'Domáci');
   const awayTeamName = getTeamName(context.awayTeamObj, item?.awayTeamName || item?.away || 'Hostia');
-  const homeLogo = getTeamLogo(context.homeTeamObj);
-  const awayLogo = getTeamLogo(context.awayTeamObj);
+  const [homeLogo, awayLogo] = await Promise.all([
+    resolveTeamLogo(context.homeTeamObj),
+    resolveTeamLogo(context.awayTeamObj)
+  ]);
   const { scoreHome, scoreAway } = resolveScore(item, context.homeTeamIdx, context.awayTeamIdx);
   const startsAt = toIsoDate(item?.startDate || item?.startsAt || item?.start_at || item?.dateTime || item?.date);
   const localDt = toSlovakDateTime(startsAt);
@@ -728,7 +863,7 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
     offset = nextOffset;
   }
 
-  const items = allMatches.map((item, index) => mapMatch(item, index));
+  const items = await Promise.all(allMatches.map((item, index) => mapMatch(item, index)));
   const normalized = {
     source: 'sportsnet.online',
     fetchedAt: new Date().toISOString(),
@@ -770,7 +905,7 @@ async function fetchSportsnetMatchDetail(matchId, { forceRefresh = false } = {})
     source: 'sportsnet.online',
     fetchedAt: new Date().toISOString(),
     matchId: cacheKey,
-    item: mapMatch(payload, 0)
+    item: await mapMatch(payload, 0)
   };
 
   detailCacheState.set(cacheKey, {
