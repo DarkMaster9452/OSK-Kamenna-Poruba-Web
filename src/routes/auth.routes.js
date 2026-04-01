@@ -200,7 +200,7 @@ router.post('/login', validateBody(loginSchema), async (req, res, next) => {
       playerCategory: user.playerCategory || null
     });
 
-    res.cookie(env.cookieName, token, getCookieBaseOptions());
+    res.cookie(env.cookieName, token, getCookieBaseOptions(req));
 
     try {
       await createAuditLog({
@@ -235,7 +235,7 @@ router.post('/login', validateBody(loginSchema), async (req, res, next) => {
 });
 
 router.post('/logout', (req, res) => {
-  res.clearCookie(env.cookieName, getCookieClearOptions());
+  res.clearCookie(env.cookieName, getCookieClearOptions(req));
   return res.json({ message: 'Odhlásenie úspešné' });
 });
 
