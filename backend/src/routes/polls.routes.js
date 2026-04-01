@@ -15,7 +15,7 @@ const {
 const router = express.Router();
 
 const createPollSchema = z.object({
-  question: z.string().min(5).max(500),
+  question: z.string().min(3).max(500),
   options: z.array(z.string().min(1).max(200)).min(2).max(10),
   target: z.enum(['all', 'players', 'parents', 'coaches', 'admins']),
   playerCategory: z.enum(['pripravka_u9', 'pripravka_u11', 'ziaci', 'dorastenci', 'adults_young', 'adults_pro']).nullable().optional(),
