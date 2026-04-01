@@ -262,7 +262,7 @@ Ak chceš deployovať iba ručne a nie po každom pushi na GitHub:
 Pre tento projekt potom používaj manuálny deploy takto:
 
 ```bash
-npm run vercel:build
+npm run vercel:build:prod
 npm run vercel:deploy:prod
 ```
 
@@ -270,4 +270,5 @@ Poznámka:
 
 - Pre tento repo nestačí iba `npm run build`, ak chceš použiť `vercel deploy --prebuilt`.
 - `--prebuilt` na Verceli očakáva výstup z `vercel build`, nie iba obyčajný lokálny build do vlastného priečinka.
+- Pre production deploy musí byť build urobený cez `vercel build --prod`, inak vznikne `preview/production` mismatch.
 - Preview deploy môžeš spraviť cez `npm run vercel:deploy`.
