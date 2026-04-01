@@ -17,13 +17,42 @@ function normalizeCookieDomain(value) {
   return raw.replace(/^\.+/, '');
 }
 
+function parseHostFromUrl(value) {
+  try {
+    return new URL(String(value || '')).hostname.toLowerCase();
+  } catch (_) {
+    return '';
+  }
+}
+
 function resolveRequestHost(req) {
-  const forwardedHost = req && req.headers ? req.headers['x-forwarded-host'] : '';
-  const hostHeader = forwardedHost || (req && req.headers ? req.headers.host : '') || '';
-  return String(Array.isArray(hostHeader) ? hostHeader[0] : hostHeader)
-    .trim()
-    .toLowerCase()
-    .replace(/:\d+$/, '');
+  const headers = req && req.headers ? req.headers : {};
+  const candidates = [
+    headers.origin,
+    headers.referer,
+    headers.referrer,
+    headers['x-forwarded-host'],
+    headers.host
+  ];
+
+  for (const candidate of candidates) {
+    const rawValue = Array.isArray(candidate) ? candidate[0] : candidate;
+    if (!rawValue) {
+      continue;
+    }
+
+    const parsedUrlHost = parseHostFromUrl(rawValue);
+    if (parsedUrlHost) {
+      return parsedUrlHost;
+    }
+
+    const normalizedHost = String(rawValue).trim().toLowerCase().replace(/:\d+$/, '');
+    if (normalizedHost) {
+      return normalizedHost;
+    }
+  }
+
+  return '';
 }
 
 function resolveCookieDomain(req) {

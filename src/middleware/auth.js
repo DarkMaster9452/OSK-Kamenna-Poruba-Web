@@ -71,7 +71,7 @@ async function requireAuth(req, res, next) {
         playerCategory: user.playerCategory || null
       });
 
-      res.cookie(env.cookieName, refreshedToken, getCookieBaseOptions());
+      res.cookie(env.cookieName, refreshedToken, getCookieBaseOptions(req));
     }
 
     return next();

@@ -4304,16 +4304,15 @@
 
                 errorDiv.style.display = 'none';
 
-                const sessionSynced = await syncCurrentUserFromSessionWithRetry();
-                if (!sessionSynced) {
-                    currentUser = {
-                        username: actualUsername,
-                        role: actualRole,
-                        isLoggedIn: true
-                    };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    updateLoginButtonText();
-                }
+                currentUser = {
+                    username: actualUsername,
+                    role: actualRole,
+                    playerCategory: responseUser && responseUser.playerCategory ? responseUser.playerCategory : null,
+                    parentChildren: responseUser && Array.isArray(responseUser.parentChildren) ? responseUser.parentChildren : [],
+                    isLoggedIn: true
+                };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateLoginButtonText();
 
                 if (actualRole === 'parent') {
                     parentChildren = {};
