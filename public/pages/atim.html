@@ -9,7 +9,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-P152RNBL34');
     </script>
@@ -24,7 +24,10 @@
         }
 
         /* Unified Heading Styles */
-        h1, h3, .page-title, .section-title {
+        h1,
+        h3,
+        .page-title,
+        .section-title {
             font-size: 30px;
             margin-bottom: 24px;
             color: #003399;
@@ -43,13 +46,21 @@
         }
 
         @media (max-width: 768px) {
-            h1, h3, .page-title, .section-title {
+
+            h1,
+            h3,
+            .page-title,
+            .section-title {
                 font-size: 26px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, h3, .page-title, .section-title {
+
+            h1,
+            h3,
+            .page-title,
+            .section-title {
                 font-size: 24px !important;
             }
         }
@@ -79,19 +90,22 @@
         }
 
         /* Standings & Squad Tables */
-        .standings-table, .squad-table {
+        .standings-table,
+        .squad-table {
             width: 100%;
             border-collapse: collapse;
             background: #fff;
             table-layout: auto;
         }
 
-        .standings-table thead tr, .squad-table thead tr {
+        .standings-table thead tr,
+        .squad-table thead tr {
             background: #f8fbff;
             border-bottom: 2px solid #eef4ff;
         }
 
-        .standings-table th, .squad-table th {
+        .standings-table th,
+        .squad-table th {
             padding: 12px 15px;
             text-align: left;
             font-size: 11px;
@@ -101,14 +115,16 @@
             letter-spacing: 0.5px;
         }
 
-        .standings-table td, .squad-table td {
+        .standings-table td,
+        .squad-table td {
             padding: 14px 15px;
             border-bottom: 1px solid #f0f4f8;
             font-size: 14px;
             color: #333;
         }
 
-        .standings-table tr:hover, .squad-table tr:hover {
+        .standings-table tr:hover,
+        .squad-table tr:hover {
             background: #f9fbff;
         }
 
@@ -118,8 +134,10 @@
             color: #003399;
         }
 
-        .standings-table th.center, .standings-table td.center,
-        .squad-table th.center, .squad-table td.center {
+        .standings-table th.center,
+        .standings-table td.center,
+        .squad-table th.center,
+        .squad-table td.center {
             text-align: center;
             width: 34px !important;
         }
@@ -163,20 +181,24 @@
                 border-radius: 8px;
             }
 
-            .standings-table th, .standings-table td,
-            .squad-table th, .squad-table td {
+            .standings-table th,
+            .standings-table td,
+            .squad-table th,
+            .squad-table td {
                 padding: 8px 3px !important;
                 font-size: 11px;
             }
 
-            .standings-team-name, .player-name {
+            .standings-team-name,
+            .player-name {
                 max-width: 100px !important;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }
 
-            .standings-rank-cell, .squad-num {
+            .standings-rank-cell,
+            .squad-num {
                 width: 28px !important;
             }
 
@@ -247,42 +269,42 @@
 
     </main>
 
-        <script>
-            const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+    <script>
+        const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
 
-            /* ===== 4-HOUR CACHE HELPER ===== */
-            const CACHE_TTL = 4 * 60 * 60 * 1000;
-            async function cachedFetch(cacheKey, url, options) {
-                try {
-                    const raw = localStorage.getItem(cacheKey);
-                    if (raw) {
-                        const cached = JSON.parse(raw);
-                        if (cached && cached.ts && (Date.now() - cached.ts < CACHE_TTL)) {
-                            return cached.data;
-                        }
+        /* ===== 4-HOUR CACHE HELPER ===== */
+        const CACHE_TTL = 4 * 60 * 60 * 1000;
+        async function cachedFetch(cacheKey, url, options) {
+            try {
+                const raw = localStorage.getItem(cacheKey);
+                if (raw) {
+                    const cached = JSON.parse(raw);
+                    if (cached && cached.ts && (Date.now() - cached.ts < CACHE_TTL)) {
+                        return cached.data;
                     }
-                } catch (_) { }
-                const response = await fetch(url, options);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
-                return data;
-            }
+                }
+            } catch (_) { }
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (_) { }
+            return data;
+        }
 
-            const POSITION_ORDER = ['Brankár', 'Obranca', 'Záložník', 'Útočník', 'Neznáma'];
-            const POSITION_LABELS = {
-                'Brankár': 'BRANKÁRI',
-                'Obranca': 'OBRANCOVIA',
-                'Záložník': 'ZÁLOŽNÍCI',
-                'Útočník': 'ÚTOČNÍCI',
-                'Neznáma': 'OSTATNÍ'
-            };
+        const POSITION_ORDER = ['Brankár', 'Obranca', 'Záložník', 'Útočník', 'Neznáma'];
+        const POSITION_LABELS = {
+            'Brankár': 'BRANKÁRI',
+            'Obranca': 'OBRANCOVIA',
+            'Záložník': 'ZÁLOŽNÍCI',
+            'Útočník': 'ÚTOČNÍCI',
+            'Neznáma': 'OSTATNÍ'
+        };
 
-            function renderPositionGroup(label, players) {
-                if (!players || players.length === 0) return '';
-                const rows = players.map(p => {
-                    const s = p.stats || {};
-                    return `
+        function renderPositionGroup(label, players) {
+            if (!players || players.length === 0) return '';
+            const rows = players.map(p => {
+                const s = p.stats || {};
+                return `
                     <tr>
                         <td class="squad-num">${p.number || '—'}</td>
                         <td style="font-weight:700; color:#003399;">${p.captain ? 'ⓒ ' : ''}${p.name}</td>
@@ -292,9 +314,9 @@
                         <td style="text-align:center;">${s.yellowCards ?? '—'}</td>
                         <td style="text-align:center;">${s.redCards ?? '—'}</td>
                     </tr>`;
-                }).join('');
+            }).join('');
 
-                return `
+            return `
                 <div class="group">
                     <h4>${label}</h4>
                     <div class="table-wrap">
@@ -315,84 +337,85 @@
                     </div>
                 </div>
             `;
+        }
+
+        function renderCrew(crew) {
+            if (!crew || crew.length === 0) {
+                return '<p style="color:#888;">Žiadni členovia realizačného tímu.</p>';
             }
-
-            function renderCrew(crew) {
-                if (!crew || crew.length === 0) {
-                    return '<p style="color:#888;">Žiadni členovia realizačného tímu.</p>';
+            return crew.map(c => {
+                let name = c.name;
+                // Client-side override to ensure correct name appears
+                if (name.includes('Strhár') || name.includes('Strhar')) {
+                    name = 'Juraj Ihnatišin';
                 }
-                return crew.map(c => {
-                    let name = c.name;
-                    // Client-side override to ensure correct name appears
-                    if (name.includes('Strhár') || name.includes('Strhar')) {
-                        name = 'Juraj Ihnatišin';
-                    }
-                    return `<p>${name}</p>`;
-                }).join('');
-            }   
+                return `<p>${name}</p>`;
+            }).join('');
+        }
 
-            async function loadPlayers() {
-                const rosterEl = document.getElementById('rosterContainer');
-                const crewEl = document.getElementById('crewContainer');
+        async function loadPlayers() {
+            const rosterEl = document.getElementById('rosterContainer');
+            const crewEl = document.getElementById('crewContainer');
 
-                try {
-                    const payload = await cachedFetch(
-                        'osk_atim_players_v2',
-                        `${API_BASE}/sportsnet/players?team=dospeli`,
-                        { method: 'GET', headers: { Accept: 'application/json' } }
-                    );
-                    const team = payload.teams && payload.teams.dospeli;
+            try {
+                const payload = await cachedFetch(
+                    'osk_atim_players_v2',
+                    `${API_BASE}/sportsnet/players?team=dospeli`,
+                    { method: 'GET', headers: { Accept: 'application/json' } }
+                );
+                const team = payload.teams && payload.teams.dospeli;
 
-                    if (!team) {
-                        rosterEl.innerHTML = '<p style="color:#888;text-align:center;padding:24px 0;">Žiadni hráči neboli nájdení.</p>';
-                        crewEl.innerHTML = '<p style="color:#888;">Žiadni členovia realizačného tímu.</p>';
-                        return;
-                    }
+                if (!team) {
+                    rosterEl.innerHTML = '<p style="color:#888;text-align:center;padding:24px 0;">Žiadni hráči neboli nájdení.</p>';
+                    crewEl.innerHTML = '<p style="color:#888;">Žiadni členovia realizačného tímu.</p>';
+                    return;
+                }
 
-                    // Získaj playersByPosition – buď priamo z API, alebo zostaviť z players[]
-                    let playersByPosition = team.playersByPosition;
+                // Získaj playersByPosition – buď priamo z API, alebo zostaviť z players[]
+                let playersByPosition = team.playersByPosition;
 
-                    if (!playersByPosition || Object.keys(playersByPosition).length === 0) {
-                        // Fallback: zostaviť skupiny podľa pozície z flat players[] (rovnaká logika ako akadémia)
-                        playersByPosition = {};
-                        POSITION_ORDER.forEach(pos => { playersByPosition[pos] = []; });
-                        const allPlayers = Array.isArray(team.players) ? team.players : [];
-                        allPlayers.forEach(p => {
-                            const pos = p.position || 'Neznáma';
-                            const bucket = POSITION_ORDER.includes(pos) ? pos : 'Neznáma';
-                            if (!playersByPosition[bucket]) playersByPosition[bucket] = [];
-                            playersByPosition[bucket].push(p);
-                        });
-                    }
-
-                    let html = '';
-                    POSITION_ORDER.forEach(pos => {
-                        const players = playersByPosition[pos];
-                        if (players && players.length > 0) {
-                            html += renderPositionGroup(POSITION_LABELS[pos], players);
-                        }
+                if (!playersByPosition || Object.keys(playersByPosition).length === 0) {
+                    // Fallback: zostaviť skupiny podľa pozície z flat players[] (rovnaká logika ako akadémia)
+                    playersByPosition = {};
+                    POSITION_ORDER.forEach(pos => { playersByPosition[pos] = []; });
+                    const allPlayers = Array.isArray(team.players) ? team.players : [];
+                    allPlayers.forEach(p => {
+                        const pos = p.position || 'Neznáma';
+                        const bucket = POSITION_ORDER.includes(pos) ? pos : 'Neznáma';
+                        if (!playersByPosition[bucket]) playersByPosition[bucket] = [];
+                        playersByPosition[bucket].push(p);
                     });
-
-                    rosterEl.innerHTML = html || '<p style="color:#888;text-align:center;">Žiadni hráči.</p>';
-                    crewEl.innerHTML = renderCrew(team.crew);
-                } catch (error) {
-                    console.warn('Nepodarilo sa načítať hráčov:', error);
-                    rosterEl.innerHTML = '<p style="color:#c00;text-align:center;padding:24px 0;"><i class="fas fa-exclamation-triangle"></i> Nepodarilo sa načítať súpisku.</p>';
-                    crewEl.innerHTML = '<p style="color:#c00;"><i class="fas fa-exclamation-triangle"></i> Nepodarilo sa načítať realizačný tím.</p>';
                 }
+
+                let html = '';
+                POSITION_ORDER.forEach(pos => {
+                    const players = playersByPosition[pos];
+                    if (players && players.length > 0) {
+                        html += renderPositionGroup(POSITION_LABELS[pos], players);
+                    }
+                });
+
+                rosterEl.innerHTML = html || '<p style="color:#888;text-align:center;">Žiadni hráči.</p>';
+                crewEl.innerHTML = renderCrew(team.crew);
+            } catch (error) {
+                console.warn('Nepodarilo sa načítať hráčov:', error);
+                rosterEl.innerHTML = '<p style="color:#c00;text-align:center;padding:24px 0;"><i class="fas fa-exclamation-triangle"></i> Nepodarilo sa načítať súpisku.</p>';
+                crewEl.innerHTML = '<p style="color:#c00;"><i class="fas fa-exclamation-triangle"></i> Nepodarilo sa načítať realizačný tím.</p>';
             }
+        }
 
-            window.addEventListener('load', async () => {
-                if (window.OSKSession) {
-                    await window.OSKSession.syncCurrentUserFromSession();
-                }
-                loadPlayers();
-            });
-        </script>
+        window.addEventListener('load', async () => {
+            if (window.OSKSession) {
+                await window.OSKSession.syncCurrentUserFromSession();
+            }
+            loadPlayers();
+        });
+    </script>
 
 
 
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
 </body>
+
 </html>
