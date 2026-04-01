@@ -124,6 +124,57 @@ function isGalleryFolderAllowed(folderPath) {
   return getFolderSegments(folderPath).every((segment) => !GALLERY_FOLDER_BLACKLIST.has(segment.toLowerCase()));
 }
 
+function normalizeFolderPath(folderPath) {
+  return getFolderSegments(folderPath).join('/');
+}
+
+function getResourceFolderPath(resource) {
+  const assetFolder = normalizeFolderPath(resource?.asset_folder || resource?.folder || '');
+  if (assetFolder) {
+    return assetFolder;
+  }
+
+  const publicId = String(resource?.public_id || '');
+  const segments = publicId.split('/').filter(Boolean);
+  if (segments.length <= 1) {
+    return '';
+  }
+
+  segments.pop();
+  return normalizeFolderPath(segments.join('/'));
+}
+
+function isInsideRootFolder(folderPath, rootFolder) {
+  const normalizedFolder = normalizeFolderPath(folderPath);
+  const normalizedRoot = normalizeFolderPath(rootFolder);
+  if (!normalizedRoot) {
+    return true;
+  }
+
+  return normalizedFolder === normalizedRoot || normalizedFolder.startsWith(normalizedRoot + '/');
+}
+
+async function fetchAllImageResources() {
+  const resources = [];
+  let nextCursor = null;
+
+  do {
+    let query = cloudinary.search
+      .expression('resource_type:image')
+      .max_results(500);
+
+    if (nextCursor) {
+      query = query.next_cursor(nextCursor);
+    }
+
+    const result = await query.execute();
+    resources.push(...(Array.isArray(result.resources) ? result.resources : []));
+    nextCursor = result.next_cursor || null;
+  } while (nextCursor);
+
+  return resources;
+}
+
 async function fetchImagesForAssetFolder(folderPath) {
   const images = [];
   let nextCursor = null;
@@ -172,35 +223,47 @@ async function collectFolderTree(folderPath, blocks) {
 
 async function collectAllFolderBlocks() {
   const rootFolder = env.cloudinaryRootFolder;
-  let roots = [];
-
   console.log(`[Cloudinary] rootFolder="${rootFolder}" (truthy=${!!rootFolder})`);
 
-  if (rootFolder) {
-    roots = [{ name: getFolderSegments(rootFolder).slice(-1)[0] || rootFolder, path: rootFolder }];
-  } else {
-    roots = await listAllRootFolders();
+  const resources = await fetchAllImageResources();
+  const grouped = new Map();
+
+  for (const resource of resources) {
+    if (!isDisplayableImage(resource)) {
+      continue;
+    }
+
+    const folderPath = getResourceFolderPath(resource);
+    if (!folderPath) {
+      continue;
+    }
+
+    if (!isInsideRootFolder(folderPath, rootFolder) || !isGalleryFolderAllowed(folderPath)) {
+      continue;
+    }
+
+    if (!grouped.has(folderPath)) {
+      const segments = getFolderSegments(folderPath);
+      grouped.set(folderPath, {
+        folder: segments[segments.length - 1] || folderPath,
+        path: folderPath,
+        images: []
+      });
+    }
+
+    grouped.get(folderPath).images.push({
+      url: addAutoTransform(resource.secure_url),
+      publicId: resource.public_id,
+      format: resource.format || ''
+    });
   }
 
-  const allowedRoots = roots.filter((root) => isGalleryFolderAllowed(root.path || root.name));
-  if (allowedRoots.length === 0) {
-    console.warn('[Cloudinary] No gallery roots found after filtering.');
-    return [];
-  }
+  const blocks = Array.from(grouped.values())
+    .filter((block) => block.images.length > 0)
+    .sort((left, right) => left.path.localeCompare(right.path, 'sk'));
 
-  console.log(`[Cloudinary] Found ${allowedRoots.length} gallery roots. Scanning folder tree...`);
-
-  const blocks = [];
-  for (const root of allowedRoots) {
-    await collectFolderTree(root.path, blocks);
-  }
-
-  const dedupedBlocks = blocks.filter((block, index, allBlocks) => {
-    return allBlocks.findIndex((candidate) => candidate.path === block.path) === index;
-  });
-
-  console.log(`[Cloudinary] Scan complete. Found ${dedupedBlocks.length} blocks.`);
-  return dedupedBlocks;
+  console.log(`[Cloudinary] Scan complete via search API. Found ${blocks.length} blocks.`);
+  return blocks;
 }
 
 async function getTimelineData({ forceRefresh = false } = {}) {
