@@ -244,7 +244,7 @@
             '<header class="site-header">',
             '  <div class="header-top">',
             '    <a class="sh-logo" href="/index.html">',
-            '      <img src="/assets/images/OŠKKP_logo.png" alt="OŠK Kamenná Poruba Logo" class="sh-logo-img">',
+            '      <img src="https://raw.githubusercontent.com/DarkMaster9452/OSK-Kamenna-Poruba-Web/main/assets/images/O%C5%A0KKP_logo.png" alt="OŠK Kamenná Poruba Logo" class="sh-logo-img">',
             '    </a>',
             '    <nav class="sh-nav" id="shMainNav">',
             '      <ul>',
