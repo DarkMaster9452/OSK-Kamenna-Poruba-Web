@@ -284,6 +284,14 @@
             color: #333;
         }
 
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid #e5e5e5;
+        }
+
         .post-detail-image {
             width: 100%;
             max-height: 450px;
@@ -422,6 +430,11 @@
             <div id="postDetailMeta" class="meta"></div>
             <img id="postDetailImage" class="post-detail-image" alt="Obrázok k príspevku" />
             <div id="postDetailContent" class="modal-content"></div>
+            <div class="modal-actions">
+                <button class="btn btn-back" type="button" onclick="closePostDetail()">
+                    <i class="fas fa-times"></i> Zavrieť článok
+                </button>
+            </div>
         </div>
     </div>
 
