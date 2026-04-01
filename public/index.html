@@ -2992,11 +2992,13 @@
             <div class="modal-header">
                 <h2>Obnova hesla</h2>
             </div>
-            <p class="modal-note">Zadajte email alebo používateľské meno. Ak účet existuje a má nastavený email, pošleme vám odkaz na nastavenie nového hesla.</p>
+            <p class="modal-note">Zadajte email alebo používateľské meno. Ak účet existuje a má nastavený email, pošleme
+                vám odkaz na nastavenie nového hesla.</p>
             <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" method="post">
                 <div class="form-group">
                     <label for="forgotIdentifier">Email alebo používateľské meno</label>
-                    <input type="text" id="forgotIdentifier" name="identifier" placeholder="napr. trener01 alebo meno@email.sk" required>
+                    <input type="text" id="forgotIdentifier" name="identifier"
+                        placeholder="napr. trener01 alebo meno@email.sk" required>
                 </div>
                 <div id="forgotPasswordMessage" class="modal-status" role="status" aria-live="polite"></div>
                 <button id="forgotPasswordSubmitBtn" type="submit" class="btn btn-primary"
@@ -3005,8 +3007,8 @@
                         style="display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,0.45);border-top-color:#fff;border-radius:50%;animation:loginSpin 0.8s linear infinite;"></span>
                     <span id="forgotPasswordSubmitText">Poslať odkaz</span>
                 </button>
-                <button type="button" class="btn btn-secondary"
-                    style="width:100%;background:#edf2ff;color:#003399;" onclick="backToLoginFromForgot()">Späť na prihlásenie</button>
+                <button type="button" class="btn btn-secondary" style="width:100%;background:#edf2ff;color:#003399;"
+                    onclick="backToLoginFromForgot()">Späť na prihlásenie</button>
             </form>
         </div>
     </div>
