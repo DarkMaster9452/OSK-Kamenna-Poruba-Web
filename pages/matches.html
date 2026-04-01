@@ -8,7 +8,7 @@
     <!-- Google tag (gtag.js) -->
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-P152RNBL34');
     </script>
@@ -35,7 +35,10 @@
         }
 
         /* Unified Heading Styles */
-        h1, .page-title, .standings-title, .section-title {
+        h1,
+        .page-title,
+        .standings-title,
+        .section-title {
             font-size: 30px;
             margin-bottom: 24px;
             color: #003399;
@@ -56,19 +59,29 @@
         }
 
         @media (max-width: 768px) {
-            h1, .page-title, .standings-title, .section-title {
+
+            h1,
+            .page-title,
+            .standings-title,
+            .section-title {
                 font-size: 26px !important;
             }
+
             h3 {
                 font-size: 22px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, .page-title, .standings-title, .section-title {
+
+            h1,
+            .page-title,
+            .standings-title,
+            .section-title {
                 font-size: 24px !important;
                 justify-content: center;
             }
+
             h3 {
                 font-size: 20px !important;
             }
@@ -85,10 +98,10 @@
             background: #fff;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
             transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
             cursor: pointer;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
             position: relative;
@@ -96,8 +109,8 @@
 
         .match-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0,51,153,0.12);
-            border-color: rgba(0,51,153,0.1);
+            box-shadow: 0 15px 35px rgba(0, 51, 153, 0.12);
+            border-color: rgba(0, 51, 153, 0.1);
         }
 
         .match-card-header {
@@ -141,7 +154,7 @@
             border-radius: 50px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(0,51,153,0.15);
+            box-shadow: 0 4px 12px rgba(0, 51, 153, 0.15);
         }
 
         .match-status-badge {
@@ -152,9 +165,21 @@
             text-transform: uppercase;
         }
 
-        .match-status-badge.upcoming { background: #e0f2fe; color: #0369a1; }
-        .match-status-badge.finished { background: #f1f5f9; color: #475569; }
-        .match-status-badge.live { background: #fee2e2; color: #dc2626; animation: pulse 2s infinite; }
+        .match-status-badge.upcoming {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .match-status-badge.finished {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .match-status-badge.live {
+            background: #fee2e2;
+            color: #dc2626;
+            animation: pulse 2s infinite;
+        }
 
         /* Modal / Detail View Styling */
         #matchDetailContent {
@@ -192,7 +217,7 @@
             border-radius: 50px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .detail-date-time {
@@ -229,7 +254,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
             border: 1px solid #f1f5f9;
             overflow: hidden;
         }
@@ -306,7 +331,7 @@
             align-items: center;
             justify-content: center;
             color: #003399;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
             font-size: 14px;
         }
 
@@ -361,12 +386,32 @@
             font-size: 14px;
         }
 
-        .event-home { justify-content: flex-end; text-align: right; }
-        .event-away { justify-content: flex-start; text-align: left; }
+        .event-home {
+            justify-content: flex-end;
+            text-align: right;
+        }
 
-        .event-player { font-weight: 700; color: #1e293b; }
-        .event-time { color: #94a3b8; font-size: 12px; font-weight: 600; }
-        .event-icon { font-size: 16px; min-width: 20px; text-align: center; }
+        .event-away {
+            justify-content: flex-start;
+            text-align: left;
+        }
+
+        .event-player {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .event-time {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .event-icon {
+            font-size: 16px;
+            min-width: 20px;
+            text-align: center;
+        }
 
         @media (max-width: 640px) {
             .detail-main-display {
@@ -374,34 +419,75 @@
                 gap: 5px;
                 margin: 20px 0;
             }
-            .detail-score-box { 
-                order: 0; 
+
+            .detail-score-box {
+                order: 0;
                 gap: 4px;
             }
-            .detail-score-value { font-size: 28px; }
-            .detail-status-pill { font-size: 8px; padding: 2px 8px; }
-            .detail-info-strip { grid-template-columns: 1fr; }
-            .detail-team-name { font-size: 13px; line-height: 1.1; }
-            .detail-team-logo-wrap { width: 50px; height: 50px; }
-            .detail-team-logo-wrap img { width: 34px; height: 34px; }
-            .detail-vs-label { font-size: 20px; }
-            
+
+            .detail-score-value {
+                font-size: 28px;
+            }
+
+            .detail-status-pill {
+                font-size: 8px;
+                padding: 2px 8px;
+            }
+
+            .detail-info-strip {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-team-name {
+                font-size: 13px;
+                line-height: 1.1;
+            }
+
+            .detail-team-logo-wrap {
+                width: 50px;
+                height: 50px;
+            }
+
+            .detail-team-logo-wrap img {
+                width: 34px;
+                height: 34px;
+            }
+
+            .detail-vs-label {
+                font-size: 20px;
+            }
+
             /* Align events better on mobile */
             .events-grid {
                 gap: 15px;
             }
+
             .event-row {
                 font-size: 12px;
                 gap: 5px;
             }
-            .event-player { font-size: 12px; }
-            .event-time { font-size: 10px; }
+
+            .event-player {
+                font-size: 12px;
+            }
+
+            .event-time {
+                font-size: 10px;
+            }
         }
 
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         .match-body {
@@ -435,12 +521,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             border: 1px solid #f1f5f9;
             overflow: hidden;
         }
 
-        .team-logo-wrap img { width: 36px; height: 36px; object-fit: contain; }
+        .team-logo-wrap img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+        }
 
         .match-card .team-name {
             font-size: 14px;
@@ -532,7 +622,7 @@
             color: #64748b;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
         }
 
         .category-tab:hover {
@@ -545,19 +635,23 @@
             background: #003399;
             color: #fff;
             border-color: #003399;
-            box-shadow: 0 10px 15px rgba(0,51,153,0.2);
+            box-shadow: 0 10px 15px rgba(0, 51, 153, 0.2);
         }
 
-        #matchStatusTabs { margin-bottom: 20px; }
+        #matchStatusTabs {
+            margin-bottom: 20px;
+        }
+
         #matchStatusTabs .category-tab {
             background: #f1f5f9;
             border: none;
             padding: 12px 30px;
         }
+
         #matchStatusTabs .category-tab.active {
             background: #ffd700;
             color: #003399;
-            box-shadow: 0 8px 15px rgba(255,215,0,0.3);
+            box-shadow: 0 8px 15px rgba(255, 215, 0, 0.3);
         }
 
         .no-matches {
@@ -576,12 +670,32 @@
         }
 
         @media (max-width: 480px) {
-            .matches-grid { grid-template-columns: 1fr; }
-            .match-teams-row { gap: 8px; grid-template-columns: 1fr 50px 1fr; }
-            .team-logo-wrap { width: 44px; height: 44px; }
-            .team-logo-wrap img { width: 28px; height: 28px; }
-            .match-card .team-name { font-size: 13px; }
-            .match-main-score { font-size: 20px; }
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .match-teams-row {
+                gap: 8px;
+                grid-template-columns: 1fr 50px 1fr;
+            }
+
+            .team-logo-wrap {
+                width: 44px;
+                height: 44px;
+            }
+
+            .team-logo-wrap img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .match-card .team-name {
+                font-size: 13px;
+            }
+
+            .match-main-score {
+                font-size: 20px;
+            }
         }
 
         .standings-table {
@@ -622,7 +736,8 @@
             color: #003399;
         }
 
-        .standings-table th.center, .standings-table td.center {
+        .standings-table th.center,
+        .standings-table td.center {
             text-align: center;
             width: 34px !important;
         }
@@ -734,21 +849,26 @@
             footer {
                 padding: 40px 15px 25px;
             }
+
             .footer-content {
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
                 gap: 40px;
             }
+
             .footer-section {
                 width: 100%;
             }
+
             .footer-section h3 {
                 justify-content: center;
             }
+
             .social-icons {
                 justify-content: center;
             }
+
             .footer-section ul li a:hover {
                 transform: none;
             }
@@ -786,7 +906,8 @@
                 border-radius: 8px;
             }
 
-            .standings-table th, .standings-table td {
+            .standings-table th,
+            .standings-table td {
                 padding: 8px 3px !important;
                 font-size: 11px;
             }
@@ -803,10 +924,14 @@
             }
 
             /* Hide less important Columns */
-            .standings-table th:nth-child(4), .standings-table td:nth-child(4),
-            .standings-table th:nth-child(5), .standings-table td:nth-child(5),
-            .standings-table th:nth-child(6), .standings-table td:nth-child(6),
-            .standings-table th:nth-child(8), .standings-table td:nth-child(8) {
+            .standings-table th:nth-child(4),
+            .standings-table td:nth-child(4),
+            .standings-table th:nth-child(5),
+            .standings-table td:nth-child(5),
+            .standings-table th:nth-child(6),
+            .standings-table td:nth-child(6),
+            .standings-table th:nth-child(8),
+            .standings-table td:nth-child(8) {
                 display: none;
             }
 
@@ -850,7 +975,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.6);
+            background-color: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(4px);
         }
 
@@ -869,11 +994,11 @@
             max-width: 700px;
             border-radius: 12px;
             position: relative;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             max-height: 90vh;
             overflow-y: auto;
         }
-        
+
         .modal-close {
             position: absolute;
             top: 20px;
@@ -889,7 +1014,7 @@
             justify-content: center;
             cursor: pointer;
             z-index: 1100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease-in-out;
             font-size: 18px;
         }
@@ -899,7 +1024,7 @@
             color: #003399;
             transform: scale(1.05);
             border-color: #003399;
-            box-shadow: 0 8px 15px rgba(0,51,153,0.1);
+            box-shadow: 0 8px 15px rgba(0, 51, 153, 0.1);
         }
 
         /* SportNet Button Refinement */
@@ -914,7 +1039,7 @@
             font-weight: 700;
             text-decoration: none;
             font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,51,153,0.15);
+            box-shadow: 0 4px 12px rgba(0, 51, 153, 0.15);
             transition: all 0.3s;
             border: 2px solid transparent;
         }
@@ -922,7 +1047,7 @@
         .sportnet-btn:hover {
             background: #002673;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,51,153,0.25);
+            box-shadow: 0 8px 20px rgba(0, 51, 153, 0.25);
             border-color: #ffd700;
         }
 
@@ -996,7 +1121,7 @@
             border-radius: 8px;
             min-width: 50px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,51,153,0.3);
+            box-shadow: 0 4px 10px rgba(0, 51, 153, 0.3);
         }
 
         .event-item {
@@ -1043,13 +1168,13 @@
             transition: all 0.3s;
             position: absolute;
             right: 0;
-            box-shadow: 0 2px 8px rgba(0,51,153,0.2);
+            box-shadow: 0 2px 8px rgba(0, 51, 153, 0.2);
         }
 
         .btn-standings-jump:hover {
             background: #002266;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,51,153,0.3);
+            box-shadow: 0 4px 12px rgba(0, 51, 153, 0.3);
         }
 
         @media screen and (max-width: 991px) {
@@ -1060,7 +1185,9 @@
         }
 
         @media screen and (max-width: 480px) {
-            h1, .standings-title {
+
+            h1,
+            .standings-title {
                 font-size: 24px !important;
             }
 
@@ -1083,7 +1210,8 @@
 
         <!-- Filtre podla statusu -->
         <div class="category-tabs" id="matchStatusTabs">
-            <button class="category-tab active" data-match-type="upcoming" onclick="setMatchType('upcoming')">Nadchádzajúce</button>
+            <button class="category-tab active" data-match-type="upcoming"
+                onclick="setMatchType('upcoming')">Nadchádzajúce</button>
             <button class="category-tab" data-match-type="finished" onclick="setMatchType('finished')">Odohrané</button>
         </div>
 
@@ -1105,9 +1233,12 @@
     <script>
         // ====== GLOBÁLNE PREMENNÉ ======
         let MATCHES = {};
+        const MATCH_DETAIL_CACHE = {};
         let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
         let activeCategory = 'all';
         let activeMatchType = 'upcoming';
+        let activeModalMatchId = null;
+        let activeModalRequestToken = 0;
         let SPORTSNET_INFO = {
             status: 'LOADING',
             source: 'SportNet API',
@@ -1198,6 +1329,7 @@
             const timeValue = item.time || (startsAt ? startsAt.slice(11, 16) : null) || '00:00';
             const rawStatus = String(item.status || '').toLowerCase();
             const competition = item.competition || 'Súťaž';
+            const location = item.location || item.venue || 'Štadión';
 
             let status = 'upcoming';
             const matchDateObj = new Date((dateValue || '1970-01-01') + 'T' + timeValue);
@@ -1228,15 +1360,15 @@
                 homeScore: item.scoreHome ?? null,
                 awayScore: item.scoreAway ?? null,
                 status,
-                location: item.venue || 'Štadión',
-                address: item.venue || 'Neuvedené',
+                location,
+                address: item.address || location || 'Neuvedené',
                 competition,
                 category: detectCategory(competition),
                 detailUrl: item.detailUrl || null,
                 videoUrl: item.videoUrl || null,
                 homeFormation: '-',
                 awayFormation: '-',
-                referee: 'Neuvedené',
+                referee: item.referee || 'Neuvedené',
                 homeLineup: [],
                 homeStats: null,
                 awayStats: null,
@@ -1458,7 +1590,7 @@
             if (tabParam === 'finished' || tabParam === 'upcoming') {
                 activeMatchType = tabParam;
             }
-            
+
             // Predbežne nastavíme CSS aktivitu pre match status tab
             const activeBtn = document.querySelector(`#matchStatusTabs .category-tab[data-match-type="${activeMatchType}"]`);
             if (activeBtn) {
@@ -1617,16 +1749,71 @@
             `;
         }
 
-        function openMatchModal(matchId) {
+        function mergeMatchDetail(baseMatch, detailMatch) {
+            if (!baseMatch) return detailMatch;
+            if (!detailMatch) return baseMatch;
+
+            return {
+                ...baseMatch,
+                ...detailMatch,
+                homeLogo: detailMatch.homeLogo || baseMatch.homeLogo || null,
+                awayLogo: detailMatch.awayLogo || baseMatch.awayLogo || null,
+                location: detailMatch.location || baseMatch.location || 'Štadión',
+                address: detailMatch.address || baseMatch.address || detailMatch.location || baseMatch.location || 'Neuvedené',
+                referee: detailMatch.referee || baseMatch.referee || 'Neuvedené',
+                events: Array.isArray(detailMatch.events) && detailMatch.events.length > 0
+                    ? detailMatch.events
+                    : (Array.isArray(baseMatch.events) ? baseMatch.events : [])
+            };
+        }
+
+        async function loadMatchDetail(matchId) {
+            if (MATCH_DETAIL_CACHE[matchId]) {
+                return MATCH_DETAIL_CACHE[matchId];
+            }
+
+            const payload = await cachedFetch(
+                `${API_BASE}/sportsnet/matches/${encodeURIComponent(matchId)}`,
+                { method: 'GET', headers: { Accept: 'application/json' } }
+            );
+
+            if (!payload || !payload.item) {
+                return null;
+            }
+
+            const normalized = normalizeSportsnetMatch(payload.item, 0);
+            const merged = mergeMatchDetail(MATCHES[matchId], normalized);
+            MATCH_DETAIL_CACHE[matchId] = merged;
+            MATCHES[matchId] = merged;
+            return merged;
+        }
+
+        async function openMatchModal(matchId) {
             const match = MATCHES[matchId];
             if (!match) return;
 
-            let detailHtml = generateMatchDetail(match);
-            document.getElementById('matchDetailContent').innerHTML = detailHtml;
+            activeModalMatchId = matchId;
+            const requestToken = ++activeModalRequestToken;
+
+            document.getElementById('matchDetailContent').innerHTML = generateMatchDetail(match);
             document.getElementById('matchModal').classList.add('active');
+
+            try {
+                const detailedMatch = await loadMatchDetail(matchId);
+                const modal = document.getElementById('matchModal');
+                if (!detailedMatch || activeModalMatchId !== matchId || activeModalRequestToken !== requestToken || !modal.classList.contains('active')) {
+                    return;
+                }
+
+                document.getElementById('matchDetailContent').innerHTML = generateMatchDetail(detailedMatch);
+            } catch (error) {
+                console.warn('Nepodarilo sa načítať detail zápasu zo SportNetu.', error);
+            }
         }
 
         function closeMatchModal() {
+            activeModalMatchId = null;
+            activeModalRequestToken += 1;
             document.getElementById('matchModal').classList.remove('active');
         }
 
@@ -1654,6 +1841,14 @@
             `;
         }
 
+        function formatEventMinute(minute) {
+            if (minute === null || minute === undefined || minute === '') {
+                return '';
+            }
+
+            return `${minute}'`;
+        }
+
         function generateMatchDetail(match) {
             const dateObj = new Date(match.date + 'T' + (match.time || '00:00'));
             const formattedDate = dateObj.toLocaleDateString('sk-SK', {
@@ -1665,7 +1860,7 @@
 
             const homeSrc = match.homeLogo || getClubLogo(match.homeTeam);
             const awaySrc = match.awayLogo || getClubLogo(match.awayTeam);
-            
+
             const homeLogoHtml = homeSrc ? `<img src="${homeSrc}" alt="${match.homeTeam}">` : buildClubLogoImg(match.homeTeam, 70);
             const awayLogoHtml = awaySrc ? `<img src="${awaySrc}" alt="${match.awayTeam}">` : buildClubLogoImg(match.awayTeam, 70);
 
@@ -1705,7 +1900,7 @@
                                     ${goals.filter(e => e.team === 'home').map(e => `
                                         <div class="event-row event-home">
                                             <span class="event-player">${e.player}</span>
-                                            <span class="event-time">${e.minute}'</span>
+                                            <span class="event-time">${formatEventMinute(e.minute)}</span>
                                             <div class="event-icon"><i class="fas fa-futbol"></i></div>
                                         </div>
                                     `).join('') || '<div style="flex:1"></div>'}
@@ -1715,7 +1910,7 @@
                                         <div class="event-row event-away">
                                             <div class="event-icon"><i class="fas fa-futbol"></i></div>
                                             <span class="event-player">${e.player}</span>
-                                            <span class="event-time">${e.minute}'</span>
+                                            <span class="event-time">${formatEventMinute(e.minute)}</span>
                                         </div>
                                     `).join('') || '<div style="flex:1"></div>'}
                                 </div>
@@ -1797,6 +1992,7 @@
             font-family: 'Inter', sans-serif;
             margin-top: 60px;
         }
+
         .footer-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -1805,9 +2001,11 @@
             align-items: flex-start;
             gap: 30px;
         }
+
         .footer-section {
             flex: 1;
         }
+
         .footer-section h3 {
             color: #ffd700;
             font-size: 1.1rem;
@@ -1818,6 +2016,7 @@
             align-items: center;
             gap: 10px;
         }
+
         .footer-section ul {
             list-style: none;
             padding: 0;
@@ -1826,6 +2025,7 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 8px 20px;
         }
+
         .footer-section ul li a {
             color: #fff;
             text-decoration: none;
@@ -1833,20 +2033,23 @@
             transition: color 0.2s;
             opacity: 0.9;
         }
+
         .footer-section ul li a:hover {
             color: #ffd700;
             opacity: 1;
         }
+
         .social-icons {
             display: flex;
             gap: 15px;
             margin-top: 5px;
         }
+
         .social-icons a {
             color: #fff;
             font-size: 1.2rem;
             transition: all 0.2s;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             width: 36px;
             height: 36px;
             display: flex;
@@ -1855,45 +2058,54 @@
             border-radius: 50%;
             text-decoration: none;
         }
+
         .social-icons a:hover {
             color: #003399;
             background: #ffd700;
             transform: translateY(-3px);
         }
+
         .footer-bottom {
             max-width: 1200px;
             margin: 20px auto 0;
             padding-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
             font-size: 0.8rem;
             opacity: 0.7;
         }
+
         @media (max-width: 768px) {
             footer {
                 padding: 40px 20px 20px;
                 text-align: center;
             }
+
             .footer-content {
                 flex-direction: column;
                 align-items: center;
                 gap: 30px;
             }
+
             .footer-section {
                 width: 100%;
             }
+
             .footer-section h3 {
                 justify-content: center;
             }
+
             .footer-section ul {
                 display: flex;
                 flex-direction: column;
                 gap: 12px;
                 align-items: center;
             }
+
             .social-icons {
                 justify-content: center;
             }
+
             .footer-bottom {
                 margin-top: 30px;
             }
@@ -1905,4 +2117,5 @@
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
 </body>
+
 </html>

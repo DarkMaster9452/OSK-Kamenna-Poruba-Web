@@ -1,5 +1,5 @@
 const express = require('express');
-const { fetchSportsnetMatches } = require('../services/sportsnet.service');
+const { fetchSportsnetMatches, fetchSportsnetMatchDetail } = require('../services/sportsnet.service');
 const { fetchSportsnetStandings } = require('../services/sportsnet-standings.service');
 
 const router = express.Router();
@@ -39,6 +39,16 @@ router.get('/matches', async (req, res, next) => {
       });
     }
 
+    return res.json(payload);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/matches/:matchId', async (req, res, next) => {
+  try {
+    const forceRefresh = String(req.query.refresh || '').toLowerCase() === 'true';
+    const payload = await fetchSportsnetMatchDetail(req.params.matchId, { forceRefresh });
     return res.json(payload);
   } catch (error) {
     return next(error);
