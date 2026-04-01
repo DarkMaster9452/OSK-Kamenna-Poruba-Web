@@ -207,6 +207,29 @@
     /* ------------------------------------------------------------------ */
     /*  Injection                                                           */
     /* ------------------------------------------------------------------ */
+    function shouldSkipFooter() {
+        var path = String(window.location.pathname || '').replace(/\/+$/, '');
+        var skipPatterns = [
+            /\/pages\/blog(?:\.html)?$/,
+            /\/pages\/trainings(?:\.html)?$/,
+            /\/pages\/important_info(?:\.html)?$/,
+            /\/pages\/account_management(?:\.html)?$/,
+            /\/pages\/player_detail_coach(?:\.html)?$/,
+            /\/pages\/skupiny(?:\.html)?$/
+        ];
+
+        return skipPatterns.some(function(pattern) {
+            return pattern.test(path);
+        });
+    }
+
+    function removeFooterRoot() {
+        var root = document.getElementById('site-footer-root');
+        if (root) {
+            root.remove();
+        }
+    }
+
     function injectCSS() {
         var style = document.createElement('style');
         style.id = 'osk-footer-styles';
@@ -223,9 +246,18 @@
     /* ------------------------------------------------------------------ */
     /*  Init                                                                */
     /* ------------------------------------------------------------------ */
-    injectCSS();
+    var skipFooter = shouldSkipFooter();
+
+    if (!skipFooter) {
+        injectCSS();
+    }
 
     function init() {
+        if (skipFooter) {
+            removeFooterRoot();
+            return;
+        }
+
         injectFooter();
         // Initialize Scroll to Top button logic
         (function() {
