@@ -20,11 +20,5 @@
 			"source": "/api/:path*",
 			"destination": "/api/[...all].js"
 		}
-	],
-	"crons": [
-		{
-			"path": "/api/cron-sportnet",
-			"schedule": "*/10 * * * *"
-		}
 	]
 }
