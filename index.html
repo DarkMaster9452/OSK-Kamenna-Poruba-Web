@@ -327,7 +327,7 @@
             z-index: 1;
         }
 
-        .hero > * {
+        .hero>* {
             position: relative;
             z-index: 2;
         }
@@ -553,18 +553,22 @@
             .hero-welcome {
                 font-size: 22px !important;
             }
+
             .hero h1 {
                 font-size: 34px !important;
             }
+
             .hero p {
                 font-size: 18px !important;
             }
+
             .hero-buttons {
                 flex-direction: column;
                 gap: 12px;
                 width: 100%;
                 max-width: 280px;
             }
+
             .hero .btn {
                 width: 100%;
                 font-size: 16px !important;
@@ -2562,12 +2566,14 @@
     <div id="site-header-root"></div>
 
     <!-- Hero Section -->
-    <section class="hero" id="home" style="background-image: url('/assets/images/pexels-nicolas-langellotti-28179636-26937402.jpg');">
+    <section class="hero" id="home"
+        style="background-image: url('/assets/images/pexels-nicolas-langellotti-28179636-26937402.jpg');">
         <span class="hero-welcome">Vitajte na</span>
         <h1 class="hero-title">OŠK Kamenná Poruba</h1>
         <p>Výnimočnosť vo futbale, hrdosť komunity</p>
         <div class="hero-buttons">
-            <button class="btn btn-primary" onclick="document.getElementById('matches').scrollIntoView()">Zobraziť zápasy</button>
+            <button class="btn btn-primary" onclick="document.getElementById('matches').scrollIntoView()">Zobraziť
+                zápasy</button>
             <button class="btn btn-secondary" onclick="window.location.href='/pages/atim.html'">A-tím</button>
         </div>
         <div class="scroll-down" onclick="document.getElementById('matches').scrollIntoView({behavior: 'smooth'})">
