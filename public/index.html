@@ -1417,7 +1417,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 2px;
             min-width: 80px;
         }
 
@@ -1446,6 +1446,32 @@
             border-radius: 14px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
             box-shadow: 0 4px 15px rgba(0, 51, 153, 0.2);
+        }
+
+        /* Altenatívny štýl pre odohrané zápasy (podľa matches.html) */
+        .match-card-score-alt {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #003399;
+            line-height: 1;
+        }
+
+        .match-card-score-alt span {
+            font-size: 36px;
+            font-weight: 900;
+        }
+
+        .match-card-score-alt .score-sep {
+            color: #94a3b8;
+            font-size: 28px;
+        }
+
+        .match-card-time-alt {
+            font-size: 13px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-top: 2px;
         }
 
         .match-card-footer {
@@ -4676,13 +4702,20 @@
                     const catLabel = getMatchCategoryLabel(comp);
 
                     const statusClass = (m.localStatus === 'live') ? 'live' : (type === 'upcoming' ? 'upcoming' : 'finished');
-                    const statusText = (m.localStatus === 'live') ? 'NAŽIVO' : (type === 'upcoming' ? 'BUDÚCI' : 'ODOHRANÝ');
+                    const statusText = (m.localStatus === 'live') ? 'NAŽIVO' : (type === 'upcoming' ? 'BUDÚCI' : 'KONIEC');
 
                     let middleHtml = '';
                     if (type === 'finished') {
                         const hScore = m.scoreHome !== undefined && m.scoreHome !== null ? m.scoreHome : '-';
                         const aScore = m.scoreAway !== undefined && m.scoreAway !== null ? m.scoreAway : '-';
-                        middleHtml = `<div class="match-card-score">${hScore}:${aScore}</div>`;
+                        middleHtml = `
+                            <div class="match-card-score-alt">
+                                <span class="score-home">${hScore}</span>
+                                <span class="score-sep">:</span>
+                                <span class="score-away">${aScore}</span>
+                            </div>
+                            <div class="match-card-time-alt">${t || '--:--'}</div>
+                        `;
                     } else if (m.localStatus === 'live') {
                          const hScore = m.scoreHome !== undefined && m.scoreHome !== null ? m.scoreHome : '0';
                          const aScore = m.scoreAway !== undefined && m.scoreAway !== null ? m.scoreAway : '0';
