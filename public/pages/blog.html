@@ -383,7 +383,7 @@
         </div>
 
         <div id="composerCard" class="card">
-            <h2><i class="fas fa-pen"></i> Nový blog príspevok</h2>
+            <h2 id="composerHeading"><i class="fas fa-pen"></i> Nový blog príspevok</h2>
             <div class="form-grid">
                 <input id="postTitle" placeholder="Nadpis príspevku" maxlength="200" />
                 <textarea id="postContent" placeholder="Obsah príspevku"></textarea>
@@ -401,8 +401,12 @@
                 </div>
 
                 <div>
-                    <button class="btn btn-primary" onclick="createPost()">
+                    <button id="composerSubmitButton" class="btn btn-primary" type="button" onclick="savePost()">
                         <i class="fas fa-plus"></i> Pridať príspevok
+                    </button>
+                    <button id="composerCancelButton" class="btn btn-back" type="button" onclick="resetComposer()"
+                        style="display:none;">
+                        <i class="fas fa-times"></i> Zrušiť úpravu
                     </button>
                 </div>
                 <div id="composerMessage" class="muted"></div>
@@ -431,6 +435,10 @@
             <img id="postDetailImage" class="post-detail-image" alt="Obrázok k príspevku" />
             <div id="postDetailContent" class="modal-content"></div>
             <div class="modal-actions">
+                <button id="postDetailEditButton" class="btn btn-primary" type="button" onclick="editPostFromModal()"
+                    style="display:none;">
+                    <i class="fas fa-edit"></i> Upraviť
+                </button>
                 <button class="btn btn-back" type="button" onclick="closePostDetail()">
                     <i class="fas fa-times"></i> Zavrieť článok
                 </button>
@@ -444,19 +452,22 @@
         let manageItems = [];
         let currentTagFilter = 'Všetky';
         let selectedPostImageFile = null;
+        let composerImageUrl = null;
+        let editingPostId = null;
+        let activePostDetailId = null;
 
         function renderTagFilters(posts) {
             const container = document.getElementById('tagFilters');
             if (!container) return;
 
             const tags = new Set(['Všetky']);
-            posts.forEach(p => {
-                if (p.tags && p.tags.length > 0) {
-                    p.tags.forEach(t => tags.add(t));
+            posts.forEach((post) => {
+                if (post.tags && post.tags.length > 0) {
+                    post.tags.forEach((tag) => tags.add(tag));
                 }
             });
 
-            container.innerHTML = Array.from(tags).map(tag => `
+            container.innerHTML = Array.from(tags).map((tag) => `
                 <div class="tag-tab ${currentTagFilter === tag ? 'active' : ''}" onclick="filterByTag('${escapeHtml(tag)}')">
                     ${escapeHtml(tag)}
                 </div>
@@ -494,16 +505,74 @@
             return `${normalized.slice(0, maxLength).trim()}...`;
         }
 
-        function clearSelectedPostImage() {
-            selectedPostImageFile = null;
+        function updateComposerUi() {
+            const heading = document.getElementById('composerHeading');
+            const submitButton = document.getElementById('composerSubmitButton');
+            const cancelButton = document.getElementById('composerCancelButton');
 
+            if (heading) {
+                heading.innerHTML = editingPostId
+                    ? '<i class="fas fa-edit"></i> Upraviť blog príspevok'
+                    : '<i class="fas fa-pen"></i> Nový blog príspevok';
+            }
+
+            if (submitButton) {
+                submitButton.innerHTML = editingPostId
+                    ? '<i class="fas fa-save"></i> Uložiť zmeny'
+                    : '<i class="fas fa-plus"></i> Pridať príspevok';
+            }
+
+            if (cancelButton) {
+                cancelButton.style.display = editingPostId ? 'inline-flex' : 'none';
+            }
+        }
+
+        function renderComposerImagePreview(messageText) {
             const input = document.getElementById('postImage');
             const preview = document.getElementById('postImagePreview');
             const name = document.getElementById('postImageName');
             const clearButton = document.getElementById('postImageClear');
 
-            if (input) {
+            if (!selectedPostImageFile && input) {
                 input.value = '';
+            }
+
+            if (selectedPostImageFile) {
+                if (preview) {
+                    const objectUrl = URL.createObjectURL(selectedPostImageFile);
+                    preview.src = objectUrl;
+                    preview.style.display = 'block';
+                    preview.onload = function () {
+                        URL.revokeObjectURL(objectUrl);
+                    };
+                }
+
+                if (name) {
+                    name.textContent = `${selectedPostImageFile.name} (${Math.max(1, Math.round(selectedPostImageFile.size / 1024))} KB)`;
+                }
+
+                if (clearButton) {
+                    clearButton.style.display = 'inline-flex';
+                }
+
+                return;
+            }
+
+            if (composerImageUrl) {
+                if (preview) {
+                    preview.src = composerImageUrl;
+                    preview.style.display = 'block';
+                }
+
+                if (name) {
+                    name.textContent = 'Aktuálna fotografia príspevku.';
+                }
+
+                if (clearButton) {
+                    clearButton.style.display = 'inline-flex';
+                }
+
+                return;
             }
 
             if (preview) {
@@ -512,7 +581,7 @@
             }
 
             if (name) {
-                name.textContent = 'Bez vybratej fotografie.';
+                name.textContent = messageText || 'Bez vybratej fotografie.';
             }
 
             if (clearButton) {
@@ -520,52 +589,126 @@
             }
         }
 
+        function clearSelectedPostImage() {
+            selectedPostImageFile = null;
+            composerImageUrl = null;
+            renderComposerImagePreview();
+        }
+
+        function resetComposer(options = {}) {
+            const titleInput = document.getElementById('postTitle');
+            const contentInput = document.getElementById('postContent');
+            const message = document.getElementById('composerMessage');
+
+            editingPostId = null;
+            selectedPostImageFile = null;
+            composerImageUrl = null;
+
+            if (titleInput) {
+                titleInput.value = '';
+            }
+
+            if (contentInput) {
+                contentInput.value = '';
+            }
+
+            renderComposerImagePreview();
+
+            if (message && !options.keepMessage) {
+                message.textContent = '';
+            }
+
+            updateComposerUi();
+        }
+
+        function canManagePost(post) {
+            if (!currentUser) return false;
+            if (currentUser.role === 'admin') return true;
+            return ['blogger', 'coach'].includes(currentUser.role) && post.createdBy === currentUser.username;
+        }
+
+        function startEditPost(id) {
+            const post = window.__blogPostsById && window.__blogPostsById.get(id);
+            const titleInput = document.getElementById('postTitle');
+            const contentInput = document.getElementById('postContent');
+            const message = document.getElementById('composerMessage');
+            const composer = document.getElementById('composerCard');
+
+            if (!post || !canManagePost(post)) {
+                return;
+            }
+
+            editingPostId = id;
+            selectedPostImageFile = null;
+            composerImageUrl = post.imageUrl || null;
+
+            if (titleInput) {
+                titleInput.value = post.title || '';
+            }
+
+            if (contentInput) {
+                contentInput.value = post.content || '';
+            }
+
+            renderComposerImagePreview();
+            updateComposerUi();
+
+            if (message) {
+                message.textContent = `Upravujete príspevok: ${post.title}`;
+            }
+
+            closePostDetail();
+
+            if (composer) {
+                composer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function editPostFromModal() {
+            if (!activePostDetailId) {
+                return;
+            }
+
+            startEditPost(activePostDetailId);
+        }
+
         function handlePostImageSelection(event) {
             const input = event && event.target;
             const file = input && input.files ? input.files[0] : null;
-            const preview = document.getElementById('postImagePreview');
-            const name = document.getElementById('postImageName');
-            const clearButton = document.getElementById('postImageClear');
+            const message = document.getElementById('composerMessage');
 
             if (!file) {
-                clearSelectedPostImage();
+                selectedPostImageFile = null;
+                renderComposerImagePreview();
                 return;
             }
 
             if (!file.type || !file.type.startsWith('image/')) {
-                clearSelectedPostImage();
-                if (name) {
-                    name.textContent = 'Vybraný súbor nie je obrázok.';
+                selectedPostImageFile = null;
+                renderComposerImagePreview();
+                if (message) {
+                    message.textContent = 'Vybraný súbor nie je obrázok.';
                 }
                 return;
             }
 
             if (file.size > 5 * 1024 * 1024) {
-                clearSelectedPostImage();
-                if (name) {
-                    name.textContent = 'Fotografia môže mať maximálne 5 MB.';
+                selectedPostImageFile = null;
+                renderComposerImagePreview();
+                if (message) {
+                    message.textContent = 'Fotografia môže mať maximálne 5 MB.';
                 }
                 return;
             }
 
             selectedPostImageFile = file;
+            composerImageUrl = null;
 
-            if (preview) {
-                const objectUrl = URL.createObjectURL(file);
-                preview.src = objectUrl;
-                preview.style.display = 'block';
-                preview.onload = function () {
-                    URL.revokeObjectURL(objectUrl);
-                };
+            if (message) {
+                message.textContent = '';
             }
 
-            if (name) {
-                name.textContent = `${file.name} (${Math.max(1, Math.round(file.size / 1024))} KB)`;
-            }
-
-            if (clearButton) {
-                clearButton.style.display = 'inline-flex';
-            }
+            renderComposerImagePreview();
         }
 
         async function uploadPostImage(file, csrfToken) {
@@ -612,18 +755,12 @@
             manageItems = Array.isArray(payload.items) ? payload.items : [];
         }
 
-        function canManagePost(post) {
-            if (!currentUser) return false;
-            if (currentUser.role === 'admin') return true;
-            return ['blogger', 'coach'].includes(currentUser.role) && post.createdBy === currentUser.username;
-        }
-
         function renderPosts(orderedPosts) {
             const container = document.getElementById('postsContainer');
 
             let posts = orderedPosts;
             if (currentTagFilter !== 'Všetky') {
-                posts = orderedPosts.filter(p => p.tags && p.tags.includes(currentTagFilter));
+                posts = orderedPosts.filter((post) => post.tags && post.tags.includes(currentTagFilter));
             }
 
             if (!posts.length) {
@@ -632,14 +769,20 @@
             }
 
             container.innerHTML = posts.map((post) => {
-                const canDelete = canManagePost(post);
+                const canEdit = canManagePost(post);
                 const tagHtml = (post.tags && post.tags.length > 0) ? `<div class="post-tag">${escapeHtml(post.tags[0])}</div>` : '';
                 const imageHtml = post.imageUrl ? `<img class="post-preview-image" src="${escapeHtml(post.imageUrl)}" alt="Fotografia k príspevku ${escapeHtml(post.title)}" loading="lazy" />` : '';
+                const actionsHtml = canEdit ? `
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button class="btn btn-back" type="button" onclick="event.stopPropagation();startEditPost('${post.id}')"><i class="fas fa-edit"></i> Upraviť</button>
+                        <button class="btn btn-danger" type="button" onclick="event.stopPropagation();deletePost('${post.id}')"><i class="fas fa-trash"></i> Odstrániť</button>
+                    </div>
+                ` : '';
                 return `
                     <article class="post" onclick="openPostDetail('${post.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPostDetail('${post.id}')">
                         <div class="row">
                             <h3>${escapeHtml(post.title)}</h3>
-                            ${canDelete ? `<button class="btn btn-danger" onclick="event.stopPropagation();deletePost('${post.id}')"><i class="fas fa-trash"></i> Odstrániť</button>` : ''}
+                            ${actionsHtml}
                         </div>
                         <div class="meta">${tagHtml} Autor: ${post.createdBy} • ${formatDate(post.createdAt)}</div>
                         ${imageHtml}
@@ -657,15 +800,21 @@
             const title = document.getElementById('postDetailTitle');
             const meta = document.getElementById('postDetailMeta');
             const content = document.getElementById('postDetailContent');
+            const editButton = document.getElementById('postDetailEditButton');
             if (!modal || !title || !meta || !content) return;
 
             const post = window.__blogPostsById && window.__blogPostsById.get(id);
             if (!post) return;
 
+            activePostDetailId = id;
             title.textContent = post.title || 'Bez názvu';
-            meta.innerHTML = post.tags && post.tags.length > 0 ?
-                `<div class="post-tag">${escapeHtml(post.tags[0])}</div> Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}` :
-                `Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}`;
+            meta.innerHTML = post.tags && post.tags.length > 0
+                ? `<div class="post-tag">${escapeHtml(post.tags[0])}</div> Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}`
+                : `Autor: ${post.createdBy || 'Neznámy'} • ${formatDate(post.createdAt)}`;
+
+            if (editButton) {
+                editButton.style.display = canManagePost(post) ? 'inline-flex' : 'none';
+            }
 
             const img = document.getElementById('postDetailImage');
             if (img) {
@@ -686,13 +835,20 @@
 
         function closePostDetail() {
             const modal = document.getElementById('postDetailModal');
+            const editButton = document.getElementById('postDetailEditButton');
             if (!modal) return;
+
+            activePostDetailId = null;
             modal.classList.remove('open');
             modal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = 'auto';
+
+            if (editButton) {
+                editButton.style.display = 'none';
+            }
         }
 
-        window.addEventListener('popstate', function (e) {
+        window.addEventListener('popstate', function () {
             const modal = document.getElementById('postDetailModal');
             if (modal && modal.classList.contains('open')) {
                 closePostDetail();
@@ -713,8 +869,10 @@
             if (currentUser && ['blogger', 'coach', 'admin'].includes(currentUser.role)) {
                 composer.style.display = 'block';
                 roleInfo.textContent = `Prihlásený: ${currentUser.username} (${currentUser.role})`;
+                updateComposerUi();
             } else {
                 composer.style.display = 'none';
+                resetComposer();
                 if (roleInfo) roleInfo.textContent = '';
             }
 
@@ -724,19 +882,21 @@
             const byId = new Map();
             publicPosts.forEach((item) => byId.set(item.id, item));
             manageItems.forEach((item) => byId.set(item.id, item));
+
             const orderedPosts = Array.from(byId.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             window.__blogPostsById = new Map(orderedPosts.map((post) => [post.id, post]));
             renderTagFilters(orderedPosts);
             renderPosts(orderedPosts);
         }
 
-        async function createPost() {
+        async function savePost() {
             const titleInput = document.getElementById('postTitle');
             const contentInput = document.getElementById('postContent');
             const message = document.getElementById('composerMessage');
-
             const title = titleInput.value.trim();
             const content = contentInput.value.trim();
+            const isEditing = Boolean(editingPostId);
+            const existingPost = isEditing && window.__blogPostsById ? window.__blogPostsById.get(editingPostId) : null;
 
             if (!title || !content) {
                 message.textContent = 'Nadpis aj obsah sú povinné.';
@@ -744,18 +904,18 @@
             }
 
             try {
-                message.textContent = 'Ukladám príspevok...';
+                message.textContent = isEditing ? 'Ukladám zmeny príspevku...' : 'Ukladám príspevok...';
                 const csrfToken = window.OSKSession ? await window.OSKSession.ensureCsrfToken() : '';
-                let imageUrl = null;
+                let imageUrl = composerImageUrl;
 
                 if (selectedPostImageFile) {
                     message.textContent = 'Nahrávam fotografiu...';
                     imageUrl = await uploadPostImage(selectedPostImageFile, csrfToken);
-                    message.textContent = 'Ukladám príspevok...';
+                    message.textContent = isEditing ? 'Ukladám zmeny príspevku...' : 'Ukladám príspevok...';
                 }
 
-                const response = await fetch(`${API_BASE}/blog`, {
-                    method: 'POST',
+                const response = await fetch(isEditing ? `${API_BASE}/blog/${editingPostId}` : `${API_BASE}/blog`, {
+                    method: isEditing ? 'PUT' : 'POST',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
@@ -764,23 +924,22 @@
                     body: JSON.stringify({
                         title,
                         content,
-                        published: true,
+                        published: existingPost ? existingPost.published !== false : true,
                         imageUrl,
-                        tags: []
+                        tags: existingPost && Array.isArray(existingPost.tags) ? existingPost.tags : []
                     })
                 });
 
                 const payload = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(payload.message || 'Nepodarilo sa vytvoriť blog príspevok.');
-
-                message.textContent = 'Príspevok bol vytvorený.';
-                titleInput.value = '';
-                contentInput.value = '';
-                clearSelectedPostImage();
+                if (!response.ok) {
+                    throw new Error(payload.message || (isEditing ? 'Nepodarilo sa upraviť blog príspevok.' : 'Nepodarilo sa vytvoriť blog príspevok.'));
+                }
 
                 await refresh();
+                resetComposer({ keepMessage: true });
+                message.textContent = isEditing ? 'Príspevok bol upravený.' : 'Príspevok bol vytvorený.';
             } catch (error) {
-                message.textContent = error.message || 'Nepodarilo sa vytvoriť blog príspevok.';
+                message.textContent = error.message || (isEditing ? 'Nepodarilo sa upraviť blog príspevok.' : 'Nepodarilo sa vytvoriť blog príspevok.');
             }
         }
 
@@ -808,7 +967,11 @@
         }
 
         window.deletePost = deletePost;
-        window.createPost = createPost;
+        window.createPost = savePost;
+        window.savePost = savePost;
+        window.startEditPost = startEditPost;
+        window.editPostFromModal = editPostFromModal;
+        window.resetComposer = resetComposer;
         window.openPostDetail = openPostDetail;
         window.closePostDetail = closePostDetail;
         window.handlePostImageSelection = handlePostImageSelection;

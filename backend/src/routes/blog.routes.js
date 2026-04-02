@@ -5,6 +5,7 @@ const { validateBody } = require('../middleware/validate');
 const {
   listBlogPosts,
   createBlogPost,
+  updateBlogPost,
   findBlogPostById,
   deleteBlogPost,
   createAuditLog
@@ -108,6 +109,48 @@ router.post('/', requireAuth, requireRole('blogger', 'coach', 'admin'), validate
   } catch (error) {
     console.error('Blog create failed:', error);
     return res.status(500).json({ message: error.message || 'Nepodarilo sa vytvoriť blog príspevok.' });
+  }
+});
+
+router.put('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), validateBody(createBlogPostSchema), async (req, res) => {
+  try {
+    const row = await findBlogPostById(req.params.id);
+    if (!row) {
+      return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
+    }
+
+    if (req.user.role !== 'admin' && row.createdById !== req.user.id) {
+      return res.status(403).json({ message: 'Nemáte oprávnenie upraviť cudzí blog príspevok.' });
+    }
+
+    const updatedRow = await updateBlogPost(req.params.id, req.body);
+    const item = {
+      id: updatedRow.id,
+      title: updatedRow.title,
+      content: updatedRow.content,
+      imageUrl: updatedRow.imageUrl || null,
+      tags: updatedRow.tags || [],
+      published: updatedRow.published,
+      createdAt: updatedRow.createdAt,
+      updatedAt: updatedRow.updatedAt,
+      createdBy: updatedRow.createdBy.username
+    };
+
+    await writeAuditSafe({
+      actorUserId: req.user.id,
+      action: 'blog_post_updated',
+      entityType: 'blog_post',
+      entityId: updatedRow.id,
+      details: {
+        title: updatedRow.title,
+        published: updatedRow.published
+      }
+    });
+
+    return res.json({ item });
+  } catch (error) {
+    console.error('Blog update failed:', error);
+    return res.status(500).json({ message: error.message || 'Nepodarilo sa upraviť blog príspevok.' });
   }
 });
 

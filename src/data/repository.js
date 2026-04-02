@@ -1619,6 +1619,78 @@ async function deleteBlogPost(id) {
   });
 }
 
+async function updateBlogPost(id, input) {
+  if (!prisma.blogPost) {
+    throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
+  }
+
+  try {
+    return await prisma.blogPost.update({
+      where: { id },
+      data: {
+        title: input.title,
+        content: input.content,
+        imageUrl: input.imageUrl || null,
+        tags: input.tags || [],
+        published: input.published ?? true
+      },
+      include: {
+        createdBy: {
+          select: { username: true }
+        }
+      }
+    }).catch(async (error) => {
+      if (error.message && (error.message.includes('tags') || error.message.includes('imageUrl'))) {
+        const minimalData = {
+          title: input.title,
+          content: input.content,
+          published: input.published ?? true
+        };
+
+        if (!error.message.includes('imageUrl')) {
+          minimalData.imageUrl = input.imageUrl || null;
+        }
+
+        if (!error.message.includes('tags')) {
+          minimalData.tags = input.tags || [];
+        }
+
+        return prisma.blogPost.update({
+          where: { id },
+          data: minimalData,
+          include: {
+            createdBy: {
+              select: { username: true }
+            }
+          }
+        });
+      }
+
+      throw error;
+    });
+  } catch (error) {
+    if (!shouldFallbackWithoutBlogPostImageUrl(error)) {
+      throw error;
+    }
+
+    const row = await prisma.blogPost.update({
+      where: { id },
+      data: {
+        title: input.title,
+        content: input.content,
+        published: input.published ?? true
+      },
+      include: {
+        createdBy: {
+          select: { username: true }
+        }
+      }
+    });
+
+    return { ...row, imageUrl: null, tags: [] };
+  }
+}
+
 async function listPolls() {
   return prisma.poll.findMany({
     orderBy: { createdAt: 'desc' },
@@ -1817,6 +1889,7 @@ module.exports = {
   listPublicAnnouncements,
   listBlogPosts,
   createBlogPost,
+  updateBlogPost,
   findBlogPostById,
   deleteBlogPost,
   listPolls,
