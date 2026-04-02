@@ -15,6 +15,10 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: #eef2f6;
@@ -23,6 +27,7 @@
             margin: 0;
             padding: 0;
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         h1,
@@ -35,7 +40,8 @@
             gap: 15px;
             margin: 0 0 35px;
             border-bottom: 3px solid #ffd700;
-            width: fit-content;
+            width: auto;
+            max-width: 100%;
             padding-bottom: 10px;
         }
 
@@ -109,13 +115,15 @@
 
         @media (max-width: 768px) {
             .coach-panel {
-                padding: 25px 20px 45px;
+                padding: 20px 15px 35px;
                 border-radius: 16px;
-                margin-bottom: 40px;
+                margin-bottom: 35px;
+                border-left-width: 4px;
             }
 
             .coach-panel h2 {
-                font-size: 1.5rem !important;
+                font-size: 1.35rem !important;
+                margin-bottom: 20px;
             }
         }
 
