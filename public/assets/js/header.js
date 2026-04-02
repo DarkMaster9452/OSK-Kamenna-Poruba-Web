@@ -232,7 +232,7 @@
         '    header.site-header .sh-mobile-login { display: block; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 15px; }',
         '    header.site-header .sh-mobile-login .sh-login-btn { display: block; width: 100%; max-width: none; text-align: center; padding: 14px; border-radius: 12px; font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }',
         '    header.site-header .sh-actions .sh-login-btn { display: none; }',
-        '}'
+        '}',
         '@media (max-width: 768px) {',
         '    body > main,',
         '    body > .container {',
