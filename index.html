@@ -1289,158 +1289,215 @@
         }
 
         /* Consolidated Match Card Styles */
+        /* Consolidated Match Card Styles - Redesigned to match the photo */
         .match-card {
-            background: white;
-            border-radius: 16px;
+            background: #fff;
+            border-radius: 24px;
             padding: 24px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 4px 20px rgba(0, 51, 153, 0.04);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
-            border-left: 6px solid #ffd700;
             display: flex;
             flex-direction: column;
+            gap: 20px;
+            border: 1px solid #f2f6ff;
             position: relative;
             overflow: hidden;
+            background: linear-gradient(to bottom, #ffffff, #fcfdff);
         }
 
         .match-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0, 51, 153, 0.1);
+            border-color: #dbeafe;
         }
 
-        .match-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
+        .match-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f4ff;
+            padding-bottom: 16px;
+        }
+
+        .match-card-league {
+            font-size: 13px;
+            font-weight: 800;
+            color: #4b5563;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .match-card-status {
+            padding: 6px 14px;
+            border-radius: 9999px;
             font-size: 11px;
             font-weight: 800;
-            margin-bottom: 12px;
             text-transform: uppercase;
-            align-self: flex-start;
+            letter-spacing: 0.3px;
         }
 
-        .match-status.upcoming {
-            background: #e3f2fd;
-            color: #1976d2;
+        .match-card-status.upcoming {
+            background: #eff6ff;
+            color: #1d4ed8;
         }
 
-        .match-status.finished {
-            background: #f3e5f5;
-            color: #7b1fa2;
+        .match-card-status.finished {
+            background: #f3f4f6;
+            color: #4b5563;
         }
 
-        .match-teams {
-            margin: 15px 0;
+        .match-card-status.live {
+            background: #fef2f2;
+            color: #b91c1c;
+            animation: pulse-light 2s infinite;
+        }
+
+        @keyframes pulse-light {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .match-card-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
             padding: 10px 0;
         }
 
-        .team-vs {
+        .match-card-team {
+            flex: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: nowrap;
+            gap: 14px;
+            text-align: center;
         }
 
-        .team-logo {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
+        .match-card-logo-wrap {
+            width: 84px;
+            height: 84px;
             background: #fff;
             border-radius: 50%;
-            padding: 5px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .match-card .team-name {
-            font-weight: 700;
-            font-size: 15px;
-            color: #003399;
-            margin-top: 8px;
-            word-break: normal;
-            overflow-wrap: break-word;
-            line-height: 1.25;
-        }
-
-        .score-value {
-            text-align: center;
-            color: #ffd700;
-            font-size: 32px;
-            background: #003399;
-            padding: 8px 16px;
-            border-radius: 12px;
-            min-width: 100px;
-            font-weight: 800;
-            box-shadow: 0 4px 15px rgba(0, 51, 153, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
-            white-space: nowrap;
+            box-shadow: 0 8px 16px rgba(0, 51, 153, 0.08);
+            padding: 12px;
+            border: 1px solid #f8faff;
+            transition: transform 0.3s ease;
         }
 
-        .vs-text {
-            color: #888;
+        .match-card:hover .match-card-logo-wrap {
+            transform: scale(1.05);
+        }
+
+        .match-card-logo-wrap img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .match-card-team-name {
+            font-size: 15px;
             font-weight: 800;
+            color: #1e293b;
+            line-height: 1.3;
+            min-height: 2.6em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 140px;
+        }
+
+        .match-card-middle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 80px;
+        }
+
+        .match-card-vs {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .match-card-time {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .match-card-score {
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffd700;
+            background: #003399;
+            padding: 10px 18px;
+            border-radius: 14px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 51, 153, 0.2);
+        }
+
+        .match-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #f0f4ff;
+            padding-top: 20px;
+            margin-top: auto;
+        }
+
+        .match-card-date {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #4b5563;
+            font-weight: 700;
+        }
+
+        .match-card-date i {
+            color: #94a3b8;
             font-size: 16px;
         }
 
-        .match-card .match-details {
-            margin-top: auto;
-            padding-top: 15px;
-            border-top: 1px solid #f0f0f0;
-            display: grid;
-            gap: 8px;
-        }
-
-        .match-detail-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: #555;
-            word-break: normal;
-            overflow-wrap: break-word;
-        }
-
-        .match-detail-row i {
-            color: #ffd700;
-            width: 16px;
-            text-align: center;
-        }
-
-        .match-competition {
-            font-size: 11px;
-            color: #999;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            font-weight: 600;
-        }
-
-        .match-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
+        .match-card-category-badge {
+            background: #003399;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
             font-weight: 800;
-            margin-bottom: 12px;
             text-transform: uppercase;
-            align-self: flex-start;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0, 51, 153, 0.15);
         }
 
-        .match-status.upcoming {
-            background: #e3f2fd;
-            color: #1976d2;
+        .match-card-location {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 600;
+            margin-top: -8px;
+            line-height: 1.4;
         }
 
-        .match-status.finished {
-            background: #f1f2f6;
-            color: #57606f;
-        }
-
-        .match-status.live {
-            background: #ffebee;
-            color: #c62828;
+        .match-card-location i {
+            color: #94a3b8;
+            margin-top: 2px;
+            font-size: 15px;
         }
 
         /* Modern Modal Styles */
@@ -1840,53 +1897,54 @@
         /* MODERN MATCH CARD RESPONSIVE STYLES */
         @media (max-width: 768px) {
             .match-card {
-                padding: 16px;
+                padding: 18px;
+                gap: 15px;
             }
 
-            .team-vs {
-                flex-direction: row;
-                flex-wrap: nowrap;
-                gap: 5px;
+            .match-card-header {
+                padding-bottom: 12px;
             }
 
-            .match-card .team-name {
+            .match-card-logo-wrap {
+                width: 64px;
+                height: 64px;
+                padding: 8px;
+            }
+
+            .match-card-team-name {
+                font-size: 13px;
+                max-width: 100px;
+            }
+
+            .match-card-middle {
+                min-width: 60px;
+            }
+
+            .match-card-score {
+                font-size: 24px;
+                padding: 6px 12px;
+                border-radius: 10px;
+            }
+
+            .match-card-vs {
                 font-size: 11px;
-                padding: 4px;
-                background: transparent;
-                margin-top: 4px;
-                max-width: 80px;
-                line-height: 1.1;
+                padding: 2px 6px;
             }
 
-            .team-logo {
-                width: 44px;
-                height: 44px;
-                padding: 3px;
-            }
-
-            .vs-text {
-                font-size: 14px;
-                margin: 0;
-            }
-
-            .score-value {
-                font-size: 18px;
-                margin: 0;
-                min-width: 44px;
-                padding: 4px 8px;
-            }
-
-            .match-card .match-details {
+            .match-card-time {
                 font-size: 12px;
-                margin: 8px 0;
             }
 
-            .match-status {
-                font-size: 10px;
-                padding: 2px 8px;
+            .match-card-footer {
+                padding-top: 15px;
             }
 
-            .match-competition {
+            .match-card-date, .match-card-location {
+                font-size: 12px;
+            }
+
+            .match-card-category-badge {
+                padding: 6px 12px;
                 font-size: 10px;
             }
 
@@ -4397,10 +4455,10 @@
         function getMatchCategoryLabel(competition) {
             const cat = detectStandingsCategory(competition, '');
             const labels = {
-                'dospeli': 'Dospelí (Muži)',
-                'dorast': 'Dorast U19',
-                'ziaci': 'Žiaci U15',
-                'pripravka': 'Prípravka'
+                'dospeli': 'DOSPELÍ (MUŽI)',
+                'dorast': 'DORAST U19',
+                'ziaci': 'STARŠÍ ŽIACI U15',
+                'pripravka': 'PRÍPRAVKA'
             };
             return labels[cat] || 'A-Tím';
         }
@@ -4609,58 +4667,72 @@
                     const dateObj = m.matchDateObj;
                     const d = m.dA || '';
                     const t = m.tA || '';
-                    const formatted = dateObj ? dateObj.toLocaleDateString('sk-SK', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : d;
+                    
+                    // Format as "so, 4. 4. 2026"
+                    const formattedDate = dateObj ? (dateObj.toLocaleDateString('sk-SK', { weekday: 'short' }) + ', ' + dateObj.toLocaleDateString('sk-SK', { day: 'numeric', month: 'numeric', year: 'numeric' })) : d;
+                    
                     const venue = m.venue || 'Neuvedené';
                     const comp = m.competition;
                     const catLabel = getMatchCategoryLabel(comp);
 
-                    const statusClass = type === 'upcoming' ? 'upcoming' : 'finished';
-                    const statusText = type === 'upcoming' ? 'NADCHÁDZAJÚCI' : 'ODOHRANÝ';
+                    const statusClass = (m.localStatus === 'live') ? 'live' : (type === 'upcoming' ? 'upcoming' : 'finished');
+                    const statusText = (m.localStatus === 'live') ? 'NAŽIVO' : (type === 'upcoming' ? 'BUDÚCI' : 'ODOHRANÝ');
 
-                    let scoreHtml = '';
+                    let middleHtml = '';
                     if (type === 'finished') {
                         const hScore = m.scoreHome !== undefined && m.scoreHome !== null ? m.scoreHome : '-';
                         const aScore = m.scoreAway !== undefined && m.scoreAway !== null ? m.scoreAway : '-';
-                        scoreHtml = `<div class="score-value">${hScore}:${aScore}</div>`;
+                        middleHtml = `<div class="match-card-score">${hScore}:${aScore}</div>`;
+                    } else if (m.localStatus === 'live') {
+                         const hScore = m.scoreHome !== undefined && m.scoreHome !== null ? m.scoreHome : '0';
+                         const aScore = m.scoreAway !== undefined && m.scoreAway !== null ? m.scoreAway : '0';
+                         middleHtml = `<div class="match-card-score" style="background:#c62828;">${hScore}:${aScore}</div>`;
                     } else {
-                        scoreHtml = `<div class="vs-text">VS</div>`;
+                        middleHtml = `
+                            <div class="match-card-vs">VS</div>
+                            <div class="match-card-time">${t || '–'}</div>
+                        `;
                     }
 
-                    const hLogo = m.homeLogo ? `<img src="${m.homeLogo}" class="team-logo" alt="${m.homeTeam}">` : '';
-                    const aLogo = m.awayLogo ? `<img src="${m.awayLogo}" class="team-logo" alt="${m.awayTeam}">` : '';
+                    const hLogo = m.homeLogo ? `<img src="${m.homeLogo}" alt="${m.homeTeam}">` : '';
+                    const aLogo = m.awayLogo ? `<img src="${m.awayLogo}" alt="${m.awayTeam}">` : '';
 
                     return `
                     <div class="match-card" onclick="goToMatchesFromHome(event)">
-                        <div class="match-competition">${comp}</div>
-                        <div class="match-status ${statusClass}">${statusText}</div>
+                        <div class="match-card-header">
+                            <div class="match-card-league" title="${comp}">${comp}</div>
+                            <div class="match-card-status ${statusClass}">${statusText}</div>
+                        </div>
                         
-                        <div class="match-teams">
-                            <div class="team-vs">
-                                <div style="text-align: center;">
+                        <div class="match-card-main">
+                            <div class="match-card-team">
+                                <div class="match-card-logo-wrap">
                                     ${hLogo}
-                                    <div class="team-name">${m.homeTeam || 'Domáci'}</div>
                                 </div>
-                                ${scoreHtml}
-                                <div style="text-align: center;">
+                                <div class="match-card-team-name">${m.homeTeam || 'Domáci'}</div>
+                            </div>
+
+                            <div class="match-card-middle">
+                                ${middleHtml}
+                            </div>
+
+                            <div class="match-card-team">
+                                <div class="match-card-logo-wrap">
                                     ${aLogo}
-                                    <div class="team-name">${m.awayTeam || 'Hostia'}</div>
                                 </div>
+                                <div class="match-card-team-name">${m.awayTeam || 'Hostia'}</div>
                             </div>
                         </div>
 
-                        <div class="match-details">
-                            <div class="match-detail-row" style="color: #003399; font-weight: 700; margin-bottom: 4px;">
-                                <i class="fas fa-users"></i> ${catLabel}
+                        <div class="match-card-footer">
+                            <div class="match-card-date">
+                                <i class="far fa-calendar-alt"></i> ${formattedDate}
                             </div>
-                            <div class="match-detail-row">
-                                <i class="fas fa-calendar"></i> ${formatted}
-                            </div>
-                            <div class="match-detail-row">
-                                <i class="fas fa-clock"></i> ${t || '–'}
-                            </div>
-                            <div class="match-detail-row">
-                                <i class="fas fa-map-marker-alt"></i> ${venue}
-                            </div>
+                            <div class="match-card-category-badge">${catLabel}</div>
+                        </div>
+
+                        <div class="match-card-location">
+                            <i class="fas fa-map-marker-alt"></i> ${venue}
                         </div>
                     </div>`;
                 }).join('');
