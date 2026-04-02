@@ -1641,8 +1641,8 @@
             // Register club logos from sportnet data
             const homeTeamName = item.homeTeam || 'Domáci';
             const awayTeamName = item.awayTeam || 'Hostia';
-            const homeLogo = item.homeLogo || getSportsnetTeamLogo(homeTeamObj);
-            const awayLogo = item.awayLogo || getSportsnetTeamLogo(awayTeamObj);
+            const homeLogo = item.homeLogo || null;
+            const awayLogo = item.awayLogo || null;
             if (homeLogo) registerClubLogo(homeTeamName, homeLogo);
             if (awayLogo) registerClubLogo(awayTeamName, awayLogo);
 
