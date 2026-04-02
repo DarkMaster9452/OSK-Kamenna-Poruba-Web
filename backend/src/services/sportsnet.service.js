@@ -328,6 +328,54 @@ async function isReachableImageUrl(url) {
   return ok;
 }
 
+async function sanitizeLogoUrl(url) {
+  if (!isNonEmptyString(url)) {
+    return null;
+  }
+
+  const normalizedUrl = url.trim();
+  return await isReachableImageUrl(normalizedUrl) ? normalizedUrl : null;
+}
+
+async function sanitizeMappedMatchLogos(match) {
+  if (!match || typeof match !== 'object') {
+    return match;
+  }
+
+  const [homeLogo, awayLogo] = await Promise.all([
+    sanitizeLogoUrl(match.homeLogo),
+    sanitizeLogoUrl(match.awayLogo)
+  ]);
+
+  return {
+    ...match,
+    homeLogo,
+    awayLogo
+  };
+}
+
+async function sanitizeMatchesPayload(payload) {
+  if (!payload || !Array.isArray(payload.items)) {
+    return payload;
+  }
+
+  return {
+    ...payload,
+    items: await Promise.all(payload.items.map((match) => sanitizeMappedMatchLogos(match)))
+  };
+}
+
+async function sanitizeMatchDetailPayload(payload) {
+  if (!payload || !payload.item) {
+    return payload;
+  }
+
+  return {
+    ...payload,
+    item: await sanitizeMappedMatchLogos(payload.item)
+  };
+}
+
 async function fetchTeamLogoFromClubPage(teamObj) {
   const teamSlug = getTeamSlug(teamObj);
   if (!teamSlug) {
@@ -338,7 +386,16 @@ async function fetchTeamLogoFromClubPage(teamObj) {
   const cached = teamLogoCache.get(cacheKey);
   const now = Date.now();
   if (cached && cached.expiresAt > now) {
-    return cached.logoUrl;
+    if (!cached.logoUrl) {
+      return null;
+    }
+
+    const validCachedLogoUrl = await sanitizeLogoUrl(cached.logoUrl);
+    if (validCachedLogoUrl) {
+      return validCachedLogoUrl;
+    }
+
+    teamLogoCache.delete(cacheKey);
   }
 
   let logoUrl = null;
@@ -378,7 +435,16 @@ async function resolveTeamLogo(teamObj) {
   if (cacheKey) {
     const cached = teamLogoCache.get(cacheKey);
     if (cached && cached.expiresAt > now) {
-      return cached.logoUrl;
+      if (!cached.logoUrl) {
+        return null;
+      }
+
+      const validCachedLogoUrl = await sanitizeLogoUrl(cached.logoUrl);
+      if (validCachedLogoUrl) {
+        return validCachedLogoUrl;
+      }
+
+      teamLogoCache.delete(cacheKey);
     }
   }
 
@@ -828,16 +894,20 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
 
   if (!forceRefresh && cacheState.payload && cacheState.expiresAt > now) {
     if (!shouldIgnoreCacheForRefresh(cacheState.payload)) {
-      return { ...cacheState.payload, cache: 'HIT' };
+      const sanitizedCachedPayload = await sanitizeMatchesPayload(cacheState.payload);
+      cacheState.payload = sanitizedCachedPayload;
+      return { ...sanitizedCachedPayload, cache: 'HIT' };
     }
   }
 
   if (!forceRefresh) {
     const dbCached = await readCache('matches');
     if (dbCached && !shouldIgnoreCacheForRefresh(dbCached)) {
-      cacheState.payload = dbCached;
+      const sanitizedDbCached = await sanitizeMatchesPayload(dbCached);
+      cacheState.payload = sanitizedDbCached;
       cacheState.expiresAt = now + cacheTtlSet;
-      return { ...dbCached, cache: 'HIT' };
+      writeCache('matches', sanitizedDbCached, cacheTtlSet).catch(console.error);
+      return { ...sanitizedDbCached, cache: 'HIT' };
     }
   }
 
@@ -896,7 +966,12 @@ async function fetchSportsnetMatchDetail(matchId, { forceRefresh = false } = {})
   const cached = detailCacheState.get(cacheKey);
 
   if (!forceRefresh && cached && cached.expiresAt > now) {
-    return { ...cached.payload, cache: 'HIT' };
+    const sanitizedCachedDetail = await sanitizeMatchDetailPayload(cached.payload);
+    detailCacheState.set(cacheKey, {
+      expiresAt: cached.expiresAt,
+      payload: sanitizedCachedDetail
+    });
+    return { ...sanitizedCachedDetail, cache: 'HIT' };
   }
 
   const endpoint = buildSportsnetDetailUrl(cacheKey, { forceRefresh });
