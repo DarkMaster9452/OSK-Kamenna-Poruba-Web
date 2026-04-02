@@ -9,7 +9,8 @@
       "Bash(python3 cleanup_pages.py)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx vercel:*)"
     ]
   }
 }
