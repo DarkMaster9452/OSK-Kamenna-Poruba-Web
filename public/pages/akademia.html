@@ -217,7 +217,7 @@
                 <p style="color:#888;text-align:center;padding:24px 0;"><i class="fas fa-spinner fa-spin"></i> Načítavam
                     súpisky...</p>
             </div>
-            <p id="academyPlayersStatus" class="muted" style="margin-top:12px;">Načítavam mená hráčov z účtov…</p>
+
         </section>
 
 
@@ -347,7 +347,7 @@
         }
 
         async function loadAcademyPlayers() {
-            const status = document.getElementById('academyPlayersStatus');
+
 
             try {
                 const payload = await cachedFetch(
@@ -373,10 +373,7 @@
 
                 container.innerHTML = html || '<p class="muted" style="text-align:center;padding:24px 0;">Žiadni hráči neboli nájdení.</p>';
 
-                if (status) {
-                    const source = payload.cache === 'HIT' ? 'cache' : 'API';
-                    status.textContent = `Načítaných ${totalPlayers} hráčov zo SportNet (${source})`;
-                }
+
             } catch (error) {
                 console.warn('SportNet direct fetch failed, trying local DB fallback...', error);
                 try {
@@ -387,15 +384,12 @@
                         container.innerHTML = '<p class="muted" style="text-align:center;padding:24px 0;">Nepodarilo sa načítať hráčov.</p>';
                     }
 
-                    if (status) {
-                        status.textContent = error.message || 'Načítanie hráčov sa nepodarilo.';
-                    }
+
                 }
             }
         }
 
         async function loadAcademyPlayersFromDb() {
-            const status = document.getElementById('academyPlayersStatus');
             const CATEGORY_TO_BUCKETS = {
                 dospeli: ['dospeli'],
                 u19_dorast: ['u19'],
@@ -435,9 +429,7 @@
             renderPlayersToList('players-u17', buckets.u17);
             renderPlayersToList('players-u19', buckets.u19);
 
-            if (status) {
-                status.textContent = `Načítané mená hráčov z účtov: ${items.length}`;
-            }
+
         }
 
         async function fetchAndRenderLeagueTable(competitionId, containerId, categoryTitle) {
