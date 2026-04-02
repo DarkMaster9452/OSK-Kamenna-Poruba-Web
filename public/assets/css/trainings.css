@@ -1,4 +1,8 @@
 /* Trainings Section Styles - Modern & Premium - Light Theme */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 :root {
     --primary: #003399;
     --primary-light: #1a5ccc;
@@ -812,16 +816,23 @@ select.input-styled option {
         width: 100%;
         justify-content: space-between;
         align-items: center;
+        background: #f1f5f9;
+        border-radius: 10px;
     }
 
     .attendance-count-vibrant {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+    }
+    
+    .attendance-label-vibrant {
+        font-size: 0.65rem;
+        letter-spacing: 0.3px;
     }
     
     .attendance-overview {
         grid-template-columns: 1fr;
-        padding: 12px;
-        gap: 12px;
+        padding: 10px;
+        gap: 10px;
     }
     
     .glass-card {
