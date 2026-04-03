@@ -1102,6 +1102,7 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
             gap: 10px;
             margin-bottom: 28px;
             overflow: visible;
@@ -1109,28 +1110,34 @@
         }
 
         .standings-tab {
-            padding: 11px 20px;
-            border: 2px solid #003399;
-            border-radius: 25px;
+            padding: 11px 18px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 999px;
             background: #fff;
-            color: #003399;
+            color: #6b7280;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
             white-space: nowrap;
             flex-shrink: 0;
-            min-width: 148px;
+            min-width: 0;
+            min-height: 44px;
             text-align: center;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
         }
 
         .standings-tab:hover {
-            background: #e6eeff;
+            color: #003399;
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(0, 51, 153, 0.14);
         }
 
         .standings-tab.active {
-            background: #003399;
+            background: linear-gradient(180deg, #0a4cc5 0%, #003399 100%);
             color: #fff;
+            border-color: transparent;
+            box-shadow: 0 14px 28px rgba(0, 51, 153, 0.28);
         }
 
         @media (max-width: 768px) {
@@ -1140,9 +1147,9 @@
             }
 
             .standings-tab {
-                min-width: 138px;
-                padding: 10px 16px;
+                padding: 10px 14px;
                 font-size: 14px;
+                min-height: 42px;
             }
         }
 
@@ -4826,6 +4833,7 @@
             const title = group.part && group.part !== group.competition
                 ? `${group.competition} – ${group.part}`
                 : group.competition;
+            const canWrapLeagueTitle = /pr[ií]prav/i.test(String(title || ''));
 
             const rows = teams.map((team, idx) => {
                 const rank = team.rank ?? idx + 1;
@@ -4842,7 +4850,6 @@
                     ? `<span class="standings-rank-qualifier">${rank}</span>`
                     : `<span class="standings-rank">${rank}.</span>`;
                 const goals = `${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}`;
-                const canWrapLeagueTitle = /pr[ií]prav/i.test(String(title || ''));
 
                 return `
                     <tr class="${own ? 'own-team' : ''}" style="${own ? 'background: #f0f5ff;' : ''}">
