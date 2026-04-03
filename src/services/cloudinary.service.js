@@ -159,6 +159,20 @@ function isInsideRootFolder(folderPath, rootFolder) {
   return normalizedFolder === normalizedRoot || normalizedFolder.startsWith(normalizedRoot + '/');
 }
 
+function compareGalleryImages(left, right) {
+  const leftTime = Date.parse(left?.createdAt || '') || 0;
+  const rightTime = Date.parse(right?.createdAt || '') || 0;
+
+  if (leftTime !== rightTime) {
+    return leftTime - rightTime;
+  }
+
+  return String(left?.publicId || '').localeCompare(String(right?.publicId || ''), 'sk', {
+    numeric: true,
+    sensitivity: 'base'
+  });
+}
+
 async function fetchAllImageResources() {
   const resources = [];
   let nextCursor = null;
@@ -193,6 +207,7 @@ async function fetchImagesForAssetFolder(folderPath) {
       if (isDisplayableImage(resource)) {
         images.push({
           url: addAutoTransform(resource.secure_url),
+          createdAt: resource.created_at || '',
           publicId: resource.public_id,
           format: resource.format || ''
         });
@@ -202,6 +217,7 @@ async function fetchImagesForAssetFolder(folderPath) {
     nextCursor = result.next_cursor || null;
   } while (nextCursor);
 
+  images.sort(compareGalleryImages);
   return images;
 }
 
@@ -258,12 +274,17 @@ async function collectAllFolderBlocks() {
 
     grouped.get(folderPath).images.push({
       url: addAutoTransform(resource.secure_url),
+      createdAt: resource.created_at || '',
       publicId: resource.public_id,
       format: resource.format || ''
     });
   }
 
   const blocks = Array.from(grouped.values())
+    .map((block) => ({
+      ...block,
+      images: block.images.slice().sort(compareGalleryImages)
+    }))
     .filter((block) => block.images.length > 0)
     .sort((left, right) => left.path.localeCompare(right.path, 'sk'));
 
