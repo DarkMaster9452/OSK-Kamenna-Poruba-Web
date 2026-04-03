@@ -1134,7 +1134,7 @@
         }
 
         .standings-tab.active {
-            background: linear-gradient(180deg, #0a4cc5 0%, #003399 100%);
+            background: #0b43b8;
             color: #fff;
             border-color: transparent;
             box-shadow: 0 14px 28px rgba(0, 51, 153, 0.28);
@@ -1142,8 +1142,19 @@
 
         @media (max-width: 768px) {
             .standings-tabs {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
                 gap: 8px;
-                justify-content: center;
+                justify-content: initial;
+                align-items: stretch;
+            }
+
+            .standings-tab {
+                width: 100%;
+                min-width: 0;
+                padding: 9px 4px;
+                font-size: 12px;
+                min-height: 42px;
             }
 
             .standings-tab {
@@ -1776,6 +1787,8 @@
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
             line-clamp: 2;
+            font-size: 14px;
+            line-height: 1.2;
         }
 
         .matches-home-actions {
@@ -1811,8 +1824,6 @@
             padding: 9px 12px;
             text-align: left;
             font-size: 11px;
-            color: #888;
-            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -2006,6 +2017,15 @@
                 font-size: 15px;
                 gap: 6px;
                 padding-left: 8px;
+            }
+
+            .idx-standings-title--wrap {
+                font-size: 13px;
+                line-height: 1.18;
+            }
+
+            .idx-standings-title--wrap i {
+                margin-top: 1px;
             }
 
             #goToMatchesBtn,
@@ -2965,6 +2985,16 @@
                 padding-right: 10px;
             }
 
+            .standings-tabs {
+                gap: 6px;
+            }
+
+            .standings-tab {
+                min-height: 40px;
+                padding: 8px 2px;
+                font-size: 11px;
+            }
+
             .standings-table th,
             .standings-table td {
                 padding: 7px 1px !important;
@@ -2997,6 +3027,11 @@
             .idx-standings-title {
                 font-size: 14px;
                 letter-spacing: 0;
+            }
+
+            .idx-standings-title--wrap {
+                font-size: 12.5px;
+                line-height: 1.16;
             }
 
             #goToMatchesBtn,
