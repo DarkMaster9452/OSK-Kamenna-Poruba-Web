@@ -138,6 +138,13 @@ function getCloudinaryDeploySignature() {
   );
 }
 
+function getCloudinaryAccountSignature() {
+  return JSON.stringify({
+    cloudName: String(env.cloudinaryCloudName || ''),
+    rootFolder: String(resolveCloudinaryRootFolder() || '')
+  });
+}
+
 function getCloudinaryCacheSignature() {
   return JSON.stringify({
     cloudName: String(env.cloudinaryCloudName || ''),
@@ -146,23 +153,79 @@ function getCloudinaryCacheSignature() {
   });
 }
 
-function isMatchingCloudinaryCache(payload) {
-  return !!payload && payload.cacheSignature === getCloudinaryCacheSignature();
+function parseCloudinaryCacheSignature(payload) {
+  if (!payload) {
+    return null;
+  }
+
+  if (payload.accountSignature || payload.deploySignature) {
+    return {
+      accountSignature: String(payload.accountSignature || ''),
+      deploySignature: String(payload.deploySignature || '')
+    };
+  }
+
+  try {
+    const parsed = JSON.parse(String(payload.cacheSignature || ''));
+    return {
+      accountSignature: JSON.stringify({
+        cloudName: String(parsed.cloudName || ''),
+        rootFolder: String(parsed.rootFolder || '')
+      }),
+      deploySignature: String(parsed.deploy || '')
+    };
+  } catch (_) {
+    return null;
+  }
 }
 
-async function readCompatibleCloudinaryCache(key) {
+function isMatchingCloudinaryAccountCache(payload) {
+  const parsed = parseCloudinaryCacheSignature(payload);
+  return !!parsed && parsed.accountSignature === getCloudinaryAccountSignature();
+}
+
+function isMatchingCloudinaryDeployCache(payload) {
+  const parsed = parseCloudinaryCacheSignature(payload);
+  return !!parsed && parsed.deploySignature === getCloudinaryDeploySignature();
+}
+
+async function readCompatibleCloudinaryCache(key, { acceptPreviousDeploy = false } = {}) {
   const cached = await readCache(key);
   if (!cached) {
     return null;
   }
 
-  if (isMatchingCloudinaryCache(cached)) {
+  if (!isMatchingCloudinaryAccountCache(cached)) {
+    await invalidateCache(key);
+    console.warn(`[Cloudinary] Ignoring stale cache for ${key} because Cloudinary account configuration changed.`);
+    return null;
+  }
+
+  if (acceptPreviousDeploy || isMatchingCloudinaryDeployCache(cached)) {
     return cached;
   }
 
-  await invalidateCache(key);
-  console.warn(`[Cloudinary] Ignoring stale cache for ${key} because Cloudinary configuration changed.`);
   return null;
+}
+
+function isCloudinaryRateLimitError(message) {
+  return /rate limit exceeded/i.test(String(message || ''));
+}
+
+async function buildRateLimitedCloudinaryResponse(key, resource, fieldName, emptyValue, errorMsg) {
+  const payload = {
+    source: `cloudinary.${resource}.rate_limited`,
+    fetchedAt: new Date().toISOString(),
+    cacheSignature: getCloudinaryCacheSignature(),
+    accountSignature: getCloudinaryAccountSignature(),
+    deploySignature: getCloudinaryDeploySignature(),
+    warning: errorMsg,
+    temporaryUnavailable: true,
+    [fieldName]: emptyValue
+  };
+
+  await writeCache(key, payload, 5 * 60 * 1000);
+  return { ...payload, cache: 'COOLDOWN' };
 }
 
 function normalizeFolderPath(folderPath) {
@@ -347,6 +410,8 @@ async function getTimelineData({ forceRefresh = false } = {}) {
       source: 'cloudinary.timeline',
       fetchedAt: new Date().toISOString(),
       cacheSignature: getCloudinaryCacheSignature(),
+      accountSignature: getCloudinaryAccountSignature(),
+      deploySignature: getCloudinaryDeploySignature(),
       folders
     };
 
@@ -361,9 +426,12 @@ async function getTimelineData({ forceRefresh = false } = {}) {
   } catch (error) {
     const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
     console.error(`[Cloudinary] Failed to fetch timeline data: ${errorMsg}`);
-    const staleObj = await readCompatibleCloudinaryCache('cloudinary_timeline');
+    const staleObj = await readCompatibleCloudinaryCache('cloudinary_timeline', { acceptPreviousDeploy: true });
     if (staleObj) {
       return { ...staleObj, cache: 'STALE', warning: errorMsg };
+    }
+    if (isCloudinaryRateLimitError(errorMsg)) {
+      return buildRateLimitedCloudinaryResponse('cloudinary_timeline', 'timeline', 'folders', [], errorMsg);
     }
     const err = new Error('Nepodarilo sa nacitat data z Cloudinary: ' + errorMsg);
     err.status = 502;
@@ -408,6 +476,8 @@ async function getRootAssets({ forceRefresh = false } = {}) {
       source: 'cloudinary.assets',
       fetchedAt: new Date().toISOString(),
       cacheSignature: getCloudinaryCacheSignature(),
+      accountSignature: getCloudinaryAccountSignature(),
+      deploySignature: getCloudinaryDeploySignature(),
       cloudName: env.cloudinaryCloudName,
       assets
     };
@@ -418,9 +488,12 @@ async function getRootAssets({ forceRefresh = false } = {}) {
     return { ...normalized, cache: 'MISS' };
   } catch (error) {
     const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
-    const staleObj = await readCompatibleCloudinaryCache('cloudinary_assets');
+    const staleObj = await readCompatibleCloudinaryCache('cloudinary_assets', { acceptPreviousDeploy: true });
     if (staleObj) {
       return { ...staleObj, cache: 'STALE', warning: errorMsg };
+    }
+    if (isCloudinaryRateLimitError(errorMsg)) {
+      return buildRateLimitedCloudinaryResponse('cloudinary_assets', 'assets', 'assets', [], errorMsg);
     }
     const err = new Error('Nepodarilo sa nacitat assety z Cloudinary: ' + errorMsg);
     err.status = 502;

@@ -533,6 +533,13 @@
                 const folders = Array.isArray(data.folders) ? data.folders : [];
                 console.log(`[Gallery] Received ${folders.length} folders from API (v.${data.fetchedAt || 'unknown'})`);
 
+                if (data.temporaryUnavailable) {
+                    console.warn('[Gallery] Cloudinary is temporarily unavailable:', data.warning || 'Unknown error');
+                    CLOUDINARY_ALBUMS = {};
+                    cloudinaryAlbumMeta = [];
+                    return;
+                }
+
                 if (!folders.length && !forceRefresh) {
                     console.warn('[Gallery] Empty Cloudinary response, retrying with refresh=1.');
                     await loadCloudinaryAlbums(true);
