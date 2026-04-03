@@ -1017,6 +1017,125 @@
                 padding-left: 5px !important;
             }
         }
+
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+
+            .container {
+                padding: 0 10px;
+            }
+
+            .table-wrap {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden !important;
+            }
+
+            .standings-table {
+                width: 100% !important;
+                min-width: 0 !important;
+                table-layout: fixed;
+            }
+
+            .standings-table th,
+            .standings-table td {
+                padding: 8px 2px !important;
+                font-size: 10px !important;
+                line-height: 1.15;
+            }
+
+            .standings-rank-cell {
+                width: 26px !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .standings-rank-cell .standings-rank {
+                padding-left: 0 !important;
+                justify-content: center;
+            }
+
+            .standings-table th.center,
+            .standings-table td.center {
+                width: 9.5% !important;
+            }
+
+            .standings-table th:nth-child(2),
+            .standings-table td:nth-child(2) {
+                width: 31% !important;
+            }
+
+            .standings-table th:nth-child(7),
+            .standings-table td:nth-child(7) {
+                width: 15% !important;
+                min-width: 0 !important;
+            }
+
+            .standings-team-cell {
+                display: flex;
+                align-items: center;
+                gap: 0 !important;
+                min-width: 0;
+            }
+
+            .standings-team-cell img,
+            .standings-team-cell .standings-team-abbr {
+                display: none !important;
+            }
+
+            .standings-team-name {
+                width: 100%;
+                max-width: none !important;
+                font-size: 10px !important;
+                line-height: 1.15;
+                white-space: normal !important;
+                overflow: visible !important;
+                text-overflow: clip !important;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .standings-points {
+                font-size: 11px !important;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 0 8px;
+            }
+
+            .standings-table th,
+            .standings-table td {
+                padding: 7px 1px !important;
+                font-size: 9px !important;
+            }
+
+            .standings-table th.center,
+            .standings-table td.center {
+                width: 10% !important;
+            }
+
+            .standings-table th:nth-child(2),
+            .standings-table td:nth-child(2) {
+                width: 29% !important;
+            }
+
+            .standings-table th:nth-child(7),
+            .standings-table td:nth-child(7) {
+                width: 16% !important;
+            }
+
+            .standings-team-name {
+                font-size: 9px !important;
+            }
+
+            .standings-points {
+                font-size: 10px !important;
+            }
+        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
