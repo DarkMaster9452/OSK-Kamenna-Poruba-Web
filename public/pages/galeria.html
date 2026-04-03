@@ -444,7 +444,6 @@
         let cloudinaryAlbumMeta = [];
 
         const FOLDER_BLACKLIST = ['blog', 'Sponzori'];
-        const PHOTO_HIDDEN_FOLDERS = ['OSK Kamenna poruba', 'OŠK Kamenná Poruba'];
 
         const FOLDER_TEXT_CONFIG = {
             'História': { year: 'Historické' },
@@ -475,24 +474,6 @@
                 .replace(/[\u0300-\u036f]/g, '')
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/^-+|-+$/g, '') || 'ostatne';
-        }
-
-        function normalizeFolderMatchName(name) {
-            return String(name || '')
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
-        }
-
-        function isPhotoHiddenFolder(pathParts) {
-            return pathParts.some(function (part) {
-                var normalizedPart = normalizeFolderMatchName(part);
-                return PHOTO_HIDDEN_FOLDERS.some(function (hiddenFolder) {
-                    return normalizedPart === normalizeFolderMatchName(hiddenFolder);
-                });
-            });
         }
 
         function getFolderPathParts(path) {
@@ -564,7 +545,6 @@
                     const fullPath = folder.path || folder.folder || '';
                     const pathParts = getFolderPathParts(fullPath);
                     const leafName = pathParts[pathParts.length - 1] || 'Ostatné';
-                    const hideFolderImages = isPhotoHiddenFolder(pathParts);
 
                     // Skip blacklisted folders
                     if (FOLDER_BLACKLIST.some(function (b) {
@@ -577,8 +557,6 @@
                         return { src: img.url, alt: leafName };
                     });
                     if (!sourceImages.length) return;
-
-                    const images = hideFolderImages ? [] : sourceImages;
 
                     var folderInfo = getCloudinaryFolderInfo(fullPath);
                     if (!folderInfo) return;
@@ -605,18 +583,14 @@
                     });
 
                     if (existingSubfolder) {
-                        existingSubfolder.images = existingSubfolder.images.concat(images);
-                        existingSubfolder.totalImageCount += sourceImages.length;
-                        existingSubfolder.hiddenImages = existingSubfolder.hiddenImages || hideFolderImages;
+                        existingSubfolder.images = existingSubfolder.images.concat(sourceImages);
                         return;
                     }
 
                     CLOUDINARY_ALBUMS[key].subfolders.push({
                         name: folderInfo.subfolderName,
                         path: fullPath,
-                        images: images,
-                        totalImageCount: sourceImages.length,
-                        hiddenImages: hideFolderImages
+                        images: sourceImages
                     });
                 });
 
@@ -716,7 +690,6 @@
             } else {
                 const albumData = CLOUDINARY_ALBUMS[currentAlbum];
                 if (!albumData) return;
-                let emptyMessage = 'Žiadne fotky v tomto albume.';
 
                 const isHistory = albumData.label === 'Historické';
 
@@ -732,9 +705,6 @@
                 if (currentSubfolderIndex !== null) {
                     const subfolder = albumData.subfolders[currentSubfolderIndex];
                     itemsToShow = subfolder.images.map(img => makeCloudinaryItem(img, currentAlbum));
-                    if (subfolder.hiddenImages) {
-                        emptyMessage = 'Fotky v tomto folderi sa v galérii nezobrazujú.';
-                    }
 
                     backNav.style.display = 'flex';
                     document.getElementById('currentEventName').textContent = subfolder.name;
@@ -744,9 +714,6 @@
                     albumData.subfolders.forEach(sub => {
                         itemsToShow = itemsToShow.concat(sub.images.map(img => makeCloudinaryItem(img, currentAlbum)));
                     });
-                    if (!itemsToShow.length && albumData.subfolders.some(function (sub) { return sub.hiddenImages; })) {
-                        emptyMessage = 'Fotky v niektorých folderoch sa v galérii nezobrazujú.';
-                    }
                 }
 
                 // Only show album info if it adds extra context (explicit title or bullet points)
@@ -763,7 +730,7 @@
             }
 
             if (!itemsToShow.length) {
-                grid.innerHTML = '<div class="empty-msg">' + (typeof emptyMessage === 'string' ? emptyMessage : 'Žiadne fotky v tomto albume.') + '</div>';
+                grid.innerHTML = '<div class="empty-msg">Žiadne fotky v tomto albume.</div>';
                 document.getElementById('loadMoreBtn').hidden = true;
                 return;
             }
@@ -781,7 +748,7 @@
                 card.innerHTML = `
                     <i class="fas fa-folder"></i>
                     <h4 class="folder-card-name">${sub.name}</h4>
-                    <span class="folder-card-count">${sub.totalImageCount || sub.images.length} fotiek</span>
+                    <span class="folder-card-count">${sub.images.length} fotiek</span>
                 `;
                 card.onclick = () => {
                     currentSubfolderIndex = index;

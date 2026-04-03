@@ -2606,6 +2606,53 @@
             color: #b42318;
         }
 
+        .modal-action-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .modal-action-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .modal-action-button {
+            width: 100%;
+            min-height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .modal-action-button--danger {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .modal-action-button--warning {
+            background: #ffd700;
+            color: #003399;
+        }
+
+        .modal-action-button--info {
+            background: #1a5ccc;
+            color: #fff;
+        }
+
+        .modal-action-button--neutral {
+            background: #999;
+            color: #fff;
+        }
+
         @media screen and (max-width: 480px) {
 
             .modal-content,
@@ -2618,6 +2665,10 @@
             .logout-modal-header {
                 margin-bottom: 18px;
                 padding-bottom: 12px;
+            }
+
+            .modal-action-row {
+                flex-direction: column;
             }
         }
 
@@ -3446,13 +3497,14 @@
                 <p>Ste prihlásený ako <b id="logoutUserName"></b>.</p>
                 <p>Čo chcete urobiť?</p>
             </div>
-            <button class="btn btn-primary" style="width:100%;margin-bottom:10px;background:#e74c3c;color:white;"
-                onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Odhlásiť sa</button>
-            <button class="btn btn-secondary" style="width:100%;margin-bottom:10px;background:#ffd700;color:#003399;"
-                onclick="handleSwitchAccount()"><i class="fas fa-user-switch"></i> Prepnúť účet</button>
-            <button class="btn btn-secondary"
-                style="width:fit-content;display:flex;margin:0 auto 0;padding:7px 12px;font-size:12px;background:#1a5ccc;color:#fff;"
-                onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Zmeniť heslo</button>
+            <div class="modal-action-stack">
+                <button class="btn btn-primary modal-action-button modal-action-button--danger"
+                    onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Odhlásiť sa</button>
+                <button class="btn btn-secondary modal-action-button modal-action-button--warning"
+                    onclick="handleSwitchAccount()"><i class="fas fa-user-switch"></i> Prepnúť účet</button>
+                <button class="btn btn-secondary modal-action-button modal-action-button--info"
+                    onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Zmeniť heslo</button>
+            </div>
         </div>
     </div>
 
@@ -3482,11 +3534,11 @@
                 </div>
                 <div id="changePasswordError" style="display:none;color:#e74c3c;font-weight:bold;font-size:15px;"></div>
             </div>
-            <div style="display:flex;gap:10px;margin-top:20px;">
-                <button class="btn btn-primary" style="flex:1;font-size:15px;padding:12px 14px;"
+            <div class="modal-action-row">
+                <button class="btn btn-primary modal-action-button" style="flex:1;"
                     onclick="submitPasswordChange()">Uložiť zmeny</button>
-                <button class="btn btn-secondary"
-                    style="flex:1;background:#999;color:#fff;font-size:15px;padding:12px 14px;"
+                <button class="btn btn-secondary modal-action-button modal-action-button--neutral"
+                    style="flex:1;"
                     onclick="closeChangePasswordModal()">Zrušiť</button>
             </div>
         </div>
