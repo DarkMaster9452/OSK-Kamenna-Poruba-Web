@@ -180,7 +180,7 @@
             '            <ul style="color: rgba(255,255,255,0.8); font-size: 14px;">',
             '                <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; justify-content: inherit;">',
             '                    <i class="fas fa-envelope" style="color: #ffd700;"></i>',
-            '                    <a href="mailto:oskkamennaporuba@gmail.com">oskkamennaporuba@gmail.com</a>',
+            '                  oskkamennaporuba@gmail.com',
             '                </li>',
             '                <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; justify-content: inherit;">',
             '                    <i class="fas fa-location-dot" style="color: #ffd700;"></i>',
