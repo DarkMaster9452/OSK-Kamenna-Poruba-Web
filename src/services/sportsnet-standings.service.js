@@ -16,6 +16,7 @@
 
 const env = require('../config/env');
 const { readCache, writeCache } = require('./cache');
+const { resolveTeamLogo } = require('./sportsnet.service');
 
 const SUTAZE_BASE = 'https://sutaze.api.sportnet.online/api/v2';
 const APP_SPACE = env.sportnetAppSpace || 'osk-kamenna-poruba.futbalnet.sk';
@@ -76,14 +77,16 @@ function extractArray(data, ...keys) {
  *   row.team.name,   row.stats.matches.{played,won,lost,draw},
  *   row.stats.goals.{given,received}, row.stats.points
  */
-function normalizeRow(r, idx) {
+async function normalizeRow(r, idx) {
   const m = r.stats?.matches || {};
   const g = r.stats?.goals   || {};
   const s = r.stats          || {};
+  const teamLogo = await resolveTeamLogo(r.team || null);
   return {
     rank:         idx + 1,
     teamId:       r.team?._id   || r.teamId || '',
     teamName:     r.team?.name  || r.teamName || r.name || 'Tím',
+    teamLogo,
     played:       m.played      ?? s.gamesPlayed ?? s.played  ?? 0,
     won:          m.won         ?? s.wins        ?? s.won     ?? 0,
     drawn:        m.draw        ?? m.drawn       ?? s.draws   ?? s.drawn ?? 0,
@@ -226,7 +229,7 @@ async function fetchSportsnetStandings({ forceRefresh = false } = {}) {
               part:          partName,
               partId,
               teamCategory:  team.ageCategory || null,
-              results:       rows.map(normalizeRow)
+              results:       await Promise.all(rows.map(normalizeRow))
             });
           }
         } catch (e) {

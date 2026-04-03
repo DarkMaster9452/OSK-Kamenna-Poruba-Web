@@ -1332,6 +1332,13 @@
                     { method: 'GET', headers: { Accept: 'application/json' } }
                 );
                 STANDINGS = Array.isArray(payload.standings) ? payload.standings : [];
+                STANDINGS.forEach((group) => {
+                    (group.results || []).forEach((team) => {
+                        if (team.teamName && team.teamLogo) {
+                            registerClubLogo(team.teamName, team.teamLogo);
+                        }
+                    });
+                });
             } catch (error) {
                 STANDINGS = [];
                 console.warn('Nepodarilo sa načítať tabuľku.', error);

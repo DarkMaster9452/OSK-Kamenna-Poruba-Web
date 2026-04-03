@@ -4663,6 +4663,14 @@
 
                 const groups = Array.isArray(payload?.standings) ? payload.standings : [];
 
+                groups.forEach((group) => {
+                    (group.results || []).forEach((team) => {
+                        if (team.teamName && team.teamLogo) {
+                            registerClubLogo(team.teamName, team.teamLogo);
+                        }
+                    });
+                });
+
                 // Only show groups where OŠK Kamenná Poruba plays
                 const ownGroups = groups.filter(g =>
                     (g.results || []).some(t => idxIsOwnTeam(t.teamName || t.name))

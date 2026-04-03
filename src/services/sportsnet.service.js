@@ -993,5 +993,6 @@ async function fetchSportsnetMatchDetail(matchId, { forceRefresh = false } = {})
 
 module.exports = {
   fetchSportsnetMatches,
-  fetchSportsnetMatchDetail
+  fetchSportsnetMatchDetail,
+  resolveTeamLogo
 };
