@@ -187,6 +187,12 @@
             .squad-table td {
                 padding: 8px 3px !important;
                 font-size: 11px;
+                width: auto !important; /* Allow columns to shrink on mobile */
+            }
+
+            .standings-table,
+            .squad-table {
+                min-width: 480px !important; /* Reduced from 720px to bring variables closer */
             }
 
             .standings-team-name,
