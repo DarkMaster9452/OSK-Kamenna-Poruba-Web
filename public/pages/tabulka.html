@@ -444,7 +444,12 @@
             white-space: normal;
             overflow: visible;
             text-overflow: clip;
-            display: block;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            font-size: 14px;
+            line-height: 1.2;
         }
 
         .standings-table {
@@ -1056,6 +1061,22 @@
                 padding: 0 10px;
             }
 
+            .standings-tabs {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 8px;
+                align-items: stretch;
+            }
+
+            .standings-tab {
+                width: 100%;
+                min-width: 0;
+                min-height: 42px;
+                padding: 9px 4px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+
             .table-wrap {
                 width: 100%;
                 max-width: 100%;
@@ -1137,11 +1158,26 @@
                 line-height: 1.26;
                 margin-bottom: 14px;
             }
+
+            .standings-league-title--wrap {
+                font-size: 13px;
+                line-height: 1.18;
+            }
         }
 
         @media (max-width: 420px) {
             .container {
                 padding: 0 8px;
+            }
+
+            .standings-tabs {
+                gap: 6px;
+            }
+
+            .standings-tab {
+                min-height: 40px;
+                padding: 8px 2px;
+                font-size: 11px;
             }
 
             .standings-table th,
@@ -1179,6 +1215,11 @@
                 padding-left: 8px;
                 padding-right: 6px;
                 line-height: 1.24;
+            }
+
+            .standings-league-title--wrap {
+                font-size: 12.5px;
+                line-height: 1.16;
             }
         }
     </style>
