@@ -1,6 +1,6 @@
 const cloudinary = require('cloudinary').v2;
 const env = require('../config/env');
-const { readCache, writeCache } = require('./cache');
+const { readCache, writeCache, invalidateCache } = require('./cache');
 
 let configured = false;
 
@@ -112,7 +112,7 @@ async function listAllSubFolders(folderPath) {
 }
 
 const GALLERY_FOLDER_BLACKLIST = new Set(['blog', 'sponzori']);
-const DEFAULT_CLOUDINARY_ROOT_FOLDER = 'OSK Kamenna Poruba';
+const DEFAULT_CLOUDINARY_ROOT_FOLDER = '';
 
 function getFolderSegments(folderPath) {
   return String(folderPath || '')
@@ -127,6 +127,32 @@ function isGalleryFolderAllowed(folderPath) {
 
 function resolveCloudinaryRootFolder() {
   return normalizeFolderPath(env.cloudinaryRootFolder || DEFAULT_CLOUDINARY_ROOT_FOLDER);
+}
+
+function getCloudinaryCacheSignature() {
+  return JSON.stringify({
+    cloudName: String(env.cloudinaryCloudName || ''),
+    rootFolder: String(resolveCloudinaryRootFolder() || '')
+  });
+}
+
+function isMatchingCloudinaryCache(payload) {
+  return !!payload && payload.cacheSignature === getCloudinaryCacheSignature();
+}
+
+async function readCompatibleCloudinaryCache(key) {
+  const cached = await readCache(key);
+  if (!cached) {
+    return null;
+  }
+
+  if (isMatchingCloudinaryCache(cached)) {
+    return cached;
+  }
+
+  await invalidateCache(key);
+  console.warn(`[Cloudinary] Ignoring stale cache for ${key} because Cloudinary configuration changed.`);
+  return null;
 }
 
 function normalizeFolderPath(folderPath) {
@@ -298,7 +324,7 @@ async function getTimelineData({ forceRefresh = false } = {}) {
   }
 
   if (!forceRefresh) {
-    const cached = await readCache('cloudinary_timeline');
+    const cached = await readCompatibleCloudinaryCache('cloudinary_timeline');
     if (cached) {
       return { ...cached, cache: 'HIT' };
     }
@@ -310,6 +336,7 @@ async function getTimelineData({ forceRefresh = false } = {}) {
     const normalized = {
       source: 'cloudinary.timeline',
       fetchedAt: new Date().toISOString(),
+      cacheSignature: getCloudinaryCacheSignature(),
       folders
     };
 
@@ -324,7 +351,7 @@ async function getTimelineData({ forceRefresh = false } = {}) {
   } catch (error) {
     const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
     console.error(`[Cloudinary] Failed to fetch timeline data: ${errorMsg}`);
-    const staleObj = await readCache('cloudinary_timeline');
+    const staleObj = await readCompatibleCloudinaryCache('cloudinary_timeline');
     if (staleObj) {
       return { ...staleObj, cache: 'STALE', warning: errorMsg };
     }
@@ -342,7 +369,7 @@ async function getRootAssets({ forceRefresh = false } = {}) {
   const rootFolder = resolveCloudinaryRootFolder();
 
   if (!forceRefresh) {
-    const cached = await readCache('cloudinary_assets');
+    const cached = await readCompatibleCloudinaryCache('cloudinary_assets');
     if (cached) {
       return { ...cached, cache: 'HIT' };
     }
@@ -370,6 +397,7 @@ async function getRootAssets({ forceRefresh = false } = {}) {
     const normalized = {
       source: 'cloudinary.assets',
       fetchedAt: new Date().toISOString(),
+      cacheSignature: getCloudinaryCacheSignature(),
       cloudName: env.cloudinaryCloudName,
       assets
     };
@@ -380,7 +408,7 @@ async function getRootAssets({ forceRefresh = false } = {}) {
     return { ...normalized, cache: 'MISS' };
   } catch (error) {
     const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
-    const staleObj = await readCache('cloudinary_assets');
+    const staleObj = await readCompatibleCloudinaryCache('cloudinary_assets');
     if (staleObj) {
       return { ...staleObj, cache: 'STALE', warning: errorMsg };
     }
