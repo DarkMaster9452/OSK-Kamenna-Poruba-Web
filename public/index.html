@@ -1742,6 +1742,23 @@
             margin: 0 auto 15px;
         }
 
+        .idx-standings-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 14px;
+            padding-left: 10px;
+            border-left: 5px solid #ffd700;
+            color: #003399;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .standings-table {
             width: 100%;
             border-collapse: collapse;
@@ -1838,8 +1855,11 @@
         }
 
         .standings-team-name {
-            font-weight: 600;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 700;
             color: #1a1a1a;
+            letter-spacing: 0;
+            text-transform: none;
         }
 
         .standings-team-name.own-team {
@@ -1943,6 +1963,12 @@
             .standings-points {
                 font-size: 13px;
             }
+
+            .idx-standings-title {
+                font-size: 13px;
+                gap: 6px;
+                padding-left: 8px;
+            }
         }
 
         /* MODERN MATCH CARD RESPONSIVE STYLES */
@@ -2019,6 +2045,10 @@
             margin-top: 30px;
         }
 
+        .contact-grid > div {
+            min-width: 0;
+        }
+
         .contact-info-box,
         .contact-form-box {
             background: white;
@@ -2026,6 +2056,54 @@
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             border: 1px solid #f0f0f0;
+        }
+
+        .contact-form-box {
+            min-width: 0;
+        }
+
+        .contact-recaptcha-wrap {
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .contact-recaptcha-wrap .g-recaptcha {
+            transform-origin: left top;
+        }
+
+        @media (max-width: 768px) {
+            .contact-grid {
+                gap: 20px !important;
+            }
+
+            .contact-info-box,
+            .contact-form-box {
+                padding: 20px !important;
+            }
+
+            .contact-recaptcha-wrap {
+                min-height: 74px;
+            }
+
+            .contact-recaptcha-wrap .g-recaptcha {
+                transform: scale(0.86);
+            }
+        }
+
+        @media (max-width: 420px) {
+            .contact-info-box,
+            .contact-form-box {
+                padding: 16px !important;
+            }
+
+            .contact-recaptcha-wrap {
+                min-height: 68px;
+            }
+
+            .contact-recaptcha-wrap .g-recaptcha {
+                transform: scale(0.78);
+            }
         }
 
         /* table-wrap for horizontal scroll */
@@ -2869,6 +2947,11 @@
             .standings-points {
                 font-size: 10px !important;
             }
+
+            .idx-standings-title {
+                font-size: 12px;
+                letter-spacing: 0;
+            }
         }
     </style>
     <link rel="icon" type="image/png"
@@ -3162,8 +3245,9 @@
                         <div id="contactFormMessage" role="status" aria-live="polite"
                             style="display:none; margin-bottom: 14px; padding: 10px; border-radius: 8px;"></div>
                         <!-- reCAPTCHA – nahraď YOUR_SITE_KEY svojím kľúčom -->
-                        <div class="g-recaptcha" data-sitekey="6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI"
-                            style="margin-bottom: 16px;"></div>
+                        <div class="contact-recaptcha-wrap">
+                            <div class="g-recaptcha" data-sitekey="6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI"></div>
+                        </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Poslať
                             správu</button>
                     </form>

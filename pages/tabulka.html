@@ -420,6 +420,20 @@
             text-transform: uppercase;
         }
 
+        .standings-league-title {
+            font-size: 15px;
+            color: #003399;
+            margin-bottom: 15px;
+            border-left: 5px solid #ffd700;
+            padding-left: 12px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .standings-table {
             width: 100%;
             border-collapse: collapse;
@@ -657,10 +671,13 @@
         }
 
         .standings-team-name {
-            font-weight: 600;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 700;
             color: #1a1a1a;
             min-width: 0;
             display: block;
+            letter-spacing: 0;
+            text-transform: none;
         }
 
         .standings-team-name.own-team {
@@ -1100,6 +1117,11 @@
             .standings-points {
                 font-size: 11px !important;
             }
+
+            .standings-league-title {
+                font-size: 13px;
+                padding-left: 10px;
+            }
         }
 
         @media (max-width: 420px) {
@@ -1134,6 +1156,12 @@
 
             .standings-points {
                 font-size: 10px !important;
+            }
+
+            .standings-league-title {
+                font-size: 12px;
+                letter-spacing: 0;
+                padding-left: 8px;
             }
         }
     </style>
@@ -1521,7 +1549,7 @@
 
             return `
                 <div class="standings-group" style="margin-bottom: 30px;">
-                    <h4 style="font-size: 18px; color: #003399; margin-bottom: 15px; border-left: 5px solid #ffd700; padding-left: 12px; font-weight: 800; text-transform: uppercase;">
+                    <h4 class="standings-league-title">
                         ${label}
                     </h4>
                     <div class="table-wrap" style="border: 1px solid #e6ebf3; border-radius: 12px; background: #fff; max-width: 100%;">
