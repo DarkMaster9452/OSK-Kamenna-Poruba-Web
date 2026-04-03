@@ -129,10 +129,20 @@ function resolveCloudinaryRootFolder() {
   return normalizeFolderPath(env.cloudinaryRootFolder || DEFAULT_CLOUDINARY_ROOT_FOLDER);
 }
 
+function getCloudinaryDeploySignature() {
+  return String(
+    process.env.VERCEL_DEPLOYMENT_ID
+    || process.env.VERCEL_URL
+    || process.env.VERCEL_GIT_COMMIT_SHA
+    || ''
+  );
+}
+
 function getCloudinaryCacheSignature() {
   return JSON.stringify({
     cloudName: String(env.cloudinaryCloudName || ''),
-    rootFolder: String(resolveCloudinaryRootFolder() || '')
+    rootFolder: String(resolveCloudinaryRootFolder() || ''),
+    deploy: getCloudinaryDeploySignature()
   });
 }
 
