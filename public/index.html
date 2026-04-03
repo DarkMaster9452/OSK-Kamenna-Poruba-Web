@@ -3139,7 +3139,7 @@
         style="background-image: url('/assets/images/pexels-nicolas-langellotti-28179636-26937402.jpg');">
         <span class="hero-welcome">Vitajte na</span>
         <h1 class="hero-title">OŠK Kamenná Poruba</h1>
-        <p>Výnimočnosť vo futbale, hrdosť komunity</p>
+        <p>Jeden tím, jedno srdce, jedna vášeň</p>
         <div class="hero-buttons">
             <button class="btn btn-primary" onclick="document.getElementById('matches').scrollIntoView()">Zobraziť
                 zápasy</button>
@@ -4922,13 +4922,29 @@
             return 'dospeli';
         }
 
+        function detectHomepageMatchCategory(competition) {
+            const text = String(competition || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+
+            if (text.includes('u9') || text.includes('u09') || text.includes('mladsich priprav')) return 'u09_pripravka';
+            if (text.includes('u11') || text.includes('priprav')) return 'u11_pripravka';
+            if (text.includes('u13') || text.includes('mladsi ziaci') || text.includes('mladsich ziakov')) return 'u13_ziaci';
+            if (text.includes('u15') || text.includes('starsi ziaci') || text.includes('starsich ziakov')) return 'u15_ziaci';
+            if (text.includes('dorast') || text.includes('u17') || text.includes('u19')) return 'u19_dorast';
+            return 'dospeli';
+        }
+
         function getMatchCategoryLabel(competition) {
-            const cat = detectStandingsCategory(competition, '');
+            const cat = detectHomepageMatchCategory(competition);
             const labels = {
                 'dospeli': 'DOSPELÍ (MUŽI)',
-                'dorast': 'DORAST U19',
-                'ziaci': 'STARŠÍ ŽIACI U15',
-                'pripravka': 'PRÍPRAVKA'
+                'u19_dorast': 'DORAST U19',
+                'u15_ziaci': 'STARŠÍ ŽIACI U15',
+                'u13_ziaci': 'MLADŠÍ ŽIACI U13',
+                'u11_pripravka': 'PRÍPRAVKA U11',
+                'u09_pripravka': 'PRÍPRAVKA U09'
             };
             return labels[cat] || 'A-Tím';
         }
