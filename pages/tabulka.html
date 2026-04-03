@@ -354,7 +354,7 @@
 
         /* Standings category tabs */
         .standings-tabs {
-            font-size: 17px;
+            display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 8px;
@@ -365,46 +365,26 @@
             padding: 8px 18px;
             border: 1px solid #dcdde1;
             border-radius: 20px;
-
-            .standings-league-title--wrap {
-                white-space: normal;
-                overflow: visible;
-                text-overflow: clip;
-                display: -webkit-box;
-                -webkit-box-orient: vertical;
-                -webkit-line-clamp: 2;
-                line-clamp: 2;
-            }
-
             background: #fff;
             color: #57606f;
-            font-size: 15px;
+            font-weight: 600;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            font-size: 14px;
+            justify-content: center;
         }
 
         .standings-tab:hover {
             border-color: #003399;
             color: #003399;
-
-            const goals=`$ {
-                team.goalsFor ?? 0
-            }
-
-            :$ {
-                team.goalsAgainst ?? 0
-            }
-
-            `;
-            const canWrapLeagueTitle=/pr[ií]prav/i.test(String(label || ''));
+            background: rgba(0, 51, 153, 0.05);
         }
 
         .standings-tab.active {
-            <h4 class="standings-league-title${canWrapLeagueTitle ? ' standings-league-title--wrap' : ''}">color: #fff;
+            background: #003399;
+            color: #fff;
             border-color: #003399;
             box-shadow: 0 4px 10px rgba(0, 51, 153, 0.2);
         }
@@ -441,7 +421,7 @@
         }
 
         .standings-league-title {
-            font-size: 15px;
+            font-size: 17px;
             color: #003399;
             margin-bottom: 15px;
             border-left: 5px solid #ffd700;
@@ -452,6 +432,16 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .standings-league-title--wrap {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
         }
 
         .standings-table {
@@ -1139,7 +1129,7 @@
             }
 
             .standings-league-title {
-                font-size: 13px;
+                font-size: 15px;
                 padding-left: 10px;
             }
         }
@@ -1179,7 +1169,7 @@
             }
 
             .standings-league-title {
-                font-size: 12px;
+                font-size: 14px;
                 letter-spacing: 0;
                 padding-left: 8px;
             }
@@ -1545,6 +1535,7 @@
                     ? `<span class="standings-rank-qualifier">${rank}</span>`
                     : `<span class="standings-rank">${rank}.</span>`;
                 const goals = `${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}`;
+                const canWrapLeagueTitle = /pr[ií]prav/i.test(String(label || ''));
 
                 return `
                     <tr class="${own ? 'own-team' : ''}">
@@ -1569,7 +1560,7 @@
 
             return `
                 <div class="standings-group" style="margin-bottom: 30px;">
-                    <h4 class="standings-league-title">
+                    <h4 class="standings-league-title${canWrapLeagueTitle ? ' standings-league-title--wrap' : ''}">
                         ${label}
                     </h4>
                     <div class="table-wrap" style="border: 1px solid #e6ebf3; border-radius: 12px; background: #fff; max-width: 100%;">
