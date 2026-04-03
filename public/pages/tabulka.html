@@ -503,6 +503,14 @@
             gap: 12px;
         }
 
+        .standings-team-logo {
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            flex-shrink: 0;
+            display: block;
+        }
+
         .standings-team-abbr {
             width: 30px;
             height: 30px;
@@ -651,6 +659,8 @@
         .standings-team-name {
             font-weight: 600;
             color: #1a1a1a;
+            min-width: 0;
+            display: block;
         }
 
         .standings-team-name.own-team {
@@ -959,14 +969,15 @@
 
             /* Table optimization for tiny screens - SHOW ALL 9 COLUMNS */
             .table-wrap {
+                max-width: 100%;
                 overflow-x: auto;
-                /* Changed to auto to allow small scroll if needed */
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-x: contain;
                 border-radius: 8px;
             }
 
             .standings-table {
-                min-width: 480px !important;
-                /* Force closer columns on mobile */
+                min-width: 560px !important;
             }
 
             .standings-table th,
@@ -988,7 +999,7 @@
             }
 
             .standings-team-name {
-                max-width: 90px !important;
+                max-width: 104px !important;
                 font-size: 10px;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -1189,7 +1200,7 @@
             size = size || 24;
             const logo = getClubLogo(name);
             if (logo) {
-                return `<img src="${logo}" alt="${name}" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:50%;background:#fff;flex-shrink:0;">`;
+                return `<img src="${logo}" alt="${name}" class="standings-team-logo" style="width:${size}px;height:${size}px;">`;
             }
             const abbr = String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
             const own = isOwnTeam(name);
@@ -1360,7 +1371,9 @@
                 const diffClass = diff > 0 ? 'standings-diff-pos' : (diff < 0 ? 'standings-diff-neg' : '');
                 const own = isOwnTeam(name);
                 const qualifies = rank <= qualifyCount && teams.length > qualifyCount;
-                const logoImg = buildClubLogoImg(name, 30);
+                const logoImg = team.teamLogo
+                    ? `<img src="${team.teamLogo}" alt="${name}" class="standings-team-logo" style="width:30px;height:30px;">`
+                    : buildClubLogoImg(name, 30);
                 const rankCell = qualifies
                     ? `<span class="standings-rank-qualifier">${rank}</span>`
                     : `<span class="standings-rank">${rank}.</span>`;
@@ -1392,7 +1405,7 @@
                     <h4 style="font-size: 18px; color: #003399; margin-bottom: 15px; border-left: 5px solid #ffd700; padding-left: 12px; font-weight: 800; text-transform: uppercase;">
                         ${label}
                     </h4>
-                    <div class="table-wrap" style="border: 1px solid #e6ebf3; border-radius: 12px; overflow: hidden; background: #fff;">
+                    <div class="table-wrap" style="border: 1px solid #e6ebf3; border-radius: 12px; background: #fff; max-width: 100%;">
                         <table class="standings-table">
                             <thead style="background: #f8fbff; border-bottom: 2px solid #eef4ff;">
                                 <tr>
