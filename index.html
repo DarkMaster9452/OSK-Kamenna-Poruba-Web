@@ -1356,9 +1356,17 @@
         }
 
         @keyframes pulse-light {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         .match-card-main {
@@ -1446,7 +1454,7 @@
             background: #003399;
             padding: 10px 18px;
             border-radius: 14px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             box-shadow: 0 4px 15px rgba(0, 51, 153, 0.2);
             display: flex;
             align-items: center;
@@ -1982,7 +1990,8 @@
                 padding-top: 15px;
             }
 
-            .match-card-date, .match-card-location {
+            .match-card-date,
+            .match-card-location {
                 font-size: 12px;
             }
 
@@ -4457,15 +4466,50 @@
 
         // Club logo registry - maps normalized team name to logo URL
         const CLUB_LOGOS = {};
+        const STATIC_CLUB_LOGO_ALIASES = [
+            {
+                logoUrl: 'https://api.sportnet.online/data/ppo/issf_club_9088/c06879bd-6d23-4208-a262-f9ab9b02db58.jpeg',
+                names: [
+                    'OŠK Divinka - Lalinok',
+                    'OSK Divinka - Lalinok',
+                    'OŠK Divinka',
+                    'OSK Divinka'
+                ]
+            },
+            {
+                logoUrl: 'https://api.sportnet.online/data/ppo/1-fc-teplicka-n-vahom-dolna-tizina.futbalnet.sk/8f151892-be20-4061-89ed-5637538934d9.jpeg',
+                names: [
+                    'FK FATRAN - Dolná Tižina',
+                    'FK FATRAN - Dolna Tizina',
+                    'Dolná Tižina',
+                    'Dolna Tizina'
+                ]
+            }
+        ];
 
         function normalizeTeamName(name) {
-            return String(name || '').toLowerCase().trim().replace(/\s+/g, ' ');
+            return String(name || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[–—]+/g, '-')
+                .replace(/\s*-\s*/g, ' - ')
+                .replace(/\s+/g, ' ')
+                .trim();
         }
 
         function registerClubLogo(name, logoUrl) {
             if (!name || !logoUrl) return;
             CLUB_LOGOS[normalizeTeamName(name)] = logoUrl;
         }
+
+        function seedStaticClubLogos() {
+            STATIC_CLUB_LOGO_ALIASES.forEach(({ logoUrl, names }) => {
+                names.forEach((name) => registerClubLogo(name, logoUrl));
+            });
+        }
+
+        seedStaticClubLogos();
 
         function getClubLogo(name) {
             return CLUB_LOGOS[normalizeTeamName(name)] || null;
@@ -4711,10 +4755,10 @@
                     const dateObj = m.matchDateObj;
                     const d = m.dA || '';
                     const t = m.tA || '';
-                    
+
                     // Format as "so, 4. 4. 2026"
                     const formattedDate = dateObj ? (dateObj.toLocaleDateString('sk-SK', { weekday: 'short' }) + ', ' + dateObj.toLocaleDateString('sk-SK', { day: 'numeric', month: 'numeric', year: 'numeric' })) : d;
-                    
+
                     const venue = m.venue || 'Neuvedené';
                     const comp = m.competition;
                     const catLabel = getMatchCategoryLabel(comp);
@@ -4735,9 +4779,9 @@
                             <div class="match-card-time-alt">${t || '--:--'}</div>
                         `;
                     } else if (m.localStatus === 'live') {
-                         const hScore = m.scoreHome !== undefined && m.scoreHome !== null ? m.scoreHome : '0';
-                         const aScore = m.scoreAway !== undefined && m.scoreAway !== null ? m.scoreAway : '0';
-                         middleHtml = `<div class="match-card-score" style="background:#c62828;">${hScore}:${aScore}</div>`;
+                        const hScore = m.scoreHome !== undefined && m.scoreHome !== null ? m.scoreHome : '0';
+                        const aScore = m.scoreAway !== undefined && m.scoreAway !== null ? m.scoreAway : '0';
+                        middleHtml = `<div class="match-card-score" style="background:#c62828;">${hScore}:${aScore}</div>`;
                     } else {
                         middleHtml = `
                             <div class="match-card-vs">VS</div>

@@ -9,7 +9,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P152RNBL34"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-P152RNBL34');
     </script>
@@ -36,7 +36,8 @@
             padding: 0 20px;
         }
 
-        h1, .page-title {
+        h1,
+        .page-title {
             text-align: left;
             color: #003399;
             margin: 0 0 16px;
@@ -338,10 +339,10 @@
         }
 
         .standings-title {
-            text-align: center; 
-            color: #003399; 
-            margin: 40px 0 24px; 
-            font-size: 30px; 
+            text-align: center;
+            color: #003399;
+            margin: 40px 0 24px;
+            font-size: 30px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -442,11 +443,14 @@
         .standings-table th.center,
         .standings-table td.center {
             text-align: center;
-            width: 34px !important; /* Even tighter for narrow columns */
+            width: 34px !important;
+            /* Even tighter for narrow columns */
         }
 
-        .standings-table th:nth-child(7), .standings-table td:nth-child(7) {
-            min-width: 48px !important; /* Skore needs bit more but tighter */
+        .standings-table th:nth-child(7),
+        .standings-table td:nth-child(7) {
+            min-width: 48px !important;
+            /* Skore needs bit more but tighter */
         }
 
         .standings-table tbody tr {
@@ -614,21 +618,26 @@
             footer {
                 padding: 40px 15px 25px;
             }
+
             .footer-content {
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
                 gap: 40px;
             }
+
             .footer-section {
                 width: 100%;
             }
+
             .footer-section h3 {
                 justify-content: center;
             }
+
             .social-icons {
                 justify-content: center;
             }
+
             .footer-section ul li a:hover {
                 transform: none;
             }
@@ -708,7 +717,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
         }
 
         .standings-tab:hover {
@@ -736,9 +745,20 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(198, 40, 40, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(198, 40, 40, 0); }
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(198, 40, 40, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(198, 40, 40, 0);
+            }
         }
 
         /* Modal Styles */
@@ -857,7 +877,7 @@
             border-radius: 8px;
             min-width: 50px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,51,153,0.3);
+            box-shadow: 0 4px 10px rgba(0, 51, 153, 0.3);
         }
 
         .event-item {
@@ -904,13 +924,13 @@
             transition: all 0.3s;
             position: absolute;
             right: 0;
-            box-shadow: 0 2px 8px rgba(0,51,153,0.2);
+            box-shadow: 0 2px 8px rgba(0, 51, 153, 0.2);
         }
 
         .btn-standings-jump:hover {
             background: #002266;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,51,153,0.3);
+            box-shadow: 0 4px 12px rgba(0, 51, 153, 0.3);
         }
 
         @media screen and (max-width: 991px) {
@@ -921,27 +941,36 @@
         }
 
         @media (max-width: 768px) {
-            h1, .page-title, .standings-title {
+
+            h1,
+            .page-title,
+            .standings-title {
                 font-size: 26px !important;
             }
         }
 
         @media screen and (max-width: 480px) {
-            h1, .page-title, .standings-title {
+
+            h1,
+            .page-title,
+            .standings-title {
                 font-size: 24px !important;
             }
 
             /* Table optimization for tiny screens - SHOW ALL 9 COLUMNS */
             .table-wrap {
-                overflow-x: auto; /* Changed to auto to allow small scroll if needed */
+                overflow-x: auto;
+                /* Changed to auto to allow small scroll if needed */
                 border-radius: 8px;
             }
 
             .standings-table {
-                min-width: 480px !important; /* Force closer columns on mobile */
+                min-width: 480px !important;
+                /* Force closer columns on mobile */
             }
 
-            .standings-table th, .standings-table td {
+            .standings-table th,
+            .standings-table td {
                 padding: 10px 2px !important;
                 font-size: 9px;
             }
@@ -952,8 +981,9 @@
                 align-items: center;
                 gap: 0;
             }
-            
-            .standings-team-cell img, .standings-team-cell .standings-team-abbr {
+
+            .standings-team-cell img,
+            .standings-team-cell .standings-team-abbr {
                 display: none !important;
             }
 
@@ -1064,7 +1094,7 @@
             const fetchedAtRaw = SPORTSNET_INFO.fetchedAt || Date.now();
             const fetchedDate = new Date(fetchedAtRaw);
             const fetchedText = fetchedDate.toLocaleString('sk-SK');
-            
+
             // Cache TTL is 10 minutes
             const nextUpdateAt = fetchedDate.getTime() + (10 * 60 * 1000);
             const nextUpdateText = new Date(nextUpdateAt).toLocaleString('sk-SK');
@@ -1106,15 +1136,50 @@
 
         // Club logo registry - maps normalized team name to logo URL
         const CLUB_LOGOS = {};
+        const STATIC_CLUB_LOGO_ALIASES = [
+            {
+                logoUrl: 'https://api.sportnet.online/data/ppo/issf_club_9088/c06879bd-6d23-4208-a262-f9ab9b02db58.jpeg',
+                names: [
+                    'OŠK Divinka - Lalinok',
+                    'OSK Divinka - Lalinok',
+                    'OŠK Divinka',
+                    'OSK Divinka'
+                ]
+            },
+            {
+                logoUrl: 'https://api.sportnet.online/data/ppo/1-fc-teplicka-n-vahom-dolna-tizina.futbalnet.sk/8f151892-be20-4061-89ed-5637538934d9.jpeg',
+                names: [
+                    'FK FATRAN - Dolná Tižina',
+                    'FK FATRAN - Dolna Tizina',
+                    'Dolná Tižina',
+                    'Dolna Tizina'
+                ]
+            }
+        ];
 
         function normalizeTeamName(name) {
-            return String(name || '').toLowerCase().trim().replace(/\s+/g, ' ');
+            return String(name || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[–—]+/g, '-')
+                .replace(/\s*-\s*/g, ' - ')
+                .replace(/\s+/g, ' ')
+                .trim();
         }
 
         function registerClubLogo(name, logoUrl) {
             if (!name || !logoUrl) return;
             CLUB_LOGOS[normalizeTeamName(name)] = logoUrl;
         }
+
+        function seedStaticClubLogos() {
+            STATIC_CLUB_LOGO_ALIASES.forEach(({ logoUrl, names }) => {
+                names.forEach((name) => registerClubLogo(name, logoUrl));
+            });
+        }
+
+        seedStaticClubLogos();
 
         function getClubLogo(name) {
             return CLUB_LOGOS[normalizeTeamName(name)] || null;
@@ -1362,7 +1427,7 @@
             if (teamCat === 'U19' || teamCat === 'U17') return 'dorast';
             if (teamCat === 'U15' || teamCat === 'U13') return 'ziaci';
             if (teamCat === 'U11' || teamCat === 'U09') return 'pripravka';
-            
+
             // Fallback matching
             const text = `${group.competition || ''} ${group.part || ''}`.toLowerCase();
             if (text.includes('dorast') || text.includes('u19') || text.includes('u17')) return 'dorast';
@@ -1556,7 +1621,7 @@
 
             const modal = document.getElementById('matchModal');
             const content = document.getElementById('matchModalContent');
-            
+
             content.innerHTML = generateMatchDetail(match);
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -1622,7 +1687,7 @@
             const allEvents = (match.events || []);
             const goals = allEvents.filter(e => e.type === 'goal' || e.type === 'goal-own' || e.type === 'penalty');
             const cards = allEvents.filter(e => e.type === 'yellow-card' || e.type === 'red-card');
-            
+
             if (goals.length > 0) {
                 eventsHtml += `
                     <div class="events-section" style="margin-top: 25px; background: #f0f7ff; padding: 25px; border-radius: 16px; border: 1px solid rgba(0,51,153,0.1);">
@@ -1756,4 +1821,5 @@
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
 </body>
+
 </html>

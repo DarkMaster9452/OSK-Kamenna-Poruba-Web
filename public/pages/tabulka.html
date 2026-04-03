@@ -1106,15 +1106,50 @@
 
         // Club logo registry - maps normalized team name to logo URL
         const CLUB_LOGOS = {};
+        const STATIC_CLUB_LOGO_ALIASES = [
+            {
+                logoUrl: 'https://api.sportnet.online/data/ppo/issf_club_9088/c06879bd-6d23-4208-a262-f9ab9b02db58.jpeg',
+                names: [
+                    'OŠK Divinka - Lalinok',
+                    'OSK Divinka - Lalinok',
+                    'OŠK Divinka',
+                    'OSK Divinka'
+                ]
+            },
+            {
+                logoUrl: 'https://api.sportnet.online/data/ppo/1-fc-teplicka-n-vahom-dolna-tizina.futbalnet.sk/8f151892-be20-4061-89ed-5637538934d9.jpeg',
+                names: [
+                    'FK FATRAN - Dolná Tižina',
+                    'FK FATRAN - Dolna Tizina',
+                    'Dolná Tižina',
+                    'Dolna Tizina'
+                ]
+            }
+        ];
 
         function normalizeTeamName(name) {
-            return String(name || '').toLowerCase().trim().replace(/\s+/g, ' ');
+            return String(name || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[–—]+/g, '-')
+                .replace(/\s*-\s*/g, ' - ')
+                .replace(/\s+/g, ' ')
+                .trim();
         }
 
         function registerClubLogo(name, logoUrl) {
             if (!name || !logoUrl) return;
             CLUB_LOGOS[normalizeTeamName(name)] = logoUrl;
         }
+
+        function seedStaticClubLogos() {
+            STATIC_CLUB_LOGO_ALIASES.forEach(({ logoUrl, names }) => {
+                names.forEach((name) => registerClubLogo(name, logoUrl));
+            });
+        }
+
+        seedStaticClubLogos();
 
         function getClubLogo(name) {
             return CLUB_LOGOS[normalizeTeamName(name)] || null;
