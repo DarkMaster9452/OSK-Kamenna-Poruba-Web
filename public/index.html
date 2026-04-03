@@ -1356,9 +1356,17 @@
         }
 
         @keyframes pulse-light {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         .match-card-main {
@@ -1446,7 +1454,7 @@
             background: #003399;
             padding: 10px 18px;
             border-radius: 14px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             box-shadow: 0 4px 15px rgba(0, 51, 153, 0.2);
             display: flex;
             align-items: center;
@@ -1982,7 +1990,8 @@
                 padding-top: 15px;
             }
 
-            .match-card-date, .match-card-location {
+            .match-card-date,
+            .match-card-location {
                 font-size: 12px;
             }
 
@@ -4746,10 +4755,10 @@
                     const dateObj = m.matchDateObj;
                     const d = m.dA || '';
                     const t = m.tA || '';
-                    
+
                     // Format as "so, 4. 4. 2026"
                     const formattedDate = dateObj ? (dateObj.toLocaleDateString('sk-SK', { weekday: 'short' }) + ', ' + dateObj.toLocaleDateString('sk-SK', { day: 'numeric', month: 'numeric', year: 'numeric' })) : d;
-                    
+
                     const venue = m.venue || 'Neuvedené';
                     const comp = m.competition;
                     const catLabel = getMatchCategoryLabel(comp);
@@ -4770,9 +4779,9 @@
                             <div class="match-card-time-alt">${t || '--:--'}</div>
                         `;
                     } else if (m.localStatus === 'live') {
-                         const hScore = m.scoreHome !== undefined && m.scoreHome !== null ? m.scoreHome : '0';
-                         const aScore = m.scoreAway !== undefined && m.scoreAway !== null ? m.scoreAway : '0';
-                         middleHtml = `<div class="match-card-score" style="background:#c62828;">${hScore}:${aScore}</div>`;
+                        const hScore = m.scoreHome !== undefined && m.scoreHome !== null ? m.scoreHome : '0';
+                        const aScore = m.scoreAway !== undefined && m.scoreAway !== null ? m.scoreAway : '0';
+                        middleHtml = `<div class="match-card-score" style="background:#c62828;">${hScore}:${aScore}</div>`;
                     } else {
                         middleHtml = `
                             <div class="match-card-vs">VS</div>
