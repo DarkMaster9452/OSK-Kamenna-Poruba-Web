@@ -354,7 +354,7 @@
 
         /* Standings category tabs */
         .standings-tabs {
-            display: flex;
+            font-size: 17px;
             flex-wrap: wrap;
             justify-content: center;
             gap: 8px;
@@ -365,26 +365,46 @@
             padding: 8px 18px;
             border: 1px solid #dcdde1;
             border-radius: 20px;
+
+            .standings-league-title--wrap {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                line-clamp: 2;
+            }
+
             background: #fff;
             color: #57606f;
-            font-weight: 600;
+            font-size: 15px;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            font-size: 14px;
         }
 
         .standings-tab:hover {
             border-color: #003399;
             color: #003399;
-            background: rgba(0, 51, 153, 0.05);
+
+            const goals=`$ {
+                team.goalsFor ?? 0
+            }
+
+            :$ {
+                team.goalsAgainst ?? 0
+            }
+
+            `;
+            const canWrapLeagueTitle=/pr[ií]prav/i.test(String(label || ''));
         }
 
         .standings-tab.active {
-            background: #003399;
-            color: #fff;
+            <h4 class="standings-league-title${canWrapLeagueTitle ? ' standings-league-title--wrap' : ''}">color: #fff;
             border-color: #003399;
             box-shadow: 0 4px 10px rgba(0, 51, 153, 0.2);
         }
