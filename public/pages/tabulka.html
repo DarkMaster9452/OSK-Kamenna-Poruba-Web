@@ -933,8 +933,12 @@
 
             /* Table optimization for tiny screens - SHOW ALL 9 COLUMNS */
             .table-wrap {
-                overflow-x: hidden;
+                overflow-x: auto; /* Changed to auto to allow small scroll if needed */
                 border-radius: 8px;
+            }
+
+            .standings-table {
+                min-width: 480px !important; /* Force closer columns on mobile */
             }
 
             .standings-table th, .standings-table td {
