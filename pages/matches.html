@@ -371,9 +371,9 @@
         }
 
         .events-container {
-            margin-top: 40px;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 30px;
+            margin: 8px auto 0;
+            width: 100%;
+            max-width: 720px;
         }
 
         .events-title {
@@ -383,7 +383,7 @@
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 25px;
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -428,10 +428,12 @@
         }
 
         .event-group-header.home {
+            justify-content: flex-end;
             text-align: right;
         }
 
         .event-group-header.away {
+            justify-content: flex-start;
             text-align: left;
         }
 
@@ -527,6 +529,7 @@
 
             .detail-info-strip {
                 grid-template-columns: 1fr;
+                margin-top: 28px;
             }
 
             .detail-team-name {
@@ -551,6 +554,11 @@
             /* Align events better on mobile */
             .events-grid {
                 gap: 15px;
+            }
+
+            .events-container {
+                max-width: 100%;
+                margin-top: 4px;
             }
 
             .event-row {
@@ -2218,7 +2226,6 @@
                                 <div class="event-group">
                                     <div class="event-group-header home">
                                         <span class="event-group-team">${match.homeTeam}</span>
-                                        <span class="event-group-score">${match.homeScore ?? homeGoals.length}</span>
                                     </div>
                                     ${homeGoals.map(e => `
                                         <div class="event-row event-home">
@@ -2230,7 +2237,6 @@
                                 </div>
                                 <div class="event-group">
                                     <div class="event-group-header away">
-                                        <span class="event-group-score">${match.awayScore ?? awayGoals.length}</span>
                                         <span class="event-group-team">${match.awayTeam}</span>
                                     </div>
                                     ${awayGoals.map(e => `
@@ -2272,6 +2278,8 @@
                     </div>
                 </div>
 
+                ${eventsHtml}
+
                 <div class="detail-info-strip">
                     <div class="detail-info-item">
                         <i class="fas fa-map-marker-alt"></i>
@@ -2282,8 +2290,6 @@
                         <span>Rozhodca: ${match.referee || 'Neuvedené'}</span>
                     </div>
                 </div>
-
-                ${eventsHtml}
 
                 ${generateSportnetVideoSection(match)}
             `;
