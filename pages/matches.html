@@ -411,6 +411,16 @@
             align-items: start;
         }
 
+        .events-headings {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            column-gap: 30px;
+            align-items: end;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 4px;
+        }
+
         .events-grid::after {
             content: '';
             position: absolute;
@@ -434,8 +444,6 @@
             display: flex;
             align-items: flex-end;
             gap: 12px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e2e8f0;
             min-width: 0;
         }
 
@@ -517,10 +525,15 @@
         }
 
         @media (max-width: 640px) {
+            .detail-header {
+                padding: 8px 0 16px;
+                margin-bottom: 14px;
+            }
+
             .detail-main-display {
                 grid-template-columns: 1fr 70px 1fr;
                 gap: 5px;
-                margin: 20px 0;
+                margin: 14px 0 16px;
             }
 
             .detail-score-box {
@@ -572,6 +585,10 @@
             }
 
             /* Align events better on mobile */
+            .events-headings {
+                column-gap: 14px;
+            }
+
             .events-grid {
                 column-gap: 14px;
                 row-gap: 10px;
@@ -2218,6 +2235,15 @@
             return `${minute}'`;
         }
 
+        function formatEventPlayerName(player) {
+            if (!player) {
+                return '';
+            }
+
+            const parts = String(player).trim().split(/\s+/).filter(Boolean);
+            return parts.length ? parts[parts.length - 1] : String(player).trim();
+        }
+
         function generateMatchDetail(match) {
             const dateObj = new Date(match.date + 'T' + (match.time || '00:00'));
             const formattedDate = dateObj.toLocaleDateString('sk-SK', {
@@ -2270,17 +2296,19 @@
                     eventsHtml = `
                         <div class="events-container">
                             <div class="events-title"><i class="fas fa-futbol"></i> Góly v zápase</div>
-                            <div class="events-grid">
+                            <div class="events-headings">
                                 <div class="event-group-header home">
                                     <span class="event-group-team">${match.homeTeam}</span>
                                 </div>
                                 <div class="event-group-header away">
                                     <span class="event-group-team">${match.awayTeam}</span>
                                 </div>
+                            </div>
+                            <div class="events-grid">
                                 <div class="event-group">
                                     ${homeGoals.map(e => `
                                         <div class="event-row event-home">
-                                            <span class="event-player">${e.player}</span>
+                                            <span class="event-player">${formatEventPlayerName(e.player)}</span>
                                             <span class="event-time">${formatEventMinute(e.minute)}</span>
                                             <div class="event-icon"><i class="fas fa-futbol"></i></div>
                                         </div>
@@ -2291,7 +2319,7 @@
                                         <div class="event-row event-away">
                                             <div class="event-icon"><i class="fas fa-futbol"></i></div>
                                             <span class="event-time">${formatEventMinute(e.minute)}</span>
-                                            <span class="event-player">${e.player}</span>
+                                            <span class="event-player">${formatEventPlayerName(e.player)}</span>
                                         </div>
                                     `).join('') || '<div class="event-empty">Bez strelca</div>'}
                                 </div>
