@@ -67,6 +67,12 @@ function buildHiddenPreheader(text) {
   return `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;visibility:hidden;mso-hide:all;font-size:1px;line-height:1px;">${safeText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>`;
 }
 
+function getPublicAppUrl(pathname = '') {
+  const baseUrl = String(env.publicAppUrl || 'https://www.oskkp.sk').trim().replace(/\/+$/, '');
+  const normalizedPath = pathname ? `/${String(pathname).replace(/^\/+/, '')}` : '';
+  return `${baseUrl}${normalizedPath}`;
+}
+
 function normalizeRecipientAddresses(recipients) {
   const unique = new Set();
 
@@ -131,7 +137,7 @@ function buildTrainingEmailHtml({
         <td style="padding:0 24px 24px;">
           <div style="background:#f0f5ff;border:1px solid #d8e5ff;border-radius:10px;padding:14px 16px;color:#20304d;font-size:14px;line-height:1.45;">
             Prosím, prihlás sa do klubového systému a potvrď účasť.
-            <a href="https://osk-kamenna-poruba.vercel.app" style="display:inline-block;margin-top:12px;padding:10px 18px;background:#003399;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:700;">Přejít do systému</a>
+            <a href="${escapeHtml(getPublicAppUrl())}" style="display:inline-block;margin-top:12px;padding:10px 18px;background:#003399;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:700;">Přejít do systému</a>
           </div>
         </td>
       </tr>
@@ -313,7 +319,7 @@ function buildSubtrainingAssignmentHtml({
         <td style="padding:0 24px 24px;">
           <div style="background:#f0f5ff;border:1px solid #d8e5ff;border-radius:10px;padding:14px 16px;color:#20304d;font-size:14px;line-height:1.45;">
             Skontroluj dochádzku v klubovom systéme.
-            <a href="https://osk-kamenna-poruba.vercel.app/pages/trainings.html" style="display:inline-block;margin-top:12px;padding:10px 18px;background:#003399;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:700;">Otvoriť tréningy</a>
+            <a href="${escapeHtml(getPublicAppUrl('/pages/trainings.html'))}" style="display:inline-block;margin-top:12px;padding:10px 18px;background:#003399;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:700;">Otvoriť tréningy</a>
           </div>
         </td>
       </tr>

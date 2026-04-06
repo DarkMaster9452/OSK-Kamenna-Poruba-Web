@@ -1,6 +1,22 @@
 (function() {
     'use strict';
 
+    var CANONICAL_PRODUCTION_HOSTS = ['oskkp.sk', 'www.oskkp.sk'];
+
+    function isCanonicalProductionHost(host) {
+        return CANONICAL_PRODUCTION_HOSTS.indexOf(String(host || '').toLowerCase()) !== -1;
+    }
+
+    function clearApiBaseOverride() {
+        try {
+            if (window.localStorage) {
+                window.localStorage.removeItem('OSK_API_BASE');
+            }
+        } catch (_) {
+            // Ignore storage access failures.
+        }
+    }
+
     /**
      * Centralized Session and Auth Logic for OŠK Kamenná Poruba Web
      */
@@ -9,6 +25,10 @@
         const host = window.location.hostname;
         const isHttpsPage = window.location.protocol === 'https:';
 
+        if (isCanonicalProductionHost(host)) {
+            clearApiBaseOverride();
+            return '/api';
+        }
         if (host.endsWith('.vercel.app')) {
             return '/api';
         }

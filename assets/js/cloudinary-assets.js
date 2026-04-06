@@ -14,6 +14,17 @@
 (function () {
     var CACHE_KEY = 'osk_cloudinary_assets_v2';
     var CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+    var CANONICAL_PRODUCTION_HOSTS = ['oskkp.sk', 'www.oskkp.sk'];
+
+    function isCanonicalProductionHost(host) {
+        return CANONICAL_PRODUCTION_HOSTS.indexOf(String(host || '').toLowerCase()) !== -1;
+    }
+
+    function clearApiBaseOverride() {
+        try {
+            localStorage.removeItem('OSK_API_BASE');
+        } catch (_) { }
+    }
 
     function getCache() {
         try {
@@ -137,6 +148,13 @@
     function resolveApiBase() {
         if (window.OSKSession) return window.OSKSession.getApiBase();
         var host = window.location.hostname;
+        if (isCanonicalProductionHost(host)) {
+            clearApiBaseOverride();
+            return '/api';
+        }
+        if (host.endsWith('.vercel.app')) {
+            return '/api';
+        }
         if (host === 'localhost' || host === '127.0.0.1') {
             return 'http://localhost:4000/api';
         }

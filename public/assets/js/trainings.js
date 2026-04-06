@@ -22,6 +22,22 @@ const TRAINING_CATEGORY_OPTIONS = [
     { value: 'dospeli', label: 'Dospelí' }
 ];
 
+const CANONICAL_PRODUCTION_HOSTS = ['oskkp.sk', 'www.oskkp.sk'];
+
+function isCanonicalProductionHost(host) {
+    return CANONICAL_PRODUCTION_HOSTS.indexOf(String(host || '').toLowerCase()) !== -1;
+}
+
+function clearApiBaseOverride() {
+    try {
+        if (window.localStorage) {
+            window.localStorage.removeItem('OSK_API_BASE');
+        }
+    } catch (_) {
+        // Ignore storage access failures.
+    }
+}
+
 function escapeHtml(value) {
     return String(value || '')
         .replace(/&/g, '&amp;')
@@ -71,7 +87,14 @@ function getApiBase() {
     if (typeof API_BASE === 'string' && API_BASE.length > 0) {
         return API_BASE;
     }
+    if (window.OSKSession && typeof window.OSKSession.getApiBase === 'function') {
+        return window.OSKSession.getApiBase();
+    }
     const host = window.location.hostname;
+    if (isCanonicalProductionHost(host)) {
+        clearApiBaseOverride();
+        return '/api';
+    }
     if (host.endsWith('.vercel.app')) {
         return '/api';
     }
