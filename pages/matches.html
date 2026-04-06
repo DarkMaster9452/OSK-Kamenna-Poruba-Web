@@ -405,7 +405,8 @@
         .events-grid {
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            gap: 30px;
+            column-gap: 30px;
+            row-gap: 12px;
             position: relative;
             align-items: start;
         }
@@ -431,12 +432,11 @@
 
         .event-group-header {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            align-items: flex-end;
             gap: 12px;
             padding-bottom: 10px;
             border-bottom: 1px solid #e2e8f0;
-            margin-bottom: 4px;
+            min-width: 0;
         }
 
         .event-group-header.home {
@@ -573,7 +573,8 @@
 
             /* Align events better on mobile */
             .events-grid {
-                gap: 15px;
+                column-gap: 14px;
+                row-gap: 10px;
             }
 
             .events-container {
@@ -582,8 +583,8 @@
             }
 
             .event-row {
+                column-gap: 4px;
                 font-size: 12px;
-                gap: 5px;
             }
 
             .event-group-header {
@@ -591,11 +592,21 @@
             }
 
             .event-group-team {
-                font-size: 10px;
+                font-size: 11px;
+                letter-spacing: 0.2px;
+                line-height: 1.15;
             }
 
             .event-group-score {
                 font-size: 18px;
+            }
+
+            .event-home {
+                grid-template-columns: minmax(0, 1fr) 34px 18px;
+            }
+
+            .event-away {
+                grid-template-columns: 18px 34px minmax(0, 1fr);
             }
 
             .event-player {
@@ -604,6 +615,11 @@
 
             .event-time {
                 font-size: 10px;
+            }
+
+            .event-icon {
+                width: 18px;
+                font-size: 14px;
             }
         }
 
@@ -2255,10 +2271,13 @@
                         <div class="events-container">
                             <div class="events-title"><i class="fas fa-futbol"></i> Góly v zápase</div>
                             <div class="events-grid">
+                                <div class="event-group-header home">
+                                    <span class="event-group-team">${match.homeTeam}</span>
+                                </div>
+                                <div class="event-group-header away">
+                                    <span class="event-group-team">${match.awayTeam}</span>
+                                </div>
                                 <div class="event-group">
-                                    <div class="event-group-header home">
-                                        <span class="event-group-team">${match.homeTeam}</span>
-                                    </div>
                                     ${homeGoals.map(e => `
                                         <div class="event-row event-home">
                                             <span class="event-player">${e.player}</span>
@@ -2268,9 +2287,6 @@
                                     `).join('') || '<div class="event-empty">Bez strelca</div>'}
                                 </div>
                                 <div class="event-group">
-                                    <div class="event-group-header away">
-                                        <span class="event-group-team">${match.awayTeam}</span>
-                                    </div>
                                     ${awayGoals.map(e => `
                                         <div class="event-row event-away">
                                             <div class="event-icon"><i class="fas fa-futbol"></i></div>
