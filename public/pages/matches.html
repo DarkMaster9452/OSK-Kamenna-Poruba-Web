@@ -471,20 +471,20 @@
         }
 
         .event-row {
-            display: flex;
+            display: grid;
             align-items: center;
-            gap: 10px;
+            column-gap: 10px;
             font-size: 14px;
             min-width: 0;
         }
 
         .event-home {
-            justify-content: flex-end;
+            grid-template-columns: minmax(0, 1fr) 52px 24px;
             text-align: right;
         }
 
         .event-away {
-            justify-content: flex-start;
+            grid-template-columns: 24px 52px minmax(0, 1fr);
             text-align: left;
         }
 
@@ -492,20 +492,28 @@
             font-weight: 700;
             color: #1e293b;
             min-width: 0;
-            overflow-wrap: anywhere;
-            word-break: break-word;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .event-time {
             color: #94a3b8;
             font-size: 12px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            text-align: center;
         }
 
         .event-icon {
             font-size: 16px;
-            min-width: 20px;
-            text-align: center;
+            width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         @media (max-width: 640px) {
@@ -2266,8 +2274,8 @@
                                     ${awayGoals.map(e => `
                                         <div class="event-row event-away">
                                             <div class="event-icon"><i class="fas fa-futbol"></i></div>
-                                            <span class="event-player">${e.player}</span>
                                             <span class="event-time">${formatEventMinute(e.minute)}</span>
+                                            <span class="event-player">${e.player}</span>
                                         </div>
                                     `).join('') || '<div class="event-empty">Bez strelca</div>'}
                                 </div>
