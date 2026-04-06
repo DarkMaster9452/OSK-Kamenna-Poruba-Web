@@ -430,6 +430,7 @@
             width: 2px;
             background: #f1f5f9;
             transform: translateX(-50%);
+            z-index: 0;
         }
 
         .event-group {
@@ -437,7 +438,9 @@
             flex-direction: column;
             gap: 12px;
             min-width: 0;
-            overflow: hidden;
+            overflow: visible;
+            position: relative;
+            z-index: 1;
         }
 
         .event-group-header {
