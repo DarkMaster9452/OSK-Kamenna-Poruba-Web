@@ -12,8 +12,8 @@
  * the base name before the last underscore-suffix against data-cloudinary-id.
  */
 (function () {
-    var CACHE_KEY = 'osk_cloudinary_assets_v2';
-    var CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+    var CACHE_KEY = 'osk_cloudinary_assets_v3';
+    var CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
     var CANONICAL_PRODUCTION_HOSTS = ['oskkp.sk', 'www.oskkp.sk'];
 
     function isCanonicalProductionHost(host) {
@@ -100,6 +100,14 @@
         return map;
     }
 
+    function hasDynamicAssetTargets() {
+        if (document.querySelector('[data-cloudinary-bg]')) {
+            return true;
+        }
+
+        return !!document.querySelector('[data-cloudinary-id]:not(link[rel="icon"])');
+    }
+
     function applyAssets(assets) {
         if (!assets || !assets.length) return;
 
@@ -165,6 +173,10 @@
     }
 
     async function loadAndApply(forceRefresh) {
+        if (!hasDynamicAssetTargets()) {
+            return;
+        }
+
         // Check cache first
         var cached = forceRefresh ? null : getCache();
         if (cached) {

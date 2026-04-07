@@ -11,6 +11,17 @@ const upload = multer({
 
 const router = express.Router();
 
+function applyPublicCacheHeaders(res, forceRefresh) {
+  if (forceRefresh) {
+    res.set('Cache-Control', 'no-store');
+    return;
+  }
+
+  const browserTtl = 60 * 60;
+  const edgeTtl = Math.max(browserTtl, Number(env.cloudinaryCacheSeconds || 172800));
+  res.set('Cache-Control', `public, max-age=${browserTtl}, s-maxage=${edgeTtl}, stale-while-revalidate=604800`);
+}
+
 // GET /api/cloudinary/config — public cloud name (not secret)
 router.get('/config', (req, res) => {
   res.json({
@@ -24,6 +35,7 @@ router.get('/timeline', async (req, res, next) => {
   try {
     const forceRefresh = req.query.refresh === '1';
     const data = await getTimelineData({ forceRefresh });
+    applyPublicCacheHeaders(res, forceRefresh);
     res.json(data);
   } catch (err) {
     next(err);
@@ -35,6 +47,7 @@ router.get('/assets', async (req, res, next) => {
   try {
     const forceRefresh = req.query.refresh === '1';
     const data = await getRootAssets({ forceRefresh });
+    applyPublicCacheHeaders(res, forceRefresh);
     res.json(data);
   } catch (err) {
     next(err);

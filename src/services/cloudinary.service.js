@@ -23,14 +23,17 @@ function isConfigured() {
   return configured;
 }
 
-/**
- * Add f_auto,q_auto transformation to a Cloudinary secure_url.
- * This ensures images are delivered in a browser-friendly format (WebP/AVIF)
- * and handles originals in HEIC, TIFF, BMP etc. that browsers can't display.
- */
-function addAutoTransform(url) {
-  if (!url) return url;
-  return url.replace('/image/upload/', '/image/upload/f_auto,q_auto/');
+const WEB_SAFE_IMAGE_FORMATS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif', 'ico']);
+
+function buildDeliveryUrl(resource) {
+  const url = resource?.secure_url || '';
+  const format = String(resource?.format || '').toLowerCase();
+
+  if (!url || WEB_SAFE_IMAGE_FORMATS.has(format)) {
+    return url;
+  }
+
+  return url.replace('/image/upload/', '/image/upload/f_auto/');
 }
 
 const NON_IMAGE_FORMATS = new Set(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar']);
@@ -305,7 +308,7 @@ async function fetchImagesForAssetFolder(folderPath) {
     for (const resource of (result.resources || [])) {
       if (isDisplayableImage(resource)) {
         images.push({
-          url: addAutoTransform(resource.secure_url),
+        url: buildDeliveryUrl(resource),
           createdAt: resource.created_at || '',
           publicId: resource.public_id,
           format: resource.format || ''
@@ -372,7 +375,7 @@ async function collectAllFolderBlocks() {
     }
 
     grouped.get(folderPath).images.push({
-      url: addAutoTransform(resource.secure_url),
+      url: buildDeliveryUrl(resource),
       createdAt: resource.created_at || '',
       publicId: resource.public_id,
       format: resource.format || ''
@@ -466,7 +469,7 @@ async function getRootAssets({ forceRefresh = false } = {}) {
         return !!folderPath && isInsideRootFolder(folderPath, rootFolder) && isGalleryFolderAllowed(folderPath);
       })
       .map((r) => ({
-        url: addAutoTransform(r.secure_url),
+        url: buildDeliveryUrl(r),
         publicId: r.public_id,
         format: r.format || '',
         filename: r.public_id + (r.format ? '.' + r.format : '')
