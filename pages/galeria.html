@@ -571,10 +571,8 @@
                     return;
                 }
 
-                if (!folders.length && !forceRefresh) {
-                    console.warn('[Gallery] Empty Cloudinary response, retrying with refresh=1.');
-                    await loadCloudinaryAlbums(true);
-                    return;
+                if (!folders.length) {
+                    console.warn('[Gallery] Empty Cloudinary response, keeping shared cached result only.');
                 }
 
                 CLOUDINARY_ALBUMS = {};

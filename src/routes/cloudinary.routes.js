@@ -55,7 +55,7 @@ router.get('/assets', async (req, res, next) => {
 });
 
 // GET /api/cloudinary/debug — shows raw folder structure from Cloudinary API
-router.get('/debug', async (req, res, next) => {
+router.get('/debug', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const data = await debugCloudinaryFolders();
     res.json(data);

@@ -98,7 +98,7 @@ const env = {
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || '',
   cloudinaryRootFolder: process.env.CLOUDINARY_ROOT_FOLDER || '',
-  cloudinaryCacheSeconds: Number(process.env.CLOUDINARY_CACHE_SECONDS || 172800)
+  cloudinaryCacheSeconds: Number(process.env.CLOUDINARY_CACHE_SECONDS || 604800)
 };
 
 if (env.nodeEnv === 'production' && env.jwtAccessSecret === 'dev_only_change_me') {

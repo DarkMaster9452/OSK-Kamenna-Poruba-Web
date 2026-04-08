@@ -3,6 +3,10 @@ const env = require('../config/env');
 const { readCache, writeCache, invalidateCache } = require('./cache');
 
 let configured = false;
+const inflightCloudinaryRefreshes = {
+  timeline: null,
+  assets: null
+};
 
 function ensureConfigured() {
   if (configured) return;
@@ -50,6 +54,26 @@ function makeUnconfiguredResponse(resource) {
     cache: 'BYPASS',
     message: 'Cloudinary nie je nakonfigurovany. Nastav CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET.'
   };
+}
+
+async function runCloudinaryRefreshOnce(kind, factory) {
+  if (inflightCloudinaryRefreshes[kind]) {
+    return inflightCloudinaryRefreshes[kind];
+  }
+
+  let promise;
+  promise = (async () => {
+    try {
+      return await factory();
+    } finally {
+      if (inflightCloudinaryRefreshes[kind] === promise) {
+        inflightCloudinaryRefreshes[kind] = null;
+      }
+    }
+  })();
+
+  inflightCloudinaryRefreshes[kind] = promise;
+  return promise;
 }
 
 async function fetchImagesInFolder(folderPath) {
@@ -192,8 +216,8 @@ function isMatchingCloudinaryDeployCache(payload) {
   return !!parsed && parsed.deploySignature === getCloudinaryDeploySignature();
 }
 
-async function readCompatibleCloudinaryCache(key, { acceptPreviousDeploy = false } = {}) {
-  const cached = await readCache(key);
+async function readCompatibleCloudinaryCache(key, { acceptPreviousDeploy = false, allowExpired = false } = {}) {
+  const cached = await readCache(key, { allowExpired });
   if (!cached) {
     return null;
   }
@@ -407,29 +431,31 @@ async function getTimelineData({ forceRefresh = false } = {}) {
   }
 
   try {
-    const folders = await collectAllFolderBlocks();
+    return await runCloudinaryRefreshOnce('timeline', async () => {
+      const folders = await collectAllFolderBlocks();
 
-    const normalized = {
-      source: 'cloudinary.timeline',
-      fetchedAt: new Date().toISOString(),
-      cacheSignature: getCloudinaryCacheSignature(),
-      accountSignature: getCloudinaryAccountSignature(),
-      deploySignature: getCloudinaryDeploySignature(),
-      folders
-    };
+      const normalized = {
+        source: 'cloudinary.timeline',
+        fetchedAt: new Date().toISOString(),
+        cacheSignature: getCloudinaryCacheSignature(),
+        accountSignature: getCloudinaryAccountSignature(),
+        deploySignature: getCloudinaryDeploySignature(),
+        folders
+      };
 
-    if (folders.length > 0) {
-      const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
-      await writeCache('cloudinary_timeline', normalized, ttl);
-    } else {
-      console.warn(`[Cloudinary] No folders found — not caching empty result.`);
-    }
+      if (folders.length > 0) {
+        const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
+        await writeCache('cloudinary_timeline', normalized, ttl);
+      } else {
+        console.warn(`[Cloudinary] No folders found — not caching empty result.`);
+      }
 
-    return { ...normalized, cache: 'MISS' };
+      return { ...normalized, cache: 'MISS' };
+    });
   } catch (error) {
     const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
     console.error(`[Cloudinary] Failed to fetch timeline data: ${errorMsg}`);
-    const staleObj = await readCompatibleCloudinaryCache('cloudinary_timeline', { acceptPreviousDeploy: true });
+    const staleObj = await readCompatibleCloudinaryCache('cloudinary_timeline', { acceptPreviousDeploy: true, allowExpired: true });
     if (staleObj) {
       return { ...staleObj, cache: 'STALE', warning: errorMsg };
     }
@@ -457,41 +483,43 @@ async function getRootAssets({ forceRefresh = false } = {}) {
   }
 
   try {
-    const resources = await fetchAllImageResources();
+    return await runCloudinaryRefreshOnce('assets', async () => {
+      const resources = await fetchAllImageResources();
 
-    const assets = resources
-      .filter((resource) => {
-        if (!isDisplayableImage(resource)) {
-          return false;
-        }
+      const assets = resources
+        .filter((resource) => {
+          if (!isDisplayableImage(resource)) {
+            return false;
+          }
 
-        const folderPath = getResourceFolderPath(resource);
-        return !!folderPath && isInsideRootFolder(folderPath, rootFolder) && isGalleryFolderAllowed(folderPath);
-      })
-      .map((r) => ({
-        url: buildDeliveryUrl(r),
-        publicId: r.public_id,
-        format: r.format || '',
-        filename: r.public_id + (r.format ? '.' + r.format : '')
-      }));
+          const folderPath = getResourceFolderPath(resource);
+          return !!folderPath && isInsideRootFolder(folderPath, rootFolder) && isGalleryFolderAllowed(folderPath);
+        })
+        .map((r) => ({
+          url: buildDeliveryUrl(r),
+          publicId: r.public_id,
+          format: r.format || '',
+          filename: r.public_id + (r.format ? '.' + r.format : '')
+        }));
 
-    const normalized = {
-      source: 'cloudinary.assets',
-      fetchedAt: new Date().toISOString(),
-      cacheSignature: getCloudinaryCacheSignature(),
-      accountSignature: getCloudinaryAccountSignature(),
-      deploySignature: getCloudinaryDeploySignature(),
-      cloudName: env.cloudinaryCloudName,
-      assets
-    };
+      const normalized = {
+        source: 'cloudinary.assets',
+        fetchedAt: new Date().toISOString(),
+        cacheSignature: getCloudinaryCacheSignature(),
+        accountSignature: getCloudinaryAccountSignature(),
+        deploySignature: getCloudinaryDeploySignature(),
+        cloudName: env.cloudinaryCloudName,
+        assets
+      };
 
-    const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
-    await writeCache('cloudinary_assets', normalized, ttl);
+      const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
+      await writeCache('cloudinary_assets', normalized, ttl);
 
-    return { ...normalized, cache: 'MISS' };
+      return { ...normalized, cache: 'MISS' };
+    });
   } catch (error) {
     const errorMsg = error?.error?.message || error?.message || 'Neznama chyba';
-    const staleObj = await readCompatibleCloudinaryCache('cloudinary_assets', { acceptPreviousDeploy: true });
+    const staleObj = await readCompatibleCloudinaryCache('cloudinary_assets', { acceptPreviousDeploy: true, allowExpired: true });
     if (staleObj) {
       return { ...staleObj, cache: 'STALE', warning: errorMsg };
     }

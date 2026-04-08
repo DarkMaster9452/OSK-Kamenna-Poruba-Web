@@ -191,10 +191,6 @@
             if (!response.ok) return;
             var data = await response.json();
             var assets = Array.isArray(data.assets) ? data.assets : [];
-            if (!assets.length && !forceRefresh) {
-                loadAndApply(true);
-                return;
-            }
             if (assets && assets.length) {
                 setCache(assets);
                 applyAssets(assets);

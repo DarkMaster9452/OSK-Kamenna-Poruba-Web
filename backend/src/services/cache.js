@@ -13,10 +13,13 @@ const IS_TEST = String(process.env.NODE_ENV || '').toLowerCase() === 'test';
  * Returns the parsed `payload` object if found and not expired, otherwise `null`.
  *
  * @param {string} key  - Cache key, e.g. 'matches', 'players', 'standings'
+ * @param {{ allowExpired?: boolean }} [options]
  * @returns {Promise<object|null>}
  */
-async function readCache(key) {
+async function readCache(key, options = {}) {
   if (IS_TEST) return null; // keep test environment clean
+
+  const allowExpired = !!(options && options.allowExpired);
 
   try {
     const entry = await prisma.sportnetCache.findUnique({
@@ -24,7 +27,7 @@ async function readCache(key) {
     });
 
     if (!entry) return null;
-    if (new Date() > entry.expiresAt) return null; // expired
+    if (!allowExpired && new Date() > entry.expiresAt) return null; // expired
 
     return entry.payload || null;
   } catch (err) {
