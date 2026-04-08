@@ -1305,7 +1305,7 @@
                 if (data.fetchedAt) {
                     const last = new Date(data.fetchedAt);
                     document.getElementById('cloudinaryLastRefreshTime').textContent = last.toLocaleString('sk-SK');
-                    const ttlMs = (data.cacheTtl || 604800) * 1000;
+                    const ttlMs = 604800 * 1000; // 7 dní
                     const next = new Date(last.getTime() + ttlMs);
                     document.getElementById('cloudinaryNextRefreshTime').textContent = next.toLocaleString('sk-SK');
                 }
