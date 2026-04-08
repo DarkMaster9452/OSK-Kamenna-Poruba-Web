@@ -12,7 +12,9 @@
     "test:watch": "jest --watch",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "vercel:build:prod": "node scripts/vercel-backend-deploy.js build",
+    "vercel:deploy:prod": "node scripts/vercel-backend-deploy.js deploy"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
