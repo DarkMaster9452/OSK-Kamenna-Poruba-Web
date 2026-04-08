@@ -591,7 +591,7 @@
                     })) return;
 
                     const sourceImages = (folder.images || []).map(function (img) {
-                        return { src: img.url, alt: leafName };
+                        return { src: img.thumbUrl || img.url, fullSrc: img.url, alt: leafName };
                     });
                     if (!sourceImages.length) return;
 
@@ -810,6 +810,7 @@
                 img.src = item.src;
                 img.alt = item.alt;
                 img.loading = 'lazy';
+                if (item.fullSrc) img.dataset.fullSrc = item.fullSrc;
                 wrapper.appendChild(img);
 
                 if (item.type === 'instagram') {
@@ -943,7 +944,7 @@
             if (idx < 0) idx = imgs.length - 1;
             if (idx >= imgs.length) idx = 0;
             currentImgIdx = idx;
-            modalImg.src = imgs[idx].src;
+            modalImg.src = imgs[idx].dataset.fullSrc || imgs[idx].src;
             modalImg.alt = imgs[idx].alt;
             modal.classList.add('active');
         }

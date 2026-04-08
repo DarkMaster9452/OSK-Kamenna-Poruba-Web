@@ -40,6 +40,11 @@ function buildDeliveryUrl(resource) {
   return url.replace('/image/upload/', '/image/upload/f_auto/');
 }
 
+function buildThumbnailUrl(secureUrl) {
+  if (!secureUrl || !secureUrl.includes('/image/upload/')) return secureUrl || '';
+  return secureUrl.replace('/image/upload/', '/image/upload/w_400,q_auto,f_auto/');
+}
+
 const NON_IMAGE_FORMATS = new Set(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar']);
 
 function isDisplayableImage(resource) {
@@ -332,7 +337,8 @@ async function fetchImagesForAssetFolder(folderPath) {
     for (const resource of (result.resources || [])) {
       if (isDisplayableImage(resource)) {
         images.push({
-        url: buildDeliveryUrl(resource),
+          url: buildDeliveryUrl(resource),
+          thumbUrl: buildThumbnailUrl(resource.secure_url),
           createdAt: resource.created_at || '',
           publicId: resource.public_id,
           format: resource.format || ''
@@ -400,6 +406,7 @@ async function collectAllFolderBlocks() {
 
     grouped.get(folderPath).images.push({
       url: buildDeliveryUrl(resource),
+      thumbUrl: buildThumbnailUrl(resource.secure_url),
       createdAt: resource.created_at || '',
       publicId: resource.public_id,
       format: resource.format || ''
@@ -497,6 +504,7 @@ async function getRootAssets({ forceRefresh = false } = {}) {
         })
         .map((r) => ({
           url: buildDeliveryUrl(r),
+          thumbUrl: buildThumbnailUrl(r.secure_url),
           publicId: r.public_id,
           format: r.format || '',
           filename: r.public_id + (r.format ? '.' + r.format : '')
@@ -600,10 +608,26 @@ async function uploadImageToStream(fileBuffer, folder = 'blog') {
   });
 }
 
+async function refreshAllCloudinaryCache() {
+  const [timeline, assets] = await Promise.allSettled([
+    getTimelineData({ forceRefresh: true }),
+    getRootAssets({ forceRefresh: true })
+  ]);
+  return {
+    timeline: timeline.status === 'fulfilled'
+      ? { folders: timeline.value.folders?.length ?? 0, fetchedAt: timeline.value.fetchedAt }
+      : { error: timeline.reason?.message || 'failed' },
+    assets: assets.status === 'fulfilled'
+      ? { assets: assets.value.assets?.length ?? 0, fetchedAt: assets.value.fetchedAt }
+      : { error: assets.reason?.message || 'failed' }
+  };
+}
+
 module.exports = {
   getTimelineData,
   getRootAssets,
   isConfigured,
   debugCloudinaryFolders,
-  uploadImageToStream
+  uploadImageToStream,
+  refreshAllCloudinaryCache
 };

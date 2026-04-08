@@ -1,5 +1,5 @@
 const express = require('express');
-const { getTimelineData, getRootAssets, isConfigured, debugCloudinaryFolders, uploadImageToStream } = require('../services/cloudinary.service');
+const { getTimelineData, getRootAssets, isConfigured, debugCloudinaryFolders, uploadImageToStream, refreshAllCloudinaryCache } = require('../services/cloudinary.service');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const multer = require('multer');
 const env = require('../config/env');
@@ -59,6 +59,16 @@ router.get('/debug', requireAuth, requireRole('admin'), async (req, res, next) =
   try {
     const data = await debugCloudinaryFolders();
     res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/cloudinary/refresh — admin-only forced cache refresh (no Cloudinary quota burned by visitors)
+router.post('/refresh', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const result = await refreshAllCloudinaryCache();
+    res.json({ ok: true, refreshedAt: new Date().toISOString(), ...result });
   } catch (err) {
     next(err);
   }
