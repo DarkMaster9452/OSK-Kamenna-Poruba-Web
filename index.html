@@ -4250,13 +4250,17 @@
             }
         }
 
-        if (slider && track && track.dataset.loopReady !== '1') {
+        function initLogoSlider() {
+            if (!slider || !track || track.dataset.loopReady === '1') return;
+
             const baseLogos = Array.from(track.children);
 
             function ensureCoverage() {
                 if (baseLogos.length === 0) return;
                 const minimumTrackWidth = slider.clientWidth * 2;
-                while (track.scrollWidth < minimumTrackWidth) {
+                if (minimumTrackWidth <= 0) return; // slider ešte nie je vykreslený
+                let cap = 20; // ochrana pred nekonečnou slučkou
+                while (track.scrollWidth < minimumTrackWidth && cap-- > 0) {
                     baseLogos.forEach((logo) => {
                         const clone = logo.cloneNode(true);
                         clone.setAttribute('aria-hidden', 'true');
@@ -4275,9 +4279,21 @@
                 let isPaused = false;
                 let rafId = null;
                 const speedPxPerSecond = 65;
-                const computedTrackStyles = window.getComputedStyle(track);
-                const gapPx = parseFloat(computedTrackStyles.columnGap || computedTrackStyles.gap || '0') || 0;
                 const MAX_DELTA_MS = 100;
+
+                // Zmeraj skutočnú medzeru priamo z layoutu (po načítaní obrázkov)
+                let gapPx = 0;
+                if (track.children.length >= 2) {
+                    const r0 = track.children[0].getBoundingClientRect();
+                    const r1 = track.children[1].getBoundingClientRect();
+                    gapPx = Math.max(0, r1.left - r0.right);
+                }
+                if (gapPx === 0) {
+                    const cs = window.getComputedStyle(track);
+                    const raw = cs.columnGap || cs.gap || '0';
+                    const parsed = parseFloat(raw);
+                    gapPx = isNaN(parsed) ? 0 : parsed;
+                }
 
                 slider.addEventListener('mouseenter', () => { isPaused = true; });
                 slider.addEventListener('mouseleave', () => { isPaused = false; });
@@ -4298,8 +4314,16 @@
                         offset += speedPxPerSecond * deltaSeconds;
 
                         let firstLogo = track.firstElementChild;
-                        while (firstLogo) {
-                            const firstWidth = firstLogo.offsetWidth + gapPx;
+                        let skipGuard = track.children.length + 1;
+                        while (firstLogo && skipGuard-- > 0) {
+                            const logoWidth = firstLogo.offsetWidth;
+                            if (logoWidth <= 0) {
+                                // Obrázok sa nenačítal — presuň na koniec bez zmeny offsetu
+                                track.appendChild(firstLogo);
+                                firstLogo = track.firstElementChild;
+                                continue;
+                            }
+                            const firstWidth = logoWidth + gapPx;
                             if (offset < firstWidth) break;
                             offset -= firstWidth;
                             track.appendChild(firstLogo);
@@ -4314,33 +4338,28 @@
 
                 function stopSlider() {
                     if (rafId) {
-                        cancelAnimationFrame(rafId); // ZRUŠ starý rAF — inak rafId zostane nenulové!
+                        cancelAnimationFrame(rafId);
                         rafId = null;
                     }
                 }
 
                 function startSlider() {
-                    stopSlider();             // vždy zruš starý, aj keby bol
-                    lastTimestamp = null;     // reset delta
+                    stopSlider();
+                    lastTimestamp = null;
                     rafId = requestAnimationFrame(animateMarquee);
                 }
 
-                // Stránka sa skryje (odchod na inú stránku / prepnutie taby)
                 document.addEventListener('visibilitychange', () => {
                     if (document.hidden) {
-                        stopSlider(); // aktívne zrušíme rAF pri skrytí
+                        stopSlider();
                     } else {
-                        startSlider(); // reštartujeme pri zobrazení
+                        startSlider();
                     }
                 });
 
-                // iOS Safari bfcache — stránka sa obnovila zo zálohy
                 window.addEventListener('pageshow', () => startSlider());
-
-                // Fallback: focus (napr. po prepnutí oken)
                 window.addEventListener('focus', () => startSlider());
 
-                // Watchdog: každú sekundu skontroluje že slider beží (bezpečnostná sieť)
                 setInterval(() => {
                     if (!document.hidden && !rafId) {
                         startSlider();
@@ -4349,6 +4368,14 @@
 
                 startSlider();
             }
+        }
+
+        // Spusti až po načítaní všetkých obrázkov — inak track.scrollWidth a offsetWidth
+        // sú 0 (obrázky bez načítaných rozmerov), čo rozbíja klonovanie aj animáciu
+        if (document.readyState === 'complete') {
+            initLogoSlider();
+        } else {
+            window.addEventListener('load', initLogoSlider);
         }
 
         // Close modal when clicking outside
