@@ -53,6 +53,9 @@ additionalDomains.forEach(domain => {
 if (nodeEnvRaw === 'production' && !frontendOrigins.includes('https://oskkp.sk')) {
   frontendOrigins.push('https://oskkp.sk');
 }
+if (nodeEnvRaw === 'production' && !frontendOrigins.includes('https://www.oskkp.sk')) {
+  frontendOrigins.push('https://www.oskkp.sk');
+}
 
 const env = {
   nodeEnv: nodeEnvRaw,
