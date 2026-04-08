@@ -451,7 +451,7 @@ async function getTimelineData({ forceRefresh = false } = {}) {
       };
 
       if (folders.length > 0) {
-        const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
+        const ttl = env.cloudinaryCacheSeconds * 1000;
         await writeCache('cloudinary_timeline', normalized, ttl);
       } else {
         console.warn(`[Cloudinary] No folders found — not caching empty result.`);
@@ -520,7 +520,7 @@ async function getRootAssets({ forceRefresh = false } = {}) {
         assets
       };
 
-      const ttl = Math.max(0, env.cloudinaryCacheSeconds || 1800) * 1000;
+      const ttl = env.cloudinaryCacheSeconds * 1000;
       await writeCache('cloudinary_assets', normalized, ttl);
 
       return { ...normalized, cache: 'MISS' };

@@ -18,7 +18,7 @@ function applyPublicCacheHeaders(res, forceRefresh) {
   }
 
   const browserTtl = 60 * 60;
-  const edgeTtl = Math.max(browserTtl, Number(env.cloudinaryCacheSeconds || 172800));
+  const edgeTtl = Math.max(browserTtl, env.cloudinaryCacheSeconds);
   res.set('Cache-Control', `public, max-age=${browserTtl}, s-maxage=${edgeTtl}, stale-while-revalidate=604800`);
 }
 
