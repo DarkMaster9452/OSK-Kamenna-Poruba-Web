@@ -1775,8 +1775,7 @@
                     {
                         method: 'GET',
                         headers: { Accept: 'application/json' },
-                        cache: 'no-store',
-                        localCacheTtlMs: 0
+                        localCacheTtlMs: 5 * 60 * 1000
                     }
                 );
                 const items = Array.isArray(payload?.items) ? payload.items : [];

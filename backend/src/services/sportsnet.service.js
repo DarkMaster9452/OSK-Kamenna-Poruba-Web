@@ -894,20 +894,16 @@ async function fetchSportsnetMatches({ forceRefresh = false } = {}) {
 
   if (!forceRefresh && cacheState.payload && cacheState.expiresAt > now) {
     if (!shouldIgnoreCacheForRefresh(cacheState.payload)) {
-      const sanitizedCachedPayload = await sanitizeMatchesPayload(cacheState.payload);
-      cacheState.payload = sanitizedCachedPayload;
-      return { ...sanitizedCachedPayload, cache: 'HIT' };
+      return { ...cacheState.payload, cache: 'HIT' };
     }
   }
 
   if (!forceRefresh) {
     const dbCached = await readCache('matches');
     if (dbCached && !shouldIgnoreCacheForRefresh(dbCached)) {
-      const sanitizedDbCached = await sanitizeMatchesPayload(dbCached);
-      cacheState.payload = sanitizedDbCached;
+      cacheState.payload = dbCached;
       cacheState.expiresAt = now + cacheTtlSet;
-      writeCache('matches', sanitizedDbCached, cacheTtlSet).catch(console.error);
-      return { ...sanitizedDbCached, cache: 'HIT' };
+      return { ...dbCached, cache: 'HIT' };
     }
   }
 
