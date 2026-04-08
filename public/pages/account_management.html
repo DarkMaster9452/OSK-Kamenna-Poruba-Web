@@ -476,6 +476,21 @@
         </div>
 
         <div class="card">
+            <h3><i class="fas fa-images"></i> Cloudinary galéria</h3>
+            <p style="margin:0 0 12px;font-size:14px;color:#444;">Manuálne obnovenie cache galérie z Cloudinary API (albumy, obrázky).</p>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <button id="cloudinaryRefreshBtn" class="btn btn-primary" type="button" onclick="triggerCloudinaryRefresh()">
+                    <i class="fas fa-sync-alt"></i> Obnoviť Cloudinary cache
+                </button>
+                <span id="cloudinaryRefreshStatus" style="font-size:13px;"></span>
+            </div>
+            <div id="cloudinaryRefreshTimeInfo" style="margin-top:12px; padding:10px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:13px; color:#555; display:flex; gap:20px;">
+                <span><strong>Posledná aktualizácia:</strong> <span id="cloudinaryLastRefreshTime">—</span></span>
+            </div>
+            <div id="cloudinaryRefreshMessage" style="margin-top:8px;"></div>
+        </div>
+
+        <div class="card">
             <h3>Zoznam účtov</h3>
             <div id="listMessage"></div>
             <div class="list-toolbar">
@@ -1256,6 +1271,40 @@
                 }
             } catch (err) {
                 console.error('Failed to update refresh info UI:', err);
+            }
+        }
+
+        async function triggerCloudinaryRefresh() {
+            const btn = document.getElementById('cloudinaryRefreshBtn');
+            const status = document.getElementById('cloudinaryRefreshStatus');
+            const msg = document.getElementById('cloudinaryRefreshMessage');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Obnov ujem...';
+            status.textContent = '';
+            msg.className = '';
+            msg.textContent = '';
+
+            try {
+                const csrfToken = window.OSKSession ? window.OSKSession.getCsrfToken() : null;
+                const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
+                if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+                const res = await fetch(`${API_BASE}/cloudinary/refresh`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                const refreshedAt = new Date(data.refreshedAt || Date.now()).toLocaleString('sk-SK');
+                msg.className = 'success';
+                msg.textContent = `Cache galérie bola obnovená. Čas: ${refreshedAt}`;
+                document.getElementById('cloudinaryLastRefreshTime').textContent = refreshedAt;
+            } catch (err) {
+                msg.className = 'error';
+                msg.textContent = 'Obnovenie zlyhalo: ' + (err.message || 'Neznáma chyba');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Obnoviť Cloudinary cache';
             }
         }
 
