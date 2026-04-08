@@ -471,14 +471,17 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
                 <div>
                     <h3 style="margin-top:0;"><i class="fas fa-satellite-dish"></i> Sportnet API</h3>
-                    <p style="margin:0 0 12px;font-size:14px;color:#444;">Manuálne spustenie aktualizácie dát zo Sportnet (zápasy, hráči, tabuľky).</p>
+                    <p style="margin:0 0 12px;font-size:14px;color:#444;">Manuálne spustenie aktualizácie dát zo
+                        Sportnet (zápasy, hráči, tabuľky).</p>
                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                        <button id="sportnetRefreshBtn" class="btn btn-primary" type="button" onclick="triggerSportnetRefresh()">
+                        <button id="sportnetRefreshBtn" class="btn btn-primary" type="button"
+                            onclick="triggerSportnetRefresh()">
                             <i class="fas fa-sync-alt"></i> Aktualizovať Sportnet dáta
                         </button>
                         <span id="sportnetRefreshStatus" style="font-size:13px;"></span>
                     </div>
-                    <div id="sportnetRefreshTimeInfo" style="margin-top:12px;padding:10px;background:rgba(0,0,0,0.03);border-radius:6px;font-size:13px;color:#555;display:flex;flex-direction:column;gap:6px;">
+                    <div id="sportnetRefreshTimeInfo"
+                        style="margin-top:12px;padding:10px;background:rgba(0,0,0,0.03);border-radius:6px;font-size:13px;color:#555;display:flex;flex-direction:column;gap:6px;">
                         <span><strong>Posledná aktualizácia:</strong> <span id="lastRefreshTime">—</span></span>
                         <span><strong>Nasledujúca aktualizácia:</strong> <span id="nextRefreshTime">—</span></span>
                     </div>
@@ -486,15 +489,19 @@
                 </div>
                 <div style="border-left:1px solid #e5e7eb;padding-left:24px;">
                     <h3 style="margin-top:0;"><i class="fas fa-images"></i> Cloudinary galéria</h3>
-                    <p style="margin:0 0 12px;font-size:14px;color:#444;">Manuálne obnovenie cache galérie z Cloudinary API (albumy, obrázky).</p>
+                    <p style="margin:0 0 12px;font-size:14px;color:#444;">Manuálne obnovenie cache galérie z Cloudinary
+                        API (albumy, obrázky).</p>
                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                        <button id="cloudinaryRefreshBtn" class="btn btn-primary" type="button" onclick="triggerCloudinaryRefresh()">
+                        <button id="cloudinaryRefreshBtn" class="btn btn-primary" type="button"
+                            onclick="triggerCloudinaryRefresh()">
                             <i class="fas fa-sync-alt"></i> Obnoviť Cloudinary cache
                         </button>
                         <span id="cloudinaryRefreshStatus" style="font-size:13px;"></span>
                     </div>
-                    <div id="cloudinaryRefreshTimeInfo" style="margin-top:12px;padding:10px;background:rgba(0,0,0,0.03);border-radius:6px;font-size:13px;color:#555;display:flex;flex-direction:column;gap:6px;">
-                        <span><strong>Posledná aktualizácia:</strong> <span id="cloudinaryLastRefreshTime">—</span></span>
+                    <div id="cloudinaryRefreshTimeInfo"
+                        style="margin-top:12px;padding:10px;background:rgba(0,0,0,0.03);border-radius:6px;font-size:13px;color:#555;display:flex;flex-direction:column;gap:6px;">
+                        <span><strong>Posledná aktualizácia:</strong> <span
+                                id="cloudinaryLastRefreshTime">—</span></span>
                     </div>
                     <div id="cloudinaryRefreshMessage" style="margin-top:8px;"></div>
                 </div>
