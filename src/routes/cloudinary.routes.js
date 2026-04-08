@@ -36,7 +36,8 @@ router.get('/timeline', async (req, res, next) => {
     const forceRefresh = req.query.refresh === '1';
     const data = await getTimelineData({ forceRefresh });
     applyPublicCacheHeaders(res, forceRefresh);
-    res.json(data);
+    const cacheTtl = Math.max(0, Number(env.cloudinaryCacheSeconds || 1800));
+    res.json({ ...data, cacheTtl });
   } catch (err) {
     next(err);
   }

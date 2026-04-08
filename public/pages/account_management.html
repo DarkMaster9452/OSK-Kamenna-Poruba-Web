@@ -502,6 +502,7 @@
                         style="margin-top:12px;padding:10px;background:rgba(0,0,0,0.03);border-radius:6px;font-size:13px;color:#555;display:flex;flex-direction:column;gap:6px;">
                         <span><strong>Posledná aktualizácia:</strong> <span
                                 id="cloudinaryLastRefreshTime">—</span></span>
+                        <span><strong>Nasledujúca aktualizácia:</strong> <span id="cloudinaryNextRefreshTime">—</span></span>
                     </div>
                     <div id="cloudinaryRefreshMessage" style="margin-top:8px;"></div>
                 </div>
@@ -1301,7 +1302,11 @@
                 if (!res.ok) return;
                 const data = await res.json();
                 if (data.fetchedAt) {
-                    document.getElementById('cloudinaryLastRefreshTime').textContent = new Date(data.fetchedAt).toLocaleString('sk-SK');
+                    const last = new Date(data.fetchedAt);
+                    document.getElementById('cloudinaryLastRefreshTime').textContent = last.toLocaleString('sk-SK');
+                    const ttlMs = (data.cacheTtl || 1800) * 1000;
+                    const next = new Date(last.getTime() + ttlMs);
+                    document.getElementById('cloudinaryNextRefreshTime').textContent = next.toLocaleString('sk-SK');
                 }
             } catch (err) {
                 console.error('Failed to update Cloudinary refresh info UI:', err);
@@ -1329,10 +1334,12 @@
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                const refreshedAt = new Date(data.refreshedAt || Date.now()).toLocaleString('sk-SK');
+                const refreshedTime = new Date(data.refreshedAt || Date.now());
+                const refreshedAt = refreshedTime.toLocaleString('sk-SK');
                 msg.className = 'success';
                 msg.textContent = `Cache galérie bola obnovená. Čas: ${refreshedAt}`;
                 document.getElementById('cloudinaryLastRefreshTime').textContent = refreshedAt;
+                await updateCloudinaryRefreshUI();
             } catch (err) {
                 msg.className = 'error';
                 msg.textContent = 'Obnovenie zlyhalo: ' + (err.message || 'Neznáma chyba');
