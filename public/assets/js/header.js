@@ -389,7 +389,7 @@
             '    </a>',
             '    <nav class="sh-nav" id="shMainNav">',
             '      <ul>',
-            '        <li><a href="https://www.youtube.com/watch?v=6O6dXolx4Gg" target="_blank" rel="noopener noreferrer" class="sh-nav-live"><i class="fab fa-youtube"></i> Live Stream <span class="nav-dot"></span></a></li>',
+            '        <li><a href="https://www.youtube.com/watch?v=6O6dXolx4Gg" target="_blank" rel="noopener noreferrer" class="sh-nav-live">Live Stream <span class="nav-dot"></span></a></li>',
             '        <li><a href="/index.html"><i class="fas fa-home"></i> Domov</a></li>',
             '        <li><a href="/pages/vedenie.html">Vedenie klubu</a></li>',
             '        <li><a href="/pages/atim.html">A-tím</a></li>',
