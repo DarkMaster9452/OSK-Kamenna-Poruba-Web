@@ -14,7 +14,27 @@
         gtag('config', 'G-P152RNBL34');
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@aejkatappaja/phantom-ui/dist/phantom-ui.cdn.js" defer></script>
     <style>
+        phantom-ui[loading] * {
+            -webkit-text-fill-color: transparent !important;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        phantom-ui[loading] img,
+        phantom-ui[loading] svg,
+        phantom-ui[loading] video,
+        phantom-ui[loading] canvas,
+        phantom-ui[loading] button,
+        phantom-ui[loading] [role="button"] {
+            opacity: 0 !important;
+        }
+
+        phantom-ui {
+            display: contents;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -1247,9 +1267,137 @@
                 <button class="standings-tab" data-cat="ziaci">Žiaci</button>
                 <button class="standings-tab" data-cat="pripravka">Prípravka</button>
             </div>
-            <div id="standingsSectionContainer">
-                <div style="text-align:center;padding:40px;color:#666;">Načítavam tabuľku...</div>
-            </div>
+            <phantom-ui id="phantom-standings" loading reveal="0.3">
+                <div id="standingsSectionContainer">
+                    <div class="standings-group" style="margin-bottom:30px">
+                        <h4 class="standings-league-title">Súťaž placeholder lig title</h4>
+                        <div class="table-wrap"
+                            style="border:1px solid #e6ebf3;border-radius:12px;background:#fff;max-width:100%">
+                            <table class="standings-table">
+                                <thead style="background:#f8fbff;border-bottom:2px solid #eef4ff">
+                                    <tr>
+                                        <th class="standings-rank-cell" style="padding:12px 15px">#</th>
+                                        <th style="padding:12px 15px">Tím</th>
+                                        <th class="center" style="padding:12px 15px">OZ</th>
+                                        <th class="center" style="padding:12px 15px">V</th>
+                                        <th class="center" style="padding:12px 15px">R</th>
+                                        <th class="center" style="padding:12px 15px">P</th>
+                                        <th class="center" style="padding:12px 15px">SKÓRE</th>
+                                        <th class="center" style="padding:12px 15px">+/-</th>
+                                        <th class="center" style="padding:12px 15px">B</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding:12px 15px">1.</td>
+                                        <td style="padding:12px 15px"><span class="standings-team-name">Tím placeholder
+                                                alpha</span></td>
+                                        <td class="center" style="padding:12px 15px">10</td>
+                                        <td class="center" style="padding:12px 15px">8</td>
+                                        <td class="center" style="padding:12px 15px">1</td>
+                                        <td class="center" style="padding:12px 15px">1</td>
+                                        <td class="center" style="padding:12px 15px">24:6</td>
+                                        <td class="center" style="padding:12px 15px">+18</td>
+                                        <td class="center" style="padding:12px 15px"><span
+                                                class="standings-points">25</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:12px 15px">2.</td>
+                                        <td style="padding:12px 15px"><span class="standings-team-name">Tím placeholder
+                                                beta</span></td>
+                                        <td class="center" style="padding:12px 15px">10</td>
+                                        <td class="center" style="padding:12px 15px">7</td>
+                                        <td class="center" style="padding:12px 15px">1</td>
+                                        <td class="center" style="padding:12px 15px">2</td>
+                                        <td class="center" style="padding:12px 15px">20:9</td>
+                                        <td class="center" style="padding:12px 15px">+11</td>
+                                        <td class="center" style="padding:12px 15px"><span
+                                                class="standings-points">22</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:12px 15px">3.</td>
+                                        <td style="padding:12px 15px"><span class="standings-team-name">Tím placeholder
+                                                gamma</span></td>
+                                        <td class="center" style="padding:12px 15px">10</td>
+                                        <td class="center" style="padding:12px 15px">6</td>
+                                        <td class="center" style="padding:12px 15px">2</td>
+                                        <td class="center" style="padding:12px 15px">2</td>
+                                        <td class="center" style="padding:12px 15px">18:10</td>
+                                        <td class="center" style="padding:12px 15px">+8</td>
+                                        <td class="center" style="padding:12px 15px"><span
+                                                class="standings-points">20</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:12px 15px">4.</td>
+                                        <td style="padding:12px 15px"><span class="standings-team-name">Tím placeholder
+                                                delta</span></td>
+                                        <td class="center" style="padding:12px 15px">10</td>
+                                        <td class="center" style="padding:12px 15px">5</td>
+                                        <td class="center" style="padding:12px 15px">2</td>
+                                        <td class="center" style="padding:12px 15px">3</td>
+                                        <td class="center" style="padding:12px 15px">15:12</td>
+                                        <td class="center" style="padding:12px 15px">+3</td>
+                                        <td class="center" style="padding:12px 15px"><span
+                                                class="standings-points">17</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:12px 15px">5.</td>
+                                        <td style="padding:12px 15px"><span class="standings-team-name">OŠK Kamenná
+                                                Poruba</span></td>
+                                        <td class="center" style="padding:12px 15px">10</td>
+                                        <td class="center" style="padding:12px 15px">4</td>
+                                        <td class="center" style="padding:12px 15px">3</td>
+                                        <td class="center" style="padding:12px 15px">3</td>
+                                        <td class="center" style="padding:12px 15px">14:13</td>
+                                        <td class="center" style="padding:12px 15px">+1</td>
+                                        <td class="center" style="padding:12px 15px"><span
+                                                class="standings-points">15</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:12px 15px">6.</td>
+                                        <td style="padding:12px 15px"><span class="standings-team-name">Tím placeholder
+                                                zeta</span></td>
+                                        <td class="center" style="padding:12px 15px">10</td>
+                                        <td class="center" style="padding:12px 15px">3</td>
+                                        <td class="center" style="padding:12px 15px">2</td>
+                                        <td class="center" style="padding:12px 15px">5</td>
+                                        <td class="center" style="padding:12px 15px">11:16</td>
+                                        <td class="center" style="padding:12px 15px">-5</td>
+                                        <td class="center" style="padding:12px 15px"><span
+                                                class="standings-points">11</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:12px 15px">7.</td>
+                                        <td style="padding:12px 15px"><span class="standings-team-name">Tím placeholder
+                                                eta</span></td>
+                                        <td class="center" style="padding:12px 15px">10</td>
+                                        <td class="center" style="padding:12px 15px">2</td>
+                                        <td class="center" style="padding:12px 15px">2</td>
+                                        <td class="center" style="padding:12px 15px">6</td>
+                                        <td class="center" style="padding:12px 15px">9:19</td>
+                                        <td class="center" style="padding:12px 15px">-10</td>
+                                        <td class="center" style="padding:12px 15px"><span
+                                                class="standings-points">8</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:12px 15px">8.</td>
+                                        <td style="padding:12px 15px"><span class="standings-team-name">Tím placeholder
+                                                theta</span></td>
+                                        <td class="center" style="padding:12px 15px">10</td>
+                                        <td class="center" style="padding:12px 15px">1</td>
+                                        <td class="center" style="padding:12px 15px">1</td>
+                                        <td class="center" style="padding:12px 15px">8</td>
+                                        <td class="center" style="padding:12px 15px">5:21</td>
+                                        <td class="center" style="padding:12px 15px">-16</td>
+                                        <td class="center" style="padding:12px 15px"><span
+                                                class="standings-points">4</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </phantom-ui>
         </div>
     </div>
 
@@ -1698,6 +1846,8 @@
                 loadStandingsFromApi()
             ]);
             renderStandings();
+            const phantomStandings = document.getElementById('phantom-standings');
+            if (phantomStandings) phantomStandings.removeAttribute('loading');
         });
 
         function renderCategoryTabs() {
