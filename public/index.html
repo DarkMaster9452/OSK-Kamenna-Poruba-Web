@@ -5359,8 +5359,10 @@
                         `;
                     }
 
-                    const hLogo = m.homeLogo ? `<img src="${m.homeLogo}" alt="${m.homeTeam}">` : '';
-                    const aLogo = m.awayLogo ? `<img src="${m.awayLogo}" alt="${m.awayTeam}">` : '';
+                    const hLogoSrc = m.homeLogo || getClubLogo(m.homeTeam);
+                    const aLogoSrc = m.awayLogo || getClubLogo(m.awayTeam);
+                    const hLogo = hLogoSrc ? `<img src="${hLogoSrc}" alt="${m.homeTeam}">` : '';
+                    const aLogo = aLogoSrc ? `<img src="${aLogoSrc}" alt="${m.awayTeam}">` : '';
 
                     return `
                     <div class="match-card" onclick="goToMatchesFromHome(event)">
