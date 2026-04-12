@@ -5361,8 +5361,14 @@
 
                     const hLogoSrc = m.homeLogo || getClubLogo(m.homeTeam);
                     const aLogoSrc = m.awayLogo || getClubLogo(m.awayTeam);
-                    const hLogo = hLogoSrc ? `<img src="${hLogoSrc}" alt="${m.homeTeam}">` : '';
-                    const aLogo = aLogoSrc ? `<img src="${aLogoSrc}" alt="${m.awayTeam}">` : '';
+                    const buildMatchLogoHtml = (name, src) => {
+                        if (src) return `<img src="${src}" alt="${name}" onerror="this.style.display='none';this.nextElementSibling&&(this.nextElementSibling.style.display='flex')">`;
+                        const abbr = String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+                        const own = idxIsOwnTeam(name);
+                        return `<div class="standings-team-abbr${own ? ' own-team' : ''}" style="width:52px;height:52px;font-size:18px;">${abbr}</div>`;
+                    };
+                    const hLogo = buildMatchLogoHtml(m.homeTeam, hLogoSrc);
+                    const aLogo = buildMatchLogoHtml(m.awayTeam, aLogoSrc);
 
                     return `
                     <div class="match-card" onclick="goToMatchesFromHome(event)">
