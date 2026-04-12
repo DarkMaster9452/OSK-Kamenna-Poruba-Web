@@ -26,9 +26,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@aejkatappaja/phantom-ui/dist/phantom-ui.cdn.js" defer></script>
     <style>
-        phantom-ui[loading] * { -webkit-text-fill-color: transparent !important; pointer-events: none; user-select: none; }
-        phantom-ui[loading] img, phantom-ui[loading] svg, phantom-ui[loading] video, phantom-ui[loading] canvas, phantom-ui[loading] button, phantom-ui[loading] [role="button"] { opacity: 0 !important; }
-        phantom-ui { display: contents; }
+        phantom-ui[loading] * {
+            -webkit-text-fill-color: transparent !important;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        phantom-ui[loading] img,
+        phantom-ui[loading] svg,
+        phantom-ui[loading] video,
+        phantom-ui[loading] canvas,
+        phantom-ui[loading] button,
+        phantom-ui[loading] [role="button"] {
+            opacity: 0 !important;
+        }
+
+        phantom-ui {
+            display: contents;
+        }
     </style>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="/assets/js/session.js"></script>
@@ -3230,24 +3245,101 @@
                         <button class="standings-tab" data-cat="pripravka">Prípravka</button>
                     </div>
                     <phantom-ui id="phantom-idx-standings" loading reveal="0.3">
-                    <div id="standingsSectionContainer">
-                        <div class="idx-standings-group">
-                            <div class="standings-league-title">Liga placeholder súťaž názov text</div>
-                            <div class="table-wrap">
-                                <table class="standings-table">
-                                    <thead><tr><th class="standings-rank-cell">#</th><th>Tím</th><th class="center">OZ</th><th class="center">V</th><th class="center">R</th><th class="center">P</th><th class="center">SKÓRE</th><th class="center">+/-</th><th class="center">B</th></tr></thead>
-                                    <tbody>
-                                        <tr><td>1.</td><td><span class="standings-team-name">Tím placeholder alpha lorem</span></td><td class="center">10</td><td class="center">8</td><td class="center">1</td><td class="center">1</td><td class="center">24:6</td><td class="center">+18</td><td class="center"><span class="standings-points">25</span></td></tr>
-                                        <tr><td>2.</td><td><span class="standings-team-name">Tím placeholder beta lorem</span></td><td class="center">10</td><td class="center">7</td><td class="center">1</td><td class="center">2</td><td class="center">20:9</td><td class="center">+11</td><td class="center"><span class="standings-points">22</span></td></tr>
-                                        <tr><td>3.</td><td><span class="standings-team-name">OŠK Kamenná Poruba</span></td><td class="center">10</td><td class="center">6</td><td class="center">2</td><td class="center">2</td><td class="center">18:10</td><td class="center">+8</td><td class="center"><span class="standings-points">20</span></td></tr>
-                                        <tr><td>4.</td><td><span class="standings-team-name">Tím placeholder delta lorem</span></td><td class="center">10</td><td class="center">5</td><td class="center">2</td><td class="center">3</td><td class="center">15:12</td><td class="center">+3</td><td class="center"><span class="standings-points">17</span></td></tr>
-                                        <tr><td>5.</td><td><span class="standings-team-name">Tím placeholder epsilon</span></td><td class="center">10</td><td class="center">4</td><td class="center">2</td><td class="center">4</td><td class="center">13:14</td><td class="center">-1</td><td class="center"><span class="standings-points">14</span></td></tr>
-                                        <tr><td>6.</td><td><span class="standings-team-name">Tím placeholder zeta lorem</span></td><td class="center">10</td><td class="center">3</td><td class="center">2</td><td class="center">5</td><td class="center">11:16</td><td class="center">-5</td><td class="center"><span class="standings-points">11</span></td></tr>
-                                    </tbody>
-                                </table>
+                        <div id="standingsSectionContainer">
+                            <div class="idx-standings-group">
+                                <div class="standings-league-title">Liga placeholder súťaž názov text</div>
+                                <div class="table-wrap">
+                                    <table class="standings-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="standings-rank-cell">#</th>
+                                                <th>Tím</th>
+                                                <th class="center">OZ</th>
+                                                <th class="center">V</th>
+                                                <th class="center">R</th>
+                                                <th class="center">P</th>
+                                                <th class="center">SKÓRE</th>
+                                                <th class="center">+/-</th>
+                                                <th class="center">B</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1.</td>
+                                                <td><span class="standings-team-name">Tím placeholder alpha lorem</span>
+                                                </td>
+                                                <td class="center">10</td>
+                                                <td class="center">8</td>
+                                                <td class="center">1</td>
+                                                <td class="center">1</td>
+                                                <td class="center">24:6</td>
+                                                <td class="center">+18</td>
+                                                <td class="center"><span class="standings-points">25</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2.</td>
+                                                <td><span class="standings-team-name">Tím placeholder beta lorem</span>
+                                                </td>
+                                                <td class="center">10</td>
+                                                <td class="center">7</td>
+                                                <td class="center">1</td>
+                                                <td class="center">2</td>
+                                                <td class="center">20:9</td>
+                                                <td class="center">+11</td>
+                                                <td class="center"><span class="standings-points">22</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>3.</td>
+                                                <td><span class="standings-team-name">OŠK Kamenná Poruba</span></td>
+                                                <td class="center">10</td>
+                                                <td class="center">6</td>
+                                                <td class="center">2</td>
+                                                <td class="center">2</td>
+                                                <td class="center">18:10</td>
+                                                <td class="center">+8</td>
+                                                <td class="center"><span class="standings-points">20</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>4.</td>
+                                                <td><span class="standings-team-name">Tím placeholder delta lorem</span>
+                                                </td>
+                                                <td class="center">10</td>
+                                                <td class="center">5</td>
+                                                <td class="center">2</td>
+                                                <td class="center">3</td>
+                                                <td class="center">15:12</td>
+                                                <td class="center">+3</td>
+                                                <td class="center"><span class="standings-points">17</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>5.</td>
+                                                <td><span class="standings-team-name">Tím placeholder epsilon</span>
+                                                </td>
+                                                <td class="center">10</td>
+                                                <td class="center">4</td>
+                                                <td class="center">2</td>
+                                                <td class="center">4</td>
+                                                <td class="center">13:14</td>
+                                                <td class="center">-1</td>
+                                                <td class="center"><span class="standings-points">14</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>6.</td>
+                                                <td><span class="standings-team-name">Tím placeholder zeta lorem</span>
+                                                </td>
+                                                <td class="center">10</td>
+                                                <td class="center">3</td>
+                                                <td class="center">2</td>
+                                                <td class="center">5</td>
+                                                <td class="center">11:16</td>
+                                                <td class="center">-5</td>
+                                                <td class="center"><span class="standings-points">11</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     </phantom-ui>
                     <div class="matches-home-actions" style="margin-top:28px;">
                         <a href="/pages/matches.html" class="btn btn-primary" id="standingsHomeCtaBtn">
@@ -3629,7 +3721,8 @@
                     alt="Elisas" class="logo-double" /></a>
             <a href="" target="_blank" rel="noopener noreferrer"><img src="/assets/images/LV_Energy_imoyse.jpg"
                     alt="LV Energy" class="logo-double" /></a>
-            <a href="https://www.budis.sk/en/the-most-popular-mineral-water-in-slovakia/" target="_blank" rel="noopener noreferrer"><img src="/assets/images/Budis.jpg" alt="Budis" class="logo-double" /></a>
+            <a href="https://www.budis.sk/en/the-most-popular-mineral-water-in-slovakia/" target="_blank"
+                rel="noopener noreferrer"><img src="/assets/images/Budis.jpg" alt="Budis" class="logo-double" /></a>
         </div>
     </div>
     <!-- Rest of scripts -->
