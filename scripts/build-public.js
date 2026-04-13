@@ -3,7 +3,7 @@ const path = require('path');
 
 const projectRoot = path.resolve(__dirname, '..');
 const publicDir = path.join(projectRoot, 'public');
-const itemsToCopy = ['index.html', 'pages', 'assets'];
+const itemsToCopy = ['index.html', 'sitemap.xml', 'pages', 'assets'];
 
 fs.rmSync(publicDir, { recursive: true, force: true });
 fs.mkdirSync(publicDir, { recursive: true });
