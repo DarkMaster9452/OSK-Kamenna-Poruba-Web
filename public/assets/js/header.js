@@ -398,6 +398,7 @@
             '        <li><a href="/pages/tabulka.html">Tabuľka</a></li>',
             '        <li><a href="/pages/galeria.html">Galéria</a></li>',
             '        <li><a href="/pages/blog.html">Blog</a></li>',
+            '        <li><a href="https://4mysport.sk/oskkamennaporuba/" target="_blank" rel="noopener" style="color:#ffd700;font-weight:700;"><i class="fas fa-store"></i> Eshop</a></li>',
             '        <li><a href="' + contactHref + '">Kontakt</a></li>',
             '        <li id="coachAccountMgmtBtn" style="display:none;"><a href="/pages/account_management.html"><i class="fas fa-users-cog"></i> Správa účtov</a></li>',
             '        <li id="coachGroupsBtn" style="display:none;"><a href="/pages/skupiny.html"><i class="fas fa-layer-group"></i> Skupiny</a></li>',
