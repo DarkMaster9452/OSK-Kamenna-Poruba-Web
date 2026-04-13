@@ -20,74 +20,59 @@
 			]
 		}
 	],
-	"redirects": [
+	"rewrites": [
 		{
 			"source": "/account_management.html",
-			"destination": "/pages/account_management.html",
-			"permanent": true
+			"destination": "/pages/account_management.html"
 		},
 		{
 			"source": "/akademia.html",
-			"destination": "/pages/akademia.html",
-			"permanent": true
+			"destination": "/pages/akademia.html"
 		},
 		{
 			"source": "/atim.html",
-			"destination": "/pages/atim.html",
-			"permanent": true
+			"destination": "/pages/atim.html"
 		},
 		{
 			"source": "/blog.html",
-			"destination": "/pages/blog.html",
-			"permanent": true
+			"destination": "/pages/blog.html"
 		},
 		{
 			"source": "/galeria.html",
-			"destination": "/pages/galeria.html",
-			"permanent": true
+			"destination": "/pages/galeria.html"
 		},
 		{
 			"source": "/important_info.html",
-			"destination": "/pages/important_info.html",
-			"permanent": true
+			"destination": "/pages/important_info.html"
 		},
 		{
 			"source": "/matches.html",
-			"destination": "/pages/matches.html",
-			"permanent": true
+			"destination": "/pages/matches.html"
 		},
 		{
 			"source": "/player_detail_coach.html",
-			"destination": "/pages/player_detail_coach.html",
-			"permanent": true
+			"destination": "/pages/player_detail_coach.html"
 		},
 		{
 			"source": "/reset_password.html",
-			"destination": "/pages/reset_password.html",
-			"permanent": true
+			"destination": "/pages/reset_password.html"
 		},
 		{
 			"source": "/skupiny.html",
-			"destination": "/pages/skupiny.html",
-			"permanent": true
+			"destination": "/pages/skupiny.html"
 		},
 		{
 			"source": "/tabulka.html",
-			"destination": "/pages/tabulka.html",
-			"permanent": true
+			"destination": "/pages/tabulka.html"
 		},
 		{
 			"source": "/trainings.html",
-			"destination": "/pages/trainings.html",
-			"permanent": true
+			"destination": "/pages/trainings.html"
 		},
 		{
 			"source": "/vedenie.html",
-			"destination": "/pages/vedenie.html",
-			"permanent": true
-		}
-	],
-	"rewrites": [
+			"destination": "/pages/vedenie.html"
+		},
 		{
 			"source": "/api/cron-sportnet",
 			"destination": "/api/cron-sportnet.js"
