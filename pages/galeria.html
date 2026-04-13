@@ -782,6 +782,19 @@
 
             document.getElementById('statusText').hidden = currentAlbum !== 'instagram';
 
+            if (currentAlbum !== 'instagram' && cloudinaryLoading) {
+                grid.innerHTML = '';
+                var skelFrag = document.createDocumentFragment();
+                for (var s = 0; s < 12; s++) {
+                    var sk = document.createElement('div');
+                    sk.className = 'skeleton-item';
+                    skelFrag.appendChild(sk);
+                }
+                grid.appendChild(skelFrag);
+                document.getElementById('loadMoreBtn').hidden = true;
+                return;
+            }
+
             if (currentAlbum === 'instagram') {
                 itemsToShow = instagramItems.map(makeInstagramItem);
             } else {
@@ -824,19 +837,6 @@
                     titleEl.style.display = hasTitle ? 'block' : 'none';
                     pointsEl.innerHTML = (conf.points || []).map(p => '<li>' + p + '</li>').join('');
                 }
-            }
-
-            if (currentAlbum !== 'instagram' && cloudinaryLoading) {
-                grid.innerHTML = '';
-                var skelFrag = document.createDocumentFragment();
-                for (var s = 0; s < 12; s++) {
-                    var sk = document.createElement('div');
-                    sk.className = 'skeleton-item';
-                    skelFrag.appendChild(sk);
-                }
-                grid.appendChild(skelFrag);
-                document.getElementById('loadMoreBtn').hidden = true;
-                return;
             }
 
             if (!itemsToShow.length) {
