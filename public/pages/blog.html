@@ -387,6 +387,14 @@
             <div class="form-grid">
                 <input id="postTitle" placeholder="Nadpis príspevku" maxlength="200" />
                 <textarea id="postContent" placeholder="Obsah príspevku"></textarea>
+                <div>
+                    <label class="file-field-label" style="font-size:14px;font-weight:700;color:#003399;display:block;margin-bottom:6px;" for="postTag">Kategória príspevku</label>
+                    <select id="postTag">
+                        <option value="">— Bez kategórie —</option>
+                        <option value="Rozhovory">Rozhovory</option>
+                        <option value="Paľove Futbaloviny">Paľove Futbaloviny</option>;x
+                    </select>
+                </div>
                 <div class="file-field">
                     <label class="file-field-label" for="postImage">Fotografia k príspevku</label>
                     <input id="postImage" type="file" accept="image/*" onchange="handlePostImageSelection(event)" />
@@ -448,6 +456,7 @@
 
     <script>
         const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
+        const PREDEFINED_TAGS = ['Rozhovory', 'Paľove Futbaloviny'];
         let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
         let manageItems = [];
         let currentTagFilter = 'Všetky';
@@ -461,6 +470,7 @@
             if (!container) return;
 
             const tags = new Set(['Všetky']);
+            PREDEFINED_TAGS.forEach((tag) => tags.add(tag));
             posts.forEach((post) => {
                 if (post.tags && post.tags.length > 0) {
                     post.tags.forEach((tag) => tags.add(tag));
@@ -612,6 +622,11 @@
                 contentInput.value = '';
             }
 
+            const tagSelect = document.getElementById('postTag');
+            if (tagSelect) {
+                tagSelect.value = '';
+            }
+
             renderComposerImagePreview();
 
             if (message && !options.keepMessage) {
@@ -648,6 +663,12 @@
 
             if (contentInput) {
                 contentInput.value = post.content || '';
+            }
+
+            const tagSelect = document.getElementById('postTag');
+            if (tagSelect) {
+                const firstTag = Array.isArray(post.tags) && post.tags.length > 0 ? post.tags[0] : '';
+                tagSelect.value = firstTag;
             }
 
             renderComposerImagePreview();
@@ -926,7 +947,11 @@
                         content,
                         published: existingPost ? existingPost.published !== false : true,
                         imageUrl,
-                        tags: existingPost && Array.isArray(existingPost.tags) ? existingPost.tags : []
+                        tags: (() => {
+                            const tagSelect = document.getElementById('postTag');
+                            const selectedTag = tagSelect ? tagSelect.value.trim() : '';
+                            return selectedTag ? [selectedTag] : [];
+                        })()
                     })
                 });
 
