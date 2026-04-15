@@ -31,18 +31,22 @@ const WEB_SAFE_IMAGE_FORMATS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'sv
 
 function buildDeliveryUrl(resource) {
   const url = resource?.secure_url || '';
-  const format = String(resource?.format || '').toLowerCase();
+  if (!url || !url.includes('/image/upload/')) return url;
+  // Cap full-size images at 1920px wide, auto quality & format — saves ~50% bandwidth vs raw URLs
+  return url.replace('/image/upload/', '/image/upload/w_1920,q_auto,f_auto/');
+}
 
-  if (!url || WEB_SAFE_IMAGE_FORMATS.has(format)) {
-    return url;
-  }
-
-  return url.replace('/image/upload/', '/image/upload/f_auto/');
+function buildAssetUrl(resource) {
+  const url = resource?.secure_url || '';
+  if (!url || !url.includes('/image/upload/')) return url;
+  // Logos / sponsors are displayed small — cap at 400px, auto quality & format
+  return url.replace('/image/upload/', '/image/upload/w_400,q_auto,f_auto/');
 }
 
 function buildThumbnailUrl(secureUrl) {
   if (!secureUrl || !secureUrl.includes('/image/upload/')) return secureUrl || '';
-  return secureUrl.replace('/image/upload/', '/image/upload/w_400,q_auto,f_auto/');
+  // Gallery grid thumbnails: 320px wide, good quality, auto format
+  return secureUrl.replace('/image/upload/', '/image/upload/w_320,q_auto:good,f_auto/');
 }
 
 const NON_IMAGE_FORMATS = new Set(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar']);
@@ -503,7 +507,7 @@ async function getRootAssets({ forceRefresh = false } = {}) {
           return !!folderPath && isInsideRootFolder(folderPath, rootFolder) && isGalleryFolderAllowed(folderPath);
         })
         .map((r) => ({
-          url: buildDeliveryUrl(r),
+          url: buildAssetUrl(r),
           thumbUrl: buildThumbnailUrl(r.secure_url),
           publicId: r.public_id,
           format: r.format || '',
