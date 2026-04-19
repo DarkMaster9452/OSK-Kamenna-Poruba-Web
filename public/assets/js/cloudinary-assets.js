@@ -12,7 +12,7 @@
  * the base name before the last underscore-suffix against data-cloudinary-id.
  */
 (function () {
-    var CACHE_KEY = 'osk_cloudinary_assets_v3';
+    var CACHE_KEY = 'osk_cloudinary_assets_v4';
     var CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
     var CANONICAL_PRODUCTION_HOSTS = ['oskkp.sk', 'www.oskkp.sk'];
 
