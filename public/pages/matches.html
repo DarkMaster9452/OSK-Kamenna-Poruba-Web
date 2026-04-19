@@ -1968,6 +1968,13 @@
                     }
                 );
                 STANDINGS = Array.isArray(payload.standings) ? payload.standings : [];
+                STANDINGS.forEach((group) => {
+                    (group.results || []).forEach((team) => {
+                        if (team.teamName && team.teamLogo) {
+                            registerClubLogo(team.teamName, team.teamLogo);
+                        }
+                    });
+                });
             } catch (error) {
                 STANDINGS = [];
                 console.warn('Nepodarilo sa načítať tabuľku.', error);
@@ -1989,11 +1996,11 @@
                 const diffClass = diff > 0 ? 'standings-diff-pos' : (diff < 0 ? 'standings-diff-neg' : '');
                 const own = isOwnTeam(name);
                 const qualifies = rank <= qualifyCount && teams.length > qualifyCount;
-                const abbr = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
                 const rankCell = qualifies
                     ? `<span class="standings-rank-qualifier">${rank}</span>`
                     : `<span class="standings-rank">${rank}.</span>`;
                 const goals = `${team.goalsFor ?? 0}:${team.goalsAgainst ?? 0}`;
+                const logoHtml = buildTeamLogoMarkup(name, 30, team.teamLogo || getClubLogo(name));
 
                 return `
                     <tr style="${own ? 'background: #f0f5ff;' : ''}">
@@ -2002,7 +2009,7 @@
                         </td>
                         <td>
                             <div class="standings-team-cell">
-                                ${buildClubLogoImg(name, 30)}
+                                ${logoHtml}
                                 <span class="standings-team-name${own ? ' own-team' : ''}">${name}</span>
                             </div>
                         </td>

@@ -1549,15 +1549,49 @@
             return CLUB_LOGOS[normalizeTeamName(name)] || null;
         }
 
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        const OWN_TEAM_LOCAL_LOGO = 'https://raw.githubusercontent.com/DarkMaster9452/OSK-Kamenna-Poruba-Web/main/assets/images/O%C5%A0KKP_logo.png';
+
+        function buildFallbackLogoBadge(name, size) {
+            const abbr = String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+            const own = isOwnTeam(name);
+            return `<div class="standings-team-abbr${own ? ' own-team' : ''}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;">${escapeHtml(abbr)}</div>`;
+        }
+
+        function handleTeamLogoError(img) {
+            if (!img) return;
+            const teamName = img.dataset.teamName || img.alt || '';
+            const size = parseInt(img.dataset.logoSize || '30', 10) || 30;
+            const localFallback = img.dataset.localFallback || '';
+            const alreadyTriedLocal = img.dataset.triedLocalFallback === 'true';
+            if (localFallback && !alreadyTriedLocal && img.src !== localFallback) {
+                img.dataset.triedLocalFallback = 'true';
+                img.src = localFallback;
+                return;
+            }
+            img.onerror = null;
+            img.outerHTML = buildFallbackLogoBadge(teamName, size);
+        }
+
         function buildClubLogoImg(name, size) {
             size = size || 24;
             const logo = getClubLogo(name);
-            if (logo) {
-                return `<img src="${logo}" alt="${name}" class="standings-team-logo" style="width:${size}px;height:${size}px;">`;
-            }
-            const abbr = String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
             const own = isOwnTeam(name);
-            return `<div class="standings-team-abbr${own ? ' own-team' : ''}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;">${abbr}</div>`;
+            const localFallback = own ? OWN_TEAM_LOCAL_LOGO : '';
+            const resolvedSrc = logo || (own ? OWN_TEAM_LOCAL_LOGO : null);
+            if (!resolvedSrc) {
+                return buildFallbackLogoBadge(name, size);
+            }
+            const safeName = escapeHtml(name || 'Klub');
+            return `<img src="${escapeHtml(resolvedSrc)}" alt="${safeName}" class="standings-team-logo" data-team-name="${safeName}" data-logo-size="${size}" data-local-fallback="${escapeHtml(localFallback)}" style="width:${size}px;height:${size}px;object-fit:contain;" onerror="handleTeamLogoError(this)">`;
         }
 
         function normalizeSportsnetMatch(item, index) {
@@ -1725,9 +1759,7 @@
                 const diffClass = diff > 0 ? 'standings-diff-pos' : (diff < 0 ? 'standings-diff-neg' : '');
                 const own = isOwnTeam(name);
                 const qualifies = rank <= qualifyCount && teams.length > qualifyCount;
-                const logoImg = team.teamLogo
-                    ? `<img src="${team.teamLogo}" alt="${name}" class="standings-team-logo" style="width:30px;height:30px;">`
-                    : buildClubLogoImg(name, 30);
+                const logoImg = buildClubLogoImg(name, 30);
                 const rankCell = qualifies
                     ? `<span class="standings-rank-qualifier">${rank}</span>`
                     : `<span class="standings-rank">${rank}.</span>`;
@@ -1935,8 +1967,12 @@
 
             const homeSrc = match.homeLogo || getClubLogo(match.homeTeam);
             const awaySrc = match.awayLogo || getClubLogo(match.awayTeam);
-            const hLogo = homeSrc ? `<img src="${homeSrc}" class="team-logo" alt="${match.homeTeam}">` : `<div class="team-logo" style="background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">LOGO</div>`;
-            const aLogo = awaySrc ? `<img src="${awaySrc}" class="team-logo" alt="${match.awayTeam}">` : `<div class="team-logo" style="background:#eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">LOGO</div>`;
+            const hLogo = homeSrc
+                ? `<img src="${escapeHtml(homeSrc)}" class="team-logo" alt="${escapeHtml(match.homeTeam)}" data-team-name="${escapeHtml(match.homeTeam)}" data-logo-size="40" data-local-fallback="${escapeHtml(isOwnTeam(match.homeTeam) ? OWN_TEAM_LOCAL_LOGO : '')}" onerror="handleTeamLogoError(this)">`
+                : buildFallbackLogoBadge(match.homeTeam, 40);
+            const aLogo = awaySrc
+                ? `<img src="${escapeHtml(awaySrc)}" class="team-logo" alt="${escapeHtml(match.awayTeam)}" data-team-name="${escapeHtml(match.awayTeam)}" data-logo-size="40" data-local-fallback="${escapeHtml(isOwnTeam(match.awayTeam) ? OWN_TEAM_LOCAL_LOGO : '')}" onerror="handleTeamLogoError(this)">`
+                : buildFallbackLogoBadge(match.awayTeam, 40);
 
             let scoreHtml = '';
             if (match.status === 'finished' || match.status === 'live') {
@@ -2038,10 +2074,8 @@
                 year: 'numeric'
             });
 
-            const hLogoSrc = match.homeLogo || getClubLogo(match.homeTeam);
-            const aLogoSrc = match.awayLogo || getClubLogo(match.awayTeam);
-            const hLogo = hLogoSrc ? `<img src="${hLogoSrc}" style="width:80px;height:80px;object-fit:contain;" alt="${match.homeTeam}">` : buildClubLogoImg(match.homeTeam, 80);
-            const aLogo = aLogoSrc ? `<img src="${aLogoSrc}" style="width:80px;height:80px;object-fit:contain;" alt="${match.awayTeam}">` : buildClubLogoImg(match.awayTeam, 80);
+            const hLogo = buildClubLogoImg(match.homeTeam, 80);
+            const aLogo = buildClubLogoImg(match.awayTeam, 80);
 
             let scoreSection = '';
             if (match.status === 'finished' || match.status === 'live') {

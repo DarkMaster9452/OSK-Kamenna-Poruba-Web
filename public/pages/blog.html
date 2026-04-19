@@ -853,7 +853,9 @@
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
-            history.pushState({ postModal: true }, '');
+            const url = new URL(window.location.href);
+            url.searchParams.set('post', id);
+            history.pushState({ postModal: true, postId: id }, '', url.toString());
         }
 
         function closePostDetail() {
@@ -865,6 +867,9 @@
             modal.classList.remove('open');
             modal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = 'auto';
+            const url = new URL(window.location.href);
+            url.searchParams.delete('post');
+            history.replaceState({}, '', url.toString());
 
             if (editButton) {
                 editButton.style.display = 'none';
@@ -874,7 +879,13 @@
         window.addEventListener('popstate', function () {
             const modal = document.getElementById('postDetailModal');
             if (modal && modal.classList.contains('open')) {
-                closePostDetail();
+                const modal2 = document.getElementById('postDetailModal');
+                const editButton = document.getElementById('postDetailEditButton');
+                activePostDetailId = null;
+                modal2.classList.remove('open');
+                modal2.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = 'auto';
+                if (editButton) editButton.style.display = 'none';
             }
         });
 
@@ -1008,7 +1019,12 @@
             if (window.OSKSession) {
                 currentUser = await window.OSKSession.syncCurrentUserFromSession();
             }
-            refresh().catch(console.error);
+            await refresh();
+            // Auto-open post from URL ?post=ID
+            const urlPostId = new URLSearchParams(window.location.search).get('post');
+            if (urlPostId && window.__blogPostsById && window.__blogPostsById.has(urlPostId)) {
+                openPostDetail(urlPostId);
+            }
         });
 
         // Listen for auth changes to refresh UI if needed
