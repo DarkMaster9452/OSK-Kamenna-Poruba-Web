@@ -129,6 +129,8 @@ model BlogPost {
   title     String
   content   String
   published Boolean  @default(true)
+  featured  Boolean  @default(false)
+  viewCount Int      @default(0)
   imageUrl  String?
   tags      String[] @default([])
   createdAt DateTime @default(now())
@@ -138,6 +140,7 @@ model BlogPost {
   createdBy   User @relation("BlogPostsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
 
   @@index([createdAt])
+  @@index([featured])
 }
 
 model Training {

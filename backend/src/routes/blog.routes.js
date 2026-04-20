@@ -8,6 +8,7 @@ const {
   updateBlogPost,
   findBlogPostById,
   deleteBlogPost,
+  incrementBlogPostViewCount,
   createAuditLog
 } = require('../data/repository');
 
@@ -17,9 +18,26 @@ const createBlogPostSchema = z.object({
   title: z.string().min(3).max(200),
   content: z.string().min(3).max(20000),
   published: z.boolean().optional().default(true),
+  featured: z.boolean().optional().default(false),
   imageUrl: z.string().url().max(2000).nullable().optional(),
   tags: z.array(z.string()).optional()
 });
+
+function mapRow(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    content: row.content,
+    imageUrl: row.imageUrl || null,
+    tags: row.tags || [],
+    published: row.published,
+    featured: row.featured ?? false,
+    viewCount: row.viewCount ?? 0,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    createdBy: row.createdBy.username
+  };
+}
 
 async function writeAuditSafe(payload) {
   try {
@@ -34,17 +52,7 @@ router.get('/', async (req, res) => {
     const rows = await listBlogPosts();
     const items = rows
       .filter((row) => row.published)
-      .map((row) => ({
-        id: row.id,
-        title: row.title,
-        content: row.content,
-        imageUrl: row.imageUrl || null,
-        tags: row.tags || [],
-        published: row.published,
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt,
-        createdBy: row.createdBy.username
-      }));
+      .map(mapRow);
 
     return res.json({ items });
   } catch (error) {
@@ -60,18 +68,7 @@ router.get('/manage', requireAuth, requireRole('blogger', 'coach', 'admin'), asy
       ? rows
       : rows.filter((row) => row.createdById === req.user.id);
 
-    const items = visibleRows.map((row) => ({
-      id: row.id,
-      title: row.title,
-      content: row.content,
-      imageUrl: row.imageUrl || null,
-      tags: row.tags || [],
-      published: row.published,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      createdBy: row.createdBy.username
-    }));
-
+    const items = visibleRows.map(mapRow);
     return res.json({ items });
   } catch (error) {
     console.error('Blog manage list failed:', error);
@@ -79,33 +76,42 @@ router.get('/manage', requireAuth, requireRole('blogger', 'coach', 'admin'), asy
   }
 });
 
+router.get('/:id', async (req, res) => {
+  try {
+    const row = await findBlogPostById(req.params.id);
+    if (!row || !row.published) {
+      return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
+    }
+    return res.json({ item: mapRow(row) });
+  } catch (error) {
+    console.error('Blog get by id failed:', error);
+    return res.status(500).json({ message: error.message || 'Nepodarilo sa načítať blog príspevok.' });
+  }
+});
+
+router.post('/:id/view', async (req, res) => {
+  try {
+    await incrementBlogPostViewCount(req.params.id);
+    return res.status(204).send();
+  } catch (error) {
+    console.error('Blog view count increment failed:', error);
+    return res.status(500).json({ message: 'Nepodarilo sa aktualizovať počet prečítaní.' });
+  }
+});
+
 router.post('/', requireAuth, requireRole('blogger', 'coach', 'admin'), validateBody(createBlogPostSchema), async (req, res) => {
   try {
     const row = await createBlogPost(req.body, req.user.id);
-    const item = {
-      id: row.id,
-      title: row.title,
-      content: row.content,
-      imageUrl: row.imageUrl || null,
-      tags: row.tags || [],
-      published: row.published,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      createdBy: row.createdBy.username
-    };
 
     await writeAuditSafe({
       actorUserId: req.user.id,
       action: 'blog_post_created',
       entityType: 'blog_post',
       entityId: row.id,
-      details: {
-        title: row.title,
-        published: row.published
-      }
+      details: { title: row.title, published: row.published }
     });
 
-    return res.status(201).json({ item });
+    return res.status(201).json({ item: mapRow(row) });
   } catch (error) {
     console.error('Blog create failed:', error);
     return res.status(500).json({ message: error.message || 'Nepodarilo sa vytvoriť blog príspevok.' });
@@ -124,30 +130,16 @@ router.put('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), valida
     }
 
     const updatedRow = await updateBlogPost(req.params.id, req.body);
-    const item = {
-      id: updatedRow.id,
-      title: updatedRow.title,
-      content: updatedRow.content,
-      imageUrl: updatedRow.imageUrl || null,
-      tags: updatedRow.tags || [],
-      published: updatedRow.published,
-      createdAt: updatedRow.createdAt,
-      updatedAt: updatedRow.updatedAt,
-      createdBy: updatedRow.createdBy.username
-    };
 
     await writeAuditSafe({
       actorUserId: req.user.id,
       action: 'blog_post_updated',
       entityType: 'blog_post',
       entityId: updatedRow.id,
-      details: {
-        title: updatedRow.title,
-        published: updatedRow.published
-      }
+      details: { title: updatedRow.title, published: updatedRow.published, featured: updatedRow.featured }
     });
 
-    return res.json({ item });
+    return res.json({ item: mapRow(updatedRow) });
   } catch (error) {
     console.error('Blog update failed:', error);
     return res.status(500).json({ message: error.message || 'Nepodarilo sa upraviť blog príspevok.' });
@@ -172,9 +164,7 @@ router.delete('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), asy
       action: 'blog_post_deleted',
       entityType: 'blog_post',
       entityId: row.id,
-      details: {
-        title: row.title
-      }
+      details: { title: row.title }
     });
 
     return res.status(204).send();

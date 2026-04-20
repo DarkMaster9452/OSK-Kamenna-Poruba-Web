@@ -1474,6 +1474,8 @@ async function listBlogPosts() {
     imageUrl: true,
     tags: true,
     published: true,
+    featured: true,
+    viewCount: true,
     createdAt: true,
     updatedAt: true,
     createdBy: {
@@ -1495,13 +1497,15 @@ async function listBlogPosts() {
     const fallbackSelect = { ...select };
     delete fallbackSelect.imageUrl;
     delete fallbackSelect.tags;
+    delete fallbackSelect.featured;
+    delete fallbackSelect.viewCount;
 
     const rows = await prisma.blogPost.findMany({
       orderBy: { createdAt: 'desc' },
       select: fallbackSelect
     });
 
-    return rows.map(r => ({ ...r, imageUrl: null, tags: [] }));
+    return rows.map(r => ({ ...r, imageUrl: null, tags: [], featured: false, viewCount: 0 }));
   }
 }
 
@@ -1518,6 +1522,7 @@ async function createBlogPost(input, createdById) {
         imageUrl: input.imageUrl || null,
         tags: input.tags || [],
         published: input.published ?? true,
+        featured: input.featured ?? false,
         createdById
       },
       include: {
@@ -1527,21 +1532,16 @@ async function createBlogPost(input, createdById) {
       }
     }).catch(async (error) => {
       // Robust fallback if database column is missing
-      if (error.message && (error.message.includes('tags') || error.message.includes('imageUrl'))) {
+      if (error.message && (error.message.includes('tags') || error.message.includes('imageUrl') || error.message.includes('featured') || error.message.includes('viewCount'))) {
         const minimalData = {
           title: input.title,
           content: input.content,
           published: input.published ?? true,
           createdById
         };
-        // Only include imageUrl if error wasn't about it
-        if (!error.message.includes('imageUrl')) {
-           minimalData.imageUrl = input.imageUrl || null;
-        }
-        // Only include tags if error wasn't about it
-        if (!error.message.includes('tags')) {
-           minimalData.tags = input.tags || [];
-        }
+        if (!error.message.includes('imageUrl')) minimalData.imageUrl = input.imageUrl || null;
+        if (!error.message.includes('tags')) minimalData.tags = input.tags || [];
+        if (!error.message.includes('featured')) minimalData.featured = input.featured ?? false;
 
         return prisma.blogPost.create({
           data: minimalData,
@@ -1574,7 +1574,7 @@ async function createBlogPost(input, createdById) {
       }
     });
 
-    return { ...row, imageUrl: null, tags: [] };
+    return { ...row, imageUrl: null, tags: [], featured: false, viewCount: 0 };
   }
 }
 
@@ -1619,6 +1619,23 @@ async function deleteBlogPost(id) {
   });
 }
 
+async function incrementBlogPostViewCount(id) {
+  if (!prisma.blogPost) {
+    throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
+  }
+
+  try {
+    return await prisma.blogPost.update({
+      where: { id },
+      data: { viewCount: { increment: 1 } },
+      select: { id: true, viewCount: true }
+    });
+  } catch {
+    // Silently ignore if column doesn't exist yet
+    return null;
+  }
+}
+
 async function updateBlogPost(id, input) {
   if (!prisma.blogPost) {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
@@ -1632,7 +1649,8 @@ async function updateBlogPost(id, input) {
         content: input.content,
         imageUrl: input.imageUrl || null,
         tags: input.tags || [],
-        published: input.published ?? true
+        published: input.published ?? true,
+        featured: input.featured ?? false
       },
       include: {
         createdBy: {
@@ -1640,20 +1658,16 @@ async function updateBlogPost(id, input) {
         }
       }
     }).catch(async (error) => {
-      if (error.message && (error.message.includes('tags') || error.message.includes('imageUrl'))) {
+      if (error.message && (error.message.includes('tags') || error.message.includes('imageUrl') || error.message.includes('featured') || error.message.includes('viewCount'))) {
         const minimalData = {
           title: input.title,
           content: input.content,
           published: input.published ?? true
         };
 
-        if (!error.message.includes('imageUrl')) {
-          minimalData.imageUrl = input.imageUrl || null;
-        }
-
-        if (!error.message.includes('tags')) {
-          minimalData.tags = input.tags || [];
-        }
+        if (!error.message.includes('imageUrl')) minimalData.imageUrl = input.imageUrl || null;
+        if (!error.message.includes('tags')) minimalData.tags = input.tags || [];
+        if (!error.message.includes('featured')) minimalData.featured = input.featured ?? false;
 
         return prisma.blogPost.update({
           where: { id },
@@ -1687,7 +1701,7 @@ async function updateBlogPost(id, input) {
       }
     });
 
-    return { ...row, imageUrl: null, tags: [] };
+    return { ...row, imageUrl: null, tags: [], featured: false, viewCount: 0 };
   }
 }
 
@@ -1892,6 +1906,7 @@ module.exports = {
   updateBlogPost,
   findBlogPostById,
   deleteBlogPost,
+  incrementBlogPostViewCount,
   listPolls,
   createPoll,
   findPollById,
