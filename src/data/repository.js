@@ -1599,34 +1599,27 @@ async function findBlogPostById(id) {
       throw error;
     }
 
-    // Fallback: some columns (imageUrl, tags, featured, viewCount) may not exist yet
-    const safeSelect = {
-      id: true,
-      title: true,
-      content: true,
-      published: true,
-      createdAt: true,
-      updatedAt: true,
-      createdById: true,
-      createdBy: { select: { username: true } }
-    };
-    const errorMsg = String(error?.message || '').toLowerCase();
-    if (!errorMsg.includes('imageurl')) safeSelect.imageUrl = true;
-    if (!errorMsg.includes('tags')) safeSelect.tags = true;
-    if (!errorMsg.includes('featured')) safeSelect.featured = true;
-    if (!errorMsg.includes('viewcount')) safeSelect.viewCount = true;
-
+    // Fallback: optional columns (imageUrl, tags, featured, viewCount) may not exist in DB yet.
+    // Drop all of them to avoid a second failure — DB errors only report the first missing column.
     const row = await prisma.blogPost.findUnique({
       where: { id },
-      select: safeSelect
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        published: true,
+        createdAt: true,
+        updatedAt: true,
+        createdBy: { select: { username: true } }
+      }
     });
 
     return {
       ...row,
-      imageUrl: row?.imageUrl ?? null,
-      tags: row?.tags ?? [],
-      featured: row?.featured ?? false,
-      viewCount: row?.viewCount ?? 0
+      imageUrl: null,
+      tags: [],
+      featured: false,
+      viewCount: 0
     };
   }
 }
