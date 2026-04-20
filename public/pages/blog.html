@@ -479,8 +479,10 @@
                         for="postTag">Kategória príspevku</label>
                     <select id="postTag" onchange="handleTagSelectChange(this)">
                         <option value="">— Bez kategórie —</option>
+                        <option value="Klub a zákulisie">Klub a zákulisie</option>
                         <option value="Rozhovory">Rozhovory</option>
-                        <option value="Paľove Futbaloviny">Paľove Futbaloviny</option>
+                        <option value="História klubu">História klubu</option>
+                        <option value="Zápasy a komentáre">Zápasy a komentáre</option>
                     </select>
                     <div id="pfWarning"
                         style="display:none;margin-top:8px;padding:10px 14px;background:#fff8e1;border-left:4px solid #f59e0b;border-radius:6px;font-size:13px;color:#7c5800;">
@@ -538,7 +540,7 @@
 
     <script>
         const API_BASE = window.OSKSession ? window.OSKSession.getApiBase() : '/api';
-        const PREDEFINED_TAGS = ['Rozhovory', 'Paľove Futbaloviny'];
+        const PREDEFINED_TAGS = ['Klub a zákulisie', 'Rozhovory', 'História klubu', 'Zápasy a komentáre'];
         let currentUser = { username: null, role: null, playerCategory: null, isLoggedIn: false };
         let manageItems = [];
         let currentTagFilter = 'Všetky';
@@ -824,8 +826,6 @@
                         <h3 class="post-card-title">${escapeHtml(post.title)}</h3>
                         <div class="post-card-meta">
                             ${tagHtml}${featuredHtml}
-                            <span>${escapeHtml(post.createdBy)}</span>
-                            <span>•</span>
                             <span>${formatDate(post.createdAt)}</span>
                             ${viewHtml}
                         </div>
