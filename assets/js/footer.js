@@ -188,7 +188,7 @@
             '                </li>',
             '                <li style="display: flex; align-items: center; gap: 10px; justify-content: inherit;">',
             '                    <i class="fas fa-info-circle" style="color: #ffd700;"></i>',
-            '                    IČO: 00647845',
+            '                    IČO: 31928871',
             '                </li>',
             '            </ul>',
             '        </div>',
