@@ -477,11 +477,15 @@
                     <label class="file-field-label"
                         style="font-size:14px;font-weight:700;color:#003399;display:block;margin-bottom:6px;"
                         for="postTag">Kategória príspevku</label>
-                    <select id="postTag">
+                    <select id="postTag" onchange="handleTagSelectChange(this)">
                         <option value="">— Bez kategórie —</option>
                         <option value="Rozhovory">Rozhovory</option>
                         <option value="Paľove Futbaloviny">Paľove Futbaloviny</option>
                     </select>
+                    <div id="pfWarning" style="display:none;margin-top:8px;padding:10px 14px;background:#fff8e1;border-left:4px solid #f59e0b;border-radius:6px;font-size:13px;color:#7c5800;">
+                        <i class="fas fa-info-circle"></i> <strong>Paľove Futbaloviny</strong> má len jeden priebežne aktualizovaný článok na sezónu.
+                        Nemôžeš vytvoriť nový — môžeš ho len <a href="#" id="pfEditLink" style="color:#003399;font-weight:700;">upraviť existujúci</a>.
+                    </div>
                 </div>
                 <div class="file-field">
                     <label class="file-field-label" for="postImage">Fotografia k príspevku</label>
@@ -538,6 +542,25 @@
         let selectedPostImageFile = null;
         let composerImageUrl = null;
         let editingPostId = null;
+
+        const PF_TAG = 'Paľove Futbaloviny';
+
+        function handleTagSelectChange(sel) {
+            const warning = document.getElementById('pfWarning');
+            const editLink = document.getElementById('pfEditLink');
+            if (sel.value === PF_TAG && !editingPostId) {
+                // Find the existing PF post
+                const pfPost = window.__blogPostsById
+                    ? Array.from(window.__blogPostsById.values()).find(p => p.tags && p.tags.includes(PF_TAG))
+                    : null;
+                if (warning) warning.style.display = 'block';
+                if (editLink && pfPost) {
+                    editLink.onclick = (e) => { e.preventDefault(); startEditPost(pfPost.id); };
+                }
+            } else {
+                if (warning) warning.style.display = 'none';
+            }
+        }
 
         function handleContentKeydown(e) {
             if (e.key === 'b' && (e.ctrlKey || e.metaKey)) {
@@ -673,6 +696,8 @@
             if (contentInput) contentInput.value = '';
             if (tagSelect) tagSelect.value = '';
             if (featuredCheck) featuredCheck.checked = false;
+            const pfWarning = document.getElementById('pfWarning');
+            if (pfWarning) pfWarning.style.display = 'none';
 
             renderComposerImagePreview();
             if (message && !options.keepMessage) message.textContent = '';
@@ -894,6 +919,19 @@
                 return;
             }
 
+            // Block creating a NEW post with the PF tag — only editing allowed
+            const tagSelectEl = document.getElementById('postTag');
+            if (!isEditing && tagSelectEl && tagSelectEl.value === PF_TAG) {
+                const pfPost = window.__blogPostsById
+                    ? Array.from(window.__blogPostsById.values()).find(p => p.tags && p.tags.includes(PF_TAG))
+                    : null;
+                if (pfPost) {
+                    message.textContent = '';
+                    startEditPost(pfPost.id);
+                    return;
+                }
+            }
+
             try {
                 message.textContent = isEditing ? 'Ukladám zmeny príspevku...' : 'Ukladám príspevok...';
                 const csrfToken = window.OSKSession ? await window.OSKSession.ensureCsrfToken() : '';
@@ -958,6 +996,7 @@
         window.handlePostImageSelection = handlePostImageSelection;
         window.clearSelectedPostImage = clearSelectedPostImage;
         window.filterByTag = filterByTag;
+        window.handleTagSelectChange = handleTagSelectChange;
 
         document.addEventListener('DOMContentLoaded', async () => {
             if (window.OSKSession) {
