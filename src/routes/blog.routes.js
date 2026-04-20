@@ -125,7 +125,7 @@ router.put('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), valida
       return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
     }
 
-    if (req.user.role !== 'admin' && req.user.role !== 'blogger' && row.createdById !== req.user.id) {
+    if (!['admin','blogger','coach'].includes(req.user.role) && row.createdById !== req.user.id) {
       return res.status(403).json({ message: 'Nemáte oprávnenie upraviť cudzí blog príspevok.' });
     }
 
@@ -153,7 +153,7 @@ router.delete('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), asy
       return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
     }
 
-    if (req.user.role !== 'admin' && req.user.role !== 'blogger' && row.createdById !== req.user.id) {
+    if (!['admin','blogger','coach'].includes(req.user.role) && row.createdById !== req.user.id) {
       return res.status(403).json({ message: 'Nemáte oprávnenie odstrániť cudzí blog príspevok.' });
     }
 
@@ -179,7 +179,7 @@ module.exports = router;
 router.get('/manage', requireAuth, requireRole('blogger', 'coach', 'admin'), async (req, res) => {
   try {
     const rows = await listBlogPosts();
-    const visibleRows = ['admin', 'blogger'].includes(req.user.role)
+    const visibleRows = ['admin', 'blogger', 'coach'].includes(req.user.role)
       ? rows
       : rows.filter((row) => row.createdById === req.user.id);
 
@@ -242,7 +242,7 @@ router.put('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), valida
       return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
     }
 
-    if (req.user.role !== 'admin' && req.user.role !== 'blogger' && row.createdById !== req.user.id) {
+    if (!['admin','blogger','coach'].includes(req.user.role) && row.createdById !== req.user.id) {
       return res.status(403).json({ message: 'Nemáte oprávnenie upraviť cudzí blog príspevok.' });
     }
 
@@ -284,7 +284,7 @@ router.delete('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), asy
       return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
     }
 
-    if (req.user.role !== 'admin' && req.user.role !== 'blogger' && row.createdById !== req.user.id) {
+    if (!['admin','blogger','coach'].includes(req.user.role) && row.createdById !== req.user.id) {
       return res.status(403).json({ message: 'Nemáte oprávnenie odstrániť cudzí blog príspevok.' });
     }
 

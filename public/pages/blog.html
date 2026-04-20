@@ -709,8 +709,8 @@
 
         function canManagePost(post) {
             if (!currentUser) return false;
-            if (currentUser.role === 'admin' || currentUser.role === 'blogger') return true;
-            return currentUser.role === 'coach' && post.createdBy === currentUser.username;
+            if (['admin', 'blogger', 'coach'].includes(currentUser.role)) return true;
+            return false;
         }
 
         function startEditPost(id) {
