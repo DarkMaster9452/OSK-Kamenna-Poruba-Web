@@ -350,7 +350,7 @@
                     ? `<span class="featured-badge"><i class="fas fa-thumbtack"></i> Pripnuté</span>`
                     : '';
                 const viewHtml = `<span class="view-count"><i class="fas fa-eye"></i> ${post.viewCount ?? 0}</span>`;
-                metaEl.innerHTML = `${tagHtml}${featuredHtml} <span>Autor: ${escapeHtml(post.createdBy || 'Neznámy')}</span> <span>•</span> <span>${formatDate(post.createdAt)}</span> ${viewHtml}`;
+                metaEl.innerHTML = `${tagHtml}${featuredHtml} <span>${formatDate(post.createdAt)}</span> ${viewHtml}`;
             }
 
             const img = document.getElementById('articleImage');
