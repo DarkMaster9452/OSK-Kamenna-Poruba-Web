@@ -15,7 +15,9 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
@@ -69,19 +71,27 @@
             border: 1px solid #e74c3c;
         }
 
-        .btn-danger:hover { background: #e74c3c; color: #fff; }
+        .btn-danger:hover {
+            background: #e74c3c;
+            color: #fff;
+        }
 
         .article-card {
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 14px;
             padding: 32px 36px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
         }
 
         @media (max-width: 600px) {
-            .article-card { padding: 20px 16px; }
-            .container { padding: 16px 12px; }
+            .article-card {
+                padding: 20px 16px;
+            }
+
+            .container {
+                padding: 16px 12px;
+            }
         }
 
         .article-title {
@@ -92,7 +102,9 @@
         }
 
         @media (max-width: 600px) {
-            .article-title { font-size: 22px; }
+            .article-title {
+                font-size: 22px;
+            }
         }
 
         .meta {
@@ -171,8 +183,16 @@
             flex-wrap: wrap;
         }
 
-        #loadingState, #errorState { text-align: center; padding: 48px 0; color: #666; }
-        #errorState { color: #e74c3c; }
+        #loadingState,
+        #errorState {
+            text-align: center;
+            padding: 48px 0;
+            color: #666;
+        }
+
+        #errorState {
+            color: #e74c3c;
+        }
 
         .spinner {
             display: inline-block;
@@ -185,9 +205,15 @@
             margin-bottom: 12px;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-        #site-footer-root { margin-top: 50px; }
+        #site-footer-root {
+            margin-top: 50px;
+        }
     </style>
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" data-cloudinary-id="OŠKKP_logo">
 </head>
