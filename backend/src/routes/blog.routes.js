@@ -64,7 +64,7 @@ router.get('/', async (req, res) => {
 router.get('/manage', requireAuth, requireRole('blogger', 'coach', 'admin'), async (req, res) => {
   try {
     const rows = await listBlogPosts();
-    const visibleRows = req.user.role === 'admin'
+    const visibleRows = ['admin', 'blogger'].includes(req.user.role)
       ? rows
       : rows.filter((row) => row.createdById === req.user.id);
 
@@ -125,7 +125,7 @@ router.put('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), valida
       return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
     }
 
-    if (req.user.role !== 'admin' && row.createdById !== req.user.id) {
+    if (req.user.role !== 'admin' && req.user.role !== 'blogger' && row.createdById !== req.user.id) {
       return res.status(403).json({ message: 'Nemáte oprávnenie upraviť cudzí blog príspevok.' });
     }
 
@@ -153,7 +153,7 @@ router.delete('/:id', requireAuth, requireRole('blogger', 'coach', 'admin'), asy
       return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
     }
 
-    if (req.user.role !== 'admin' && row.createdById !== req.user.id) {
+    if (req.user.role !== 'admin' && req.user.role !== 'blogger' && row.createdById !== req.user.id) {
       return res.status(403).json({ message: 'Nemáte oprávnenie odstrániť cudzí blog príspevok.' });
     }
 
