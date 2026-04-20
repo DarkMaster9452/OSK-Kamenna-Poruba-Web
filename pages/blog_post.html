@@ -364,7 +364,14 @@
             }
 
             const contentEl = document.getElementById('articleContent');
-            if (contentEl) contentEl.textContent = post.content || '';
+            if (contentEl) {
+                const escaped = (post.content || '')
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const rendered = escaped
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+                contentEl.innerHTML = rendered;
+            }
 
             const footerMeta = document.getElementById('articleFooterMeta');
             if (footerMeta && post.updatedAt && post.updatedAt !== post.createdAt) {

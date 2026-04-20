@@ -471,7 +471,7 @@
             <h2 id="composerHeading"><i class="fas fa-pen"></i> Nový blog príspevok</h2>
             <div class="form-grid">
                 <input id="postTitle" placeholder="Nadpis príspevku" maxlength="200" />
-                <textarea id="postContent" placeholder="Obsah príspevku"></textarea>
+                <textarea id="postContent" placeholder="Obsah príspevku" onkeydown="handleContentKeydown(event)"></textarea>
                 <div>
                     <label class="file-field-label"
                         style="font-size:14px;font-weight:700;color:#003399;display:block;margin-bottom:6px;"
@@ -537,6 +537,26 @@
         let selectedPostImageFile = null;
         let composerImageUrl = null;
         let editingPostId = null;
+
+        function handleContentKeydown(e) {
+            if (e.key === 'b' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                const ta = e.target;
+                const start = ta.selectionStart;
+                const end = ta.selectionEnd;
+                const selected = ta.value.slice(start, end);
+                const before = ta.value.slice(0, start);
+                const after = ta.value.slice(end);
+                if (selected.length > 0) {
+                    ta.value = before + '**' + selected + '**' + after;
+                    ta.selectionStart = start + 2;
+                    ta.selectionEnd = end + 2;
+                } else {
+                    ta.value = before + '****' + after;
+                    ta.selectionStart = ta.selectionEnd = start + 2;
+                }
+            }
+        }
 
         function escapeHtml(value) {
             return String(value ?? '')
