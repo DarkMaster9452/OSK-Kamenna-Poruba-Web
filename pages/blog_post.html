@@ -326,10 +326,15 @@
 
         async function incrementViewCount(id) {
             try {
+                const storageKey = `blog_viewed_${id}`;
+                const last = localStorage.getItem(storageKey);
+                const now = Date.now();
+                if (last && now - parseInt(last, 10) < 24 * 60 * 60 * 1000) return;
                 await fetch(`${API_BASE}/blog/${id}/view`, {
                     method: 'POST',
                     credentials: 'include'
                 });
+                localStorage.setItem(storageKey, String(now));
             } catch {
                 // Non-critical, ignore errors
             }

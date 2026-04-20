@@ -14,6 +14,25 @@ const {
 
 const router = express.Router();
 
+// IP deduplication: Map<postId, Map<ip, timestamp>>
+const viewCache = new Map();
+const VIEW_TTL_MS = 24 * 60 * 60 * 1000;
+
+function hasRecentView(postId, ip) {
+  const byPost = viewCache.get(postId);
+  if (!byPost) return false;
+  const last = byPost.get(ip);
+  if (!last) return false;
+  if (Date.now() - last < VIEW_TTL_MS) return true;
+  byPost.delete(ip);
+  return false;
+}
+
+function recordView(postId, ip) {
+  if (!viewCache.has(postId)) viewCache.set(postId, new Map());
+  viewCache.get(postId).set(ip, Date.now());
+}
+
 const createBlogPostSchema = z.object({
   title: z.string().min(3).max(200),
   content: z.string().min(3).max(20000),
@@ -91,7 +110,12 @@ router.get('/:id', async (req, res) => {
 
 router.post('/:id/view', async (req, res) => {
   try {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    if (hasRecentView(req.params.id, ip)) {
+      return res.status(204).send();
+    }
     await incrementBlogPostViewCount(req.params.id);
+    recordView(req.params.id, ip);
     return res.status(204).send();
   } catch (error) {
     console.error('Blog view count increment failed:', error);
