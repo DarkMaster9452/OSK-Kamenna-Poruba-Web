@@ -1535,7 +1535,7 @@ async function createBlogPost(input, createdById) {
       }
     }).catch(async (error) => {
       // Robust fallback if database column is missing
-      if (error.message && (error.message.includes('tags') || error.message.includes('imageUrl') || error.message.includes('featured') || error.message.includes('viewCount'))) {
+      if (error.message && (error.message.includes('tags') || error.message.includes('imageUrl') || error.message.includes('featured') || error.message.includes('viewCount') || error.message.includes('slug') || shouldFallbackWithoutBlogPostImageUrl(error))) {
         const minimalData = {
           title: input.title,
           content: input.content,
@@ -1652,13 +1652,18 @@ async function ensureUniqueSlug(baseSlug, excludeId = null) {
   let slug = baseSlug;
   let counter = 1;
   while (true) {
-    const existing = await prisma.blogPost.findFirst({
-      where: { slug, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
-      select: { id: true }
-    });
-    if (!existing) return slug;
-    slug = `${baseSlug}-${counter}`;
-    counter++;
+    try {
+      const existing = await prisma.blogPost.findFirst({
+        where: { slug, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
+        select: { id: true }
+      });
+      if (!existing) return slug;
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    } catch {
+      // slug column doesn't exist in DB yet – return as-is
+      return slug;
+    }
   }
 }
 
@@ -1672,21 +1677,37 @@ async function findBlogPostBySlug(slug) {
   };
 
   try {
-    return await prisma.blogPost.findUnique({
-      where: { slug },
+    // First try exact slug match
+    const row = await prisma.blogPost.findFirst({
+      where: { slug, published: true },
       include
     });
+    if (row) return row;
+
+    // Fallback: slug column exists but existing posts have empty slug
+    // Match by generating slug from title
+    const allRows = await prisma.blogPost.findMany({
+      where: { published: true },
+      include
+    });
+    return allRows.find(r => generateSlug(r.title) === slug) || null;
   } catch (error) {
     if (!shouldFallbackWithoutBlogPostImageUrl(error)) throw error;
-    const row = await prisma.blogPost.findFirst({
-      where: { slug },
-      select: {
-        id: true, slug: true, title: true, content: true,
-        published: true, createdAt: true, updatedAt: true,
-        createdBy: { select: { username: true } }
-      }
-    });
-    return row ? { ...row, imageUrl: null, tags: [], featured: false, viewCount: 0 } : null;
+    // slug column doesn't exist yet – match by title without slug field
+    try {
+      const allRows = await prisma.blogPost.findMany({
+        where: { published: true },
+        select: {
+          id: true, title: true, content: true,
+          published: true, createdAt: true, updatedAt: true,
+          createdBy: { select: { username: true } }
+        }
+      });
+      const row = allRows.find(r => generateSlug(r.title) === slug);
+      return row ? { ...row, slug: null, imageUrl: null, tags: [], featured: false, viewCount: 0 } : null;
+    } catch {
+      return null;
+    }
   }
 }
 
