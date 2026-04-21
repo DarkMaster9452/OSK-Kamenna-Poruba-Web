@@ -1708,7 +1708,6 @@ async function incrementBlogPostViewCount(id) {
 }
 
 async function updateBlogPost(id, input) {
-async function updateBlogPost(id, input) {
   if (!prisma.blogPost) {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
   }
