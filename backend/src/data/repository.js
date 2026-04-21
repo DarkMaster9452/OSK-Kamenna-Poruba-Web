@@ -1514,10 +1514,13 @@ async function createBlogPost(input, createdById) {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
   }
 
+  const slug = await ensureUniqueSlug(generateSlug(input.title));
+
   try {
     return await prisma.blogPost.create({
       data: {
         title: input.title,
+        slug,
         content: input.content,
         imageUrl: input.imageUrl || null,
         tags: input.tags || [],
@@ -1634,6 +1637,59 @@ async function deleteBlogPost(id) {
   });
 }
 
+function generateSlug(title) {
+  return String(title ?? '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80);
+}
+
+async function ensureUniqueSlug(baseSlug, excludeId = null) {
+  let slug = baseSlug;
+  let counter = 1;
+  while (true) {
+    const existing = await prisma.blogPost.findFirst({
+      where: { slug, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
+      select: { id: true }
+    });
+    if (!existing) return slug;
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+}
+
+async function findBlogPostBySlug(slug) {
+  if (!prisma.blogPost) {
+    throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
+  }
+
+  const include = {
+    createdBy: { select: { username: true } }
+  };
+
+  try {
+    return await prisma.blogPost.findUnique({
+      where: { slug },
+      include
+    });
+  } catch (error) {
+    if (!shouldFallbackWithoutBlogPostImageUrl(error)) throw error;
+    const row = await prisma.blogPost.findFirst({
+      where: { slug },
+      select: {
+        id: true, slug: true, title: true, content: true,
+        published: true, createdAt: true, updatedAt: true,
+        createdBy: { select: { username: true } }
+      }
+    });
+    return row ? { ...row, imageUrl: null, tags: [], featured: false, viewCount: 0 } : null;
+  }
+}
+
 async function incrementBlogPostViewCount(id) {
   if (!prisma.blogPost) {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
@@ -1656,11 +1712,14 @@ async function updateBlogPost(id, input) {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
   }
 
+  const slug = await ensureUniqueSlug(generateSlug(input.title), id);
+
   try {
     return await prisma.blogPost.update({
       where: { id },
       data: {
         title: input.title,
+        slug,
         content: input.content,
         imageUrl: input.imageUrl || null,
         tags: input.tags || [],
@@ -1920,6 +1979,7 @@ module.exports = {
   createBlogPost,
   updateBlogPost,
   findBlogPostById,
+  findBlogPostBySlug,
   deleteBlogPost,
   incrementBlogPostViewCount,
   listPolls,

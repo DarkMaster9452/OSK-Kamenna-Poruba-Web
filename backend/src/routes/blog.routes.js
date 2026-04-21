@@ -7,6 +7,7 @@ const {
   createBlogPost,
   updateBlogPost,
   findBlogPostById,
+  findBlogPostBySlug,
   deleteBlogPost,
   incrementBlogPostViewCount,
   createAuditLog
@@ -45,6 +46,7 @@ const createBlogPostSchema = z.object({
 function mapRow(row) {
   return {
     id: row.id,
+    slug: row.slug || null,
     title: row.title,
     content: row.content,
     imageUrl: row.imageUrl || null,
@@ -92,6 +94,19 @@ router.get('/manage', requireAuth, requireRole('blogger', 'coach', 'admin'), asy
   } catch (error) {
     console.error('Blog manage list failed:', error);
     return res.status(500).json({ message: error.message || 'Nepodarilo sa načítať blog príspevky.' });
+  }
+});
+
+router.get('/slug/:slug', async (req, res) => {
+  try {
+    const row = await findBlogPostBySlug(req.params.slug);
+    if (!row || !row.published) {
+      return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
+    }
+    return res.json({ item: mapRow(row) });
+  } catch (error) {
+    console.error('Blog get by slug failed:', error);
+    return res.status(500).json({ message: error.message || 'Nepodarilo sa načítať blog príspevok.' });
   }
 });
 

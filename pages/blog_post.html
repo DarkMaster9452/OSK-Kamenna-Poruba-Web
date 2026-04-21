@@ -225,7 +225,7 @@
 
     <div class="container">
         <div class="topbar">
-            <a href="/pages/blog.html" class="btn btn-back">
+            <a href="/blog" class="btn btn-back">
                 <i class="fas fa-arrow-left"></i> Späť na blog
             </a>
             <div id="manageActions" class="manage-actions" style="display:none;"></div>
@@ -239,7 +239,7 @@
         <div id="errorState" style="display:none;">
             <i class="fas fa-exclamation-triangle" style="font-size:32px;margin-bottom:12px;display:block;"></i>
             <div id="errorMessage">Článok sa nepodarilo načítať.</div>
-            <a href="/pages/blog.html" class="btn btn-back" style="margin-top:16px;">
+            <a href="/blog" class="btn btn-back" style="margin-top:16px;">
                 <i class="fas fa-arrow-left"></i> Späť na blog
             </a>
         </div>
@@ -251,7 +251,7 @@
                 <img id="articleImage" class="article-image" alt="Obrázok k článku" />
                 <div id="articleContent" class="article-content"></div>
                 <div class="article-footer">
-                    <a href="/pages/blog.html" class="btn btn-back">
+                    <a href="/blog" class="btn btn-back">
                         <i class="fas fa-arrow-left"></i> Späť na blog
                     </a>
                     <div id="articleFooterMeta" style="color:#aaa;font-size:12px;"></div>
@@ -302,7 +302,7 @@
 
         async function editPost() {
             if (!currentPost) return;
-            window.location.href = `/pages/blog.html?edit=${encodeURIComponent(currentPost.id)}`;
+            window.location.href = `/blog?edit=${encodeURIComponent(currentPost.id)}`;
         }
 
         async function deletePost() {
@@ -318,7 +318,7 @@
                     const payload = await response.json().catch(() => ({}));
                     throw new Error(payload.message || 'Nepodarilo sa odstrániť článok.');
                 }
-                window.location.href = '/pages/blog.html';
+                window.location.href = '/blog';
             } catch (error) {
                 alert(error.message || 'Nepodarilo sa odstrániť článok.');
             }
@@ -392,8 +392,12 @@
                 currentUser = await window.OSKSession.syncCurrentUserFromSession();
             }
 
-            const postId = new URLSearchParams(window.location.search).get('id');
-            if (!postId) {
+            // Support pretty URL /blog/:slug and legacy ?id= query param
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            const isSlugUrl = pathParts[0] === 'blog' && pathParts[1];
+            const legacyId = new URLSearchParams(window.location.search).get('id');
+
+            if (!isSlugUrl && !legacyId) {
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('errorState').style.display = 'block';
                 document.getElementById('errorMessage').textContent = 'Nebol zadaný identifikátor článku.';
@@ -401,7 +405,10 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE}/blog/${postId}`, { credentials: 'include' });
+                const url = isSlugUrl
+                    ? `${API_BASE}/blog/slug/${encodeURIComponent(pathParts[1])}`
+                    : `${API_BASE}/blog/${legacyId}`;
+                const response = await fetch(url, { credentials: 'include' });
                 if (!response.ok) {
                     throw new Error(response.status === 404 ? 'Článok neexistuje alebo bol odstránený.' : 'Nepodarilo sa načítať článok.');
                 }
@@ -410,7 +417,7 @@
                 renderPost(currentPost);
                 renderManageActions(currentPost);
                 // Increment view count (fire-and-forget)
-                incrementViewCount(postId);
+                incrementViewCount(currentPost.id);
             } catch (error) {
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('errorState').style.display = 'block';

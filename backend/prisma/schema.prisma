@@ -126,6 +126,7 @@ model ParentChild {
 
 model BlogPost {
   id        String   @id @default(cuid())
+  slug      String   @unique
   title     String
   content   String
   published Boolean  @default(true)
@@ -141,6 +142,7 @@ model BlogPost {
 
   @@index([createdAt])
   @@index([featured])
+  @@index([slug])
 }
 
 model Training {

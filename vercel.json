@@ -34,8 +34,16 @@
 			"destination": "/pages/atim.html"
 		},
 		{
+			"source": "/blog",
+			"destination": "/pages/blog.html"
+		},
+		{
 			"source": "/blog.html",
 			"destination": "/pages/blog.html"
+		},
+		{
+			"source": "/blog/:slug",
+			"destination": "/pages/blog_post.html"
 		},
 		{
 			"source": "/galeria.html",

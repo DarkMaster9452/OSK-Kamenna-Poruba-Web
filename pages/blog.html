@@ -597,6 +597,17 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function toSlug(str) {
+            return String(str ?? '')
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9\s-]/g, '')
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .slice(0, 80);
+        }
+
         function formatDate(value) {
             const date = new Date(value);
             if (Number.isNaN(date.getTime())) return 'Neznámy dátum';
@@ -821,7 +832,7 @@
                 </div>
             ` : '';
             return `
-                <a class="post-card" href="/pages/blog_post.html?id=${post.id}" aria-label="${escapeHtml(post.title)}">
+                <a class="post-card" href="/blog/${post.slug || toSlug(post.title)}" aria-label="${escapeHtml(post.title)}">
                     ${imageHtml}
                     <div class="post-card-body">
                         <h3 class="post-card-title">${escapeHtml(post.title)}</h3>
