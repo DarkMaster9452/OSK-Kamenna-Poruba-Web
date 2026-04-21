@@ -1672,29 +1672,57 @@ async function findBlogPostBySlug(slug) {
     throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
   }
 
-  const include = {
+  const select = {
+    id: true,
+    slug: true,
+    title: true,
+    content: true,
+    imageUrl: true,
+    tags: true,
+    published: true,
+    featured: true,
+    viewCount: true,
+    createdAt: true,
+    updatedAt: true,
     createdBy: { select: { username: true } }
   };
 
+  const selectNoSlug = { ...select };
+  delete selectNoSlug.slug;
+
+  async function findByTitle(sel) {
+    const allRows = await prisma.blogPost.findMany({
+      where: { published: true },
+      select: sel
+    });
+    return allRows.find(r => generateSlug(r.title) === slug) || null;
+  }
+
   try {
-    // First try exact slug match
+    // Try exact slug match first
     const row = await prisma.blogPost.findFirst({
       where: { slug, published: true },
-      include
+      select
     });
     if (row) return row;
 
-    // Fallback: slug column exists but existing posts have empty slug
-    // Match by generating slug from title
-    const allRows = await prisma.blogPost.findMany({
-      where: { published: true },
-      include
-    });
-    return allRows.find(r => generateSlug(r.title) === slug) || null;
+    // Fallback: existing posts have empty slug – match by title
+    return await findByTitle(select);
   } catch (error) {
     if (!shouldFallbackWithoutBlogPostImageUrl(error)) throw error;
-    // slug column doesn't exist yet – match by title without slug field
+    // slug or other optional column missing in DB – try without them
     try {
+      const selectMinimal = {
+        id: true, title: true, content: true,
+        imageUrl: true, tags: true,
+        published: true, featured: true, viewCount: true,
+        createdAt: true, updatedAt: true,
+        createdBy: { select: { username: true } }
+      };
+      return await findByTitle(selectMinimal);
+    } catch (err2) {
+      if (!shouldFallbackWithoutBlogPostImageUrl(err2)) throw err2;
+      // Last resort: no optional columns at all
       const allRows = await prisma.blogPost.findMany({
         where: { published: true },
         select: {
@@ -1705,8 +1733,6 @@ async function findBlogPostBySlug(slug) {
       });
       const row = allRows.find(r => generateSlug(r.title) === slug);
       return row ? { ...row, slug: null, imageUrl: null, tags: [], featured: false, viewCount: 0 } : null;
-    } catch {
-      return null;
     }
   }
 }
