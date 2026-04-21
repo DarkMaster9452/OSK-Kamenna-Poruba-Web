@@ -330,9 +330,11 @@
                 const last = localStorage.getItem(storageKey);
                 const now = Date.now();
                 if (last && now - parseInt(last, 10) < 24 * 60 * 60 * 1000) return;
+                const csrfToken = window.OSKSession ? await window.OSKSession.ensureCsrfToken() : '';
                 await fetch(`${API_BASE}/blog/${id}/view`, {
                     method: 'POST',
-                    credentials: 'include'
+                    credentials: 'include',
+                    headers: { 'x-csrf-token': csrfToken }
                 });
                 localStorage.setItem(storageKey, String(now));
             } catch {
