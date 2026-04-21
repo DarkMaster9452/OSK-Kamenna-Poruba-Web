@@ -5912,6 +5912,13 @@
 
     <div id="site-footer-root"></div>
     <script src="/assets/js/footer.js"></script>
+    <script>
+        if (window.location.pathname === '/contact') {
+            history.replaceState(null, '', '/contact');
+            var target = document.getElementById('contact');
+            if (target) setTimeout(function() { target.scrollIntoView({ behavior: 'smooth' }); }, 200);
+        }
+    </script>
 </body>
 
 </html>

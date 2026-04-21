@@ -370,7 +370,7 @@
 
     function buildHeader() {
         var onIndex = isIndexPage();
-        var contactHref = onIndex ? '#contact' : '/index.html#contact';
+        var contactHref = '/contact';
         var loginHref = onIndex ? '#' : '/index.html';
 
         var socialHtml = [
