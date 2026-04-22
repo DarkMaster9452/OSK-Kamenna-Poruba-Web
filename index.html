@@ -45,7 +45,8 @@
             display: contents;
         }
     </style>
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI" async
+    <script>window.__rcpReadyPromise = new Promise(function(r){window.__rcpReady=r;});</script>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI&onload=__rcpReady" async
         defer></script>
     <script src="/assets/js/session.js"></script>
     <script src="/assets/js/cloudinary-assets.js"></script>
@@ -4998,14 +4999,10 @@
 
             let recaptchaToken = null;
             try {
-                if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise) {
-                    await new Promise((resolve) => grecaptcha.enterprise.ready(resolve));
-                    recaptchaToken = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
-                } else {
-                    console.warn('[reCAPTCHA] grecaptcha.enterprise not available');
-                }
+                await window.__rcpReadyPromise;
+                recaptchaToken = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
             } catch (captchaErr) {
-                console.error('[reCAPTCHA] execute failed:', captchaErr);
+                console.warn('[reCAPTCHA] execute failed:', captchaErr);
             }
             console.log('[reCAPTCHA] token generated:', !!recaptchaToken);
 
