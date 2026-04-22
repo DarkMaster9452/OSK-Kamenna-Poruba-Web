@@ -5000,10 +5000,14 @@
 
             let recaptchaToken = null;
             try {
+                console.log('[reCAPTCHA] rcpReadyPromise:', typeof window.__rcpReadyPromise);
                 await window.__rcpReadyPromise;
-                recaptchaToken = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
+                console.log('[reCAPTCHA] ready resolved. grecaptcha:', typeof grecaptcha, '| enterprise:', typeof grecaptcha?.enterprise);
+                const result = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
+                console.log('[reCAPTCHA] execute result type:', typeof result, '| value:', result ? result.substring(0, 20) + '...' : result);
+                recaptchaToken = result;
             } catch (captchaErr) {
-                console.warn('[reCAPTCHA] execute failed:', captchaErr);
+                console.error('[reCAPTCHA] execute failed:', captchaErr);
             }
             console.log('[reCAPTCHA] token generated:', !!recaptchaToken);
 
