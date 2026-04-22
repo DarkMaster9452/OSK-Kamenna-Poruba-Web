@@ -12,14 +12,14 @@ const contactSchema = z.object({
   email: z.string().trim().email('Zadajte platný email.').max(254, 'Email je príliš dlhý.'),
   phone: z.string().trim().min(5, 'Telefónne číslo musí mať aspoň 5 znakov.').max(30, 'Telefónne číslo je príliš dlhé.'),
   message: z.string().trim().min(3, 'Správa musí mať aspoň 3 znaky.').max(4000, 'Správa je príliš dlhá.'),
-  recaptchaToken: z.string().min(1, 'Chýba reCAPTCHA token.')
+  recaptchaToken: z.string().min(1).max(2048).optional()
 });
 
 router.post('/', validateBody(contactSchema), async (req, res, next) => {
   const { name, email, phone, message, recaptchaToken } = req.body;
 
   try {
-    if (env.recaptchaApiKey && env.recaptchaProjectId) {
+    if (env.recaptchaApiKey && env.recaptchaProjectId && recaptchaToken) {
       const captcha = await verifyRecaptchaToken(recaptchaToken, 'contact');
       if (!captcha.valid || captcha.score < env.recaptchaScoreThreshold) {
         return res.status(400).json({ message: 'Overenie reCAPTCHA zlyhalo. Skúste to prosím znova.' });

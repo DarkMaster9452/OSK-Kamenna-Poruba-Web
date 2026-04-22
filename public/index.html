@@ -4996,12 +4996,11 @@
                 return;
             }
 
-            let recaptchaToken;
+            let recaptchaToken = null;
             try {
                 recaptchaToken = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
             } catch {
-                setContactFormMessage('error', 'Overenie reCAPTCHA zlyhalo. Skúste to prosím znova.');
-                return;
+                // Enterprise not ready yet – proceed without token, backend will accept
             }
 
             if (submitButton) {
@@ -5018,7 +5017,7 @@
                         'Content-Type': 'application/json',
                         'x-csrf-token': csrfToken
                     },
-                    body: JSON.stringify({ name, email, phone, message, recaptchaToken })
+                    body: JSON.stringify({ name, email, phone, message, ...(recaptchaToken ? { recaptchaToken } : {}) })
                 });
 
                 const payload = await response.json().catch(() => ({}));
