@@ -4998,6 +4998,7 @@
 
             let recaptchaToken = null;
             try {
+                await new Promise((resolve) => grecaptcha.enterprise.ready(resolve));
                 recaptchaToken = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
             } catch {
                 // Enterprise not ready yet – proceed without token, backend will accept
