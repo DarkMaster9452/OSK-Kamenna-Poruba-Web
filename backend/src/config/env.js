@@ -101,7 +101,11 @@ const env = {
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || '',
   cloudinaryRootFolder: process.env.CLOUDINARY_ROOT_FOLDER || '',
-  cloudinaryCacheSeconds: 604800
+  cloudinaryCacheSeconds: 604800,
+  recaptchaApiKey: process.env.RECAPTCHA_API_KEY || '',
+  recaptchaProjectId: process.env.RECAPTCHA_PROJECT_ID || '',
+  recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || '6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI',
+  recaptchaScoreThreshold: Number(process.env.RECAPTCHA_SCORE_THRESHOLD || 0.5)
 };
 
 if (env.nodeEnv === 'production' && env.jwtAccessSecret === 'dev_only_change_me') {

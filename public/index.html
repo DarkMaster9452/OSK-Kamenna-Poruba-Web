@@ -45,7 +45,7 @@
             display: contents;
         }
     </style>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI" async defer></script>
     <script src="/assets/js/session.js"></script>
     <script src="/assets/js/cloudinary-assets.js"></script>
     <style>
@@ -2158,16 +2158,6 @@
             min-width: 0;
         }
 
-        .contact-recaptcha-wrap {
-            width: 100%;
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-
-        .contact-recaptcha-wrap .g-recaptcha {
-            transform-origin: left top;
-        }
-
         @media (max-width: 768px) {
             .contact-grid {
                 gap: 20px !important;
@@ -2177,14 +2167,6 @@
             .contact-form-box {
                 padding: 20px !important;
             }
-
-            .contact-recaptcha-wrap {
-                min-height: 74px;
-            }
-
-            .contact-recaptcha-wrap .g-recaptcha {
-                transform: scale(0.86);
-            }
         }
 
         @media (max-width: 420px) {
@@ -2192,14 +2174,6 @@
             .contact-info-box,
             .contact-form-box {
                 padding: 16px !important;
-            }
-
-            .contact-recaptcha-wrap {
-                min-height: 68px;
-            }
-
-            .contact-recaptcha-wrap .g-recaptcha {
-                transform: scale(0.78);
             }
         }
 
@@ -3675,10 +3649,7 @@
                         </div>
                         <div id="contactFormMessage" role="status" aria-live="polite"
                             style="display:none; margin-bottom: 14px; padding: 10px; border-radius: 8px;"></div>
-                        <!-- reCAPTCHA – nahraď YOUR_SITE_KEY svojím kľúčom -->
-                        <div class="contact-recaptcha-wrap">
-                            <div class="g-recaptcha" data-sitekey="6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI"></div>
-                        </div>
+                        <!-- reCAPTCHA Enterprise – invisible, executed on submit -->
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Poslať
                             správu</button>
                     </form>
@@ -5024,9 +4995,11 @@
                 return;
             }
 
-            const recaptchaResponse = grecaptcha.getResponse();
-            if (!recaptchaResponse) {
-                setContactFormMessage('error', 'Prosím potvrďte, že nie ste robot.');
+            let recaptchaToken;
+            try {
+                recaptchaToken = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
+            } catch {
+                setContactFormMessage('error', 'Overenie reCAPTCHA zlyhalo. Skúste to prosím znova.');
                 return;
             }
 
@@ -5044,7 +5017,7 @@
                         'Content-Type': 'application/json',
                         'x-csrf-token': csrfToken
                     },
-                    body: JSON.stringify({ name, email, phone, message })
+                    body: JSON.stringify({ name, email, phone, message, recaptchaToken })
                 });
 
                 const payload = await response.json().catch(() => ({}));
