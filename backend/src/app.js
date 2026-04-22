@@ -56,7 +56,16 @@ function isOriginAllowed(origin, allowedOrigins) {
 app.get('/favicon.ico', (_req, res) => res.status(204).end());
 app.get('/favicon.png', (_req, res) => res.status(204).end());
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      'script-src': ["'self'", 'https://www.google.com', 'https://www.gstatic.com'],
+      'frame-src': ["'self'", 'https://www.google.com', 'https://recaptcha.google.com'],
+      'img-src': ["'self'", 'data:', 'https://www.gstatic.com'],
+    }
+  }
+}));
 app.use(
   cors({
     origin(origin, callback) {
