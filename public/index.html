@@ -45,10 +45,8 @@
             display: contents;
         }
     </style>
-    <script>window.__rcpReadyPromise = new Promise(function (r) { window.__rcpReady = r; });</script>
-    <script
-        src="https://www.google.com/recaptcha/enterprise.js?render=6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI&onload=__rcpReady"
-        async defer></script>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI" async
+        defer></script>
     <script src="/assets/js/session.js"></script>
     <script src="/assets/js/cloudinary-assets.js"></script>
     <style>
@@ -5000,14 +4998,16 @@
 
             let recaptchaToken = null;
             try {
-                console.log('[reCAPTCHA] rcpReadyPromise:', typeof window.__rcpReadyPromise);
-                await window.__rcpReadyPromise;
-                console.log('[reCAPTCHA] ready resolved. grecaptcha:', typeof grecaptcha, '| enterprise:', typeof grecaptcha?.enterprise);
+                console.log('[reCAPTCHA] grecaptcha keys:', typeof grecaptcha !== 'undefined' ? Object.keys(grecaptcha) : 'NOT LOADED');
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('timeout')), 5000);
+                    grecaptcha.enterprise.ready(() => { clearTimeout(timeout); resolve(); });
+                });
                 const result = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
-                console.log('[reCAPTCHA] execute result type:', typeof result, '| value:', result ? result.substring(0, 20) + '...' : result);
+                console.log('[reCAPTCHA] execute result:', typeof result, result ? result.substring(0, 20) + '...' : result);
                 recaptchaToken = result;
             } catch (captchaErr) {
-                console.error('[reCAPTCHA] execute failed:', captchaErr);
+                console.error('[reCAPTCHA] failed:', captchaErr?.message || captchaErr);
             }
             console.log('[reCAPTCHA] token generated:', !!recaptchaToken);
 
