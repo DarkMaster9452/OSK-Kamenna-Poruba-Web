@@ -18,6 +18,8 @@ const contactSchema = z.object({
 router.post('/', validateBody(contactSchema), async (req, res, next) => {
   const { name, email, phone, message, recaptchaToken } = req.body;
 
+  console.log('[contact] recaptchaToken present:', !!recaptchaToken, '| apiKey set:', !!env.recaptchaApiKey, '| projectId set:', !!env.recaptchaProjectId);
+
   try {
     if (env.recaptchaApiKey && env.recaptchaProjectId && recaptchaToken) {
       try {
