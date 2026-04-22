@@ -4998,12 +4998,16 @@
 
             let recaptchaToken = null;
             try {
-                await new Promise((resolve) => grecaptcha.enterprise.ready(resolve));
-                recaptchaToken = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
+                if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise) {
+                    await new Promise((resolve) => grecaptcha.enterprise.ready(resolve));
+                    recaptchaToken = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
+                } else {
+                    console.warn('[reCAPTCHA] grecaptcha.enterprise not available');
+                }
             } catch (captchaErr) {
                 console.error('[reCAPTCHA] execute failed:', captchaErr);
-                // Enterprise not ready yet – proceed without token, backend will accept
             }
+            console.log('[reCAPTCHA] token generated:', !!recaptchaToken);
 
             if (submitButton) {
                 submitButton.disabled = true;
