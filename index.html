@@ -4998,16 +4998,29 @@
 
             let recaptchaToken = null;
             try {
-                console.log('[reCAPTCHA] grecaptcha keys:', typeof grecaptcha !== 'undefined' ? Object.keys(grecaptcha) : 'NOT LOADED');
                 await new Promise((resolve, reject) => {
-                    const timeout = setTimeout(() => reject(new Error('timeout')), 5000);
-                    grecaptcha.enterprise.ready(() => { clearTimeout(timeout); resolve(); });
+                    const timeout = setTimeout(() => reject(new Error('grecaptcha load timeout')), 8000);
+                    const check = () => {
+                        if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise) {
+                            clearTimeout(timeout);
+                            resolve();
+                        } else {
+                            setTimeout(check, 100);
+                        }
+                    };
+                    check();
                 });
-                const result = await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' });
-                console.log('[reCAPTCHA] execute result:', typeof result, result ? result.substring(0, 20) + '...' : result);
-                recaptchaToken = result;
+                recaptchaToken = await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('ready timeout')), 5000);
+                    grecaptcha.enterprise.ready(async () => {
+                        clearTimeout(timeout);
+                        try {
+                            resolve(await grecaptcha.enterprise.execute('6LfPIIwsAAAAAPBfd1uNsN4NICZGv7Esl6CC6wjI', { action: 'contact' }));
+                        } catch (e) { reject(e); }
+                    });
+                });
             } catch (captchaErr) {
-                console.error('[reCAPTCHA] failed:', captchaErr?.message || captchaErr);
+                console.warn('[reCAPTCHA] failed:', captchaErr?.message || captchaErr);
             }
             console.log('[reCAPTCHA] token generated:', !!recaptchaToken);
 
