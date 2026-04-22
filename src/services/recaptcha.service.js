@@ -42,8 +42,15 @@ async function verifyRecaptchaToken(token, expectedAction) {
     throw new Error('Invalid response from reCAPTCHA Enterprise API.');
   }
 
+  if (assessment.error) {
+    console.error('[reCAPTCHA] API error:', JSON.stringify(assessment.error));
+    throw new Error(`reCAPTCHA API error: ${assessment.error.message || assessment.error.status}`);
+  }
+
   const tokenProps = assessment.tokenProperties || {};
   const riskAnalysis = assessment.riskAnalysis || {};
+
+  console.log('[reCAPTCHA] assessment result:', JSON.stringify({ valid: tokenProps.valid, score: riskAnalysis.score, action: tokenProps.action, invalidReason: tokenProps.invalidReason }));
 
   if (!tokenProps.valid) {
     return { valid: false, score: 0, action: tokenProps.action || '', reason: tokenProps.invalidReason || 'INVALID_TOKEN' };

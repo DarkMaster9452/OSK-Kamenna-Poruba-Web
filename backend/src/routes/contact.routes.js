@@ -20,9 +20,15 @@ router.post('/', validateBody(contactSchema), async (req, res, next) => {
 
   try {
     if (env.recaptchaApiKey && env.recaptchaProjectId && recaptchaToken) {
-      const captcha = await verifyRecaptchaToken(recaptchaToken, 'contact');
-      if (!captcha.valid || captcha.score < env.recaptchaScoreThreshold) {
-        return res.status(400).json({ message: 'Overenie reCAPTCHA zlyhalo. Skúste to prosím znova.' });
+      try {
+        const captcha = await verifyRecaptchaToken(recaptchaToken, 'contact');
+        if (!captcha.valid || captcha.score < env.recaptchaScoreThreshold) {
+          console.warn('[contact] reCAPTCHA failed:', captcha);
+          return res.status(400).json({ message: 'Overenie reCAPTCHA zlyhalo. Skúste to prosím znova.' });
+        }
+      } catch (captchaError) {
+        console.error('[contact] reCAPTCHA verification error:', captchaError.message);
+        // Continue – don't block email on reCAPTCHA API failure
       }
     }
 
