@@ -27,22 +27,12 @@ function isConfigured() {
   return configured;
 }
 
-const WEB_SAFE_IMAGE_FORMATS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif', 'ico']);
-
 function buildDeliveryUrl(resource) {
-  const url = resource?.secure_url || '';
-  const format = String(resource?.format || '').toLowerCase();
-
-  if (!url || WEB_SAFE_IMAGE_FORMATS.has(format)) {
-    return url;
-  }
-
-  return url.replace('/image/upload/', '/image/upload/f_auto/');
+  return resource?.secure_url || '';
 }
 
 function buildThumbnailUrl(secureUrl) {
-  if (!secureUrl || !secureUrl.includes('/image/upload/')) return secureUrl || '';
-  return secureUrl.replace('/image/upload/', '/image/upload/w_400,q_auto,f_auto/');
+  return secureUrl || '';
 }
 
 const NON_IMAGE_FORMATS = new Set(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar']);
